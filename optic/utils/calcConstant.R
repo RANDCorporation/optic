@@ -4,8 +4,8 @@
 #' 
 #' @param m month integer
 calcConstant <- function(m) {
-  if (!is.integer(m)) {
-    stop("'m' (month) must be an integer.")
+  if (!is.numeric(m)) {
+    stop("'m' (month) must be an numeric representation.")
   }
   
   v <- 0
