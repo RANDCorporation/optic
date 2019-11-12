@@ -1,6 +1,6 @@
 #' Calculate mean squared error
 #' 
-#' @param x vector or errors (residuals)
+#' @param x vector of errors (residuals)
 mse <- function(x) {
-  return(mean(x^2,na.rm=T))
+  return(mean(x^2, na.rm=T))
 }
