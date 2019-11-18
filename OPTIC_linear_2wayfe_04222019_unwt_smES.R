@@ -56,6 +56,11 @@ library(lmtest)
 
 coverage<-function(beta,se,cf,te)
 {
+  # percentage of time the 95% CI actually covers true treatment effect estimate
+  # beta: coefficient of interest (vector of all iters treatment coeff)
+  # se: standard error for that coefficient (vector of associated se's)
+  # cf: correction factor, type I error (single constant)
+  # te: true treatment effect
 se=se*cf
 ind=rep(0,iters)
 low95=beta-1.96*se
@@ -67,6 +72,7 @@ return(sum(ind)/iters)
 #function needed for slow coding
 const<-function(m)
 {
+  # m: month integer
   v=0
   if(m!=0)
   {
@@ -81,8 +87,14 @@ const<-function(m)
 
 
 #function needed for slow coding
+#RENAMED METHOD: calculateExposure.R
 slow.acting<-function(month,length,monthly.effect)
 {
+  # creating needed levels coding for when the law takes a while to become effective
+  # (create vector of exposure level for each state and policy)
+  # month: month of enactment (integer representation)
+  # length: number of years it takes (integer representation)
+  # monthly.effect: increment exposure per month by this amount (constant rate)
   top=length-1
   total.times<-c(1:top) #creating length+1 spline values for the slow acting time span
   #compute year 1 average effect
@@ -113,6 +125,9 @@ pval.bin<-function(p)
 # Calculate correction factor for standard error 
 corr.factor<-function(t.stats)
 {
+  # used on models in null simulation when policy has no effect
+  # f test with t-stats
+  # gee model uses wald stats
   f.stats=(t.stats)^2
   f.stats=sort(f.stats)
   high.cut=0.95*iters
@@ -125,6 +140,10 @@ corr.factor<-function(t.stats)
 #formula for correcting p-values using correction factor
 adj.ps<-function(regn.coeffs,ses,cf)
 {
+  # non-null runs, when there is a true effect, need to adjust all models to ensure proper type I error rates
+  # regression coeff and SE from all iterations and single CF for model; adjusted standard errors (inflated)
+  # and compute 95% CI and new p values
+  # "adjust stata significance"
   adj.ses=sqrt(ses)*cf
   low95=regn.coeffs-1.96*adj.ses
   high95=regn.coeffs+1.96*adj.ses
@@ -146,6 +165,8 @@ adj.ps<-function(regn.coeffs,ses,cf)
 #type S  when true effect is negative
 type.s<-function(betas,pvals,effect.direction)
 {
+  # how often the model gets the effect in the wrong direction
+  # number of significant betas of certain direction divided by all significant betas
   if(length(betas[pvals<0.05])!=0)
   {
     if(effect.direction=="neg"){
@@ -162,6 +183,8 @@ type.s<-function(betas,pvals,effect.direction)
 
 test.cf<-function(regn.coeffs,ses,cf,effect.direction)
 {
+  # correction factor adjusting for type s error
+  # "correct rejection rate"
   adj.ses=sqrt(ses)*cf
   low95=regn.coeffs-1.96*adj.ses
   high95=regn.coeffs+1.96*adj.ses
@@ -187,6 +210,8 @@ test.cf<-function(regn.coeffs,ses,cf,effect.direction)
 
 #needed for performing cluster adjustment to standard errors
 robust.se <- function(model, cluster){
+  # cluster adjustment to SEs
+  # (NEED CITE)
  require(sandwich)
  require(lmtest)
  M <- length(unique(cluster))
@@ -201,6 +226,8 @@ robust.se <- function(model, cluster){
 
 # The main simulation generator and output function
 run.sim = function(code.speed, effect.direction){
+  # code.speed: "instant", "slow"
+  # effect.direction: "pos", "neg", "null"
   
   #creating matrix to hold 4 key regression results a
   #Column 1 = estimated effect (regression coefficient)
@@ -211,18 +238,22 @@ run.sim = function(code.speed, effect.direction){
 #WHEN CHANGE THE NUMBER OF SAMPLE SIZES YOU ARE CONSIDERING - NEED TO CHANGE THIS
   stats.matrix1=list(matrix(0,iters,4),matrix(0,iters,4),matrix(0,iters,4),matrix(0,iters,4)) 
   stats.matrix1h=list(matrix(0,iters,4),matrix(0,iters,4),matrix(0,iters,4),matrix(0,iters,4)) 
-  stats.matrix1cl=list(matrix(0,iters,4),matrix(0,iters,4),matrix(0,iters,4),matrix(0,iters,4)) 
+  stats.matrix1cl=list(matrix(0,iters,4),matrix(0,iters,4),matrix(0,iters,4),matrix(0,iters,4))
+  
+  # TODO: remove
   stats.matrix1hcl=list(matrix(0,iters,4),matrix(0,iters,4),matrix(0,iters,4),matrix(0,iters,4)) 
   
   #use same seed for all effects
   set.seed(1234567)
   
   #outer loop covers 4 different treated states sample sizes
+  # j is number of treated states (currently used to index vector)
   for(j in 1:4)
   {
     n.trt=n.states[j]
     
     #inner loop created the needed iters of simulated datasets where gun policy has a nonzero effect on outcomes
+    # k is iteration
     for(k in 1:iters)
     {
       
@@ -238,6 +269,7 @@ run.sim = function(code.speed, effect.direction){
 #Q1
 ###
       #here allowing for one year pre control and one year full post - in Gun did 5 years post
+      # TODO: update, 3 year pre three year post (data from 1999-2016) so all fall within these years
       years.enacted=sample(c(2002:2013),n.trt,replace=TRUE) 
       
       #randomly sample the month the law was enacted for each treated state
@@ -256,7 +288,9 @@ run.sim = function(code.speed, effect.direction){
           month=month.enacted[s]
           values=slow.acting(month,length,monthly.effect = (1/length)/12)
           mark=length+1
+          # last year after which law is fully effective
           mark2=years.enacted[s]+length
+          # generalize to end year of data
           check=2016-years.enacted[s]
           if(check>=length(values))
           {
@@ -288,6 +322,8 @@ run.sim = function(code.speed, effect.direction){
           }
           
           #Creating change levels coding 
+          # only used in autoregressive models; difference between current year treatment and
+          # prior year treatment dosage/ramp up
           x$ch.levels.coding=rep(0,nrow(x))
           
           for(s in 1:n.trt)
@@ -305,6 +341,7 @@ run.sim = function(code.speed, effect.direction){
         ##################
         
         if (link == "linear"){
+          # TODO: generalize outcome in section
           x$cr.adj=x$Crude.Rate+te*x$levels.coding
         }
         if (link == "log-lin"){
@@ -312,6 +349,7 @@ run.sim = function(code.speed, effect.direction){
           x$cr.adj=exp(x$logY.adj)
         }
         if (link == "log"){
+          # TODO: outcomes are switched up here...
           x$deaths.adj=x$Deaths+x$Deaths*(te-1)*x$levels.coding
           x$deaths.adj=round(x$deaths.adj)
           x$cr.adj=(x$deaths.adj*100000)/x$POPULATION
@@ -361,6 +399,7 @@ m1=lm(cr.adj~levels.coding+as.factor(YEAR)+as.factor(STATE)+ UNEMPLOYMENTRATE,da
       stats.matrix1h[[j]][k,4] =2*pnorm(abs(coef(m1)/std.err), lower.tail=FALSE)[2]
       
       #Huber + cluster
+      # TODO: REMOVE
       cov.m1<- vcovHC(m1, type="HC1",cluster="STATE",method="arellano")
       std.err <- sqrt(diag(cov.m1))
       
@@ -459,6 +498,7 @@ stats1.cf[mark3]=corr.factor(stats.matrix1cl[[j]][,3])
 stats1.cf[mark4]=corr.factor(stats.matrix1hcl[[j]][,3])
     }
     
+    # TODO: Important! get's called by non-null runs
     file2=paste("Correction_Factors_",code.speed,"_",model.name,".csv",sep="")
     write.table(stats1.cf,file2,sep=",",row.names=F)
     
@@ -466,7 +506,7 @@ stats1.cf[mark4]=corr.factor(stats.matrix1hcl[[j]][,3])
   }else{
     stats1=matrix(0,16,4)
     
-    #Calculate bias 
+    #Calculate bias (differently for linear vs log-linear/log)
     if (link=="linear"){
       for(j in 1:4)
       {
@@ -564,13 +604,13 @@ stats1[mark4,4]=coverage(stats.matrix1hcl[[j]][,1],sqrt(stats.matrix1hcl[[j]][,2
 #############################################
 #Step 1: Prepare the data for the simulation
 #############################################
-
+start_time <- Sys.time()
 #done via modeling building file 
 
 #trying poppy
 #setwd("C:/Users/bethg/Documents/OPTIC/Simulation Project/results")
-setwd("//poppy/data/derived_data/bethg")
-load("optic_sim_data_exp.Rdata")
+#setwd("//poppy/data/derived_data/bethg")
+load("data/optic_sim_data_exp.Rdata")
 
 ####################################################################################################
 #Step 2. Set general simulation parameters
@@ -720,3 +760,8 @@ names(all.results) =c("n.states","se.adj","results.bias.instant","results.bias.s
                                "results.coverage.instant","results.coverage.slow")
 file4 = paste("All_Results_NonZeroEffect_",model.name,".csv",sep="")
 write.table(all.results,file4,sep=",",row.names=F)
+
+end_time <- Sys.time()
+
+total_time <- end_time - start_time
+print(total_time)

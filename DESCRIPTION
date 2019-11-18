@@ -1,0 +1,19 @@
+Package: optic
+Title: OPTIC
+Description: Implements simulation work to assess the strengths and weaknesses
+    of various model and analytic approaches to evaluating policy that responds
+    to the opioid crisis.
+Version: 0.1
+Authors@R: c(
+    person("Geoffrey", "Grimm", email="ggrimm@rand.org", role=c("cre", "aut")),
+    person("Beth Ann", "Griffin", email="bethg@rand.org", role=c("aut")))
+Depends: R (>= 3.6.0)
+License: file LICENSE
+Imports:
+    twang,
+    dplyr,
+    DataCombine,
+    MASS,
+    sandwich,
+    lmtest
+RoxygenNote: 6.1.1

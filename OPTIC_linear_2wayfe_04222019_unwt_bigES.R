@@ -139,7 +139,7 @@ adj.ps<-function(regn.coeffs,ses,cf)
       new.p[i]=0
     }
   }
-  return(new.p) 
+  return(new.p)
 }
 
 
@@ -686,6 +686,7 @@ for (i in c("instant","slow")){
   #bias
   results.bias=(results.neg.bias+results.pos.bias)/2
   
+  # TODO: BA needs to check these
   results.magbias=(results.pos.bias-results.neg.bias)/2
 
   #power
