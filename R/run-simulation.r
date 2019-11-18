@@ -6,7 +6,7 @@
 #' @param iters number of iterations to run
 #' @param n_states number of states to treat
 #' @param policy_speed "instant" (default) or "slow"
-runSimulation <- function(data, model_type, target_deaths, iters, n_states, effect_direction, policy_speed) {
+run_simulation <- function(data, model_type, target_deaths, iters, n_states, effect_direction, policy_speed) {
   
 }
 

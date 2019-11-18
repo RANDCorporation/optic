@@ -5,7 +5,7 @@
 #' @param n_years number of months until full implementation in effect
 #' @param month_effect increment of exposure to apply each month; default is
 #'     ((1/n_years) / 12) (constant over the period)
-calculateExposure <- function(month, n_years, monthly_effect=(1 / n_years) / 12) {
+calculate_exposure <- function(month, n_years, monthly_effect=(1 / n_years) / 12) {
   top <- n_years - 1
   total_times <- 1:top
   

@@ -5,7 +5,7 @@
 #' @param betas vector of regression coefficients
 #' @param pvals vector of p values for betas
 #' @param effect_direction direction of true effect
-typeSError <- function(betas, pvals, effect_direction) {
+type_s_error <- function(betas, pvals, effect_direction) {
   if (length(betas[pvals < 0.05]) != 0) {
     if (effect.direction == "neg") {
       s_error <- length(betas[betas > 0 & pvals < 0.05]) / length(betas[pvals < 0.05])

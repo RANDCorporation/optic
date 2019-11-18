@@ -4,7 +4,7 @@
 #' @param total_population
 #' @param number_years
 #' @param model_type "linear", "log", or "log-lin"
-generateEffectMagnitudes <- function(target_deaths, total_population, number_years, model_type) {
+generate_effect_magnitudes <- function(target_deaths, total_population, number_years, model_type) {
   
   
 }
