@@ -1,13 +1,19 @@
 #' TODO: docstring
 #' 
-#' @param data data.frame or tibble object containing required fields (see Details for more)
-#' @param model_type "linear" (default), "log", or "log-lin"
-#' @param target_deaths target number of change in deaths per 100,000 to use when calculating true effect
-#' @param iters number of iterations to run
-#' @param n_states number of states to treat
-#' @param policy_speed "instant" (default) or "slow"
-run_simulation <- function(data, model_type, target_deaths, iters, n_states, effect_direction, policy_speed) {
+run_simulation <- function(ConfigObject) {
+  # THIS IS ONE ITERATION OF SIM
+  
+  # sample treated units and get years and exposure based on policy speed
+  treated_units <- get_treated_units(ConfigObject, ConfigObject$policy_speed)
+  
+  # apply exposure (treatment) information to data
+  apply_exposure(treated_units, ConfigObject)
+  
+  # apply treatment effect
+  te <- effect_magnitude(ConfigObject)
+  apply_treatment_effect(ConfigObject, te)
   
 }
+
 
 

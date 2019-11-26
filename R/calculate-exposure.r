@@ -18,7 +18,7 @@ calculate_exposure <- function(month, n_years, monthly_effect=(1 / n_years) / 12
   mid_years_values <- average_effect_over_year1 + total_times * (1 / n_years)
   
   # final year
-  final_year_value <- ((13 - month) * 1 + (month - 1) - calcConstant(month - 1) * monthly_effect) / 12
+  final_year_value <- ((13 - month) * 1 + (month - 1) - calc_constant(month - 1) * monthly_effect) / 12
   
   return(c(average_effect_over_year1, mid_years_values, final_year_value))
 }
