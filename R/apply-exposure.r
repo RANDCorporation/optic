@@ -1,3 +1,8 @@
+#' apply exposure
+#' 
+#' @importFrom magrittr %>%
+#' 
+#' @export
 apply_exposure <- function(treated_units, ConfigObject) {
   ConfigObject$data$treatment <- 0
   for (t_state in names(treated_units)) {
@@ -6,7 +11,7 @@ apply_exposure <- function(treated_units, ConfigObject) {
       exposure <- treated_units[[t_state]][["exposure"]][i]
       
       ConfigObject$data <- ConfigObject$data %>%
-        mutate(treatment = ifelse(state == t_state & year == yr, exposure, treatment))
+        dplyr::mutate(treatment = ifelse(state == t_state & year == yr, exposure, treatment))
     }
   }
 }

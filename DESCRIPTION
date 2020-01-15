@@ -10,8 +10,12 @@ Authors@R: c(
 Depends: R (>= 3.6.0)
 License: file LICENSE
 Imports:
-    twang,
     dplyr,
+    tidyr,
+    rlang,
+    magrittr,
+    R6,
+    twang,
     DataCombine,
     MASS,
     sandwich,

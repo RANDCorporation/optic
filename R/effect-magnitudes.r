@@ -1,9 +1,15 @@
+#' calculate the true effect for an OpticConfig object
+#' 
+#' @param ConfigObject R6Class object of class OpticConfig
+#' 
+#' @export
 effect_magnitude <- function(ConfigObject) {
   stopifnot("OpticConfig" %in% class(ConfigObject))
   UseMethod("effect_magnitude", ConfigObject)
 }
 
 
+#' calculate true effect for linear model
 effect_magnitude.linear <- function(ConfigObject) {
   target_deaths <- ConfigObject$target_deaths
   total_population <- ConfigObject$total_population
@@ -18,6 +24,7 @@ effect_magnitude.linear <- function(ConfigObject) {
 }
 
 
+# calculate true effect for log model
 effect_magnitude.log <- function(ConfigObject) {
   target_deaths <- ConfigObject$target_deaths
   total_deaths <- ConfigObject$total_deaths
@@ -34,6 +41,7 @@ effect_magnitude.log <- function(ConfigObject) {
 }
 
 
+#' calculate true effect for log-linear model
 effect_magnitude.loglinear <- function(ConfigObject) {
   target_deaths <- ConfigObject$target_deaths
   total_deaths <- ConfigObject$total_deaths

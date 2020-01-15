@@ -5,12 +5,16 @@
 #' @param se vector of standard errors for coefficients provided in beta
 #' @param cf correction factor (single constant)
 #' @param te true treatment effect
-coverage <- function(beta, se, cf, te) {
+#' 
+#' @export
+coverage <- function(beta, se, te, cf=NULL, use_cf=FALSE) {
   if (length(beta) != length(se)) {
     stop("vectors provided for 'beta' and 'se' must be equal length")
   }
   
-  se <- se * cf
+  if (use_cf) {
+    se <- se * cf
+  }
   ind <- rep(0, length(beta))
   low95 <- beta - (1.96 * se)
   high95 <- beta + (1.96 * se)

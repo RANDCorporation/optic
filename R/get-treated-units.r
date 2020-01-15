@@ -1,3 +1,8 @@
+#' get treated units
+#' 
+#' @importFrom magrittr %>%
+#' 
+#' @export
 get_treated_units <- function(ConfigObject, policy_speed) {
   # randomly sample the states
   states <- sample(unique(ConfigObject$data$state), ConfigObject$n_states, replace=FALSE)
@@ -5,7 +10,17 @@ get_treated_units <- function(ConfigObject, policy_speed) {
   # randomly sample the year and month the policy will take effect for each state
   treated <- list()
   for (state in states) {
-    yr <- sample(unique(ConfigObject$data$year), 1)
+    if (is.null(ConfigObject$time_periods)) {
+      available_years <- unique(ConfigObject$data$year)
+    } else {
+      available_years <- unique(
+        ConfigObject$data %>%
+          dplyr::filter(year %in% ConfigObject$time_periods) %>%
+          dplyr::pull(year)
+      )
+    }
+    
+    yr <- sample(available_years, 1)
     mo <- sample(1:12, 1)
     
     if (policy_speed == "slow") {
@@ -27,7 +42,7 @@ get_treated_units <- function(ConfigObject, policy_speed) {
       treated[[state]] <- list(
         policy_years = yr:max(ConfigObject$data$year, na.rm=TRUE),
         policy_month = mo,
-        exposure = rep(1, length(yr:max(ConfigObject$data$year, na.rm=TRUE)))
+        exposure = c((12 - mo + 1)/12, rep(1, length((yr + 1):max(ConfigObject$data$year, na.rm=TRUE))))
       )
     }
   }
