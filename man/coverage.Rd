@@ -5,16 +5,16 @@
 \title{calculate percentage of time the 95 percent CI actually covers the true
 treatment effect estimate}
 \usage{
-coverage(beta, se, cf, te)
+coverage(beta, se, te, cf = NULL, use_cf = FALSE)
 }
 \arguments{
 \item{beta}{vector of coefficients}
 
 \item{se}{vector of standard errors for coefficients provided in beta}
 
-\item{cf}{correction factor (single constant)}
-
 \item{te}{true treatment effect}
+
+\item{cf}{correction factor (single constant)}
 }
 \description{
 calculate percentage of time the 95 percent CI actually covers the true
