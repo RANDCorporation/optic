@@ -34,7 +34,7 @@ apply_treatment_effect.log <- function(ConfigObject, te) {
     ConfigObject$data$crude_adjusted_rate <- (ConfigObject$outcome * 100000) / ConfigObject$data$population
   }  else {
     ConfigObject$data$outcome <- ConfigObject$data[[ConfigObject$outcome]]
-    ConfigObject$data$crude_adjusted_rate <- (ConfigObject$outcome * 100000) / ConfigObject$data$population
+    ConfigObject$data$crude_adjusted_rate <- (ConfigObject$data$outcome * 100000) / ConfigObject$data$population
   }
 }
 

@@ -18,13 +18,13 @@ correct_rejection_rate <- function(coeffs, ses, cf, effect_direction="null") {
     # 1 if confidence interval does not contain 0
     sig_dummy <- as.integer((low95 < 0 & high95 > 0) == FALSE)
     # if significant but in the wrong direction, set to 0
-    sig_dummy[sig_dumy == 1 & coeffs < 0] <- 0
+    sig_dummy[sig_dummy == 1 & coeffs < 0] <- 0
   } else if (effect_direction == "neg") {
     # 1 if confidence interval does not contain 0
     sig_dummy <- as.integer((low95 < 0 & high95 > 0) == FALSE)
     # if significant but in the wrong direction, set to 0
-    sig_dummy[sig_dumy == 1 & coeffs > 0] <- 0
+    sig_dummy[sig_dummy == 1 & coeffs > 0] <- 0
   }
   
-  return(sig_dummy)
+  return(mean(sig_dummy))
 }

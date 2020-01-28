@@ -8,8 +8,11 @@
 #' 
 #' @export
 type_s_error <- function(betas, pvals, effect_direction) {
+  if (effect_direction == "null") {
+    return(NA)
+  }
   if (length(betas[pvals < 0.05]) != 0) {
-    if (effect.direction == "neg") {
+    if (effect_direction == "neg") {
       s_error <- length(betas[betas > 0 & pvals < 0.05]) / length(betas[pvals < 0.05])
     }else{
       s_error <- length(betas[betas < 0 & pvals < 0.05]) / length(betas[pvals < 0.05])

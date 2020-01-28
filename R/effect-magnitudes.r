@@ -10,6 +10,7 @@ effect_magnitude <- function(ConfigObject) {
 
 
 #' calculate true effect for linear model
+#' @export
 effect_magnitude.linear <- function(ConfigObject) {
   target_deaths <- ConfigObject$target_deaths
   total_population <- ConfigObject$total_population
@@ -24,7 +25,8 @@ effect_magnitude.linear <- function(ConfigObject) {
 }
 
 
-# calculate true effect for log model
+#' calculate true effect for log model
+#' @export
 effect_magnitude.log <- function(ConfigObject) {
   target_deaths <- ConfigObject$target_deaths
   total_deaths <- ConfigObject$total_deaths
@@ -42,6 +44,7 @@ effect_magnitude.log <- function(ConfigObject) {
 
 
 #' calculate true effect for log-linear model
+#' @export
 effect_magnitude.loglinear <- function(ConfigObject) {
   target_deaths <- ConfigObject$target_deaths
   total_deaths <- ConfigObject$total_deaths

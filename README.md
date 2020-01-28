@@ -76,6 +76,10 @@ for (i in 1:ConfigObject$iters) {
 
 # combine results together
 full_results <- do.call("rbind", results)
+
+# get summary information
+ConfigObject$iter_results <- full_results
+summary_info(ConfigObject)
 ```
 #### Multithreaded Example
 
@@ -145,4 +149,8 @@ plan(sequential)
 
 # combine results together
 full_results <- do.call("rbind", results)
+
+# get summary information
+ConfigObject$iter_results <- full_results
+summary_info(ConfigObject)
 ```

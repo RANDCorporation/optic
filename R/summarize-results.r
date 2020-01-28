@@ -1,3 +1,4 @@
+#' @export
 summarize_results <- function(ConfigObject) {
   stopifnot("OpticConfig" %in% class(ConfigObject))
   UseMethod("summarize_results", ConfigObject)
@@ -32,12 +33,108 @@ summarize_results <- function(ConfigObject) {
 
 
 #' @importFrom magrittr %>%
-summarize_results.null <- function(ConfigObject) {
-  all_iters <- ConfigObject$iter_results
-  
-  all_iters <- all_iters %>%
-    dplyr::group_by(se_adjustment) %>%
-    dplyr::summarize(
-      type1_error = mean(pval_flag(p_value))
-    )
+#' @export
+summarize_results.lm <- function(ConfigObject) {
+  if (ConfigObject$effect_direction == "null") {
+    te <- effect_magnitude(ConfigObject)
+    all_iters <- ConfigObject$iter_results
+    
+    # general summary information
+    summary_info <- all_iters %>%
+      dplyr::group_by(se_adjustment) %>%
+      dplyr::summarize(
+        type1_error = mean(pval_flag(p_value)),
+        estimate = mean(estimate),
+        se = mean(se),
+        variance = mean(variance),
+        # TODO: change this to depend on method call, grab correct stat column to summarize
+        t_stat = mean(t_stat),
+        mse = mean(mse),
+        bias = mean(estimate - te)
+      )
+    
+    # correction factors from null model
+    correction_factors <- all_iters %>%
+      dplyr::group_by(se_adjustment) %>%
+      dplyr::summarize(correction_factor = correction_factor(t_stat))
+    
+    # extra summary information
+    power_info <- all_iters %>%
+      dplyr::group_by(se_adjustment) %>%
+      dplyr::group_modify(~as.data.frame(correct_rejection_rate(
+        .x$estimate,
+        .x$se,
+        correction_factors$correction_factor[correction_factors$se_adjustment == .y$se_adjustment],
+        ConfigObject$effect_direction))
+      )
+    names(power_info) <- c("se_adjustment", "power")
+    
+    typeS_error <- all_iters %>%
+      dplyr::group_by(se_adjustment) %>%
+      dplyr::group_modify(~as.data.frame(type_s_error(
+        .x$estimate,
+        .x$p_value,
+        ConfigObject$effect_direction
+      )))
+    names(typeS_error) <- c("se_adjustment", "type_s_error")
+    
+    summary_info <- dplyr::left_join(summary_info, power_info, by="se_adjustment")
+    summary_info <- dplyr::left_join(summary_info, typeS_error, by="se_adjustment")
+    
+    return(summary_info)
+  }
 }
+
+#' @importFrom magrittr %>%
+#' @export
+summarize_results.glm.nb <- function(ConfigObject) {
+  if (ConfigObject$effect_direction == "null") {
+    te <- effect_magnitude(ConfigObject)
+    all_iters <- ConfigObject$iter_results
+    
+    # general summary information
+    summary_info <- all_iters %>%
+      dplyr::group_by(se_adjustment) %>%
+      dplyr::summarize(
+        type1_error = mean(pval_flag(p_value)),
+        estimate = mean(estimate),
+        se = mean(se),
+        variance = mean(variance),
+        # TODO: change this to depend on method call, grab correct stat column to summarize
+        z_stat = mean(z_stat),
+        mse = mean(mse),
+        bias = mean(estimate - te)
+      )
+    
+    # correction factors from null model
+    correction_factors <- all_iters %>%
+      dplyr::group_by(se_adjustment) %>%
+      dplyr::summarize(correction_factor = correction_factor(z_stat))
+    
+    # extra summary information
+    power_info <- all_iters %>%
+      dplyr::group_by(se_adjustment) %>%
+      dplyr::group_modify(~as.data.frame(correct_rejection_rate(
+        .x$estimate,
+        .x$se,
+        correction_factors$correction_factor[correction_factors$se_adjustment == .y$se_adjustment],
+        ConfigObject$effect_direction))
+      )
+    names(power_info) <- c("se_adjustment", "power")
+    
+    typeS_error <- all_iters %>%
+      dplyr::group_by(se_adjustment) %>%
+      dplyr::group_modify(~as.data.frame(type_s_error(
+        .x$estimate,
+        .x$p_value,
+        ConfigObject$effect_direction
+      )))
+    names(typeS_error) <- c("se_adjustment", "type_s_error")
+    
+    summary_info <- dplyr::left_join(summary_info, power_info, by="se_adjustment")
+    summary_info <- dplyr::left_join(summary_info, typeS_error, by="se_adjustment")
+    
+    return(summary_info)
+  }
+}
+
