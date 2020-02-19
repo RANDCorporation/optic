@@ -24,7 +24,7 @@
 #' @importFrom R6 R6Class
 #' 
 #' @export
-OpticConfig <- R6Class("OpticConfig", public=list(
+OpticConfig <- R6::R6Class("OpticConfig", public=list(
   data=NULL,
   model_type=NULL,
   method_call=NULL,
@@ -44,10 +44,13 @@ OpticConfig <- R6Class("OpticConfig", public=list(
   summary_results=NULL,
   lag_outcome=FALSE,
   se_adjust=NULL,
+  concurrent=FALSE,
+  correction_factors=NULL,
   
   initialize = function(data, model_type, method_call, model_params, iters, target_deaths, effect_direction, n_states,
-                        policy_speed, outcome, se_adjust=c("huber", "cluster", "huber-cluster"),
-                        lag_outcome=FALSE, number_implementation_years=NULL, set_seed=FALSE, time_periods=NULL) {
+                        policy_speed, outcome, se_adjust=c("huber", "cluster", "huber-cluster"), concurrent=FALSE,
+                        lag_outcome=FALSE, number_implementation_years=NULL, set_seed=FALSE, time_periods=NULL,
+                        correction_factors=NULL) {
     # input/data validation
     datafields <- c("population", "deaths", "year", "state")
     stopifnot(is.data.frame(data))
