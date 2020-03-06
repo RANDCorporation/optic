@@ -7,7 +7,7 @@
 iter_results_concurrent_wjointeff(m, ConfigObject)
 }
 \arguments{
-\item{m}{model object\}
+\item{m}{}
 }
 \description{
 iter results
