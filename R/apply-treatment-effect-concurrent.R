@@ -31,10 +31,10 @@ apply_treatment_effect_concurrent.log <- function(ConfigObject, te) {
                                    ConfigObject$data[[ConfigObject$outcome]] *
                                    (te - 1) * ConfigObject$data$treatment1*(te - 1) * ConfigObject$data$treatment2
     ConfigObject$data$outcome <- round2(ConfigObject$data$outcome, 0)
-    ConfigObject$data$crude_adjusted_rate <- (ConfigObject$outcome * 100000) / ConfigObject$data$population
+    ConfigObject$data$crude_adjusted_rate <- (ConfigObject$data$outcome * 100000) / ConfigObject$data$population
   }  else {
     ConfigObject$data$outcome <- ConfigObject$data[[ConfigObject$outcome]]
-    ConfigObject$data$crude_adjusted_rate <- (ConfigObject$outcome * 100000) / ConfigObject$data$population
+    ConfigObject$data$crude_adjusted_rate <- (ConfigObject$data$outcome * 100000) / ConfigObject$data$population
   }
 }
 

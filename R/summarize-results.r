@@ -47,7 +47,7 @@ summarize_results.lm <- function(ConfigObject) {
     names(two) <- c("se_adjustment", "estimate", "se", "variance", "t_stat", "p_value")
     two$joint_model <- "concurrent-2"
     joint <- all_iters[, c("se_adjustment", joint)]
-    names(joint) <- c("se_adjustment", "estimate", "se", "p_value")
+    names(joint) <- c("se_adjustment", "estimate", "se","variance", "t_stat", "p_value")
     joint$joint_model <- "joint"
     all_iters <- dplyr::bind_rows(one, two, joint)
     
@@ -70,9 +70,28 @@ summarize_results.lm <- function(ConfigObject) {
       variance = mean(variance),
       # TODO: change this to depend on method call, grab correct stat column to summarize
       t_stat = mean(t_stat),
-      mse = mean(mse),
-      bias = mean(estimate - te)
+      #for concurrent - we need to have joint.te = 2*te; how do we adjust?
+      mse = mean((estimate - te)^2),
+      bias = mean(estimate - te) 
     )
+  
+  if (ConfigObject$concurrent) {
+  summary_info_joint <- all_iters %>%
+    dplyr::group_by(!!!groups) %>%
+    dplyr::summarize(
+      type1_error = mean(pval_flag(p_value)),
+      estimate = mean(estimate),
+      se = mean(se),
+      variance = mean(variance),
+      # TODO: change this to depend on method call, grab correct stat column to summarize
+      t_stat = mean(t_stat),
+      #for concurrent - we need to have joint.te = 2*te; how do we adjust?
+      mse = mean((estimate - 2*te)^2),
+      bias = mean(estimate - 2*te) 
+    )
+  
+  summary_info[summary_info$joint_model=="joint",]=summary_info_joint[summary_info_joint$joint_model=="joint",]
+  }
   
   if (ConfigObject$effect_direction == "null") {
     # correction factors from null model
@@ -93,8 +112,8 @@ summarize_results.lm <- function(ConfigObject) {
   }
   
   # correct rejections rate (power)
-  power_info <- dplyr::left_join(all_iters, correction_factors, by=grouping_vars)
-  power_info <- power_info %>%
+ power_info <- dplyr::left_join(all_iters, correction_factors, by=grouping_vars)
+   power_info <- power_info %>%
     dplyr::group_by(!!!groups) %>%
     dplyr::group_modify(~as.data.frame(correct_rejection_rate(
       .x$estimate,

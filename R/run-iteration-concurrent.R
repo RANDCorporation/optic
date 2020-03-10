@@ -3,9 +3,8 @@
 #' @importFrom magrittr %>%
 #' 
 #' @export
-run_iteration_concurrent <- function(ConfigObject, rho) {
-  require(MASS)
-  
+run_iteration_concurrent <- function(ConfigObject,rho) {
+  library(MASS) 
   # sample treated units and get years and exposure based on policy speed
   treated_units <- get_treated_units_concurrent(ConfigObject, ConfigObject$policy_speed,rho)
   
@@ -25,7 +24,9 @@ run_iteration_concurrent <- function(ConfigObject, rho) {
     ConfigObject$data <- ConfigObject$data %>%
       dplyr::group_by(state) %>%
       dplyr::mutate(lag_outcome = dplyr::lag(crude_adjusted_outcome, n=1, order_by=year))
+   # dplyr::mutate(lag_outcome = dplyr::lag(crude_adjusted_rate, n=1, order_by=year))
   }
+
   
   # run the model
   #we will also need to update the model so it includes predictors for both policies

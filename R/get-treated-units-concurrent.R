@@ -22,10 +22,9 @@ get_treated_units_concurrent <- function(ConfigObject, policy_speed,rho) {
     #instead I just set the available years
     #j=1
     #state=states[j]
-    
+  
     available_years=2003:2013  
-    #generating two years of data
-    
+    #generating two years of data; can update to 2017/2018
     
     #rho=0.83 #note - we will explore a range of correlations = 0, 0.25, 0.5, 0.75, 0.9, 1.0
     
@@ -98,3 +97,34 @@ get_treated_units_concurrent <- function(ConfigObject, policy_speed,rho) {
   
   return(treated)
 }
+
+#notes from call on 1/27/2020
+#outcome - simple additive; still an argument for positive/negative; maybe do additive but then disentangle
+#one harmful and one helpful; interactive
+#of interest - joint estimate of laws might be ok
+#maybe additive outcome model - not so good
+
+#of interest - model choice - huge thing to study - control for one versus control for both; many times may miss something
+
+#concrete paper 1 idea: model specification - omitted key policies that have been implemented - exploration of model misspecification (could do one paper just on this)
+#synergistic effects; indepent effects; negative effects; here is performance when don't control
+#here is performance when you simultaneously control
+#then maybe shed light on the issue of joint modeling of these
+
+#option 2 - 
+
+#use a different model approach if laws are adopted together; post treatment effect would be 
+
+#GOALS - what are the errors in this literature?
+
+#picking best model performance + classic two ways; simplified to optimal model + two way DID
+#choose one model and just stick with new question for main manuscript and then put others in the appendix
+
+#this is about varying the distance between law 1 and law 2; time-varying policy effects then you will have a time-varying policy effect
+#data generating - wouldn't there be a time-varying policy estimate
+
+#use of event study to help might be useful to explore
+
+#need to write
+
+

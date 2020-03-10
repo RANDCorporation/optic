@@ -79,7 +79,7 @@ full_results <- do.call("rbind", results)
 
 # get summary information
 ConfigObject$iter_results <- full_results
-summary_info(ConfigObject)
+summarize_results(ConfigObject)
 ```
 #### Multithreaded Example
 
@@ -152,5 +152,5 @@ full_results <- do.call("rbind", results)
 
 # get summary information
 ConfigObject$iter_results <- full_results
-summary_info(ConfigObject)
+summarize_results(ConfigObject)
 ```
