@@ -1,4 +1,5 @@
 #' @export
+
 get_treated_units_concurrent <- function(ConfigObject, policy_speed,rho) {
   #ConfigObject
   #policy_speed=ConfigObject$policy_speed
