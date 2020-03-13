@@ -7,7 +7,9 @@
 iter_results(m, ConfigObject)
 }
 \arguments{
-\item{m}{}
+\item{m}{model object}
+
+\item{ConfigObject}{R6 class object for simulation config}
 }
 \description{
 iter results

@@ -116,10 +116,10 @@ summarize_results.lm <- function(ConfigObject) {
    power_info <- power_info %>%
     dplyr::group_by(!!!groups) %>%
     dplyr::group_modify(~as.data.frame(correct_rejection_rate(
-      .x$estimate,
-      .x$se,
-      .x$correction_factor[1],
-      ConfigObject$effect_direction))
+      coeffs=.x$estimate,
+      ses=.x$se,
+      cf=.x$correction_factor[1],
+      effect_direction=ConfigObject$effect_direction))
     )
   names(power_info) <- c(grouping_vars, "power")
   

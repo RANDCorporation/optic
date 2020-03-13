@@ -1,6 +1,7 @@
 #' iter results
 #' 
-#' @param m model object\
+#' @param m model object
+#' @param ConfigObject R6 class object for simulation config
 #' 
 #' @export
 iter_results_concurrent_wjointeff <- function(m, ConfigObject) {

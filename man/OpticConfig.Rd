@@ -8,6 +8,53 @@ Configuration object for OPTIC Simulation project
 
 Configuration object for OPTIC Simulation project
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{data}}{TODO}
+
+\item{\code{model_type}}{TODO}
+
+\item{\code{method_call}}{TODO}
+
+\item{\code{model_params}}{TODO}
+
+\item{\code{outcome}}{TODO}
+
+\item{\code{iters}}{TODO}
+
+\item{\code{target_deaths}}{TODO}
+
+\item{\code{effect_direction}}{TODO}
+
+\item{\code{n_states}}{TODO}
+
+\item{\code{policy_speed}}{TODO}
+
+\item{\code{total_population}}{TODO}
+
+\item{\code{total_deaths}}{TODO}
+
+\item{\code{number_implementation_years}}{TODO}
+
+\item{\code{seed}}{TODO}
+
+\item{\code{time_periods}}{TODO}
+
+\item{\code{iter_results}}{TODO}
+
+\item{\code{summary_results}}{TODO}
+
+\item{\code{lag_outcome}}{TODO}
+
+\item{\code{se_adjust}}{TODO}
+
+\item{\code{concurrent}}{TODO}
+
+\item{\code{correction_factors}}{TODO}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -44,8 +91,7 @@ Configuration object for OPTIC Simulation project
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{data}}{data.frame or tibble object; must contain the following named 
-fields: "population", "deaths", "year", "state"}
+\item{\code{data}}{TODO}
 
 \item{\code{model_type}}{Currently supported: "linear", "log", or "loglinear"}
 
@@ -68,6 +114,13 @@ method_call specified.}
 
 \item{\code{outcome}}{charcter name of field on data that should be used as outcome}
 
+\item{\code{se_adjust}}{TODO}
+
+\item{\code{concurrent}}{TODO
+Print method of optic R6 config object}
+
+\item{\code{lag_outcome}}{TODO}
+
 \item{\code{number_implementation_years}}{required if policy_speed is slow, number of years
 until policy is fully phased in}
 
@@ -76,6 +129,8 @@ simulation for future replication}
 
 \item{\code{time_periods}}{limit the years available for sampling by specifying a range,
 e.g.: 2003:2013}
+
+\item{\code{correction_factors}}{TODO}
 }
 \if{html}{\out{</div>}}
 }
@@ -87,6 +142,13 @@ e.g.: 2003:2013}
 \if{html}{\out{<div class="r">}}\preformatted{OpticConfig$print(...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{TODO}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

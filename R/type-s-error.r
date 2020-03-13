@@ -14,7 +14,7 @@ type_s_error <- function(betas, pvals, effect_direction) {
   if (length(betas[pvals < 0.05]) != 0) {
     if (effect_direction == "neg") {
       s_error <- length(betas[betas > 0 & pvals < 0.05]) / length(betas[pvals < 0.05])
-    }else{
+    } else {
       s_error <- length(betas[betas < 0 & pvals < 0.05]) / length(betas[pvals < 0.05])
     }
   }else{

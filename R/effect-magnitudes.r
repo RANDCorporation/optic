@@ -14,7 +14,7 @@ effect_magnitude <- function(ConfigObject) {
 effect_magnitude.linear <- function(ConfigObject) {
   target_deaths <- ConfigObject$target_deaths
   total_population <- ConfigObject$total_population
-  number_years <- ConfigObject$number_implementation_years
+  number_years <- length(unique(ConfigObject$data$year))
   effect_direction <- ConfigObject$effect_direction
   ave_pop_100K <- (total_population / number_years) / 100000
   true_effect <- target_deaths / ave_pop_100K
@@ -30,7 +30,7 @@ effect_magnitude.linear <- function(ConfigObject) {
 effect_magnitude.log <- function(ConfigObject) {
   target_deaths <- ConfigObject$target_deaths
   total_deaths <- ConfigObject$total_deaths
-  number_years <- ConfigObject$number_implementation_years
+  number_years <- length(unique(ConfigObject$data$year))
   effect_direction <- ConfigObject$effect_direction
   ave_per_yr <- total_deaths / number_years
   percent_change <- target_deaths / ave_per_yr
@@ -48,7 +48,7 @@ effect_magnitude.log <- function(ConfigObject) {
 effect_magnitude.loglinear <- function(ConfigObject) {
   target_deaths <- ConfigObject$target_deaths
   total_deaths <- ConfigObject$total_deaths
-  number_years <- ConfigObject$number_implementation_years
+  number_years <- length(unique(ConfigObject$data$year))
   effect_direction <- ConfigObject$effect_direction
   ave_per_yr <- total_deaths / number_years
   percent_change <- target_deaths / ave_per_yr
