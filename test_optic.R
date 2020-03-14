@@ -85,16 +85,6 @@ for(r in 1:length(rhos))
   print(paste("Currently running simulations for rho:", rho))
   
   results <- future_lapply(
-    1:10,
-    FUN=function(i){
-      rr <- x
-      rr$iter <- i
-      return(rr)
-    }
-  )
-  
-  
-  results <- future_lapply(
     1:Sim1$iters,
     FUN=function(i){
       rr <- run_iteration_concurrent(Sim1, rho=rho)
