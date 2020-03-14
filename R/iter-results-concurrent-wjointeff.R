@@ -8,6 +8,7 @@ iter_results_concurrent_wjointeff <- function(m, ConfigObject) {
   UseMethod("iter_results_concurrent_wjointeff", ConfigObject)
 }
 
+#' @export
 iter_results_concurrent_wjointeff.lm <- function(m, ConfigObject) {
   coeffs <- as.data.frame(summary(m)$coefficients)
   coeffs$variable <- row.names(coeffs)
@@ -137,6 +138,7 @@ iter_results_concurrent_wjointeff.lm <- function(m, ConfigObject) {
   return(r)
 }
 
+#' @export
 iter_results_concurrent_wjointeff.glm.nb <- function(m, ConfigObject) {
   coeffs <- as.data.frame(summary(m)$coefficients)
   coeffs$variable <- row.names(coeffs)

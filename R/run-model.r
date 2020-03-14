@@ -1,6 +1,5 @@
 #' run model
 #' @export
-#' 
 run_model <- function(ConfigObject) {
   # required for negative binary and GEE models
   if (ConfigObject$method_call == "glm.nb") {

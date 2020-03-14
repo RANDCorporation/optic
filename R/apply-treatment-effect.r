@@ -13,6 +13,7 @@ apply_treatment_effect <- function(ConfigObject, te) {
 
 
 #' apply treatment effect for linear model
+#' @export
 apply_treatment_effect.linear <- function(ConfigObject, te) {
   if (ConfigObject$effect_direction != "null") {
     ConfigObject$data$outcome <- ConfigObject$data[[ConfigObject$outcome]] + (te * ConfigObject$data$treatment)
@@ -25,6 +26,7 @@ apply_treatment_effect.linear <- function(ConfigObject, te) {
 
 
 #' apply treatment effect for log model
+#' @export
 apply_treatment_effect.log <- function(ConfigObject, te) {
   if (ConfigObject$effect_direction != "null") {
     ConfigObject$data$outcome <- ConfigObject$data[[ConfigObject$outcome]] +
@@ -40,6 +42,7 @@ apply_treatment_effect.log <- function(ConfigObject, te) {
 
 
 #' apply treatment effect for log-linear model
+#' @export
 apply_treatment_effect.loglinear <- function(ConfigObject, te) {
   if (ConfigObject$effect_direction != "null") {
     ConfigObject$data$outcome <- log(ConfigObject$data[[ConfigObject$outcome]] + 
