@@ -5,3 +5,5 @@
 data/
 *.DS_Store
 *.csv
+nohup.out
+test_summary.R

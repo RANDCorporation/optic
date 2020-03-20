@@ -23,7 +23,8 @@ run_iteration_concurrent <- function(ConfigObject,rho) {
     # include lag for outcome
     ConfigObject$data <- ConfigObject$data %>%
       dplyr::group_by(state) %>%
-      dplyr::mutate(lag_outcome = dplyr::lag(crude_adjusted_outcome, n=1, order_by=year))
+      dplyr::mutate(lag_outcome = dplyr::lag(crude_adjusted_outcome, n=1, order_by=year)) %>%
+      dplyr::ungroup()
    # dplyr::mutate(lag_outcome = dplyr::lag(crude_adjusted_rate, n=1, order_by=year))
   }
 

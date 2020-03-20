@@ -73,8 +73,10 @@ iter_results_concurrent_wjointeff.lm <- function(m, ConfigObject) {
   }
   
   if ("cluster" %in% ConfigObject$se_adjust) {
-    clust_coeffs <- cluster_adjust_se(m, m$model$`as.factor(state)`)[[2]]
-    clust_vcov <- cluster_adjust_se(m, m$model$`as.factor(state)`)[[1]][2,3] #not 100% alginment with SEs from model so worried this is off
+    clust_indices <- as.numeric(rownames(m$model))
+    clust_var <- as.character(ConfigObject$data$state[clust_indices])
+    clust_coeffs <- cluster_adjust_se(m, clust_var)[[2]]
+    clust_vcov <- cluster_adjust_se(m, clust_var)[[1]][2,3] #not 100% alginment with SEs from model so worried this is off
     class(clust_coeffs) <- c("coeftest", "matrix")
     clust_coeffs <- as.data.frame(clust_coeffs)
     clust_coeffs$variable <- row.names(clust_coeffs)
@@ -107,7 +109,9 @@ iter_results_concurrent_wjointeff.lm <- function(m, ConfigObject) {
   }
   
   if ("huber-cluster" %in% ConfigObject$se_adjust) {
-    cov_hc <- sandwich::vcovHC(m, type="HC1", cluster="state", method="arellano")
+    clust_indices <- as.numeric(rownames(m$model))
+    clust_var <- as.character(ConfigObject$data$state[clust_indices])
+    cov_hc <- sandwich::vcovHC(m, type="HC1", cluster=clust_var, method="arellano")
     hc_se1 <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == "treatment1"]
     hc_se2 <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == "treatment2"]
     h_sej <- sqrt(h_se1^2+h_se2^2+2*cov_h[2,3]) 
@@ -204,8 +208,10 @@ iter_results_concurrent_wjointeff.glm.nb <- function(m, ConfigObject) {
   }
   
   if ("cluster" %in% ConfigObject$se_adjust) {
-    clust_coeffs <- cluster_adjust_se(m, m$model$`as.factor(state)`)[[2]]
-    clust_vcov <- cluster_adjust_se(m, m$model$`as.factor(state)`)[[1]][2,3] #not 100% alginment with SEs from model so worried this is off
+    clust_indices <- as.numeric(rownames(m$model))
+    clust_var <- as.character(ConfigObject$data$state[clust_indices])
+    clust_coeffs <- cluster_adjust_se(m, clust_var)[[2]]
+    clust_vcov <- cluster_adjust_se(m, clust_var)[[1]][2,3] #not 100% alginment with SEs from model so worried this is off
     class(clust_coeffs) <- c("coeftest", "matrix")
     clust_coeffs <- as.data.frame(clust_coeffs)
     clust_coeffs$variable <- row.names(clust_coeffs)
@@ -238,7 +244,9 @@ iter_results_concurrent_wjointeff.glm.nb <- function(m, ConfigObject) {
   }
   
   if ("huber-cluster" %in% ConfigObject$se_adjust) {
-    cov_hc <- sandwich::vcovHC(m, type="HC1", cluster="state", method="arellano")
+    clust_indices <- as.numeric(rownames(m$model))
+    clust_var <- as.character(ConfigObject$data$state[clust_indices])
+    cov_hc <- sandwich::vcovHC(m, type="HC1", cluster=clust_var, method="arellano")
     hc_se1 <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == "treatment1"]
     hc_se2 <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == "treatment2"]
     h_sej <- sqrt(h_se1^2+h_se2^2+2*cov_h[2,3]) 

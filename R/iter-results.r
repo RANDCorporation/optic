@@ -47,7 +47,10 @@ iter_results.lm <- function(m, ConfigObject) {
   }
   
   if ("cluster" %in% ConfigObject$se_adjust) {
-    clust_coeffs <- cluster_adjust_se(m, m$model$`as.factor(state)`)[[2]]
+    clust_indices <- as.numeric(rownames(m$model))
+    clust_var <- as.character(ConfigObject$data$state[clust_indices])
+    clust_coeffs <- cluster_adjust_se(m, clust_var)[[2]]
+    clust_vcov <- cluster_adjust_se(m, clust_var)[[1]][2,3] #not 100% alginment with SEs from model so worried this is off
     class(clust_coeffs) <- c("coeftest", "matrix")
     clust_coeffs <- as.data.frame(clust_coeffs)
     clust_coeffs$variable <- row.names(clust_coeffs)
@@ -69,7 +72,9 @@ iter_results.lm <- function(m, ConfigObject) {
   }
   
   if ("huber-cluster" %in% ConfigObject$se_adjust) {
-    cov_hc <- sandwich::vcovHC(m, type="HC1", cluster="state", method="arellano")
+    clust_indices <- as.numeric(rownames(m$model))
+    clust_var <- as.character(ConfigObject$data$state[clust_indices])
+    cov_hc <- sandwich::vcovHC(m, type="HC1", cluster=clust_var, method="arellano")
     hc_se <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == "treatment"]
     
     hc_r <- data.frame(

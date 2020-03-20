@@ -1,19 +1,26 @@
-#install.packages("/poppy/programs/bethg/concurrent/optic_0.1.tar.gz", repos=NULL, type="source")
-
+#!/usr/bin/env Rscript
+# script for leveraging forked processing
+library(methods)
 library(optic)
 library(future)
 library(future.apply)
 
-load("~/optic_sim_data_exp.Rdata")
+cl <- parallel::makeCluster(8L)
+plan(cluster, workers=cl)
+
+args <- commandArgs(trailingOnly=TRUE)
+sim_spec <- args[1]
+run_label <- args[2]
+
+sink_file <- paste0("data/logs/", run_label, "_", sim_spec, ".log")
+con <- file(sink_file)
+sink(con, append=TRUE)
+sink(con, append=TRUE, type="message")
+
+load("data/optic_sim_data_exp.Rdata")
 #load('C:/Users/bethg/Documents/OPTIC/Simulation Project/results/optic_sim_data_exp.Rdata')
 names(x) <- tolower(names(x))
 
-# set parallel plan
-plan(tweak(multiprocess, workers=16))
-options(future.globals.onReference = "ignore")
-
-#now how would I get it to run the wrong model
-#creat new version of the simulation - NULL and POS
 #==============================================================================
 #==============================================================================
 # SIM1 - NULL, CONCURRENT, LINEAR, 2 WAY
@@ -53,38 +60,6 @@ if (Sim1$lag_outcome) {
 
 Sim1$model_params$formula <- as.formula(paste0(modelterms$lhs, "~", paste(modelterms$rhs, collapse="+")))
 
-rhos=c(0,.25,.5,.75,.9) #not - obvious - models will not estimate both policies when corr = 1
-
-for(r in 1:length(rhos))
-{
-  # define parallel cluster
-  cl <- parallel::makeCluster(32L)
-  plan("cluster", workers = cl) 
-  
-  rho=rhos[r]
-  print(paste("Currently running simulations for rho:", rho))
-  
-  results <- future_lapply(
-    1:Sim1$iters,
-    FUN=function(i){
-      rr <- run_iteration_concurrent(Sim1, rho=rho)
-      rr$iter <- i
-      return(rr)
-    },
-    future.seed=ceiling((2733 * rho) + 348)
-  )
-  
-  # combine results together
-  full_results <- do.call("rbind", results)
-  names(full_results)[14]<-"joint.eff.variance"
-  names(full_results)[15]<-"joint.eff.t_stat"
-  
-  write.csv(full_results, paste0("all_iters_linear_2wayfe_null_concurrent_n30_rho", rho, "_", Sys.Date(), ".csv"),
-            row.names = FALSE)
-  
-  plan(sequential)
-}
-
 #==============================================================================
 #==============================================================================
 # SIM2 - POS, CONCURRENT, LINEAR, 2 WAY
@@ -122,33 +97,6 @@ if (Sim2$lag_outcome) {
 
 Sim2$model_params$formula <- as.formula(paste0(modelterms$lhs, "~", paste(modelterms$rhs, collapse="+")))
 
-rhos=c(.25,.5,.75,.9) #not - obvious - models will not estimate both policies when corr = 1
-
-for(r in 1:length(rhos))
-{
-  # define parallel cluster
-  rho=rhos[r]
-  print(paste("Currently running simulations for rho:", rho))
-  
-  results <- future_lapply(
-    1:Sim2$iters,
-    FUN=function(i){
-      rr <- run_iteration_concurrent(Sim2, rho=rho)
-      rr$iter <- i
-      return(rr)
-    },
-    future.seed=ceiling((9814 * rho) + 348)
-  )
-  
-  # combine results together
-  full_results <- do.call("rbind", results)
-  names(full_results)[14]<-"joint.eff.variance"
-  names(full_results)[15]<-"joint.eff.t_stat"
-  
-  write.csv(full_results, paste0("all_iters_linear_2wayfe_pos_concurrent_n30_rho", rho, "_", Sys.Date(), ".csv"),
-            row.names = FALSE)
-}
-
 #==============================================================================
 #==============================================================================
 # SIM3 - NULL, CONCURRENT, LINEAR, AUTOREGRESSIVE
@@ -185,33 +133,6 @@ if (Sim3$lag_outcome) {
 }
 
 Sim3$model_params$formula <- as.formula(paste0(modelterms$lhs, "~", paste(modelterms$rhs, collapse="+")))
-
-rhos=c(0,.25,.5,.75,.9) #not - obvious - models will not estimate both policies when corr = 1
-
-for(r in 1:length(rhos))
-{
-  rho=rhos[r]
-  print(paste("Currently running simulations for rho:", rho))
-  
-  results <- future_lapply(
-    1:Sim3$iters,
-    FUN=function(i){
-      rr <- run_iteration_concurrent(Sim3, rho=rho)
-      rr$iter <- i
-      return(rr)
-    },
-    future.seed=ceiling((982 * rho) + 348)
-  )
-  
-  # combine results together
-  full_results <- do.call("rbind", results)
-  names(full_results)[14]<-"joint.eff.variance"
-  names(full_results)[15]<-"joint.eff.t_stat"
-  
-  write.csv(full_results, paste0("all_iters_linear_ar_null_concurrent_n30_rho", rho, "_", Sys.Date(), ".csv"),
-            row.names = FALSE)
-}
-
 
 #==============================================================================
 #==============================================================================
@@ -251,28 +172,58 @@ if (Sim4$lag_outcome) {
 
 Sim4$model_params$formula <- as.formula(paste0(modelterms$lhs, "~", paste(modelterms$rhs, collapse="+")))
 
-rhos=c(0,.25,.5,.75,.9) #not - obvious - models will not estimate both policies when corr = 1
+#==============================================================================
+#==============================================================================
+# SET UP FOR RUN
+#==============================================================================
+#==============================================================================
+if (sim_spec == "Sim1") {
+  Sim <- Sim1$clone()
+}
+if (sim_spec == "Sim2") {
+  Sim <- Sim2$clone()
+}
+if (sim_spec == "Sim3") {
+  Sim <- Sim3$clone()
+}
+if (sim_spec == "Sim4") {
+  Sim <- Sim4$clone()
+}
 
-for(r in 1:length(rhos))
-{
-  rho=rhos[r]
-  print(paste("Currently running simulations for rho:", rho))
+rhos <- c(0, 0.25, 0.5, 0.75, 0.9)
+
+for (rho in rhos) {
+  cat(paste("\nCurrently running simulations for rho:", rho, "and Simulation:", sim_spec, run_label))
   
-  results <- future_lapply(
-    1:Sim4$iters,
-    FUN=function(i){
-      rr <- run_iteration_concurrent(Sim4, rho=rho)
+  r <- future_lapply(
+    1:Sim$iters,
+    FUN=function(i) {
+      rr <- run_iteration_concurrent(Sim, rho=rho)
       rr$iter <- i
+      rr$rho <- rho
+      rr$model_approach <- run_label
       return(rr)
-    },
-    future.seed=ceiling((982 * rho) + 348)
+    }
   )
   
+  full_results <- do.call("rbind", r)
   # combine results together
-  full_results <- do.call("rbind", results)
   names(full_results)[14]<-"joint.eff.variance"
   names(full_results)[15]<-"joint.eff.t_stat"
   
-  write.csv(full_results, paste0("all_iters_linear_ar_pos_concurrent_n30_rho", rho, "_", Sys.Date(), ".csv"),
-            row.names = FALSE)
+  write.csv(
+    full_results,
+    paste0("data/all_iters_",
+           run_label, "_",
+           Sim$effect_direction, "_concurrent_n30_rho",
+           rho, "_", 
+           Sys.Date(), ".csv"),
+    row.names = FALSE
+  )
 }
+
+plan(sequential)
+parallel::stopCluster(cl)
+
+sink() 
+sink(type="message")
