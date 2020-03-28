@@ -190,6 +190,11 @@ if (sim_spec == "Sim4") {
   Sim <- Sim4$clone()
 }
 
+# TODO: testing with seed, here is a snipped to generate a list of seeds as long
+# as vector X to pre-populate future.seed argument
+# seeds <- future_lapply(seq_along(X), FUN = function(x) .Random.seed,
+#                        future.chunk.size = Inf, future.seed = 42L)
+
 rhos <- c(0, 0.25, 0.5, 0.75, 0.9)
 
 for (rho in rhos) {
