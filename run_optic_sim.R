@@ -5,7 +5,7 @@ library(optic)
 library(future)
 library(future.apply)
 
-cl <- parallel::makeCluster(8L)
+cl <- parallel::makeCluster(14L)
 plan(cluster, workers=cl)
 
 args <- commandArgs(trailingOnly=TRUE)
@@ -192,10 +192,12 @@ if (sim_spec == "Sim4") {
 
 # TODO: testing with seed, here is a snipped to generate a list of seeds as long
 # as vector X to pre-populate future.seed argument
-# seeds <- future_lapply(seq_along(X), FUN = function(x) .Random.seed,
-#                        future.chunk.size = Inf, future.seed = 42L)
+seeds <- future_lapply(seq_along(1:Sim$iters), FUN = function(x) .Random.seed,
+                       future.chunk.size = Inf, future.seed=)
 
 rhos <- c(0, 0.25, 0.5, 0.75, 0.9)
+
+use_seed <- sample(100:999999, 1)
 
 for (rho in rhos) {
   cat(paste("\nCurrently running simulations for rho:", rho, "and Simulation:", sim_spec, run_label))
@@ -208,13 +210,16 @@ for (rho in rhos) {
       rr$rho <- rho
       rr$model_approach <- run_label
       return(rr)
-    }
+    },
+    future.seed=use_seed
   )
   
   full_results <- do.call("rbind", r)
   # combine results together
   names(full_results)[14]<-"joint.eff.variance"
   names(full_results)[15]<-"joint.eff.t_stat"
+  
+  full_results$future_seed = use_seed
   
   write.csv(
     full_results,
