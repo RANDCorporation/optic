@@ -14,4 +14,13 @@ apply_exposure <- function(treated_units, ConfigObject) {
         dplyr::mutate(treatment = ifelse(state == t_state & year == yr, exposure, treatment))
     }
   }
+  
+  # add change level coding
+  ConfigObject$data <- ConfigObject$data %>%
+    dplyr::arrange(state, year) %>%
+    dplyr::group_by(state) %>%
+    dplyr::mutate(temp_lag = lag(treatment, n=1L)) %>%
+    dplyr::mutate(treatment_change = treatment - temp_lag) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-temp_lag)
 }

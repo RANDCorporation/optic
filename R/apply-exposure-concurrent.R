@@ -24,4 +24,21 @@ apply_exposure_concurrent <- function(treated_units, ConfigObject) {
           dplyr::mutate(treatment2 = ifelse(state == t_state & year == yr, exposure, treatment2))
       }
   }
+  # add change level coding
+  ConfigObject$data <- ConfigObject$data %>%
+    dplyr::arrange(state, year) %>%
+    dplyr::group_by(state) %>%
+    dplyr::mutate(temp_lag = dplyr::lag(treatment1, n=1L)) %>%
+    dplyr::mutate(treatment1_change = treatment1 - temp_lag) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-temp_lag)
+  
+  # add change level coding
+  ConfigObject$data <- ConfigObject$data %>%
+    dplyr::arrange(state, year) %>%
+    dplyr::group_by(state) %>%
+    dplyr::mutate(temp_lag = dplyr::lag(treatment2, n=1L)) %>%
+    dplyr::mutate(treatment2_change = treatment2 - temp_lag) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-temp_lag)
 }
