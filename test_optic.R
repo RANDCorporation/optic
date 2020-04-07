@@ -12,8 +12,39 @@ names(x) <- tolower(names(x))
 plan(tweak(multiprocess, workers=16))
 options(future.globals.onReference = "ignore")
 
-#now how would I get it to run the wrong model
-#creat new version of the simulation - NULL and POS
+#==============================================================================
+#==============================================================================
+# SIM OVERHAUL
+#==============================================================================
+#==============================================================================
+# Here's what needs to happen before configure_simulation in terms of data
+# transformation and prep
+
+
+
+test_config <- configure_simulation(
+  x=x,
+  outcome="crude.rate",
+  unit_var="state",
+  time_var="year",
+  model_call="lm",
+  model_formula=crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state),
+  true_effect=c(1.6, 1.6),
+  n_units=c(5, 15, 30),
+  iters=5000,
+  effect_direction=c("null", "pos"),
+  model_args=list(
+    weights=as.name('population')
+  ),
+  policy_speed=c("instant", "slow"),
+  n_implementation_periods=3,
+  set_seed=TRUE,
+  se_adjust=c("cluster", "huber", "huber-cluster"),
+  concurrent=TRUE,
+  rhos=c(0, 0.25, 0.5, 0.75, 0.9)
+)
+
+
 #==============================================================================
 #==============================================================================
 # SIM1 - NULL, CONCURRENT, LINEAR, 2 WAY
