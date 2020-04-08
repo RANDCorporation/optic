@@ -21,7 +21,7 @@
 #'     for "slow" policy speed
 #' @param set_seed if TRUE will use seed and seed will be included in results for reproducibility;
 #'     default is FALSE
-#' @param time_period_restriction provide vector of value that exist in time_var to restrict treatmenent
+#' @param time_period_restriction provide vector of values that exist in time_var to restrict treatmenent
 #'     so it only can occur in these time periods
 #' @param lag_outcome whether or not to include a lag (1 time period lag) of the outcome variable in
 #'     the model
@@ -76,6 +76,9 @@ configure_simulation <- function(
       stop("'model_formula' must be a list or of length 1")
     }
   }
+  if (class(model_args) != "list") {
+    stop("'model_args' must be a list")
+  }
   if (class(effect_magnitude) != "list") {
     if ( (length(effect_magnitude) == 1 & !concurrent) | (length(effect_magnitude) == 2 & concurrent) ) {
       effect_magnitude <- list(effect_magnitude)
@@ -84,8 +87,10 @@ configure_simulation <- function(
     }
   }
   
-  if (length(model_call) != length(model_formula) | length(model_call) != length(effect_magnitude)) {
-    stop("args 'model_call', 'model_formula', and 'effect_magnitude' must all have the same length")
+  if (length(model_call) != length(model_formula) | 
+        length(model_call) != length(effect_magnitude) |
+        (!is.null(model_args) && length(model_call) != length(model_args)) ) {
+    stop("args 'model_call', 'model_formula', 'effect_magnitude', and 'model_args' (if spec) must all have the same length")
   }
   
   # effect magnitude and concurrent need to align

@@ -4,7 +4,7 @@ library(optic)
 library(future)
 library(future.apply)
 
-load("~/optic_sim_data_exp.Rdata")
+load("data/optic_sim_data_exp.Rdata")
 #load('C:/Users/bethg/Documents/OPTIC/Simulation Project/results/optic_sim_data_exp.Rdata')
 names(x) <- tolower(names(x))
 
@@ -19,22 +19,27 @@ options(future.globals.onReference = "ignore")
 #==============================================================================
 # Here's what needs to happen before configure_simulation in terms of data
 # transformation and prep
+te_linear <- 3500 / ( ( sum(x$population) / length(unique(x$year)) ) / 100000)
+te_log <- 3500 / ( sum(x$deaths) / length(unique(x$year)) )
 
 
+# TODO:
+#   - before applying true effect need to make sure:
+#       - "lm" use raw input TE, for neg multiply by -1
+#       - "glm", "glm.nb" should be percent change as decimal, so for pos do 1 + te, for neg 1 - te
 
 test_config <- configure_simulation(
   x=x,
-  outcome="crude.rate",
   unit_var="state",
   time_var="year",
   model_call="lm",
   model_formula=crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state),
-  true_effect=c(1.6, 1.6),
+  effect_magnitude=rep(te_linear, 2),
   n_units=c(5, 15, 30),
   iters=5000,
   effect_direction=c("null", "pos"),
   model_args=list(
-    weights=as.name('population')
+    list(weights=as.name('population'))
   ),
   policy_speed=c("instant", "slow"),
   n_implementation_periods=3,
@@ -43,6 +48,7 @@ test_config <- configure_simulation(
   concurrent=TRUE,
   rhos=c(0, 0.25, 0.5, 0.75, 0.9)
 )
+
 
 
 #==============================================================================

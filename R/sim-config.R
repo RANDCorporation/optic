@@ -56,11 +56,37 @@ SimConfig <- R6::R6Class(
       class(self) <- c(class(self), self$model_call)
     },
     
+    setup_single_simulation = function(combination) {
+      params <- as.list(self$combination_args[combination, ])
+      params$model_call <- self$model_call[[params$model_index]]
+      params$model_formula <- self$model_formula[[params$model_index]]
+      params$effect_magnitude <- self$effect_magnitude[[params$model_index]]
+      if (!is.null(self$model_args)) {
+        params$model_args <- self$model_args[[params$model_index]]
+      } else {
+        params$model_args <- NULL
+      }
+      params$data <- self$data
+      params$unit_var <- self$unit_var
+      params$time_var <- self$time_var
+      params$iters <- self$iters
+      params$n_implementation_periods <- self$n_implementation_periods
+      params$set_seed <- self$set_seed
+      params$time_period_restriction <- self$time_period_restriction
+      params$lag_outcome <- self$lag_outcome
+      params$se_adjust <- self$se_adjust
+      params$concurrent <- self$concurrent
+      params$correction_factors <- self$correction_factors
+      params$change_code_treatment <- self$change_code_treatment
+      params$combination_args <- self$combination_args
+      
+      return(params)
+    },
+    
     print = function(...) {
-      cat(paste("MODEL:", private$.model_call))
-      cat(paste("\nEFFECT MAGNITUDE:", private$.effect_magnitude))
-      cat(paste("\nEFFECT DIRECTION:", paste(private$.effect_direction, collapse=", ")))
-      cat(paste("\nITERATIONS:", private$.iters))
+      cat(paste("Number of Simulations:", nrow(self$combination_args)))
+      cat(paste("\nIteration per Simulation :", self$iters))
+      cat(paste("\nTotal number of Iterations to Run:", nrow(self$conbination_args)*self$iters))
     }
   ),
   
