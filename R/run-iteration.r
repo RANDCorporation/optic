@@ -1,10 +1,25 @@
 #' TODO: docstring
 #' 
 #' @importFrom magrittr %>%
-#' 
-#' @export
-run_iteration <- function(ConfigObject) {
+#' @importFrom dplyr group_by, mutate, lag
+run_iteration <- function(single_simulation) {
   # sample treated units and get years and exposure based on policy speed
+  treated_units <- get_treated_units(
+    x=single_simulation$data,
+    n=single_simulation$n_units,
+    unit_var=single_simulation$unit_var,
+    time_var=single_simulation$time_var,
+    policy_speed=single_simulation$policy_speed,
+    n_implementation_periods=single_simulation$n_implementation_periods,
+    concurrent=single_simulation$concurrent,
+    time_period_restriction=single_simulation$time_period_restriction
+  )
+  
+  # apply exposure (treatment) to data
+}
+
+run_iteration <- function(ConfigObject) {
+  
   treated_units <- get_treated_units(ConfigObject, ConfigObject$policy_speed)
   
   # apply exposure (treatment) information to data
