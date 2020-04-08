@@ -1,8 +1,7 @@
 #' Configuration object for OPTIC Simulation project
 #' 
 #' @importFrom R6 R6Class
-#' 
-#' @export
+#' @importFrom tidyr crossing
 SimConfig <- R6::R6Class(
   "SimConfig",
   
@@ -11,13 +10,27 @@ SimConfig <- R6::R6Class(
   ###
   public = list(
     initialize = function(
-      data, outcome, unit_var, time_var, model_call, model_args, model_formula, iters,
-      effect_direction, true_effect, n_units, policy_speed, se_adjust,
+      data, unit_var, time_var, model_call, model_args, model_formula, iters,
+      effect_direction, effect_magnitude, n_units, policy_speed, se_adjust,
       concurrent, lag_outcome, n_implementation_periods, set_seed,
       time_period_restriction, correction_factors, rhos, change_code_treatment) {
       
+      # create matrix of all combinations of iterable args
+      model_index <- 1:length(model_call)
+      combination_args <- tidyr::crossing(
+        model_index,
+        n_units,
+        effect_direction,
+        policy_speed
+      )
+      if(concurrent) {
+        combination_args <- tidyr::crossing(
+          combination_args,
+          rhos
+        )
+      }
+      
       private$.data <- data
-      private$.outcome <- outcome
       private$.unit_var <- unit_var
       private$.time_var <- time_var
       private$.model_call <- model_call
@@ -25,7 +38,7 @@ SimConfig <- R6::R6Class(
       private$.model_formula <- model_formula
       private$.iters <- iters
       private$.effect_direction <- effect_direction
-      private$.true_effect <- true_effect
+      private$.effect_magnitude <- effect_magnitude
       private$.n_units <- n_units
       private$.policy_speed <- policy_speed
       private$.n_implementation_periods <- n_implementation_periods
@@ -37,6 +50,7 @@ SimConfig <- R6::R6Class(
       private$.correction_factors <- correction_factors
       private$.rhos <- rhos
       private$.change_code_treatment <- change_code_treatment
+      private$.combination_args <- combination_args
       
       # dispatch to correct S3 methods
       class(self) <- c(class(self), self$model_call)
@@ -44,9 +58,8 @@ SimConfig <- R6::R6Class(
     
     print = function(...) {
       cat(paste("MODEL:", private$.model_call))
-      cat(paste("\nOUTCOME:", private$.outcome))
-      cat(paste("\nTRUE EFFECT:", private$.true_effect))
-      cat(paste("\nEFFECT DIRECTION:", paste(priviate$.effect_direction, collapse=", ")))
+      cat(paste("\nEFFECT MAGNITUDE:", private$.effect_magnitude))
+      cat(paste("\nEFFECT DIRECTION:", paste(private$.effect_direction, collapse=", ")))
       cat(paste("\nITERATIONS:", private$.iters))
     }
   ),
@@ -56,7 +69,6 @@ SimConfig <- R6::R6Class(
   ###
   private = list(
     .data=NULL,
-    .outcome=NULL,
     .unit_var=NULL,
     .time_var=NULL,
     .model_call=NULL,
@@ -64,7 +76,7 @@ SimConfig <- R6::R6Class(
     .model_args=NULL,
     .iters=NA,
     .effect_direction=NULL,
-    .true_effect=NULL,
+    .effect_magnitude=NULL,
     .n_units=NULL,
     .policy_speed=NULL,
     .n_implementation_periods=NULL,
@@ -75,7 +87,8 @@ SimConfig <- R6::R6Class(
     .concurrent=NA,
     .correction_factors=NULL,
     .rhos=NULL,
-    .change_code_treatment=NULL
+    .change_code_treatment=NULL,
+    .combination_args=NULL
   ),
   
   ###
@@ -87,13 +100,6 @@ SimConfig <- R6::R6Class(
         private$.data
       } else {
         stop("`$data` is read-only", call.=FALSE)
-      }
-    },
-    outcome = function(value) {
-      if (missing(value)) {
-        private$.outcome
-      } else {
-        stop("`$outcome` is read-only", call.=FALSE)
       }
     },
     unit_var = function(value) {
@@ -145,11 +151,11 @@ SimConfig <- R6::R6Class(
         stop("`$effect_direction` is read-only", call.=FALSE)
       }
     },
-    true_effect = function(value) {
+    effect_magnitude = function(value) {
       if (missing(value)) {
-        private$.true_effect
+        private$.effect_magnitude
       } else {
-        stop("`$true_effect` is read-only", call.=FALSE)
+        stop("`$effect_magnitude` is read-only", call.=FALSE)
       }
     },
     n_units = function(value) {
@@ -227,6 +233,13 @@ SimConfig <- R6::R6Class(
         private$.change_code_treatment
       } else {
         stop("`$change_code_treatment` is read-only", call.=FALSE)
+      }
+    },
+    combination_args = function(value) {
+      if (missing(value)) {
+        private$.combination_args
+      } else {
+        stop("`$combination_args` is read-only", call.=FALSE)
       }
     }
   )
