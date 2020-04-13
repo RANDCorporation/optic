@@ -1,15 +1,15 @@
 #' iter results
 #' 
 #' @param m model object
-#' @param ConfigObject R6 class object for simulation config
+#' @param single_simulation R6 class object for simulation config
 #' 
 #' @export
-iter_results_concurrent_wjointeff <- function(m, ConfigObject) {
-  UseMethod("iter_results_concurrent_wjointeff", ConfigObject)
+iter_results_concurrent_wjointeff <- function(m, single_simulation) {
+  UseMethod("iter_results_concurrent_wjointeff", single_simulation)
 }
 
 #' @export
-iter_results_concurrent_wjointeff.lm <- function(m, ConfigObject) {
+iter_results_concurrent_wjointeff.lm <- function(m, single_simulation) {
   coeffs <- as.data.frame(summary(m)$coefficients)
   coeffs$variable <- row.names(coeffs)
   rownames(coeffs) <- NULL
@@ -43,7 +43,7 @@ iter_results_concurrent_wjointeff.lm <- function(m, ConfigObject) {
     stringsAsFactors=FALSE
   )
   
-  if ("huber" %in% ConfigObject$se_adjust) {
+  if ("huber" %in% single_simulation$se_adjust) {
     cov_h <- sandwich::vcovHC(m, type="HC0")
     h_se1 <- sqrt(diag(cov_h))[names(diag(cov_h))=="treatment1"]
     h_se2 <- sqrt(diag(cov_h))[names(diag(cov_h))=="treatment2"]
@@ -72,9 +72,9 @@ iter_results_concurrent_wjointeff.lm <- function(m, ConfigObject) {
     rownames(r) <- NULL
   }
   
-  if ("cluster" %in% ConfigObject$se_adjust) {
+  if ("cluster" %in% single_simulation$se_adjust) {
     clust_indices <- as.numeric(rownames(m$model))
-    clust_var <- as.character(ConfigObject$data$state[clust_indices])
+    clust_var <- as.character(single_simulation$data[[single_simulation$unit_var]][clust_indices])
     clust_coeffs <- cluster_adjust_se(m, clust_var)[[2]]
     clust_vcov <- cluster_adjust_se(m, clust_var)[[1]][2,3] #not 100% alginment with SEs from model so worried this is off
     class(clust_coeffs) <- c("coeftest", "matrix")
@@ -108,9 +108,9 @@ iter_results_concurrent_wjointeff.lm <- function(m, ConfigObject) {
     r <- rbind(r, c_r)
   }
   
-  if ("huber-cluster" %in% ConfigObject$se_adjust) {
+  if ("huber-cluster" %in% single_simulation$se_adjust) {
     clust_indices <- as.numeric(rownames(m$model))
-    clust_var <- as.character(ConfigObject$data$state[clust_indices])
+    clust_var <- as.character(single_simulation$data[[single_simulation$unit_var]][clust_indices])
     cov_hc <- sandwich::vcovHC(m, type="HC1", cluster=clust_var, method="arellano")
     hc_se1 <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == "treatment1"]
     hc_se2 <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == "treatment2"]
@@ -143,7 +143,7 @@ iter_results_concurrent_wjointeff.lm <- function(m, ConfigObject) {
 }
 
 #' @export
-iter_results_concurrent_wjointeff.glm.nb <- function(m, ConfigObject) {
+iter_results_concurrent_wjointeff.glm.nb <- function(m, single_simulation) {
   coeffs <- as.data.frame(summary(m)$coefficients)
   coeffs$variable <- row.names(coeffs)
   rownames(coeffs) <- NULL
@@ -178,7 +178,7 @@ iter_results_concurrent_wjointeff.glm.nb <- function(m, ConfigObject) {
     stringsAsFactors=FALSE
   )
   
-  if ("huber" %in% ConfigObject$se_adjust) {
+  if ("huber" %in% single_simulation$se_adjust) {
     cov_h <- sandwich::vcovHC(m, type="HC0")
     h_se1 <- sqrt(diag(cov_h))[names(diag(cov_h))=="treatment1"]
     h_se2 <- sqrt(diag(cov_h))[names(diag(cov_h))=="treatment2"]
@@ -207,9 +207,9 @@ iter_results_concurrent_wjointeff.glm.nb <- function(m, ConfigObject) {
     rownames(r) <- NULL
   }
   
-  if ("cluster" %in% ConfigObject$se_adjust) {
+  if ("cluster" %in% single_simulation$se_adjust) {
     clust_indices <- as.numeric(rownames(m$model))
-    clust_var <- as.character(ConfigObject$data$state[clust_indices])
+    clust_var <- as.character(single_simulation$data[[single_simulation$unit_var]][clust_indices])
     clust_coeffs <- cluster_adjust_se(m, clust_var)[[2]]
     clust_vcov <- cluster_adjust_se(m, clust_var)[[1]][2,3] #not 100% alginment with SEs from model so worried this is off
     class(clust_coeffs) <- c("coeftest", "matrix")
@@ -243,9 +243,9 @@ iter_results_concurrent_wjointeff.glm.nb <- function(m, ConfigObject) {
     r <- rbind(r, c_r)
   }
   
-  if ("huber-cluster" %in% ConfigObject$se_adjust) {
+  if ("huber-cluster" %in% single_simulation$se_adjust) {
     clust_indices <- as.numeric(rownames(m$model))
-    clust_var <- as.character(ConfigObject$data$state[clust_indices])
+    clust_var <- as.character(single_simulation$data[[single_simulation$unit_var]][clust_indices])
     cov_hc <- sandwich::vcovHC(m, type="HC1", cluster=clust_var, method="arellano")
     hc_se1 <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == "treatment1"]
     hc_se2 <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == "treatment2"]

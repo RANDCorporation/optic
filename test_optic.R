@@ -33,8 +33,8 @@ test_config <- configure_simulation(
   unit_var="state",
   time_var="year",
   model_call="lm",
-  model_formula=crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state),
-  effect_magnitude=rep(te_linear, 2),
+  model_formula=crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1 + treatment2,
+  effect_magnitude=list(te_linear),
   n_units=c(5, 15, 30),
   iters=5000,
   effect_direction=c("null", "pos"),
@@ -48,6 +48,8 @@ test_config <- configure_simulation(
   concurrent=TRUE,
   rhos=c(0, 0.25, 0.5, 0.75, 0.9)
 )
+
+single_simulation <- test_config$setup_single_simulation(1)
 
 
 

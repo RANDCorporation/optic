@@ -2,7 +2,7 @@
 #' 
 #' @importFrom magrittr %>%
 get_treated_units <- function(
-  x, n, unit_var, time_var, policy_speed, n_implementation_periods, concurrent, time_period_restriction) {
+  x, n, unit_var, time_var, policy_speed, n_implementation_periods, concurrent, rho, time_period_restriction) {
   # randomly sample units
   sampled_units <- sample(unique(x[[unit_var]]), n, replace=FALSE)
   
@@ -22,7 +22,7 @@ get_treated_units <- function(
     #      hardocded
     if (concurrent) {
       sampled_time_period <- sample(available_periods, 1) #this becomes the mean
-      data = mvrnorm(n=200, mu=c(yr, yr), Sigma=matrix(c(1, rho, rho, 1), nrow=2), empirical=TRUE) #odd - can't set n = 1 so have to sample two
+      data = mvrnorm(n=200, mu=c(sampled_time_period, sampled_time_period), Sigma=matrix(c(1, rho, rho, 1), nrow=2), empirical=TRUE) #odd - can't set n = 1 so have to sample two
       sampled_time_period1 = data[1, 1]  # standard normal (mu=yr, sd=1)
       sampled_time_period2 = data[1, 2]  # standard normal (mu=yr, sd=1)
       #cor(yr1,yr2) #if increasen n to 200; can confirm that correlation = rho with large samples

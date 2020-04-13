@@ -1,15 +1,18 @@
 #' run model
 #' @export
-run_model <- function(ConfigObject) {
+run_model <- function(single_simulation) {
   # required for negative binary and GEE models
-  if (ConfigObject$method_call == "glm.nb") {
+  if (single_simulation$model_call == "glm.nb") {
     require(MASS)
   }
-  if (ConfigObject$method_call == "geeglm") {
+  if (single_simulation$model_call == "geeglm") {
     require(geepack)
   }
   
-  m <- do.call(ConfigObject$method_call, c(ConfigObject$model_params, list(data=ConfigObject$data)))
+  m <- do.call(
+    single_simulation$model_call,
+    c(list(data=single_simulation$data, formula=single_simulation$model_formula),
+      single_simulation$model_args))
   
   return(m)
 }
