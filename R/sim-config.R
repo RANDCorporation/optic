@@ -12,7 +12,7 @@ SimConfig <- R6::R6Class(
     initialize = function(
       data, unit_var, time_var, model_call, model_args, model_formula, iters,
       effect_direction, effect_magnitude, n_units, policy_speed, se_adjust,
-      concurrent, lag_outcome, n_implementation_periods, set_seed,
+      concurrent, lag_outcome, n_implementation_periods,
       time_period_restriction, correction_factors, rhos, change_code_treatment) {
       
       # create matrix of all combinations of iterable args
@@ -42,7 +42,6 @@ SimConfig <- R6::R6Class(
       private$.n_units <- n_units
       private$.policy_speed <- policy_speed
       private$.n_implementation_periods <- n_implementation_periods
-      private$.set_seed <- set_seed
       private$.time_period_restriction <- time_period_restriction
       private$.lag_outcome <- lag_outcome
       private$.se_adjust <- se_adjust
@@ -71,7 +70,6 @@ SimConfig <- R6::R6Class(
       params$time_var <- self$time_var
       params$iters <- self$iters
       params$n_implementation_periods <- self$n_implementation_periods
-      params$set_seed <- self$set_seed
       params$time_period_restriction <- self$time_period_restriction
       params$lag_outcome <- self$lag_outcome
       params$se_adjust <- self$se_adjust
@@ -106,7 +104,6 @@ SimConfig <- R6::R6Class(
     .n_units=NULL,
     .policy_speed=NULL,
     .n_implementation_periods=NULL,
-    .set_seed=NA,
     .time_period_restriction=NULL,
     .lag_outcome=NA,
     .se_adjust=NULL,
@@ -203,13 +200,6 @@ SimConfig <- R6::R6Class(
         private$.n_implementation_periods
       } else {
         stop("`$n_implementation_periods` is read-only", call.=FALSE)
-      }
-    },
-    set_seed = function(value) {
-      if (missing(value)) {
-        private$.set_seed
-      } else {
-        stop("`$set_seed` is read-only", call.=FALSE)
       }
     },
     time_period_restriction = function(value) {

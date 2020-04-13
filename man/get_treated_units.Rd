@@ -4,7 +4,17 @@
 \alias{get_treated_units}
 \title{get treated units}
 \usage{
-get_treated_units(ConfigObject, policy_speed)
+get_treated_units(
+  x,
+  n,
+  unit_var,
+  time_var,
+  policy_speed,
+  n_implementation_periods,
+  concurrent,
+  rho,
+  time_period_restriction
+)
 }
 \description{
 get treated units

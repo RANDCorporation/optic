@@ -13,7 +13,7 @@ apply_exposure <- function(x, unit_var, time_var, treated_units, change_code_tre
 #' apply exposure not concurrent
 #' 
 #' @importFrom magrittr %>%
-#' @importFrom dplyr sym, mutate, lag, arrange, group_by, rename, ungroup, select, if_else
+#' @import dplyr
 apply_exposure_single <- function(x, unit_var, time_var, treated_units, change_code_treatment) {
   unit_sym <- dplyr::sym(unit_var)
   time_sym <- dplyr::sym(time_var)
@@ -48,7 +48,7 @@ apply_exposure_single <- function(x, unit_var, time_var, treated_units, change_c
 #' apply exposure for concurrent
 #' 
 #' @importFrom magrittr %>%
-#' @importFrom dplyr sym, mutate, lag, arrange, group_by, rename, ungroup, select, if_else
+#' @import dplyr
 apply_exposure_concurrent <- function(x, unit_var, time_var, treated_units, change_code_treatment) {
   unit_sym <- dplyr::sym(unit_var)
   time_sym <- dplyr::sym(time_var)

@@ -1,4 +1,3 @@
-#' @export
 round2 <- function(x, n) {
   posneg = sign(x)
   z = abs(x)*10^n

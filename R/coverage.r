@@ -5,8 +5,6 @@
 #' @param se vector of standard errors for coefficients provided in beta
 #' @param cf correction factor (single constant)
 #' @param te true treatment effect
-#' 
-#' @export
 coverage <- function(beta, se, te, cf=NULL, use_cf=FALSE) {
   if (length(beta) != length(se)) {
     stop("vectors provided for 'beta' and 'se' must be equal length")

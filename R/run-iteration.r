@@ -1,7 +1,7 @@
 #' TODO: docstring
 #' 
 #' @importFrom magrittr %>%
-#' @importFrom dplyr group_by, mutate, lag, arrange
+#' @import dplyr
 run_iteration <- function(single_simulation) {
   # sample treated units and get years and exposure based on policy speed
   treated_units <- get_treated_units(
@@ -61,9 +61,9 @@ run_iteration <- function(single_simulation) {
   
   # get iteration results
   class(single_simulation) <- c(class(single_simulation), single_simulation$model_call)
-  if (concurrent) {
+  if (single_simulation$concurrent) {
     results <- iter_results_concurrent_wjointeff(m, single_simulation)
-  } else if (!concurrent) {
+  } else if (!single_simulation$concurrent) {
     results <- iter_results(m, single_simulation)
   }
   

@@ -1,5 +1,4 @@
 #' run model
-#' @export
 run_model <- function(single_simulation) {
   # required for negative binary and GEE models
   if (single_simulation$model_call == "glm.nb") {

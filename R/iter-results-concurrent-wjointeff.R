@@ -2,13 +2,10 @@
 #' 
 #' @param m model object
 #' @param single_simulation R6 class object for simulation config
-#' 
-#' @export
 iter_results_concurrent_wjointeff <- function(m, single_simulation) {
   UseMethod("iter_results_concurrent_wjointeff", single_simulation)
 }
 
-#' @export
 iter_results_concurrent_wjointeff.lm <- function(m, single_simulation) {
   coeffs <- as.data.frame(summary(m)$coefficients)
   coeffs$variable <- row.names(coeffs)
@@ -142,7 +139,7 @@ iter_results_concurrent_wjointeff.lm <- function(m, single_simulation) {
   return(r)
 }
 
-#' @export
+
 iter_results_concurrent_wjointeff.glm.nb <- function(m, single_simulation) {
   coeffs <- as.data.frame(summary(m)$coefficients)
   coeffs$variable <- row.names(coeffs)

@@ -4,12 +4,19 @@
 \alias{apply_treatment_effect}
 \title{apply specified treatment effect and transform outcome to match model type}
 \usage{
-apply_treatment_effect(ConfigObject, te)
+apply_treatment_effect(
+  x,
+  model_call,
+  model_formula,
+  te,
+  effect_direction,
+  concurrent
+)
 }
 \arguments{
-\item{ConfigObject}{R6Class object of class "OpticConfig"}
-
 \item{te}{output of effect_magnitude, the true effect}
+
+\item{ConfigObject}{R6Class object of class "OpticConfig"}
 }
 \description{
 Calls appropriate method depending on model type (class) of OpticConfig object

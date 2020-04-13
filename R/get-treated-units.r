@@ -22,7 +22,7 @@ get_treated_units <- function(
     #      hardocded
     if (concurrent) {
       sampled_time_period <- sample(available_periods, 1) #this becomes the mean
-      data = mvrnorm(n=200, mu=c(sampled_time_period, sampled_time_period), Sigma=matrix(c(1, rho, rho, 1), nrow=2), empirical=TRUE) #odd - can't set n = 1 so have to sample two
+      data = MASS::mvrnorm(n=200, mu=c(sampled_time_period, sampled_time_period), Sigma=matrix(c(1, rho, rho, 1), nrow=2), empirical=TRUE) #odd - can't set n = 1 so have to sample two
       sampled_time_period1 = data[1, 1]  # standard normal (mu=yr, sd=1)
       sampled_time_period2 = data[1, 2]  # standard normal (mu=yr, sd=1)
       #cor(yr1,yr2) #if increasen n to 200; can confirm that correlation = rho with large samples
@@ -54,20 +54,20 @@ get_treated_units <- function(
     
     # exposure coding
     if (concurrent) {
-      l1 <- exposure_list(sampled_time_period1, mo1, available_periods, policy_speed)
+      l1 <- exposure_list(sampled_time_period1, mo1, available_periods, policy_speed, n_implementation_periods)
       names(l1) <- paste0(names(l1), "1")
-      l2 <- exposure_list(sampled_time_period2, mo2, available_periods, policy_speed)
+      l2 <- exposure_list(sampled_time_period2, mo2, available_periods, policy_speed, n_implementation_periods)
       names(l2) <- paste0(names(l2), "2")
       treated[[sunit]] <- c(l1, l2)
     } else {
-      treated[[sunit]] <- exposure_list(sampled_time_period, mo, available_periods, policy_speed)
+      treated[[sunit]] <- exposure_list(sampled_time_period, mo, available_periods, policy_speed, n_implementation_periods)
     }
   }
   
   return(treated)
 }
 
-exposure_list <- function(sampled_time_period, mo, available_periods, policy_speed) {
+exposure_list <- function(sampled_time_period, mo, available_periods, policy_speed, n_implementation_periods) {
   if (policy_speed == "instant") {
     l <- list(
       policy_years = sampled_time_period:max(available_periods, na.rm=TRUE),

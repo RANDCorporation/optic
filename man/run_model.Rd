@@ -4,7 +4,7 @@
 \alias{run_model}
 \title{run model}
 \usage{
-run_model(ConfigObject)
+run_model(single_simulation)
 }
 \description{
 run model

@@ -4,8 +4,6 @@
 #' @param ses vector of standard errors related to provided coefficients
 #' @param cf correction factor to use for adjustment
 #' @param effect_direction direction of true effect, one of "null", "neg", "pos"
-#' 
-#' @export
 correct_rejection_rate <- function(coeffs, ses, cf, effect_direction="null") {
   adj_ses <- ses * cf
   low95 <- coeffs - 1.96 * adj_ses

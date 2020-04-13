@@ -4,7 +4,7 @@
 \alias{run_iteration}
 \title{TODO: docstring}
 \usage{
-run_iteration(ConfigObject)
+run_iteration(single_simulation)
 }
 \description{
 TODO: docstring

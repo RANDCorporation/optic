@@ -5,8 +5,6 @@
 #' @param betas vector of regression coefficients
 #' @param pvals vector of p values for betas
 #' @param effect_direction direction of true effect
-#' 
-#' @export
 type_s_error <- function(betas, pvals, effect_direction) {
   if (effect_direction == "null") {
     return(NA)

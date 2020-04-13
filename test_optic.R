@@ -36,21 +36,21 @@ test_config <- configure_simulation(
   model_formula=crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1 + treatment2,
   effect_magnitude=list(te_linear),
   n_units=c(5, 15, 30),
-  iters=5000,
+  iters=10,
   effect_direction=c("null", "pos"),
   model_args=list(
     list(weights=as.name('population'))
   ),
   policy_speed=c("instant", "slow"),
   n_implementation_periods=3,
-  set_seed=TRUE,
   se_adjust=c("cluster", "huber", "huber-cluster"),
   concurrent=TRUE,
   rhos=c(0, 0.25, 0.5, 0.75, 0.9)
 )
 
-single_simulation <- test_config$setup_single_simulation(1)
-
+r <- dispatch_simulations(test_config, seed=372)
+r2 <- dispatch_simulations(test_config, seed=372)
+r3 <- dispatch_simulations(test_config, seed=143)
 
 
 #==============================================================================

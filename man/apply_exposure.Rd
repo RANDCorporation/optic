@@ -2,10 +2,17 @@
 % Please edit documentation in R/apply-exposure.r
 \name{apply_exposure}
 \alias{apply_exposure}
-\title{apply exposure}
+\title{apply exposure wrapper}
 \usage{
-apply_exposure(treated_units, ConfigObject)
+apply_exposure(
+  x,
+  unit_var,
+  time_var,
+  treated_units,
+  change_code_treatment,
+  concurrent
+)
 }
 \description{
-apply exposure
+apply exposure wrapper
 }

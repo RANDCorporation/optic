@@ -19,8 +19,6 @@
 #'     n_implementation_periods
 #' @param n_implementation_periods number of time periods (time_var) to phase in treatment from 0 to 1
 #'     for "slow" policy speed
-#' @param set_seed if TRUE will use seed and seed will be included in results for reproducibility;
-#'     default is FALSE
 #' @param time_period_restriction provide vector of values that exist in time_var to restrict treatmenent
 #'     so it only can occur in these time periods
 #' @param lag_outcome whether or not to include a lag (1 time period lag) of the outcome variable in
@@ -42,7 +40,7 @@
 configure_simulation <- function(
   x, unit_var, time_var, model_call, model_formula, effect_magnitude, n_units,
   iters=5000, effect_direction=c("null", "pos", "neg"), model_args=NULL,
-  policy_speed=c("instant"), n_implementation_periods=NA, set_seed=FALSE,
+  policy_speed=c("instant"), n_implementation_periods=NA,
   time_period_restriction=NULL, lag_outcome=FALSE,
   se_adjust=c("cluster", "huber", "huber-cluster"),
   concurrent=FALSE, correction_factors=NULL, rhos=NULL, change_code_treatment=FALSE,
@@ -165,9 +163,6 @@ configure_simulation <- function(
     if (runs > 20000) {
       message("hey, that's a lot of iterations! we recommend using the parallel options when dispatching this job.")
     }
-    if (!set_seed) {
-      message("looks like you are not using a seed for this. consider any need for reproducability before dispatching, for science!")
-    }
   }
   ###
   # create config object
@@ -185,7 +180,6 @@ configure_simulation <- function(
     n_units=n_units,
     policy_speed=policy_speed,
     n_implementation_periods=n_implementation_periods,
-    set_seed=set_seed,
     time_period_restriction=time_period_restriction,
     lag_outcome=lag_outcome,
     se_adjust=se_adjust,
