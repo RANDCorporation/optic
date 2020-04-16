@@ -54,7 +54,26 @@ dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, verbos
       sim_results <- future.apply::future_lapply(
         1:single_simulation$iters,
         FUN=function(j) {
-          r <- run_iteration(single_simulation)
+          failed_attempts <- 0
+          complete <- 0
+          while (complete < 1 & failed_attempts < 0.10 * single_simulation$iters) {
+            r <- tryCatch({
+              run_iteration(single_simulation)
+            },
+            error=function(e) {
+              e
+            })
+            if (class(r) == "data.frame") {
+              complete <- complete + 1
+            } else {
+              if (failed_attempts == 0.10*single_simulation$iters) {
+                stop(paste("attempted 10 percent of total iterations in single thread;",
+                           "something is not right, here's the most recent error:",
+                           r))
+              }
+              failed_attempts <- failed_attempts + 1
+            }
+          }
           r$iter <- j
           return(r)
         },
@@ -73,7 +92,18 @@ dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, verbos
       
       sim_results <- list()
       for(j in 1:single_simulation$iters) {
-        r <- run_iteration(single_simulation)
+        complete <- 0
+        while (complete < 1) {
+          r <- tryCatch({
+            run_iteration(single_simulation)
+          },
+          error=function(e) {
+            e
+          })
+          if (class(r) == "data.frame") {
+            complete <- complete + 1
+          }
+        }
         r$iter <- j
         sim_results[[j]] <- r
         rm(r)
@@ -91,7 +121,7 @@ dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, verbos
     full_results$model_call <- single_simulation$model_call
     full_results$model_formula <- Reduce(paste, trimws(deparse(single_simulation$model_formula)))
     full_results$n_units <- single_simulation$n_units
-    full_results$true_effect <- single_simulation$effect_magnitude
+    full_results$true_effect <- paste(single_simulation$effect_magnitude, collapse=", ")
     full_results$effect_direction <- single_simulation$effect_direction
     full_results$policy_speed <- single_simulation$policy_speed
     full_results$change_code_treatment <- single_simulation$change_code_treatment

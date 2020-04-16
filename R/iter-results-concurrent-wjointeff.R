@@ -3,7 +3,12 @@
 #' @param m model object
 #' @param single_simulation R6 class object for simulation config
 iter_results_concurrent_wjointeff <- function(m, single_simulation) {
-  UseMethod("iter_results_concurrent_wjointeff", single_simulation)
+  if (class(m)[1] == "lm") {
+    iter_results_concurrent_wjointeff.lm(m, single_simulation)
+  }
+  if ("negbin" %in% class(m)) {
+    iter_results_concurrent_wjointeff.negbin.glm(m, single_simulation)
+  }
 }
 
 iter_results_concurrent_wjointeff.lm <- function(m, single_simulation) {
@@ -140,7 +145,7 @@ iter_results_concurrent_wjointeff.lm <- function(m, single_simulation) {
 }
 
 
-iter_results_concurrent_wjointeff.glm.nb <- function(m, single_simulation) {
+iter_results_concurrent_wjointeff.negbin.glm <- function(m, single_simulation) {
   coeffs <- as.data.frame(summary(m)$coefficients)
   coeffs$variable <- row.names(coeffs)
   rownames(coeffs) <- NULL
