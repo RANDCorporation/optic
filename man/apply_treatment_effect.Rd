@@ -2,21 +2,20 @@
 % Please edit documentation in R/apply-treatment-effect.r
 \name{apply_treatment_effect}
 \alias{apply_treatment_effect}
-\title{apply specified treatment effect and transform outcome to match model type}
+\title{apply specified treatment effect (percent change) to outcome}
 \usage{
-apply_treatment_effect(
-  x,
-  model_call,
-  model_formula,
-  te,
-  effect_direction,
-  concurrent
-)
+apply_treatment_effect(x, model_formula, te, effect_direction, concurrent)
 }
 \arguments{
-\item{te}{output of effect_magnitude, the true effect}
+\item{x}{data}
 
-\item{ConfigObject}{R6Class object of class "OpticConfig"}
+\item{model_formula}{formula for sim run used to identify outcome}
+
+\item{te}{true effect as proportion of change (e.g., 0.05 = 5%)}
+
+\item{effect_direction}{"null", "pos", or "neg"}
+
+\item{concurrent}{bool for whether this is concurrent run or not}
 }
 \description{
 Calls appropriate method depending on model type (class) of OpticConfig object

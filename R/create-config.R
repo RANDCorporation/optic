@@ -57,7 +57,7 @@ configure_simulation <- function(
     stop(paste("time_var must be length one and be named element in data:", time_var))
   }
   
-  # model call, formula, effect magnitude should all be lists of the same length
+  # model call, formula, model_args should all be lists of the same length
   # as they are going to matched 1:1 by position to allow users to leverage 
   # those in one config rather than having to create multiple configs
   if (class(model_call) != "list") {
@@ -88,9 +88,8 @@ configure_simulation <- function(
   }
   
   if (length(model_call) != length(model_formula) | 
-        length(model_call) != length(effect_magnitude) |
         (!is.null(model_args) && length(model_call) != length(model_args)) ) {
-    stop("args 'model_call', 'model_formula', 'effect_magnitude', and 'model_args' (if provided) must all have the same length")
+    stop("args 'model_call', 'model_formula', and 'model_args' (if provided) must all have the same length")
   }
   
   # effect magnitude and concurrent need to align
@@ -153,7 +152,7 @@ configure_simulation <- function(
   
   # let user know combinations and total individual models
   combs <- length(model_call) * length(n_units) * length(effect_direction) *
-    length(policy_speed)
+    length(policy_speed) * length(effect_magnitude)
   
   if (concurrent) {
     combs <- combs * length(rhos)
@@ -162,7 +161,7 @@ configure_simulation <- function(
   
   if (verbose) {
     message(paste("configuration created for", combs, "combinations resulting in", runs, "individual iterations"))
-    if (runs > 20000) {
+    if (runs > 40000) {
       message("hey, that's a lot of iterations! we recommend using the parallel options when dispatching this job.")
     }
   }

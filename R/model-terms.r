@@ -6,7 +6,7 @@
 model_terms <- function(x) {
   stopifnot(class(x) == "formula")
   # convert to string
-  string_model <- deparse(x)
+  string_model <- paste(trimws(deparse(x)), collapse=" ")
   # replace all spaces
   string_model <- gsub(" ", "", string_model)
   lhs <- strsplit(string_model, "[~]")[[1]][1]

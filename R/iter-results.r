@@ -2,18 +2,22 @@
 #' 
 #' @param m model object
 #' @param single_simulation R6 class object for simulation config
-#' 
-#' @export
 iter_results <- function(m, single_simulation) {
-  UseMethod("iter_results", single_simulation)
+  if (class(m)[1] == "lm") {
+    iter_results.lm(m, single_simulation)
+  } else if ("negbin" %in% class(m)) {
+    iter_results.negbin.glm(m, single_simulation)
+  }
 }
 
-#' @export
 iter_results.lm <- function(m, single_simulation) {
   coeffs <- as.data.frame(summary(m)$coefficients)
   coeffs$variable <- row.names(coeffs)
   rownames(coeffs) <- NULL
-  coeffs <- coeffs[coeffs$variable == "treatment",]
+  
+  treatment <- coeffs$variable[grepl("^treatment", coeffs$variable)][1]
+  
+  coeffs <- coeffs[coeffs$variable == treatment,]
   
   estimate <- coeffs[["Estimate"]]
   
@@ -30,7 +34,7 @@ iter_results.lm <- function(m, single_simulation) {
   
   if ("huber" %in% single_simulation$se_adjust) {
     cov_h <- sandwich::vcovHC(m, type="HC0")
-    h_se <- sqrt(diag(cov_h))[names(diag(cov_h))=="treatment"]
+    h_se <- sqrt(diag(cov_h))[names(diag(cov_h)) == treatment]
     
     h_r <- data.frame(
       se_adjustment="huber",
@@ -55,7 +59,7 @@ iter_results.lm <- function(m, single_simulation) {
     clust_coeffs <- as.data.frame(clust_coeffs)
     clust_coeffs$variable <- row.names(clust_coeffs)
     rownames(clust_coeffs) <- NULL
-    clust_coeffs <- clust_coeffs[clust_coeffs$variable == "treatment",]
+    clust_coeffs <- clust_coeffs[clust_coeffs$variable == treatment,]
     
     c_r <- data.frame(
       se_adjustment="cluster",
@@ -75,7 +79,7 @@ iter_results.lm <- function(m, single_simulation) {
     clust_indices <- as.numeric(rownames(m$model))
     clust_var <- as.character(single_simulation$data[[single_simulation$unit_var]][clust_indices])
     cov_hc <- sandwich::vcovHC(m, type="HC1", cluster=clust_var, method="arellano")
-    hc_se <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == "treatment"]
+    hc_se <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == treatment]
     
     hc_r <- data.frame(
       se_adjustment="huber-cluster",
@@ -94,12 +98,14 @@ iter_results.lm <- function(m, single_simulation) {
   return(r)
 }
 
-#' @export
-iter_results.glm.nb <- function(m, single_simulation) {
+iter_results.negbin.glm <- function(m, single_simulation) {
   coeffs <- as.data.frame(summary(m)$coefficients)
   coeffs$variable <- row.names(coeffs)
   rownames(coeffs) <- NULL
-  coeffs <- coeffs[coeffs$variable == "treatment",]
+  
+  treatment <- coeffs$variable[grepl("^treatment", coeffs$variable)][1]
+  
+  coeffs <- coeffs[coeffs$variable == treatment,]
   
   estimate <- coeffs[["Estimate"]]
   
@@ -116,7 +122,7 @@ iter_results.glm.nb <- function(m, single_simulation) {
   
   if ("huber" %in% single_simulation$se_adjust) {
     cov_h <- sandwich::vcovHC(m, type="HC0")
-    h_se <- sqrt(diag(cov_h))[names(diag(cov_h))=="treatment"]
+    h_se <- sqrt(diag(cov_h))[names(diag(cov_h))==treatment]
     
     h_r <- data.frame(
       se_adjustment="huber",
@@ -138,7 +144,7 @@ iter_results.glm.nb <- function(m, single_simulation) {
     clust_coeffs <- as.data.frame(clust_coeffs)
     clust_coeffs$variable <- row.names(clust_coeffs)
     rownames(clust_coeffs) <- NULL
-    clust_coeffs <- clust_coeffs[clust_coeffs$variable == "treatment",]
+    clust_coeffs <- clust_coeffs[clust_coeffs$variable == treatment,]
     
     c_r <- data.frame(
       se_adjustment="cluster",
@@ -156,7 +162,7 @@ iter_results.glm.nb <- function(m, single_simulation) {
   
   if ("huber-cluster" %in% single_simulation$se_adjust) {
     cov_hc <- sandwich::vcovHC(m, type="HC1", cluster="state", method="arellano")
-    hc_se <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == "treatment"]
+    hc_se <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == treatment]
     
     hc_r <- data.frame(
       se_adjustment="huber-cluster",

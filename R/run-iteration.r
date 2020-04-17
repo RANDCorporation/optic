@@ -16,6 +16,10 @@ run_iteration <- function(single_simulation) {
     rho=single_simulation$rhos
   )
   
+  if (single_simulation$concurrent) {
+    distances <- get_distance_avgs(treated_units)
+  }
+  
   # apply exposure (treatment) to data
   single_simulation$data <- apply_exposure(
     x=single_simulation$data,
@@ -59,9 +63,17 @@ run_iteration <- function(single_simulation) {
   m <- run_model(single_simulation)
   
   # get iteration results
-  class(single_simulation) <- c(class(single_simulation), single_simulation$model_call)
   if (single_simulation$concurrent) {
-    results <- iter_results_concurrent_wjointeff(m, single_simulation)
+    # check for one or both treatments in model
+    rhs <- model_terms(single_simulation$model_formula)[["rhs"]]
+    if (sum(grepl("^treatment", rhs)) == 2) {
+      results <- iter_results_concurrent_wjointeff(m, single_simulation)
+    } else if (sum(grepl("^treatment", rhs)) == 1) {
+      results <- iter_results(m, single_simulation)
+    }
+    results$mean_distance <- mean(distances)
+    results$min_distance <- min(distances)
+    results$max_distance <- max(distances)
   } else if (!single_simulation$concurrent) {
     results <- iter_results(m, single_simulation)
   }

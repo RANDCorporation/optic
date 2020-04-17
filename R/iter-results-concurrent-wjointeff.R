@@ -5,8 +5,7 @@
 iter_results_concurrent_wjointeff <- function(m, single_simulation) {
   if (class(m)[1] == "lm") {
     iter_results_concurrent_wjointeff.lm(m, single_simulation)
-  }
-  if ("negbin" %in% class(m)) {
+  } else if ("negbin" %in% class(m)) {
     iter_results_concurrent_wjointeff.negbin.glm(m, single_simulation)
   }
 }

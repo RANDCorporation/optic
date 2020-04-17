@@ -19,6 +19,7 @@ Configuration object for OPTIC Simulation project
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SimConfig$new(
@@ -37,7 +38,6 @@ Configuration object for OPTIC Simulation project
   concurrent,
   lag_outcome,
   n_implementation_periods,
-  set_seed,
   time_period_restriction,
   correction_factors,
   rhos,
@@ -48,6 +48,7 @@ Configuration object for OPTIC Simulation project
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-setup_single_simulation"></a>}}
+\if{latex}{\out{\hypertarget{method-setup_single_simulation}{}}}
 \subsection{Method \code{setup_single_simulation()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SimConfig$setup_single_simulation(combination)}\if{html}{\out{</div>}}
@@ -56,6 +57,7 @@ Configuration object for OPTIC Simulation project
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SimConfig$print(...)}\if{html}{\out{</div>}}
@@ -64,6 +66,7 @@ Configuration object for OPTIC Simulation project
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

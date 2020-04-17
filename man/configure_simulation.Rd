@@ -17,7 +17,6 @@ configure_simulation(
   model_args = NULL,
   policy_speed = c("instant"),
   n_implementation_periods = NA,
-  set_seed = FALSE,
   time_period_restriction = NULL,
   lag_outcome = FALSE,
   se_adjust = c("cluster", "huber", "huber-cluster"),
@@ -56,9 +55,6 @@ n_implementation_periods}
 
 \item{n_implementation_periods}{number of time periods (time_var) to phase in treatment from 0 to 1
 for "slow" policy speed}
-
-\item{set_seed}{if TRUE will use seed and seed will be included in results for reproducibility;
-default is FALSE}
 
 \item{time_period_restriction}{provide vector of values that exist in time_var to restrict treatmenent
 so it only can occur in these time periods}

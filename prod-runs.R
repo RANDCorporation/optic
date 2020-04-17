@@ -20,19 +20,23 @@ two_way_fe <- configure_simulation(
   x=x,
   unit_var="state",
   time_var="year",
-  model_call=list("lm", "lm"),
+  model_call=list("lm", "lm", "glm.nb", "glm.nb"),
   model_formula=list(
     crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1 + treatment2,
-    crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1 + treatment2
+    crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1,
+    crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + offset(log(population)) + treatment1 + treatment2,
+    crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + offset(log(population)) + treatment1
+  ),
+  model_args=list(
+    list(weights=as.name('population')),
+    list(weights=as.name('population')),
+    list(),
+    list()
   ),
   effect_magnitude=list(scenario1, scenario2),
   n_units=c(5, 30),
   iters=5000,
   effect_direction=c("null", "neg"),
-  model_args=list(
-    list(weights=as.name('population')),
-    list(weights=as.name('population'))
-  ),
   policy_speed=c("instant", "slow"),
   n_implementation_periods=3,
   se_adjust=c("cluster", "huber", "huber-cluster"),
@@ -45,10 +49,12 @@ autoregressive <- configure_simulation(
   x=x,
   unit_var="state",
   time_var="year",
-  model_call=list("lm", "lm"),
+  model_call=list("lm", "lm", "glm.nb", "glm.nb"),
   model_formula=list(
     crude.rate ~ unemploymentrate + as.factor(year) + treatment1 + treatment2,
-    crude.rate ~ unemploymentrate + as.factor(year) + treatment1 + treatment2
+    crude.rate ~ unemploymentrate + as.factor(year) + treatment1,
+    crude.rate ~ unemploymentrate + as.factor(year) + offset(log(population)) + treatment1 + treatment2,
+    crude.rate ~ unemploymentrate + as.factor(year) + offset(log(population)) + treatment1
   ),
   effect_magnitude=list(scenario1, scenario2),
   n_units=c(5, 30),
@@ -56,7 +62,9 @@ autoregressive <- configure_simulation(
   effect_direction=c("null", "neg"),
   model_args=list(
     list(weights=as.name('population')),
-    list(weights=as.name('population'))
+    list(weights=as.name('population')),
+    list(),
+    list()
   ),
   policy_speed=c("instant", "slow"),
   n_implementation_periods=3,

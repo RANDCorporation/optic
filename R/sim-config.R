@@ -19,6 +19,7 @@ SimConfig <- R6::R6Class(
       model_index <- 1:length(model_call)
       combination_args <- tidyr::crossing(
         model_index,
+        effect_magnitude,
         n_units,
         effect_direction,
         policy_speed
@@ -57,9 +58,9 @@ SimConfig <- R6::R6Class(
     
     setup_single_simulation = function(combination) {
       params <- as.list(self$combination_args[combination, ])
+      params$effect_magnitude <- unlist(params$effect_magnitude)
       params$model_call <- self$model_call[[params$model_index]]
       params$model_formula <- self$model_formula[[params$model_index]]
-      params$effect_magnitude <- self$effect_magnitude[[params$model_index]]
       if (!is.null(self$model_args)) {
         params$model_args <- self$model_args[[params$model_index]]
       } else {
