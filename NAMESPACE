@@ -2,6 +2,7 @@
 
 export(configure_simulation)
 export(dispatch_simulations)
+export(mse_resid)
 import(dplyr)
 importFrom(R6,R6Class)
 importFrom(magrittr,"%>%")
