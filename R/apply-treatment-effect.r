@@ -4,7 +4,7 @@
 #' 
 #' @param x data
 #' @param model_formula formula for sim run used to identify outcome
-#' @param te true effect as proportion of change (e.g., 0.05 = 5%)
+#' @param effect_magnitude effect as proportion of change (e.g., 0.05 = 5%)
 #' @param effect_direction "null", "pos", or "neg"
 #' @param concurrent bool for whether this is concurrent run or not
 apply_treatment_effect <- function(x, model_formula, te, effect_direction, concurrent) {
