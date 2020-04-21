@@ -17,9 +17,9 @@ apply_treatment_effect <- function(x, model_formula, te, effect_direction, concu
       te <- -1 * te
     }
     if (concurrent) {
-      x[[outcome]] <- x[[outcome]] + (x[[outcome]] * te[1] * x[["treatment1"]]) + (x[[outcome]] * te[2] * x[["treatment2"]])
+      x[[outcome]] <- x[[outcome]] + (te[1] * x[["treatment1"]]) + (te[2] * x[["treatment2"]])
     } else {
-      x[[outcome]] <- x[[outcome]] + (x[[outcome]] * te * x[["treatment"]])
+      x[[outcome]] <- x[[outcome]] + (te * x[["treatment"]])
     }
     return(x)
   }
