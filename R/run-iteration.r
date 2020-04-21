@@ -39,6 +39,16 @@ run_iteration <- function(single_simulation) {
     concurrent=single_simulation$concurrent
   )
   
+  # change code treatment if required
+  if (single_simulation$change_code_treatment) {
+    single_simulation$data <- change_code_treatment(
+      x=single_simulation$data,
+      unit_var=single_simulation$unit_var,
+      time_var=single_simulation$time_var,
+      concurrent=single_simulation$concurrent
+    )
+  }
+  
   # add lag outcome to model if required
   if (single_simulation$lag_outcome) {
     all_terms <- model_terms(single_simulation$model_formula)
