@@ -153,11 +153,10 @@ configure_simulation <- function(
   # let user know combinations and total individual models
   combs <- length(model_call) * length(n_units) * length(effect_direction) *
     length(policy_speed) * length(effect_magnitude)
-  
   if (concurrent) {
     combs <- combs * length(rhos)
-    runs <- combs * iters
   }
+  runs <- combs * iters
   
   if (verbose) {
     message(paste("configuration created for", combs, "combinations resulting in", runs, "individual iterations"))

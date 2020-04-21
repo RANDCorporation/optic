@@ -106,7 +106,9 @@ dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, verbos
         }
         r$iter <- j
         sim_results[[j]] <- r
+        print(r)
         rm(r)
+        cat("\n")
       }
     }
     

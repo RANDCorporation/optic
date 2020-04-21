@@ -48,7 +48,7 @@ get_treated_units <- function(
       sampled_time_period2=floor(sampled_time_period2)
       
     } else {
-      sampled_time_perid <- sample(available_periods, 1)
+      sampled_time_period <- sample(available_periods, 1)
       mo <- sample(1:12, 1)
     }
     

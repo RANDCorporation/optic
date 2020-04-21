@@ -4,14 +4,20 @@
 \alias{apply_treatment_effect}
 \title{apply specified treatment effect (percent change) to outcome}
 \usage{
-apply_treatment_effect(x, model_formula, te, effect_direction, concurrent)
+apply_treatment_effect(
+  x,
+  model_formula,
+  effect_magnitude,
+  effect_direction,
+  concurrent
+)
 }
 \arguments{
 \item{x}{data}
 
 \item{model_formula}{formula for sim run used to identify outcome}
 
-\item{te}{true effect as proportion of change (e.g., 0.05 = 5%)}
+\item{effect_magnitude}{effect as proportion of change (e.g., 0.05 = 5%)}
 
 \item{effect_direction}{"null", "pos", or "neg"}
 

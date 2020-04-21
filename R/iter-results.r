@@ -10,6 +10,16 @@ iter_results <- function(m, single_simulation) {
   }
 }
 
+#' Calculate mean squared error
+#' 
+#' @param x vector of errors (residuals)
+#' 
+#' @export
+mse_resid <- function(x) {
+  return(mean(x^2, na.rm=T))
+}
+
+
 iter_results.lm <- function(m, single_simulation) {
   coeffs <- as.data.frame(summary(m)$coefficients)
   coeffs$variable <- row.names(coeffs)
@@ -28,7 +38,7 @@ iter_results.lm <- function(m, single_simulation) {
     variance=coeffs[["Std. Error"]] ^ 2,
     t_stat=coeffs[["t value"]],
     p_value=coeffs[["Pr(>|t|)"]],
-    mse=mse(m[["residuals"]]),
+    mse=mse_resid(m[["residuals"]]),
     stringsAsFactors=FALSE
   )
   
@@ -43,7 +53,7 @@ iter_results.lm <- function(m, single_simulation) {
       variance=h_se ^ 2,
       t_stat=estimate / h_se,
       p_value=2 * pnorm(abs(estimate / h_se), lower.tail=FALSE),
-      mse=mse(m[["residuals"]]),
+      mse=mse_resid(m[["residuals"]]),
       stringsAsFactors=FALSE
     )
     r <- rbind(r, h_r)
@@ -68,7 +78,7 @@ iter_results.lm <- function(m, single_simulation) {
       variance=clust_coeffs[["Std. Error"]] ^ 2,
       t_stat=clust_coeffs[["t value"]],
       p_value=clust_coeffs[["Pr(>|t|)"]],
-      mse=mse(m[["residuals"]]),
+      mse=mse_resid(m[["residuals"]]),
       stringsAsFactors=FALSE
     )
     
@@ -88,7 +98,7 @@ iter_results.lm <- function(m, single_simulation) {
       variance=hc_se ^ 2,
       t_stat=estimate / hc_se,
       p_value=2 * pnorm(abs(estimate / hc_se), lower.tail=FALSE),
-      mse=mse(m[["residuals"]]),
+      mse=mse_resid(m[["residuals"]]),
       stringsAsFactors=FALSE
     )
     r <- rbind(r, hc_r)
@@ -116,7 +126,7 @@ iter_results.negbin.glm <- function(m, single_simulation) {
     variance=coeffs[["Std. Error"]] ^ 2,
     z_stat=coeffs[["z value"]],
     p_value=coeffs[["Pr(>|z|)"]],
-    mse=mse(m[["residuals"]]),
+    mse=mse_resid(m[["residuals"]]),
     stringsAsFactors=FALSE
   )
   
@@ -131,7 +141,7 @@ iter_results.negbin.glm <- function(m, single_simulation) {
       variance=h_se ^ 2,
       z_stat=estimate / h_se,
       p_value=2 * pnorm(abs(estimate / h_se), lower.tail=FALSE),
-      mse=mse(m[["residuals"]]),
+      mse=mse_resid(m[["residuals"]]),
       stringsAsFactors=FALSE
     )
     r <- rbind(r, h_r)
@@ -153,7 +163,7 @@ iter_results.negbin.glm <- function(m, single_simulation) {
       variance=clust_coeffs[["Std. Error"]] ^ 2,
       z_stat=clust_coeffs[["z value"]],
       p_value=clust_coeffs[["Pr(>|z|)"]],
-      mse=mse(m[["residuals"]]),
+      mse=mse_resid(m[["residuals"]]),
       stringsAsFactors=FALSE
     )
     
@@ -171,7 +181,7 @@ iter_results.negbin.glm <- function(m, single_simulation) {
       variance=hc_se ^ 2,
       z_stat=estimate / hc_se,
       p_value=2 * pnorm(abs(estimate / hc_se), lower.tail=FALSE),
-      mse=mse(m[["residuals"]]),
+      mse=mse_resid(m[["residuals"]]),
       stringsAsFactors=FALSE
     )
     r <- rbind(r, hc_r)

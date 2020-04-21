@@ -6,6 +6,8 @@
 # EXAMPLE SETUP
 #==============================================================================
 #==============================================================================
+results <- readRDS("data/autoregressive-runs-2020-04-20.rds")
+
 meta_vars <- c(
   "model_call", "model_formula", "n_units", "true_effect", "effect_direction",
   "policy_speed", "change_code_treatment", "rho"
@@ -19,9 +21,9 @@ estimates_map1 <- list(
 )
 
 te_map1 <- list(
-  treatment1 = -0.5205712,
-  treatment2 = -0.5205712,
-  joint_effect = -1.041142
+  treatment1 = -0.457936376121782,
+  treatment2 = -0.457936376121782,
+  joint_effect = -0.9158728
 )
 
 estimates_map2 <- list(
@@ -30,7 +32,7 @@ estimates_map2 <- list(
 )
 
 te_map2 <- list(
-  treatment1 = -0.5205712
+  treatment1 = -0.457936376121782
 )
 
 # for now, will need to update
@@ -266,14 +268,14 @@ summarize_results <- function(x, meta_vars, estimates_map, te_map=NULL, grouping
     meta_list[["avg_mean_distance"]] <- mean(dist$mean_distance, na.rm=TRUE)
   }
   
+  estimates <- clean_data(x, estimates_map, te_map, grouping_vars)
+  
   # if null, save the correction factors
   if (meta_list$effect_direction == "null") {
     cf <- estimates %>%
       dplyr::group_by(coefficient, se_adjustment) %>%
       dplyr::summarize(cf=correction_factor(t_stat))
   }
-  
-  estimates <- clean_data(x, estimates_map, te_map, grouping_vars)
   
   # add in correction factors and correct rejection rate if cf provided or null run
   if (!is.null(cf)) {

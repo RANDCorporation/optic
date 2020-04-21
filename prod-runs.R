@@ -86,25 +86,30 @@ end2 <- Sys.time()
 
 #==============================================================================
 #==============================================================================
-# GLM NEGATIVE BINOMIAL RUNS
+# REPLICATION RUN
 #==============================================================================
 #==============================================================================
-glm_nb <- configure_simulation(
+rep_two_way_fe <- configure_simulation(
   x=x,
   unit_var="state",
   time_var="year",
-  model_call=list("glm.nb"),
-  model_formula=crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + offset(log(population)) + treatment1 + treatment2,
-  effect_magnitude=c(0.05, 0.10),
-  n_units=c(5, 30),
-  iters=50,
-  effect_direction=c("null", "neg"),
-  policy_speed=c("instant", "slow"),
+  model_call=list("lm"),
+  model_formula=list(
+    crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment
+  ),
+  model_args=list(
+    list(weights=as.name('population'))
+  ),
+  effect_magnitude=list(0.161433),
+  n_units=1,
+  iters=5000,
+  effect_direction="null",
+  policy_speed="instant",
   n_implementation_periods=3,
+  time_period_restriction=c(2003:2016),
   se_adjust=c("cluster", "huber", "huber-cluster"),
-  concurrent=TRUE,
-  change_code_treatment=FALSE,
-  rhos=c(0, 0.25, 0.5, 0.75, 0.9)
+  concurrent=FALSE,
+  change_code_treatment=FALSE
 )
 
-glm_nb_results <- dispatch_simulations(glm_nb, use_future=TRUE, seed=2734)
+replicate_results <- dispatch_simulations(rep_two_way_fe, use_future=FALSE, seed=1234567)
