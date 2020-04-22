@@ -4,13 +4,7 @@
 \alias{apply_exposure_single}
 \title{apply exposure not concurrent}
 \usage{
-apply_exposure_single(
-  x,
-  unit_var,
-  time_var,
-  treated_units,
-  change_code_treatment
-)
+apply_exposure_single(x, unit_var, time_var, treated_units)
 }
 \description{
 apply exposure not concurrent

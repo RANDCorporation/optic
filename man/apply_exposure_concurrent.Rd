@@ -4,13 +4,7 @@
 \alias{apply_exposure_concurrent}
 \title{apply exposure for concurrent}
 \usage{
-apply_exposure_concurrent(
-  x,
-  unit_var,
-  time_var,
-  treated_units,
-  change_code_treatment
-)
+apply_exposure_concurrent(x, unit_var, time_var, treated_units)
 }
 \description{
 apply exposure for concurrent

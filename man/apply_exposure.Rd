@@ -4,14 +4,7 @@
 \alias{apply_exposure}
 \title{apply exposure wrapper}
 \usage{
-apply_exposure(
-  x,
-  unit_var,
-  time_var,
-  treated_units,
-  change_code_treatment,
-  concurrent
-)
+apply_exposure(x, unit_var, time_var, treated_units, concurrent)
 }
 \description{
 apply exposure wrapper

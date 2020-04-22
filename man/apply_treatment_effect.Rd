@@ -18,5 +18,5 @@ apply_treatment_effect(x, model_formula, te, effect_direction, concurrent)
 \item{concurrent}{bool for whether this is concurrent run or not}
 }
 \description{
-Calls appropriate method depending on model type (class) of OpticConfig object
+TODO
 }

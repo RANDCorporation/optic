@@ -1,6 +1,6 @@
 #' apply specified treatment effect (percent change) to outcome
 #' 
-#' Calls appropriate method depending on model type (class) of OpticConfig object
+#' @description TODO
 #' 
 #' @param x data
 #' @param model_formula formula for sim run used to identify outcome

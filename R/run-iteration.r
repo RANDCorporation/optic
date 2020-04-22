@@ -26,7 +26,6 @@ run_iteration <- function(single_simulation) {
     unit_var=single_simulation$unit_var,
     time_var=single_simulation$time_var,
     treated_units=treated_units,
-    change_code_treatment=single_simulation$change_code_treatment,
     concurrent=single_simulation$concurrent
   )
   

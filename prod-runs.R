@@ -67,12 +67,9 @@ autoregressive <- configure_simulation(
   se_adjust=c("cluster", "huber", "huber-cluster"),
   concurrent=TRUE,
   change_code_treatment=TRUE,
+  lag_outcome=TRUE,
   rhos=c(0, 0.25, 0.5, 0.75, 0.9)
 )
-
-start1 <- Sys.time()
-two_way_fe_results <- dispatch_simulations(two_way_fe, use_future=TRUE, seed=943)
-end1 <- Sys.time()
 
 start2 <- Sys.time()
 autoregressive_results <- dispatch_simulations(autoregressive, use_future=TRUE, seed=285)
