@@ -75,6 +75,74 @@ start2 <- Sys.time()
 autoregressive_results <- dispatch_simulations(autoregressive, use_future=TRUE, seed=285)
 end2 <- Sys.time()
 
+#==============================================================================
+#==============================================================================
+# NEGATIVE BINOMIAL RUNS
+#==============================================================================
+#==============================================================================
+# could just enter 0.05, 0.10, and 0.15 respectively but want to mimic what
+# we put into linear runs
+nb5 <- 690 / (sum(x$deaths) / length(unique(x$year)))
+nb10 <- 1380 / (sum(x$deaths) / length(unique(x$year)))
+nb15 <- 2070 / (sum(x$deaths) / length(unique(x$year)))
+
+scenario1nb <- c(nb10, nb10)
+scenario2nb <- c(nb5, nb15)
+
+two_way_fe <- configure_simulation(
+  x=x,
+  unit_var="state",
+  time_var="year",
+  model_call=list("glm.nb", "glm.nb"),
+  model_formula=list(
+    deaths ~ unemploymentrate + as.factor(year) + as.factor(state) + offset(log(population)) + treatment1 + treatment2,
+    deaths ~ unemploymentrate + as.factor(year) + as.factor(state) + offset(log(population)) + treatment1
+  ),
+  effect_magnitude=list(scenario1nb, scenario2nb),
+  n_units=c(5, 30),
+  iters=5000,
+  effect_direction=c("null", "neg"),
+  policy_speed=c("instant", "slow"),
+  n_implementation_periods=3,
+  se_adjust=c("cluster", "huber", "huber-cluster"),
+  concurrent=TRUE,
+  change_code_treatment=FALSE,
+  rhos=c(0, 0.25, 0.5, 0.75, 0.9)
+)
+
+autoregressive <- configure_simulation(
+  x=x,
+  unit_var="state",
+  time_var="year",
+  model_call=list("glm.nb", "glm.nb"),
+  model_formula=list(
+    deaths ~ unemploymentrate + as.factor(year) + offset(log(population)) + treatment1 + treatment2,
+    deaths ~ unemploymentrate + as.factor(year) + offset(log(population)) + treatment1
+  ),
+  effect_magnitude=list(scenario1nb),
+  n_units=c(30),
+  iters=5000,
+  effect_direction=c("null", "neg"),
+  policy_speed=c("instant"),
+  n_implementation_periods=3,
+  se_adjust=c("cluster"),
+  concurrent=TRUE,
+  change_code_treatment=TRUE,
+  lag_outcome=TRUE,
+  rhos=c(0, 0.25, 0.5, 0.75, 0.9)
+)
+
+start1 <- Sys.time()
+two_way_nb_results <- dispatch_simulations(two_way_fe, use_future=TRUE, seed=474)
+saveRDS(two_way_nb_results, paste0("data/negbin-two-way-fe-",Sys.Date(), ".rds"))
+end1 <- Sys.time()
+
+start2 <- Sys.time()
+autoreg_nb_results <- dispatch_simulations(autoregressive, use_future=TRUE, seed=89)
+saveRDS(autoreg_nb_results, paste0("data/negbin-autorgressive-",Sys.Date(), ".rds"))
+end2 <- Sys.time()
+
+
 
 #==============================================================================
 #==============================================================================

@@ -33,6 +33,7 @@ run_iteration <- function(single_simulation) {
   single_simulation$data <- apply_treatment_effect(
     x=single_simulation$data,
     model_formula=single_simulation$model_formula,
+    model_call=single_simulation$model_call,
     te=single_simulation$effect_magnitude,
     effect_direction=single_simulation$effect_direction,
     concurrent=single_simulation$concurrent
