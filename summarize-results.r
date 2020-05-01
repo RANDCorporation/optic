@@ -6,7 +6,9 @@
 # EXAMPLE SETUP
 #==============================================================================
 #==============================================================================
-results <- readRDS("data/autoregressive-runs-2020-04-20.rds")
+results <- readRDS("data/autoregressive-runs-2020-04-21.rds")
+#results <- readRDS("data/negbin-two-way-fe-2020-04-28.rds")
+#results <- readRDS("data/negbin-autorgressive-2020-04-30.rds")
 
 meta_vars <- c(
   "model_call", "model_formula", "n_units", "true_effect", "effect_direction",
@@ -21,9 +23,9 @@ estimates_map1 <- list(
 )
 
 te_map1 <- list(
-  treatment1 = -0.457936376121782,
-  treatment2 = -0.457936376121782,
-  joint_effect = -0.9158728
+  treatment1 = -0.0999525185298449,
+  treatment2 = -0.0999525185298449,
+  joint_effect = -0.199905
 )
 
 estimates_map2 <- list(
@@ -32,7 +34,7 @@ estimates_map2 <- list(
 )
 
 te_map2 <- list(
-  treatment1 = -0.457936376121782
+  treatment1 = -0.0999525185298449
 )
 
 # for now, will need to update
@@ -107,6 +109,75 @@ for (i in 1:length(results)) {
 }
 
 one_obj_results <- do.call(dplyr::bind_rows, final_list)
+main_obj_results <- one_obj_results %>%
+  filter(n_units == 30) %>%
+  filter(grepl("0.4", true_effect)) %>%
+  filter(policy_speed == "instant") %>%
+  filter(se_adjustment == "cluster")
+
+write.csv(
+  main_obj_results,
+  "~/Downloads/negbin-autoregressive-main-runs-2020-04-30.csv",
+  row.names = FALSE
+)
+
+graph_data <- main_obj_results %>%
+  mutate(specified = ifelse(grepl("treatment2", model_formula), "Correct Specification", "Misspecified")) %>%
+  mutate(coefficient = factor(
+    coefficient,
+    levels=c("treatment1", "treatment2", "joint_effect"),
+    labels=c("Treatment 1", "Treatment 2", "Joint Effect"))) %>%
+  select(coefficient, effect_direction, specified, rho, type1_error, bias, variance, mse, crr, type_s_error) %>%
+  gather(key=metric, value=value, type1_error:type_s_error) %>%
+  mutate(metric = factor(
+    metric,
+    levels=c("type1_error", "bias", "variance", "mse", "crr", "type_s_error"),
+    labels=c("Type 1 Error", "Bias", "Variance", "MSE", "Power", "Type S Error"))
+  ) %>%
+  mutate(effect_direction = factor(effect_direction, levels=c("neg", "null"), labels=c("Negative Effect", "Null effect")))
+
+dummy_data <- data.frame(
+  specified=c(rep("Correct Specification", 4), rep("Misspecified", 4)),
+  metric=c("Bias", "Bias", "Variance", "Power",
+           "Bias", "Bias", "Variance", "Power"),
+  rho=c(rep(0, 8)),
+  value=c(-0.35, 0.35, 0.5, 1.0, -0.35, 0.35, 0.5, 1.0),
+  stringsAsFactors = FALSE
+)
+
+# boas, variance, power for for negative effect, by specification
+figure_1 <- ggplot(graph_data %>%
+                          filter(metric %in% c("Power")) %>%
+                          filter(effect_direction == "Negative Effect") %>%
+                     filter(specified == "Correct Specification"),
+                        aes(x=factor(rho), y=value)) +
+  geom_bar(stat="identity", aes(fill=coefficient), position=position_dodge2(preserve="single")) +
+  #facet_wrap(~specified, scales="free_y", nrow=2, ncol=3) +
+  scale_y_continuous(limits=c(0, 1), breaks=seq(0, 1, 0.1)) +
+  theme_bw() +
+  theme(
+    legend.title = element_blank()
+  ) +
+  ylab("Value") +
+  xlab("Rho")
+
+figure_2 <- ggplot(graph_data %>%
+                     filter(metric %in% c("Type 1 Error")) %>%
+                     filter(effect_direction == "Null effect") %>%
+                     filter(specified == "Correct Specification"),
+                        aes(x=factor(rho), y=value)) +
+  geom_bar(stat="identity", aes(fill=coefficient), position="dodge") +
+  facet_grid( ~ metric) +
+  theme_bw() +
+  theme(
+    legend.title = element_blank()
+  ) +
+  ylab("Value") +
+  xlab("Rho")
+
+ggsave("~/Downloads/figure_1_linear-ar-negative-power.png", figure_1, width=14, height=8, dpi=300)
+ggsave("~/Downloads/figure_2_glm.nb-twfe-null.png", figure_2, width=14, height=8, dpi=300)
+
 #==============================================================================
 #==============================================================================
 # SUMMARY METHODS
@@ -139,13 +210,21 @@ clean_data <- function(x, map, te_map=NULL, grouping_vars=NULL) {
 }
 
 #' helper for mean squared error
-mse <- function(x, te) {
-  (x - te)^2
+mse <- function(x, te, effect_direction) {
+  if (effect_direction == "null") {
+    (x - 0) ^ 2
+  } else {
+    (x - te)^2
+  }
 }
 
 #' helper for bias
-bias <- function(x, te) {
-  (x - te)
+bias <- function(x, te, effect_direction) {
+  if (effect_direction == "null") {
+    x - 0
+  } else {
+    x - te 
+  }
 }
 
 #' create binary indicator for significance of p-value based on given level
@@ -289,10 +368,10 @@ summarize_results <- function(x, meta_vars, estimates_map, te_map=NULL, grouping
   
   # add in bias and MSE if true effect included
   if ( "te" %in% names(estimates) ) {
-    biasVec <- Vectorize(bias)
-    mseVec <- Vectorize(mse)
-    estimates$bias <- biasVec(estimates$estimate, estimates$te)
-    estimates$mse <- mseVec(estimates$estimate, estimates$te)
+    biasVec <- Vectorize(bias, vectorize.args = c("x", "te"))
+    mseVec <- Vectorize(mse, vectorize.args = c("x", "te"))
+    estimates$bias <- biasVec(estimates$estimate, estimates$te, meta_list$effect_direction)
+    estimates$mse <- mseVec(estimates$estimate, estimates$te, meta_list$effect_direction)
   }
   
   # type I error flag for null runs
