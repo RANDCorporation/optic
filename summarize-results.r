@@ -6,9 +6,13 @@
 # EXAMPLE SETUP
 #==============================================================================
 #==============================================================================
-results <- readRDS("data/autoregressive-runs-2020-04-21.rds")
+#results <- readRDS("data/autoregressive-runs-2020-04-21.rds")
 #results <- readRDS("data/negbin-two-way-fe-2020-04-28.rds")
 #results <- readRDS("data/negbin-autorgressive-2020-04-30.rds")
+# this is the negbin with lag outcome as crude.rate
+#results <- readRDS("data/negbin-autorgressive-2020-05-05.rds")
+# this is the negbin with lag outcome as deaths
+results <- readRDS("data/negbin-autorgressive-2020-05-06.rds")
 
 meta_vars <- c(
   "model_call", "model_formula", "n_units", "true_effect", "effect_direction",
@@ -111,7 +115,7 @@ for (i in 1:length(results)) {
 one_obj_results <- do.call(dplyr::bind_rows, final_list)
 main_obj_results <- one_obj_results %>%
   filter(n_units == 30) %>%
-  filter(grepl("0.4", true_effect)) %>%
+  filter(grepl("0.099", true_effect)) %>%
   filter(policy_speed == "instant") %>%
   filter(se_adjustment == "cluster")
 
@@ -147,13 +151,11 @@ dummy_data <- data.frame(
 
 # boas, variance, power for for negative effect, by specification
 figure_1 <- ggplot(graph_data %>%
-                          filter(metric %in% c("Power")) %>%
-                          filter(effect_direction == "Negative Effect") %>%
-                     filter(specified == "Correct Specification"),
+                          filter(metric %in% c("Bias", "Power", "Variance")) %>%
+                          filter(effect_direction == "Negative Effect"),
                         aes(x=factor(rho), y=value)) +
   geom_bar(stat="identity", aes(fill=coefficient), position=position_dodge2(preserve="single")) +
-  #facet_wrap(~specified, scales="free_y", nrow=2, ncol=3) +
-  scale_y_continuous(limits=c(0, 1), breaks=seq(0, 1, 0.1)) +
+  facet_grid(specified ~ metric, scales="free_y") +
   theme_bw() +
   theme(
     legend.title = element_blank()
@@ -175,7 +177,7 @@ figure_2 <- ggplot(graph_data %>%
   ylab("Value") +
   xlab("Rho")
 
-ggsave("~/Downloads/figure_1_linear-ar-negative-power.png", figure_1, width=14, height=8, dpi=300)
+ggsave("~/Downloads/figure_1_negbin-ar-negative-raw.deaths.lag.png", figure_1, width=14, height=8, dpi=300)
 ggsave("~/Downloads/figure_2_glm.nb-twfe-null.png", figure_2, width=14, height=8, dpi=300)
 
 #==============================================================================
