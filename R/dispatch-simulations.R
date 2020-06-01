@@ -45,7 +45,7 @@ dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, verbos
       #==========================================================================
       #==========================================================================
       if (!is.null(seed)) {
-        use_seed <- seed * i
+        use_seed <- seed
       } else {
         use_seed <- NULL
       }
@@ -86,7 +86,7 @@ dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, verbos
       #==========================================================================
       #==========================================================================
       if (!is.null(seed)) {
-        use_seed <- seed * i
+        use_seed <- seed
         set.seed(use_seed)
       }
       
