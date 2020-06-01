@@ -49,21 +49,22 @@ run_iteration <- function(single_simulation) {
     )
   }
   
-  # add lag outcome to model if required
-  if (single_simulation$lag_outcome) {
-    all_terms <- model_terms(single_simulation$model_formula)
+  # add lagged variable to model if provided
+  if (!is.null(single_simulation$add_lag)) {
+    lag_var <- sym(single_simulation$add_lag)
     unit_sym <- dplyr::sym(single_simulation$unit_var)
     time_sym <- dplyr::sym(single_simulation$time_var)
-    outcome_sym <- dplyr::sym(all_terms$lhs)
     
     single_simulation$data <- single_simulation$data %>%
       dplyr::arrange(!!unit_sym, !!time_sym) %>%
       dplyr::group_by(!!unit_sym) %>%
-      dplyr::mutate(lag_outcome = dplyr::lag(!!outcome_sym, n=1)) %>%
+      dplyr::mutate(lag_variable = dplyr::lag(!!lag_var, n=1)) %>%
       dplyr::ungroup()
     
+    names(single_simulation$data)[which(names(single_simulation$data) == "lag_variable")] <- paste0("lag_", single_simulation$add_lag)
+    
     new_formula <- as.formula(
-      paste(all_terms$lhs, "~", paste(c(all_terms$rhs, "lag_outcome"), collapse=" + "))
+      paste(all_terms$lhs, "~", paste(c(all_terms$rhs, paste0("lag_", single_simulation$add_lag)), collapse=" + "))
     )
     
     single_simulation$model_formula <- new_formula

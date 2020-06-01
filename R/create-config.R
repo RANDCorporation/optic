@@ -21,8 +21,8 @@
 #'     for "slow" policy speed
 #' @param time_period_restriction provide vector of values that exist in time_var to restrict treatmenent
 #'     so it only can occur in these time periods
-#' @param lag_outcome whether or not to include a lag (1 time period lag) of the outcome variable in
-#'     the model
+#' @param add_lag default is NULL, if provided must be variable name that will be lagged by 1 time unit
+#'     and added to the data and model run (formula)
 #' @param se_adjust which standard error adjustments to produce, one or more of "cluster", "huber",
 #'     "huber-cluster"
 #' @param concurrent TRUE if this be a simulation that tests concurrent treatment policies, default
@@ -41,7 +41,7 @@ configure_simulation <- function(
   x, unit_var, time_var, model_call, model_formula, effect_magnitude, n_units,
   iters=5000, effect_direction=c("null", "pos", "neg"), model_args=NULL,
   policy_speed=c("instant"), n_implementation_periods=NA,
-  time_period_restriction=NULL, lag_outcome=FALSE,
+  time_period_restriction=NULL, add_lag=NULL,
   se_adjust=c("cluster", "huber", "huber-cluster"),
   concurrent=FALSE, correction_factors=NULL, rhos=NULL, change_code_treatment=FALSE,
   verbose=TRUE
@@ -181,7 +181,7 @@ configure_simulation <- function(
     policy_speed=policy_speed,
     n_implementation_periods=n_implementation_periods,
     time_period_restriction=time_period_restriction,
-    lag_outcome=lag_outcome,
+    add_lag=add_lag,
     se_adjust=se_adjust,
     concurrent=concurrent,
     correction_factors=correction_factors,

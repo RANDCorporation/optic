@@ -12,7 +12,7 @@ SimConfig <- R6::R6Class(
     initialize = function(
       data, unit_var, time_var, model_call, model_args, model_formula, iters,
       effect_direction, effect_magnitude, n_units, policy_speed, se_adjust,
-      concurrent, lag_outcome, n_implementation_periods,
+      concurrent, add_lag, n_implementation_periods,
       time_period_restriction, correction_factors, rhos, change_code_treatment) {
       
       # create matrix of all combinations of iterable args
@@ -44,7 +44,7 @@ SimConfig <- R6::R6Class(
       private$.policy_speed <- policy_speed
       private$.n_implementation_periods <- n_implementation_periods
       private$.time_period_restriction <- time_period_restriction
-      private$.lag_outcome <- lag_outcome
+      private$.add_lag <- add_lag
       private$.se_adjust <- se_adjust
       private$.concurrent <- concurrent
       private$.correction_factors <- correction_factors
@@ -72,7 +72,7 @@ SimConfig <- R6::R6Class(
       params$iters <- self$iters
       params$n_implementation_periods <- self$n_implementation_periods
       params$time_period_restriction <- self$time_period_restriction
-      params$lag_outcome <- self$lag_outcome
+      params$add_lag <- self$add_lag
       params$se_adjust <- self$se_adjust
       params$concurrent <- self$concurrent
       params$correction_factors <- self$correction_factors
@@ -106,7 +106,7 @@ SimConfig <- R6::R6Class(
     .policy_speed=NULL,
     .n_implementation_periods=NULL,
     .time_period_restriction=NULL,
-    .lag_outcome=NA,
+    .add_lag=NULL,
     .se_adjust=NULL,
     .concurrent=NA,
     .correction_factors=NULL,
@@ -210,11 +210,11 @@ SimConfig <- R6::R6Class(
         stop("`$time_period_restriction` is read-only", call.=FALSE)
       }
     },
-    lag_outcome = function(value) {
+    add_lag = function(value) {
       if (missing(value)) {
-        private$.lag_outcome
+        private$.add_lag
       } else {
-        stop("`$lag_outcome` is read-only", call.=FALSE)
+        stop("`$add_lag` is read-only", call.=FALSE)
       }
     },
     se_adjust = function(value) {
