@@ -32,12 +32,12 @@ my_models <- list(
   ),
   autoreg_linear = list(
     model_call="lm",
-    model_formula=crude.rate ~ treatment + unemploymentrate + as.factor(year) + offset(log(population))
+    model_formula=crude.rate ~ treatment + unemploymentrate + as.factor(year),
+    model_args=list(weights=as.name("population"))
   ),
   fixedeff_negbin = list(
     model_call="MASS::glm.nb",
-    model_formula=crude.rate ~ treatment + unemploymentrate + as.factor(year) + as.factor(state),
-    model_args=list(weights=as.name("population"))
+    model_formula=crude.rate ~ treatment + unemploymentrate + as.factor(year) + as.factor(state) + offset(log(population))
   ),
   autoreg_negbin = list(
     model_call="MASS::glm.nb",
