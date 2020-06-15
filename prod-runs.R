@@ -5,9 +5,82 @@ library(future.apply)
 load("data/optic_sim_data_exp.Rdata")
 names(x) <- tolower(names(x))
 
+x <- x %>%
+  arrange(state, year) %>%
+  group_by(state) %>%
+  mutate(lag1 = lag(crude.rate, n=1L),
+         lag2 = lag(crude.rate, n=2L),
+         lag3 = lag(crude.rate, n=3L)) %>%
+  ungroup() %>%
+  mutate(moving.ave3 = rowMeans(select(., lag1, lag2, lag3))) %>%
+  select(-lag1, -lag2, -lag3)
+
+
+cl <- parallel::makeCluster(8L)
+plan("cluster", workers = cl) 
+
 #==============================================================================
 #==============================================================================
-# LINEAR RUNS - lm
+# SELECTION BIAS
+#==============================================================================
+#==============================================================================
+my_models <- list(
+  fixedeff_linear = list(
+    model_call="lm",
+    model_formula=crude.rate ~ treatment + unemploymentrate + as.factor(year) + as.factor(state),
+    model_args=list(weights=as.name("population"))
+  ),
+  autoreg_linear = list(
+    model_call="lm",
+    model_formula=crude.rate ~ treatment + unemploymentrate + as.factor(year) + offset(log(population))
+  ),
+  fixedeff_negbin = list(
+    model_call="MASS::glm.nb",
+    model_formula=crude.rate ~ treatment + unemploymentrate + as.factor(year) + as.factor(state),
+    model_args=list(weights=as.name("population"))
+  ),
+  autoreg_negbin = list(
+    model_call="MASS::glm.nb",
+    model_formula=crude.rate ~ treatment + unemploymentrate + as.factor(year) + offset(log(population))
+  )
+)
+
+# test selection bias
+test <- configure_simulation(
+  # data and models required
+  x=x,
+  models=my_models,
+  # iterations
+  iters=5000,
+  
+  # specify functions or S3 class of set of functions
+  method_class="simulation",
+  method_sample=selbias_sample,
+  method_te=selbias_te,
+  method_pre_model=NULL,
+  method_model=selbias_model,
+  method_post_model=NULL,
+  method_results=selbias_results,
+  
+  # parameters that will be expanded and added
+  params=list(
+    unit_var="state",
+    time_var="year",
+    policy_speed=list("slow", "instant"),
+    n_implementation_periods=list(3),
+    b_vals=list(c(b0=-5, b1=0.05, b2=0.1),
+                c(b0=-5, b1=0.1, b2=0.15),
+                c(b0=-5, b1=0.2, b2=0.3))
+  )
+)
+
+r <- dispatch_simulations(test, use_future = TRUE, verbose = 2)
+
+
+
+#==============================================================================
+#==============================================================================
+# CONCURRENT POLICIES
 #==============================================================================
 #==============================================================================
 linear5 <- 690 / ((sum(x$population) / length(unique(x$year))) / 100000)
@@ -64,7 +137,7 @@ linear_ar <- configure_simulation(
   se_adjust=c("cluster", "huber", "huber-cluster"),
   concurrent=TRUE,
   change_code_treatment=TRUE,
-  lag_outcome=TRUE,
+  add_lag="crude.rate",
   rhos=c(0, 0.25, 0.5, 0.75, 0.9)
 )
 

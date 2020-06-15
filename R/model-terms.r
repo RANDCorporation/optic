@@ -3,6 +3,8 @@
 #' @param x formula to parse
 #' 
 #' @return list with named elements "lhs" and "rhs"
+#' 
+#' @export
 model_terms <- function(x) {
   stopifnot(class(x) == "formula")
   # convert to string
