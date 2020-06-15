@@ -3,189 +3,136 @@
 #' @description Performs validation on inputs and produces a configuration object
 #'     that contains all required parameters to dispatch simulation runs for data
 #'     provided.
+#'
+#' @details The resulting configuration object is passed to run iteration when
+#'     dispatching simulations. The run_iteration method will first create a
+#'     single_simulation object from self$setup_single_simulation(i), where i is
+#'     the ith simulation that was configured. Then run_iteration will pass the
+#'     single_simulation object to each of the method functions. The method
+#'     functions should modify elements of the single_simulation list and return
+#'     the entire single_simulation object. The method functions are run in the
+#'     following order (any that are set to NULL will be skipped): method_sample,
+#'     method_te, method_pre_model, method_model, method_post_model, method_result.
+#'     
+#' 
 #' @param x data.frame to use for model simulation
-#' @param unit_var variable in x that represents unit of observation (e.g., state, person, record), character name
-#' @param time_var variable in x that represents time (e.g., year, month), character name
-#' @param model_call currently supported options are "lm", "glm", "glm.nb"
-#' @param model_formula formula or list of formulas to iterate for simulation
-#' @param effect_magnitude use for non-null effect directions to modify treatment outcome
-#' @param n_units number of units to apply treatment to; may provide vector of integers for multiple sims
-#' @param iters number of iterations for each sim, default is 5,000
-#' @param effect_direction one or more of "null", "pos", "neg"; if "pos" or "neg" are supplied and no correction
-#'     factors are also provided then the simulation will throw a warning and run the null model first anyway to
-#'     get correction factors
-#' @param model_args optional list of additional arguments to pass to model_call
-#' @param policy_speed one or more of "instant", "slow"; if "slow" then must also provide value for
-#'     n_implementation_periods
-#' @param n_implementation_periods number of time periods (time_var) to phase in treatment from 0 to 1
-#'     for "slow" policy speed
-#' @param time_period_restriction provide vector of values that exist in time_var to restrict treatmenent
-#'     so it only can occur in these time periods
-#' @param add_lag default is NULL, if provided must be variable name that will be lagged by 1 time unit
-#'     and added to the data and model run (formula)
-#' @param se_adjust which standard error adjustments to produce, one or more of "cluster", "huber",
-#'     "huber-cluster"
-#' @param concurrent TRUE if this be a simulation that tests concurrent treatment policies, default
-#'     is FALSE
-#' @param correction_factors provide correction factors for "pos", "neg" effect directions if not
-#'     running "null"; if running "null" this will be ignored and if needed and not provided
-#'     will run "null" even if not specified in effect_direction
-#' @param rhos requires if concurrent is TRUE, different correlations between start dates of
-#'     policies to iterate over
-#' @param change_code_treatment boolean for whether or not to code treatment as a change in treatment
-#'     from prior period (used for autoregressive modeling), default is FALSE
+#' @param models list of lists for each model that should be run each iteration.
+#'     The elements must be lists containing `model_call`, `model_formula`, and
+#'     optionally `model_args`.
+#' @param iters number of iterations for each simulation
+#' @param method_sample function for sampling treated units, should modify the
+#'     single_simulation$data object
+#' @param method_te function for applying a treatment effect to the outcome,
+#'     should modify the single_simulation$data object
+#' @param method_pre_model optional function that will be applied single_simulation
+#'     object prior to modeling
+#' @param method_model function to run model, default performs a do.call on the 
+#'     model_call, passing model_formula and model_args if provided. Resulting 
+#'     model object is added to single_simulation list under named element
+#'     "model_result"
+#' @param method_post_model optional function for any post-processing on 
+#'     single_simulation object
+#' @param method_results function that takes the single_simulation object and
+#'     the return value is what it returned from run_iteration
+#' @param method_class optional, string name of class that is applied to objects
+#'     allowing use of S3 methods
 #' @param verbose should I be chatty? Default is yes, I am chatty.
 #' 
 #' @export
 configure_simulation <- function(
-  x, unit_var, time_var, model_call, model_formula, effect_magnitude, n_units,
-  iters=5000, effect_direction=c("null", "pos", "neg"), model_args=NULL,
-  policy_speed=c("instant"), n_implementation_periods=NA,
-  time_period_restriction=NULL, add_lag=NULL,
-  se_adjust=c("cluster", "huber", "huber-cluster"),
-  concurrent=FALSE, correction_factors=NULL, rhos=NULL, change_code_treatment=FALSE,
+  x, models, iters, params,
+  method_sample, method_te, method_model, method_results,
+  method_pre_model=NULL, method_post_model=NULL,
+  method_class="simulation",
   verbose=TRUE
 ) {
   ###
   # VALIDATION
   ###
-  # variables should be in the data
-  if (length(unit_var) != 1 | !unit_var %in% names(x)) {
-    stop(paste("unit_var must be length one and be named element in data:", unit_var))
-  }
-  if (length(time_var) != 1 | !time_var %in% names(x)) {
-    stop(paste("time_var must be length one and be named element in data:", time_var))
-  }
-  
-  # model call, formula, model_args should all be lists of the same length
-  # as they are going to matched 1:1 by position to allow users to leverage 
-  # those in one config rather than having to create multiple configs
-  if (class(model_call) != "list") {
-    if (length(model_call) == 1) {
-      model_call <- list(model_call)
-    } else {
-      stop("'model_call' must be a list or of length 1")
+  # all model list elements must contain at least model_call and model_formula args,
+  # optional model_args - nothing else
+  # also should be named, but if not apply names: model1, model2, model3, ...
+  for (m in models) {
+    if (!"model_call" %in% names(m)) {
+      stop("model must contain `model_call` named element")
     }
-  }
-  if (class(model_formula) != "list") {
-    if (class(model_formula) == "formula") {
-      model_formula <- list(model_formula)
-    } else {
-      stop("'model_formula' must be a list or of length 1")
+    if (!"model_formula" %in% names(m)) {
+      stop("model must contain `model_formula` named element")
     }
-  }
-  if (!is.null(model_args)) {
-    if (class(model_args) != "list") {
-      stop("'model_args' must be a list with the same length as 'model_call'")
-    }
-  }
-  if (class(effect_magnitude) != "list") {
-    if ( (length(effect_magnitude) == 1 & !concurrent) | (length(effect_magnitude) == 2 & concurrent) ) {
-      effect_magnitude <- list(effect_magnitude)
-    } else {
-      stop("'effect_magnitude' must be a list, a vector length 1 if concurrent is FALSE, ora vector length 2 if concurrent is TRUE")
+    if (any(!names(m) %in% c("model_call", "model_formula", "model_args"))) {
+      stop("model list elements can only contain the following named elements: `model_call`, `model_formula`, `model_args`")
     }
   }
   
-  if (length(model_call) != length(model_formula) | 
-        (!is.null(model_args) && length(model_call) != length(model_args)) ) {
-    stop("args 'model_call', 'model_formula', and 'model_args' (if provided) must all have the same length")
-  }
-  
-  # effect magnitude and concurrent need to align
-  for (i in 1:length(effect_magnitude)) {
-    if (length(effect_magnitude[[i]]) == 1 & concurrent) {
-      warning("only one effect magnitude provided but concurrent is TRUE, recycling")
-      effect_magnitude[[i]] <- rep(effect_magnitude[[i]], 2)
-    } else if (length(effect_magnitude[[i]]) > 1 & !concurrent) {
-      warning("more than one effect magnitude provided but concurrent is FALSE, only using first element")
-      effect_magnitude[[i]] <- effect_magnitude[[i]][1]
-    } else if (length(effect_magnitude[[i]]) > 2 & concurrent) {
-      warning("more than two true effects provided, only using first two elements")
-      effect_magnitude[[i]] <- effect_magnitude[[i]][1:2]
+  if (is.null(names(models))) {
+    message("Warning: model list elements unnamed, using: model1, model2, model3, ...")
+    for (i in 1:length(models)) {
+      names(models)[i] <- paste0("model", i)
+    }
+  } else if (any(is.na(names(models)))) {
+    message("Warning: `NA` not a valid name for element in models. Renaming all to: model1, model2, model3, ...")
+    for (i in 1:length(models)) {
+      names(models)[i] <- paste0("model", i)
     }
   }
   
-  # if null effect direction excluded, need to have correction factors passed from user
-  if (length(effect_direction) == 0 | is.null(effect_direction)) {
-    stop("must specify at least one value for 'effect_direction'")
-  }
-  if (!"null" %in% effect_direction & is.null(correction_factors)) {
-    warning("'null' not specified in effect_direction but no correction factors provided, adding back 'null'")
-    effect_direction <- c("null", effect_direction)
-  }
+  # iters should be integer
+  iters <- as.integer(iters)
   
-  # slow policy speed requires n_implementation_periods to be specified as well
-  if ("slow" %in% policy_speed & is.na(n_implementation_periods)) {
-    stop("'slow' in policy_speed, but no number provided for n_implementation_periods for length of phase in")
+  # confirm functions with arg of single_simulation
+  if (class(method_sample) != "function") {
+    stop("`method_sample` must be of class 'function'")
   }
-  
-  # time period must be number; and test the restriction
-  if (!is.numeric(x[[time_var]])) {
-    stop("time_var must be numeric")
+  if (class(method_te) != "function") {
+    stop("`method_te` must be of class 'function'")
   }
-  if (!is.null(time_period_restriction)) {
-    if(min(time_period_restriction) < min(x[[time_var]], na.rm=TRUE) |
-       max(time_period_restriction) >  max(x[[time_var]], na.rm=TRUE)) {
-      stop("time period restriction is outside the range of actual values")
+  if (class(method_model) != "function") {
+    stop("`method_model` must be of class 'function'")
+  }
+  if (class(method_results) != "function") {
+    stop("`method_results` must be of class 'function'")
+  }
+  if (class(method_sample) != "function") {
+    stop("`method_sample` must be of class 'function'")
+  }
+  if (!is.null(method_pre_model)) {
+    if (class(method_pre_model) != "function") {
+      stop("`method_pre_model` must be of class 'function' or NULL")
+    }
+  }
+  if (!is.null(method_post_model)) {
+    if (class(method_post_model) != "function") {
+      stop("`method_post_model` must be of class 'function' or NULL")
     }
   }
   
-  # number of units to give treatment must be no greater than total unique units in data
-  for (n in n_units) {
-    if (n > length(unique(x[[unit_var]]))) {
-      stop(paste("number of units cannot be greater than unique values of unit_var, error for n_units:", n))
-    }
-  }
-  
-  # if concurrent must provide rhos
-  if (concurrent & is.null(rhos)) {
-    stop("for concurrent policy simulations at least one rho (correlation between policy start dates) must be provided")
-  }
-  
-  # model formula should be list, if only one provided conver to list length 1
-  if (class(model_formula) == "formula") {
-    model_formula <- list(
-      model=model_formula
-    )
-  }
-  
-  # let user know combinations and total individual models
-  combs <- length(model_call) * length(n_units) * length(effect_direction) *
-    length(policy_speed) * length(effect_magnitude)
-  if (concurrent) {
-    combs <- combs * length(rhos)
-  }
-  runs <- combs * iters
-  
-  if (verbose) {
-    message(paste("configuration created for", combs, "combinations resulting in", runs, "individual iterations"))
-    if (runs > 40000) {
-      message("hey, that's a lot of iterations! we recommend using the parallel options when dispatching this job.")
-    }
-  }
   ###
   # create config object
   ###
-  SimConfig$new(
+  conf <- SimConfig$new(
     data=x,
-    unit_var=unit_var,
-    time_var=time_var,
-    model_call=model_call,
-    model_args=model_args,
-    model_formula=model_formula,
+    models=models,
     iters=iters,
-    effect_direction=effect_direction,
-    effect_magnitude=effect_magnitude,
-    n_units=n_units,
-    policy_speed=policy_speed,
-    n_implementation_periods=n_implementation_periods,
-    time_period_restriction=time_period_restriction,
-    add_lag=add_lag,
-    se_adjust=se_adjust,
-    concurrent=concurrent,
-    correction_factors=correction_factors,
-    rhos=rhos,
-    change_code_treatment=change_code_treatment
+    params=params,
+    method_class=method_class,
+    method_sample=method_sample,
+    method_te=method_te,
+    method_pre_model=method_pre_model,
+    method_model=method_model,
+    method_post_model=method_post_model,
+    method_results=method_results
   )
+  
+  if (verbose) {
+    # let user know combinations and total individual models
+    combs <- length(models) * length(purrr::cross(params))
+    runs <- combs * iters
+    
+    print(conf)
+    if (runs > 40000) {
+      cat("hey, that's a lot of iterations! we recommend using the parallel options when dispatching this job.\n")
+    }
+  }
+  
+  return(conf)
 }

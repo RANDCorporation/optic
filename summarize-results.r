@@ -1,5 +1,6 @@
 # 1. get meta information
 # 2. get summary of min/max/mean distances if applicable
+library(dplyr)
 
 #==============================================================================
 #==============================================================================
@@ -12,7 +13,13 @@
 # this is the negbin with lag outcome as crude.rate
 #results <- readRDS("data/negbin-autorgressive-2020-05-05.rds")
 # this is the negbin with lag outcome as deaths
-results <- readRDS("data/negbin-autorgressive-2020-05-06.rds")
+#results <- readRDS("data/negbin-autorgressive-2020-05-06.rds")
+
+# final prod results
+linear_fe <- readRDS("data/linear-fe-2020-05-09.rds")
+linear_ar <- readRDS("data/linear-ar-2020-05-09.rds")
+negbin_fe <- readRDS("data/negbin-fe-2020-05-09.rds")
+negbin_ar <- readRDS("data/negbin-ar-2020-05-11.rds")
 
 meta_vars <- c(
   "model_call", "model_formula", "n_units", "true_effect", "effect_direction",
@@ -26,19 +33,9 @@ estimates_map1 <- list(
   labels = c("estimate", "se", "variance", "t_stat", "p_value")
 )
 
-te_map1 <- list(
-  treatment1 = -0.0999525185298449,
-  treatment2 = -0.0999525185298449,
-  joint_effect = -0.199905
-)
-
 estimates_map2 <- list(
   treatment1 = c("estimate", "se", "variance", "t_stat", "p_value"),
   labels = c("estimate", "se", "variance", "t_stat", "p_value")
-)
-
-te_map2 <- list(
-  treatment1 = -0.0999525185298449
 )
 
 # for now, will need to update
@@ -49,12 +46,16 @@ for (i in 1:length(results)) {
 # get results first time, use ID to name element
 r_list <- list()
 for (i in 1:length(results)) {
+  tes <- as.numeric(strsplit(results[[i]]$true_effect, ", ")[[1]])
+  if (unique(results[[i]]$effect_direction) == "null") {
+    tes <- c(0, 0)
+  }
   if ( grepl("treatment2", unique(results[[i]]$model_formula)) ) {
     s <- summarize_results(
       x=results[[i]],
       meta_vars=meta_vars,
       estimates_map=estimates_map1,
-      te_map=te_map1,
+      te_map=list(treatment1=tes[1], treatment2=tes[2], joint_effect=sum(tes)),
       grouping_vars=c("se_adjustment", "iter"),
       cf=NULL
     )
@@ -63,7 +64,7 @@ for (i in 1:length(results)) {
       x=results[[i]],
       meta_vars=meta_vars,
       estimates_map=estimates_map2,
-      te_map=te_map2,
+      te_map=list(treatment1=tes[1]),
       grouping_vars=c("se_adjustment", "iter"),
       cf=NULL
     )
@@ -76,6 +77,10 @@ for (i in 1:length(results)) {
 # now do again, but use the correction factors calculated the first time through
 final_list <- list()
 for (i in 1:length(results)) {
+  tes <- as.numeric(strsplit(results[[i]]$true_effect, ", ")[[1]])
+  if (unique(results[[i]]$effect_direction) == "null") {
+    tes <- c(0, 0)
+  }
   meta_list <- list()
   for (m in meta_vars) {
     meta_list[[m]] <- unique(results[[i]][[m]])[1]
@@ -92,7 +97,7 @@ for (i in 1:length(results)) {
         x=results[[i]],
         meta_vars=meta_vars,
         estimates_map=estimates_map1,
-        te_map=te_map1,
+        te_map=list(treatment1=tes[1], treatment2=tes[2], joint_effect=sum(tes)),
         grouping_vars=c("se_adjustment", "iter"),
         cf=cf
       )
@@ -101,7 +106,7 @@ for (i in 1:length(results)) {
         x=results[[i]],
         meta_vars=meta_vars,
         estimates_map=estimates_map2,
-        te_map=te_map2,
+        te_map=list(treatment1=tes[1]),
         grouping_vars=c("se_adjustment", "iter"),
         cf=cf
       )
@@ -149,7 +154,7 @@ dummy_data <- data.frame(
   stringsAsFactors = FALSE
 )
 
-# boas, variance, power for for negative effect, by specification
+# bias, variance, power for for negative effect, by specification
 figure_1 <- ggplot(graph_data %>%
                           filter(metric %in% c("Bias", "Power", "Variance")) %>%
                           filter(effect_direction == "Negative Effect"),

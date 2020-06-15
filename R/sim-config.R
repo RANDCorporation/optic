@@ -10,82 +10,58 @@ SimConfig <- R6::R6Class(
   ###
   public = list(
     initialize = function(
-      data, unit_var, time_var, model_call, model_args, model_formula, iters,
-      effect_direction, effect_magnitude, n_units, policy_speed, se_adjust,
-      concurrent, add_lag, n_implementation_periods,
-      time_period_restriction, correction_factors, rhos, change_code_treatment) {
+      data, models,
+      method_class, method_sample, method_te, method_pre_model,
+      method_model, method_post_model, method_results,
+      iters, params) {
       
-      # create matrix of all combinations of iterable args
-      model_index <- 1:length(model_call)
-      combination_args <- tidyr::crossing(
-        model_index,
-        effect_magnitude,
-        n_units,
-        effect_direction,
-        policy_speed
-      )
-      if(concurrent) {
-        combination_args <- tidyr::crossing(
-          combination_args,
-          rhos
-        )
-      }
+      # create matrix of all combinations of iterable params
+      simulation_params <- purrr::cross(params)
+      simulation_params <- lapply(simulation_params, unlist)
+      simulation_params <- data.frame(do.call("rbind", simulation_params), stringsAsFactors = FALSE)
+      simulation_params <- type.convert(simulation_params, as.is=TRUE)
       
       private$.data <- data
-      private$.unit_var <- unit_var
-      private$.time_var <- time_var
-      private$.model_call <- model_call
-      private$.model_args <- model_args
-      private$.model_formula <- model_formula
+      private$.models <- models
       private$.iters <- iters
-      private$.effect_direction <- effect_direction
-      private$.effect_magnitude <- effect_magnitude
-      private$.n_units <- n_units
-      private$.policy_speed <- policy_speed
-      private$.n_implementation_periods <- n_implementation_periods
-      private$.time_period_restriction <- time_period_restriction
-      private$.add_lag <- add_lag
-      private$.se_adjust <- se_adjust
-      private$.concurrent <- concurrent
-      private$.correction_factors <- correction_factors
-      private$.rhos <- rhos
-      private$.change_code_treatment <- change_code_treatment
-      private$.combination_args <- combination_args
+      private$.params <- params
+      private$.simulation_params <- simulation_params
+      
+      private$.method_class <- method_class
+      private$.method_sample <- method_sample
+      private$.method_te <- method_te
+      private$.method_pre_model <- method_pre_model
+      private$.method_model <- method_model
+      private$.method_post_model <- method_post_model
+      private$.method_results <- method_results
       
       # dispatch to correct S3 methods
-      class(self) <- c(class(self), self$model_call)
+      class(self) <- c(class(self), self$method_class)
     },
     
-    setup_single_simulation = function(combination) {
-      params <- as.list(self$combination_args[combination, ])
-      params$effect_magnitude <- unlist(params$effect_magnitude)
-      params$model_call <- self$model_call[[params$model_index]]
-      params$model_formula <- self$model_formula[[params$model_index]]
-      if (!is.null(self$model_args)) {
-        params$model_args <- self$model_args[[params$model_index]]
-      } else {
-        params$model_args <- NULL
-      }
+    setup_single_simulation = function(i) {
+      params <- as.list(self$simulation_params[i, ])
       params$data <- self$data
-      params$unit_var <- self$unit_var
-      params$time_var <- self$time_var
+      params$models <- self$models
       params$iters <- self$iters
-      params$n_implementation_periods <- self$n_implementation_periods
-      params$time_period_restriction <- self$time_period_restriction
-      params$add_lag <- self$add_lag
-      params$se_adjust <- self$se_adjust
-      params$concurrent <- self$concurrent
-      params$correction_factors <- self$correction_factors
-      params$change_code_treatment <- self$change_code_treatment
-      params$combination_args <- self$combination_args
+      params$method_class <- self$method_class
+      params$method_sample <- self$method_sample
+      params$method_te <- self$method_te
+      params$method_pre_model <- self$method_pre_model
+      params$method_model <- self$method_model
+      params$method_post_model <- self$method_post_model
+      params$method_results <- self$method_results
+      
+      class(params) <- c(class(params), self$method_class)
       
       return(params)
     },
     
     print = function(...) {
-      cat(paste("Number of Simulations:", nrow(self$combination_args)))
+      cat(paste("Number of Simulations:", nrow(self$simulation_params)))
       cat(paste("\nIteration per Simulation :", self$iters))
-      cat(paste("\nTotal number of Iterations to Run:", nrow(self$conbination_args)*self$iters))
+      cat(paste("\nTotal number of Iterations to Run:", nrow(self$simulation_params)*self$iters))
+      cat("\n")
     }
   ),
   
@@ -94,25 +70,17 @@ SimConfig <- R6::R6Class(
   ###
   private = list(
     .data=NULL,
-    .unit_var=NULL,
-    .time_var=NULL,
-    .model_call=NULL,
-    .model_formula=NULL,
-    .model_args=NULL,
-    .iters=NA,
-    .effect_direction=NULL,
-    .effect_magnitude=NULL,
-    .n_units=NULL,
-    .policy_speed=NULL,
-    .n_implementation_periods=NULL,
-    .time_period_restriction=NULL,
-    .add_lag=NULL,
-    .se_adjust=NULL,
-    .concurrent=NA,
-    .correction_factors=NULL,
-    .rhos=NULL,
-    .change_code_treatment=NULL,
-    .combination_args=NULL
+    .models=NULL,
+    .method_class=NULL,
+    .method_sample=NULL,
+    .method_te=NULL,
+    .method_pre_model=NULL,
+    .method_model=NA,
+    .method_post_model=NULL,
+    .method_results=NULL,
+    .iters=NULL,
+    .params=NULL,
+    .simulation_params=NULL
   ),
   
   ###
@@ -126,39 +94,11 @@ SimConfig <- R6::R6Class(
         stop("`$data` is read-only", call.=FALSE)
       }
     },
-    unit_var = function(value) {
+    models = function(value) {
       if (missing(value)) {
-        private$.unit_var
+        private$.models
       } else {
-        stop("`$unit_var` is read-only", call.=FALSE)
-      }
-    },
-    time_var = function(value) {
-      if (missing(value)) {
-        private$.time_var
-      } else {
-        stop("`$time_var` is read-only", call.=FALSE)
-      }
-    },
-    model_call = function(value) {
-      if (missing(value)) {
-        private$.model_call
-      } else {
-        stop("`$model_call` is read-only", call.=FALSE)
-      }
-    },
-    model_formula = function(value) {
-      if (missing(value)) {
-        private$.model_formula
-      } else {
-        stop("`$model_formula` is read-only", call.=FALSE)
-      }
-    },
-    model_args = function(value) {
-      if (missing(value)) {
-        private$.model_args
-      } else {
-        stop("`$model_args` is read-only", call.=FALSE)
+        stop("`$models` is read-only", call.=FALSE)
       }
     },
     iters = function(value) {
@@ -168,95 +108,67 @@ SimConfig <- R6::R6Class(
         stop("`$iters` is read-only", call.=FALSE)
       }
     },
-    effect_direction = function(value) {
+    params = function(value) {
       if (missing(value)) {
-        private$.effect_direction
+        private$.params
       } else {
-        stop("`$effect_direction` is read-only", call.=FALSE)
+        stop("`$params` is read-only", call.=FALSE)
       }
     },
-    effect_magnitude = function(value) {
+    simulation_params = function(value) {
       if (missing(value)) {
-        private$.effect_magnitude
+        private$.simulation_params
       } else {
-        stop("`$effect_magnitude` is read-only", call.=FALSE)
+        stop("`$simulation_params` is read-only", call.=FALSE)
       }
     },
-    n_units = function(value) {
+    method_class = function(value) {
       if (missing(value)) {
-        private$.n_units
+        private$.method_class
       } else {
-        stop("`$n_units` is read-only", call.=FALSE)
+        stop("`$method_class` is read-only", call.=FALSE)
       }
     },
-    policy_speed = function(value) {
+    method_sample = function(value) {
       if (missing(value)) {
-        private$.policy_speed
+        private$.method_sample
       } else {
-        stop("`$policy_speed` is read-only", call.=FALSE)
+        stop("`$method_sample` is read-only", call.=FALSE)
       }
     },
-    n_implementation_periods = function(value) {
+    method_te = function(value) {
       if (missing(value)) {
-        private$.n_implementation_periods
+        private$.method_te
       } else {
-        stop("`$n_implementation_periods` is read-only", call.=FALSE)
+        stop("`$method_te` is read-only", call.=FALSE)
       }
     },
-    time_period_restriction = function(value) {
+    method_pre_model = function(value) {
       if (missing(value)) {
-        private$.time_period_restriction
+        private$.method_pre_model
       } else {
-        stop("`$time_period_restriction` is read-only", call.=FALSE)
+        stop("`$method_pre_model` is read-only", call.=FALSE)
       }
     },
-    add_lag = function(value) {
+    method_model = function(value) {
       if (missing(value)) {
-        private$.add_lag
+        private$.method_model
       } else {
-        stop("`$add_lag` is read-only", call.=FALSE)
+        stop("`$method_model` is read-only", call.=FALSE)
       }
     },
-    se_adjust = function(value) {
+    method_post_model = function(value) {
       if (missing(value)) {
-        private$.se_adjust
+        private$.method_post_model
       } else {
-        stop("`$se_adjust` is read-only", call.=FALSE)
+        stop("`$method_post_model` is read-only", call.=FALSE)
       }
     },
-    concurrent = function(value) {
+    method_results = function(value) {
       if (missing(value)) {
-        private$.concurrent
+        private$.method_results
       } else {
-        stop("`$iters` is read-only", call.=FALSE)
-      }
-    },
-    correction_factors = function(value) {
-      if (missing(value)) {
-        private$.correction_factors
-      } else {
-        stop("`$iters` is read-only", call.=FALSE)
-      }
-    },
-    rhos = function(value) {
-      if (missing(value)) {
-        private$.rhos
-      } else {
-        stop("`$rhos` is read-only", call.=FALSE)
-      }
-    },
-    change_code_treatment = function(value) {
-      if (missing(value)) {
-        private$.change_code_treatment
-      } else {
-        stop("`$change_code_treatment` is read-only", call.=FALSE)
-      }
-    },
-    combination_args = function(value) {
-      if (missing(value)) {
-        private$.combination_args
-      } else {
-        stop("`$combination_args` is read-only", call.=FALSE)
+        stop("`$method_results` is read-only", call.=FALSE)
       }
     }
   )
