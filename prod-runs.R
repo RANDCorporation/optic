@@ -5,9 +5,6 @@ library(future.apply)
 load("data/optic_sim_data_exp.Rdata")
 names(x) <- tolower(names(x))
 
-cl <- parallel::makeCluster(16L)
-plan("cluster", workers = cl) 
-
 #==============================================================================
 #==============================================================================
 # LINEAR RUNS - lm
@@ -20,7 +17,7 @@ linear15 <- 2070 / ((sum(x$population) / length(unique(x$year))) / 100000)
 scenario1 <- c(linear10, linear10)
 scenario2 <- c(linear5, linear15)
 
-two_way_fe <- configure_simulation(
+linear_fe <- configure_simulation(
   x=x,
   unit_var="state",
   time_var="year",
@@ -45,7 +42,7 @@ two_way_fe <- configure_simulation(
   rhos=c(0, 0.25, 0.5, 0.75, 0.9)
 )
 
-autoregressive <- configure_simulation(
+linear_ar <- configure_simulation(
   x=x,
   unit_var="state",
   time_var="year",
@@ -71,10 +68,6 @@ autoregressive <- configure_simulation(
   rhos=c(0, 0.25, 0.5, 0.75, 0.9)
 )
 
-start2 <- Sys.time()
-autoregressive_results <- dispatch_simulations(autoregressive, use_future=TRUE, seed=285)
-end2 <- Sys.time()
-
 #==============================================================================
 #==============================================================================
 # NEGATIVE BINOMIAL RUNS
@@ -89,7 +82,7 @@ nb15 <- 2070 / (sum(x$deaths) / length(unique(x$year)))
 scenario1nb <- c(nb10, nb10)
 scenario2nb <- c(nb5, nb15)
 
-two_way_fe <- configure_simulation(
+negbin_fe <- configure_simulation(
   x=x,
   unit_var="state",
   time_var="year",
@@ -110,7 +103,7 @@ two_way_fe <- configure_simulation(
   rhos=c(0, 0.25, 0.5, 0.75, 0.9)
 )
 
-autoregressive <- configure_simulation(
+negbin_ar <- configure_simulation(
   x=x,
   unit_var="state",
   time_var="year",
@@ -119,11 +112,11 @@ autoregressive <- configure_simulation(
     deaths ~ unemploymentrate + as.factor(year) + offset(log(population)) + treatment1 + treatment2,
     deaths ~ unemploymentrate + as.factor(year) + offset(log(population)) + treatment1
   ),
-  effect_magnitude=list(scenario1nb),
-  n_units=c(30),
+  effect_magnitude=list(scenario1nb, scenario2nb),
+  n_units=c(5, 30),
   iters=5000,
   effect_direction=c("null", "neg"),
-  policy_speed=c("instant"),
+  policy_speed=c("instant", "slow"),
   n_implementation_periods=3,
   se_adjust=c("cluster"),
   concurrent=TRUE,
@@ -132,23 +125,39 @@ autoregressive <- configure_simulation(
   rhos=c(0, 0.25, 0.5, 0.75, 0.9)
 )
 
-start1 <- Sys.time()
-two_way_nb_results <- dispatch_simulations(two_way_fe, use_future=TRUE, seed=474)
-saveRDS(two_way_nb_results, paste0("data/negbin-two-way-fe-",Sys.Date(), ".rds"))
-end1 <- Sys.time()
 
-start2 <- Sys.time()
-autoreg_nb_results <- dispatch_simulations(autoregressive, use_future=TRUE, seed=89)
-saveRDS(autoreg_nb_results, paste0("data/negbin-autorgressive-",Sys.Date(), ".rds"))
-end2 <- Sys.time()
+start <- Sys.time()
 
+cl <- parallel::makeCluster(16L)
+plan("cluster", workers = cl) 
+linear_fe_results <- dispatch_simulations(linear_fe, use_future=TRUE, seed=218)
+saveRDS(linear_fe_results, paste0("data/linear-fe-", Sys.Date(), ".rds"))
 
+cl <- parallel::makeCluster(16L)
+plan("cluster", workers = cl) 
+linear_ar_results <- dispatch_simulations(linear_ar, use_future=TRUE, seed=874)
+saveRDS(linear_ar_results, paste0("data/linear-ar-2020-05-09.rds"))
+
+cl <- parallel::makeCluster(16L)
+plan("cluster", workers = cl) 
+negbin_fe_results <- dispatch_simulations(negbin_fe, use_future=TRUE, seed=981)
+saveRDS(negbin_fe_results, paste0("data/negbin-fe-", Sys.Date(), ".rds"))
+
+cl <- parallel::makeCluster(16L)
+plan("cluster", workers = cl) 
+negbin_ar_results <- dispatch_simulations(negbin_ar, use_future=TRUE, seed=321)
+saveRDS(negbin_ar_results, paste0("data/negbin-ar-", Sys.Date(), ".rds"))
+
+end <- Sys.time()
+
+print(end-start)
 
 #==============================================================================
 #==============================================================================
 # REPLICATION RUN
 #==============================================================================
 #==============================================================================
+
 rep_two_way_fe <- configure_simulation(
   x=x,
   unit_var="state",

@@ -60,6 +60,7 @@ run_iteration <- function(single_simulation) {
       dplyr::arrange(!!unit_sym, !!time_sym) %>%
       dplyr::group_by(!!unit_sym) %>%
       dplyr::mutate(lag_outcome = dplyr::lag(!!outcome_sym, n=1)) %>%
+      #dplyr::mutate(lag_outcome = (lag_outcome * 100000) / population) %>%
       dplyr::ungroup()
     
     new_formula <- as.formula(
