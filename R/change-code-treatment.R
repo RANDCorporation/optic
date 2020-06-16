@@ -23,7 +23,7 @@ change_code_treatment <- function(x, unit_var, time_var, concurrent) {
       dplyr::mutate(temp_lag = dplyr::lag(treatment, n=1L)) %>%
       dplyr::mutate(treatment_change = treatment - temp_lag) %>%
       dplyr::ungroup() %>%
-      dplyr::select(-temp_lag, treatment) %>%
+      dplyr::select(-temp_lag, -treatment) %>%
       dplyr::rename(treatment=treatment_change)
   }
   

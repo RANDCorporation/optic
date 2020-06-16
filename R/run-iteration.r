@@ -1,4 +1,6 @@
 #' TODO: docstring
+#' 
+#' @export
 run_iteration <- function(single_simulation) {
   single_simulation <- single_simulation$method_sample(single_simulation)
   

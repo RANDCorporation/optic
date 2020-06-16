@@ -32,16 +32,16 @@ my_models <- list(
   ),
   autoreg_linear = list(
     model_call="lm",
-    model_formula=crude.rate ~ treatment + unemploymentrate + as.factor(year),
+    model_formula=crude.rate ~ change_code_treatment + lag_crude.rate + unemploymentrate + as.factor(year),
     model_args=list(weights=as.name("population"))
   ),
   fixedeff_negbin = list(
-    model_call="MASS::glm.nb",
-    model_formula=crude.rate ~ treatment + unemploymentrate + as.factor(year) + as.factor(state) + offset(log(population))
+    model_call="glm.nb",
+    model_formula=deaths ~ treatment + unemploymentrate + as.factor(year) + as.factor(state) + offset(log(population))
   ),
   autoreg_negbin = list(
-    model_call="MASS::glm.nb",
-    model_formula=crude.rate ~ treatment + unemploymentrate + as.factor(year) + offset(log(population))
+    model_call="glm.nb",
+    model_formula=deaths ~ change_code_treatment + lag_crude.rate + unemploymentrate + as.factor(year) + offset(log(population))
   )
 )
 
@@ -51,13 +51,13 @@ test <- configure_simulation(
   x=x,
   models=my_models,
   # iterations
-  iters=5000,
+  iters=8,
   
   # specify functions or S3 class of set of functions
   method_class="simulation",
   method_sample=selbias_sample,
   method_te=selbias_te,
-  method_pre_model=NULL,
+  method_pre_model=selbias_premodel,
   method_model=selbias_model,
   method_post_model=NULL,
   method_results=selbias_results,
@@ -70,11 +70,12 @@ test <- configure_simulation(
     n_implementation_periods=list(3),
     b_vals=list(c(b0=-5, b1=0.05, b2=0.1),
                 c(b0=-5, b1=0.1, b2=0.15),
-                c(b0=-5, b1=0.2, b2=0.3))
+                c(b0=-5, b1=0.2, b2=0.3)),
+    lag_variable="crude.rate"
   )
 )
 
-r <- dispatch_simulations(test, use_future = TRUE, verbose = 2)
+r <- dispatch_simulations(test, use_future = TRUE, verbose = 2, future.globals=c("model_terms", "run_iteration"), future.packages=c("dplyr", "MASS", "optic"))
 
 
 

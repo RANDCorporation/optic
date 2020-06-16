@@ -59,8 +59,9 @@ SimConfig <- R6::R6Class(
     
     print = function(...) {
       cat(paste("Number of Simulations:", nrow(self$simulation_params)))
+      cat(paste("\nNumber of Models:", length(self$models)))
       cat(paste("\nIteration per Simulation :", self$iters))
-      cat(paste("\nTotal number of Iterations to Run:", nrow(self$simulation_params)*self$iters))
+      cat(paste("\nTotal number of Iterations to Run:", nrow(self$simulation_params)*length(self$models)*self$iters))
       cat("\n")
     }
   ),

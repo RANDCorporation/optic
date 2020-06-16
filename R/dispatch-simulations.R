@@ -9,7 +9,7 @@
 #' @param verbose default TRUE, have the dispatcher tell you what's currently running
 #' 
 #' @export
-dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, verbose=0) {
+dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, verbose=0, ...) {
   if (!"SimConfig" %in% class(sim_config)) {
     stop("`sim_config` must be a SimConfig object")
   }
@@ -74,7 +74,8 @@ dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, verbos
           r$iter <- j
           return(r)
         },
-        future.seed=use_seed
+        future.seed=use_seed,
+        ...
       )
     } else {
       #==========================================================================
