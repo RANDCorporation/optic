@@ -1,4 +1,5 @@
 library(optic)
+library(dplyr)
 library(future)
 library(future.apply)
 
@@ -16,7 +17,7 @@ x <- x %>%
   select(-lag1, -lag2, -lag3)
 
 
-cl <- parallel::makeCluster(8L)
+cl <- parallel::makeCluster(16L)
 plan("cluster", workers = cl) 
 
 #==============================================================================
@@ -34,15 +35,15 @@ my_models <- list(
     model_call="lm",
     model_formula=crude.rate ~ change_code_treatment + lag_crude.rate + unemploymentrate + as.factor(year),
     model_args=list(weights=as.name("population"))
-  ),
-  fixedeff_negbin = list(
-    model_call="glm.nb",
-    model_formula=deaths ~ treatment + unemploymentrate + as.factor(year) + as.factor(state) + offset(log(population))
-  ),
-  autoreg_negbin = list(
-    model_call="glm.nb",
-    model_formula=deaths ~ change_code_treatment + lag_crude.rate + unemploymentrate + as.factor(year) + offset(log(population))
   )
+  # fixedeff_negbin = list(
+  #   model_call="glm.nb",
+  #   model_formula=deaths ~ treatment + unemploymentrate + as.factor(year) + as.factor(state) + offset(log(population))
+  # ),
+  # autoreg_negbin = list(
+  #   model_call="glm.nb",
+  #   model_formula=deaths ~ change_code_treatment + lag_crude.rate + unemploymentrate + as.factor(year) + offset(log(population))
+  # )
 )
 
 # test selection bias
@@ -51,7 +52,7 @@ test <- configure_simulation(
   x=x,
   models=my_models,
   # iterations
-  iters=8,
+  iters=5000,
   
   # specify functions or S3 class of set of functions
   method_class="simulation",
@@ -75,7 +76,10 @@ test <- configure_simulation(
   )
 )
 
-r <- dispatch_simulations(test, use_future = TRUE, verbose = 2, future.globals=c("model_terms", "run_iteration"), future.packages=c("dplyr", "MASS", "optic"))
+cl <- parallel::makeCluster(16L)
+plan("cluster", workers = cl) 
+
+r <- dispatch_simulations(test, use_future = TRUE, verbose = 2, future.packages=c("dplyr", "MASS", "optic"))
 
 
 

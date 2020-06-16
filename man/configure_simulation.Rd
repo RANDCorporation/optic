@@ -6,77 +6,50 @@
 \usage{
 configure_simulation(
   x,
-  unit_var,
-  time_var,
-  model_call,
-  model_formula,
-  effect_magnitude,
-  n_units,
-  iters = 5000,
-  effect_direction = c("null", "pos", "neg"),
-  model_args = NULL,
-  policy_speed = c("instant"),
-  n_implementation_periods = NA,
-  time_period_restriction = NULL,
-  lag_outcome = FALSE,
-  se_adjust = c("cluster", "huber", "huber-cluster"),
-  concurrent = FALSE,
-  correction_factors = NULL,
-  rhos = NULL,
-  change_code_treatment = FALSE,
+  models,
+  iters,
+  params,
+  method_sample,
+  method_te,
+  method_model,
+  method_results,
+  method_pre_model = NULL,
+  method_post_model = NULL,
+  method_class = "simulation",
   verbose = TRUE
 )
 }
 \arguments{
 \item{x}{data.frame to use for model simulation}
 
-\item{unit_var}{variable in x that represents unit of observation (e.g., state, person, record), character name}
+\item{models}{list of lists for each model that should be run each iteration.
+The elements must be lists containing `model_call`, `model_formula`, and
+optionally `model_args`.}
 
-\item{time_var}{variable in x that represents time (e.g., year, month), character name}
+\item{iters}{number of iterations for each simulation}
 
-\item{model_call}{currently supported options are "lm", "glm", "glm.nb"}
+\item{method_sample}{function for sampling treated units, should modify the
+single_simulation$data object}
 
-\item{model_formula}{formula or list of formulas to iterate for simulation}
+\item{method_te}{function for applying a treatment effect to the outcome,
+should modify the single_simulation$data object}
 
-\item{effect_magnitude}{use for non-null effect directions to modify treatment outcome}
+\item{method_model}{function to run model, default performs a do.call on the 
+model_call, passing model_formula and model_args if provided. Resulting 
+model object is added to single_simulation list under named element
+"model_result"}
 
-\item{n_units}{number of units to apply treatment to; may provide vector of integers for multiple sims}
+\item{method_results}{function that takes the single_simulation object and
+the return value is what it returned from run_iteration}
 
-\item{iters}{number of iterations for each sim, default is 5,000}
+\item{method_pre_model}{optional function that will be applied single_simulation
+object prior to modeling}
 
-\item{effect_direction}{one or more of "null", "pos", "neg"; if "pos" or "neg" are supplied and no correction
-factors are also provided then the simulation will throw a warning and run the null model first anyway to
-get correction factors}
+\item{method_post_model}{optional function for any post-processing on 
+single_simulation object}
 
-\item{model_args}{optional list of additional arguments to pass to model_call}
-
-\item{policy_speed}{one or more of "instant", "slow"; if "slow" then must also provide value for
-n_implementation_periods}
-
-\item{n_implementation_periods}{number of time periods (time_var) to phase in treatment from 0 to 1
-for "slow" policy speed}
-
-\item{time_period_restriction}{provide vector of values that exist in time_var to restrict treatmenent
-so it only can occur in these time periods}
-
-\item{lag_outcome}{whether or not to include a lag (1 time period lag) of the outcome variable in
-the model}
-
-\item{se_adjust}{which standard error adjustments to produce, one or more of "cluster", "huber",
-"huber-cluster"}
-
-\item{concurrent}{TRUE if this be a simulation that tests concurrent treatment policies, default
-is FALSE}
-
-\item{correction_factors}{provide correction factors for "pos", "neg" effect directions if not
-running "null"; if running "null" this will be ignored and if needed and not provided
-will run "null" even if not specified in effect_direction}
-
-\item{rhos}{requires if concurrent is TRUE, different correlations between start dates of
-policies to iterate over}
-
-\item{change_code_treatment}{boolean for whether or not to code treatment as a change in treatment
-from prior period (used for autoregressive modeling), default is FALSE}
+\item{method_class}{optional, string name of class that is applied to objects
+allowing use of S3 methods}
 
 \item{verbose}{should I be chatty? Default is yes, I am chatty.}
 }
@@ -84,4 +57,15 @@ from prior period (used for autoregressive modeling), default is FALSE}
 Performs validation on inputs and produces a configuration object
     that contains all required parameters to dispatch simulation runs for data
     provided.
+}
+\details{
+The resulting configuration object is passed to run iteration when
+    dispatching simulations. The run_iteration method will first create a
+    single_simulation object from self$setup_single_simulation(i), where i is
+    the ith simulation that was configured. Then run_iteration will pass the
+    single_simulation object to each of the method functions. The method
+    functions should modify elements of the single_simulation list and return
+    the entire single_simulation object. The method functions are run in the
+    following order (any that are set to NULL will be skipped): method_sample,
+    method_te, method_pre_model, method_model, method_post_model, method_result.
 }

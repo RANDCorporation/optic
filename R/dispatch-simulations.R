@@ -60,7 +60,7 @@ dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, verbos
             error=function(e) {
               e
             })
-            if (class(r) == "data.frame") {
+            if (! "error" %in% class(r)) {
               complete <- complete + 1
             } else {
               if (failed_attempts == 0.10*single_simulation$iters) {
@@ -111,7 +111,6 @@ dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, verbos
           }
         }
         r$iter <- j
-        print(j)
         sim_results[[j]] <- r
         rm(r)
       }

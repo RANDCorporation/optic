@@ -24,24 +24,16 @@ Configuration object for OPTIC Simulation project
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SimConfig$new(
   data,
-  unit_var,
-  time_var,
-  model_call,
-  model_args,
-  model_formula,
+  models,
+  method_class,
+  method_sample,
+  method_te,
+  method_pre_model,
+  method_model,
+  method_post_model,
+  method_results,
   iters,
-  effect_direction,
-  effect_magnitude,
-  n_units,
-  policy_speed,
-  se_adjust,
-  concurrent,
-  lag_outcome,
-  n_implementation_periods,
-  time_period_restriction,
-  correction_factors,
-  rhos,
-  change_code_treatment
+  params
 )}\if{html}{\out{</div>}}
 }
 
@@ -51,7 +43,7 @@ Configuration object for OPTIC Simulation project
 \if{latex}{\out{\hypertarget{method-setup_single_simulation}{}}}
 \subsection{Method \code{setup_single_simulation()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SimConfig$setup_single_simulation(combination)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{SimConfig$setup_single_simulation(i)}\if{html}{\out{</div>}}
 }
 
 }

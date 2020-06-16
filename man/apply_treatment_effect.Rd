@@ -4,7 +4,14 @@
 \alias{apply_treatment_effect}
 \title{apply specified treatment effect (percent change) to outcome}
 \usage{
-apply_treatment_effect(x, model_formula, te, effect_direction, concurrent)
+apply_treatment_effect(
+  x,
+  model_formula,
+  model_call,
+  te,
+  effect_direction,
+  concurrent
+)
 }
 \arguments{
 \item{x}{data}
