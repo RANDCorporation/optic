@@ -11,8 +11,7 @@ SimConfig <- R6::R6Class(
   public = list(
     initialize = function(
       data, models,
-      method_class, method_sample, method_te, method_pre_model,
-      method_model, method_post_model, method_results,
+      method_sample, method_pre_model, method_model, method_post_model, method_results,
       iters, params) {
       
       # create matrix of all combinations of iterable params
@@ -27,16 +26,11 @@ SimConfig <- R6::R6Class(
       private$.params <- params
       private$.simulation_params <- simulation_params
       
-      private$.method_class <- method_class
       private$.method_sample <- method_sample
-      private$.method_te <- method_te
       private$.method_pre_model <- method_pre_model
       private$.method_model <- method_model
       private$.method_post_model <- method_post_model
       private$.method_results <- method_results
-      
-      # dispatch to correct S3 methods
-      class(self) <- c(class(self), self$method_class)
     },
     
     setup_single_simulation = function(i) {
@@ -44,15 +38,11 @@ SimConfig <- R6::R6Class(
       params$data <- self$data
       params$models <- self$models
       params$iters <- self$iters
-      params$method_class <- self$method_class
       params$method_sample <- self$method_sample
-      params$method_te <- self$method_te
       params$method_pre_model <- self$method_pre_model
       params$method_model <- self$method_model
       params$method_post_model <- self$method_post_model
       params$method_results <- self$method_results
-      
-      class(params) <- c(class(params), self$method_class)
       
       return(params)
     },
@@ -72,9 +62,7 @@ SimConfig <- R6::R6Class(
   private = list(
     .data=NULL,
     .models=NULL,
-    .method_class=NULL,
     .method_sample=NULL,
-    .method_te=NULL,
     .method_pre_model=NULL,
     .method_model=NA,
     .method_post_model=NULL,
@@ -123,25 +111,11 @@ SimConfig <- R6::R6Class(
         stop("`$simulation_params` is read-only", call.=FALSE)
       }
     },
-    method_class = function(value) {
-      if (missing(value)) {
-        private$.method_class
-      } else {
-        stop("`$method_class` is read-only", call.=FALSE)
-      }
-    },
     method_sample = function(value) {
       if (missing(value)) {
         private$.method_sample
       } else {
         stop("`$method_sample` is read-only", call.=FALSE)
-      }
-    },
-    method_te = function(value) {
-      if (missing(value)) {
-        private$.method_te
-      } else {
-        stop("`$method_te` is read-only", call.=FALSE)
       }
     },
     method_pre_model = function(value) {

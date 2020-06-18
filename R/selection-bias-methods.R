@@ -2,7 +2,14 @@
 ### SAMPLING METHOD ###
 #######################
 
-#' TODO: documentaion for selection bias sampling method
+#' perform sampling and coding of treatment for selection bias simulations
+#' 
+#' @description uses values of b0, b1, b2 to sample treated units based on
+#'     values of moving average and unemployment rate to induce selection bias.
+#'     Once treated units are identified, codes level and change version of
+#'     treatment that are used in various modeling approaches later on.
+#'
+#' @param single_simulation object created from SimConfig$setup_single_simulation()
 selbias_sample <- function(single_simulation) {
   x <- single_simulation$data
   unit_var <- single_simulation$unit_var
@@ -91,6 +98,21 @@ selbias_sample <- function(single_simulation) {
     }
   }
   
+  # create level and change code versions of treatment variable
+  x$treatment_level <- x$treatment
+  
+  # add in change code version of treatment variable
+  unit_sym <- dplyr::sym(unit_var)
+  time_sym <- dplyr::sym(time_var)
+  
+  x <- x %>%
+    dplyr::arrange(!!unit_sym, !!time_sym) %>%
+    dplyr::group_by(!!unit_sym) %>%
+    dplyr::mutate(temp_lag = dplyr::lag(treatment, n=1L)) %>%
+    dplyr::mutate(treatment_change = treatment - temp_lag) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-temp_lag)
+  
   # add and update objects to single sim list
   single_simulation$treated_units <- treated
   single_simulation$data <- x
@@ -98,158 +120,233 @@ selbias_sample <- function(single_simulation) {
   return(single_simulation)
 }
 
-
-###############################
-### TREATMENT EFFECT METHOD ###
-###############################
-
-#' TODO: documnetation for treatment effect
-selbias_te <- function(single_simulation) {
-  x <- single_simulation$data
-  effect_direction <- single_simulation$effect_direction
-  a1 <- .95 #want moving average to have strong positive (orig .5)
-  a2 <- .05 #unemployment less  (orig .1)
-  balance_statistics <- NULL
-  
-  # get the unique outcome values and iterate over them to apply
-  # treatment effect (bias) and grab balance statistics
-  outcomes <- unique(unlist(sapply(single_simulation$models, function(x) {
-    optic:::model_terms(x$model_formula)[["lhs"]]
-  })))
-  
-  for (o in outcomes) {
-    oo <- dplyr::sym(o)
-    x[[o]] <- x[[o]] + (a1 * x$moving.ave3) + (a2 * x$unemploymentrate)
-    
-    # get balance information
-    bal_stats <- x %>%
-      group_by(year) %>%
-      summarize(
-        n_trt = sum(treatment > 0),
-        mu1_mva3 = mean(moving.ave3[treatment > 0]),
-        mu0_mva3 = mean(moving.ave3[treatment == 0]),
-        sd_mva3 = sd(moving.ave3),
-        mu1_unempl = mean(unemploymentrate[treatment > 0]),
-        mu0_unempl = mean(unemploymentrate[treatment == 0]),
-        sd_unempl = sd(unemploymentrate),
-        mu1 = mean((!!oo)[treatment > 0]),
-        mu0 = mean((!!oo)[treatment == 0]),
-        sd = sd(!!oo)
-      ) %>%
-      mutate(
-        es_mva3 = (mu1_mva3 - mu0_mva3) / sd_mva3,
-        es_unempl = (mu1_unempl - mu0_unempl) / sd_unempl,
-        es = (mu1 - mu0) / sd
-      ) %>%
-      ungroup() %>%
-      summarize(n = max(n_trt, na.rm=TRUE),
-                mean_es_mva3 = mean(es_mva3, na.rm=TRUE),
-                max_es_mva3 = max(abs(es_mva3), na.rm=TRUE),
-                mean_es_unempl = mean(es_unempl, na.rm=TRUE),
-                max_es_unempl = max(abs(es_unempl), na.rm=TRUE),
-                mean_es_outcome = mean(es, na.rm=TRUE),
-                max_es_outcome = max(abs(es), na.rm=TRUE)
-      ) %>%
-      mutate(outcome = o)
-    
-    balance_statistics <- rbind(balance_statistics, bal_stats)
-  }
-  
-  single_simulation$balance_statistics <- balance_statistics
-  single_simulation$data <- x
-  
-  return(single_simulation)
-}
-
-
 ########################
 ### PRE-MODEL METHOD ###
 ########################
 
-#' TODO: documentation
-selbias_premodel <- function(single_simulation) {
-  # add in change code version of treatment variable
-  unit_sym <- dplyr::sym(single_simulation$unit_var)
-  time_sym <- dplyr::sym(single_simulation$time_var)
+#' Modify the outcome and prepare data for modeling based on model type
+#' 
+#' @description modifies the outcome with bias from trend and unemployemnt
+#'     rate; if autoregressive run, also adds a lag of the crude rate that
+#'     is newly derived from modified deaths if using deaths as outcome.
+#'     Calculates some balance information that is passed along to later
+#'     steps.
+selbias_premodel <- function(model_simulation) {
+  x <- model_simulation$data
+  effect_direction <- model_simulation$effect_direction
+  a1 <- model_simulation$a_vals.a1
+  a2 <- model_simulation$a_vals.a2
+  model <- model_simulation$models
+  balance_statistics <- NULL
   
-  single_simulation$data <- single_simulation$data %>%
-    dplyr::arrange(!!unit_sym, !!time_sym) %>%
-    dplyr::group_by(!!unit_sym) %>%
-    dplyr::mutate(temp_lag = dplyr::lag(treatment, n=1L)) %>%
-    dplyr::mutate(change_code_treatment = treatment - temp_lag) %>%
-    dplyr::ungroup() %>%
-    dplyr::select(-temp_lag)
+  # get the outcome and type for this model
+  outcome <- optic:::model_terms(model$model_formula)[["lhs"]]
+  oo <- dplyr::sym(outcome)
+  model_type <- model$type
   
-  # add in a lag after TE step is applied
-  if (!is.null(single_simulation$lag_variable)) {
-    # allow any variable to be lagged using params
-    lag_var <- sym(single_simulation$lag_variable)
+  # apply bias to outcome
+  x[[outcome]] <- x[[outcome]] + (a1 * x$moving.ave3) + (a2 * x$unemploymentrate)
+  
+  # if autoregressive, need to add lag for crude rate
+  # when outcome is deaths, derive new crude rate from modified outcome
+  if (model_type == "autoreg") {
+    if (outcome == "deaths") {
+      x$crude.rate <- (x$deaths * 100000)/ x$population
+    }
     
-    single_simulation$data <- single_simulation$data %>%
+    # get lag of crude rate and add it to the model
+    unit_sym <- dplyr::sym(model_simulation$unit_var)
+    time_sym <- dplyr::sym(model_simulation$time_var)
+    
+    x <- x %>%
       dplyr::arrange(!!unit_sym, !!time_sym) %>%
       dplyr::group_by(!!unit_sym) %>%
-      dplyr::mutate(lag_variable = dplyr::lag(!!lag_var, n=1)) %>%
+      dplyr::mutate(lag_crude.rate = dplyr::lag(crude.rate, n=1L)) %>%
       dplyr::ungroup()
     
-    names(single_simulation$data)[which(names(single_simulation$data) == "lag_variable")] <- paste0("lag_", single_simulation$lag_variable)
+    model_simulation$models$model_formula <- update.formula(model_simulation$models$model_formula, ~ . + lag_crude.rate)
   }
   
-  return(single_simulation)
+  # get balance information
+  bal_stats <- x %>%
+    group_by(year) %>%
+    summarize(
+      n_trt = sum(treatment > 0),
+      mu1_mva3 = mean(moving.ave3[treatment > 0]),
+      mu0_mva3 = mean(moving.ave3[treatment == 0]),
+      sd_mva3 = sd(moving.ave3),
+      mu1_unempl = mean(unemploymentrate[treatment > 0]),
+      mu0_unempl = mean(unemploymentrate[treatment == 0]),
+      sd_unempl = sd(unemploymentrate),
+      mu1 = mean((!!oo)[treatment > 0]),
+      mu0 = mean((!!oo)[treatment == 0]),
+      sd = sd(!!oo)
+    ) %>%
+    mutate(
+      es_mva3 = (mu1_mva3 - mu0_mva3) / sd_mva3,
+      es_unempl = (mu1_unempl - mu0_unempl) / sd_unempl,
+      es = (mu1 - mu0) / sd
+    ) %>%
+    ungroup() %>%
+    summarize(n = max(n_trt, na.rm=TRUE),
+              mean_es_mva3 = mean(es_mva3, na.rm=TRUE),
+              max_es_mva3 = max(abs(es_mva3), na.rm=TRUE),
+              mean_es_unempl = mean(es_unempl, na.rm=TRUE),
+              max_es_unempl = max(abs(es_unempl), na.rm=TRUE),
+              mean_es_outcome = mean(es, na.rm=TRUE),
+              max_es_outcome = max(abs(es), na.rm=TRUE)
+    ) %>%
+    mutate(outcome = outcome,
+           n_unique_enact_years = length(unique(sapply(model_simulation$treated_units, function(x) {min(x[["policy_years"]])}))))
+  
+  model_simulation$balance_statistics <- bal_stats
+  model_simulation$data <- x
+  
+  return(model_simulation)
 }
 
-#' TODO: documnetation
-selbias_model <- function(single_simulation) {
-  models <- single_simulation$models
-  x <- single_simulation$data
+#' run model and store results
+#' 
+#' @description runs the model against the prepared data along with
+#'     any provided arguments. Stores the model object in the input
+#'     list, new element named "model_result" and returns full list
+selbias_model <- function(model_simulation) {
+  model <- model_simulation$models
+  x <- model_simulation$data
   
-  model_objects <- list()
-  for (mname in names(models)) {
-    m <- do.call(
-      models[[mname]][["model_call"]],
-      c(list(data=x, formula=models[[mname]][["model_formula"]]), models[[mname]][["model_args"]])
-    )
-    
-    model_objects[[mname]] <- m
-  }
+  m <- do.call(
+    model[["model_call"]],
+    c(list(data=x, formula=model[["model_formula"]]), model[["model_args"]])
+  )
   
-  single_simulation$model_results <- model_objects
+  model_simulation$model_result <- m
   
-  return(single_simulation)
+  return(model_simulation)
 }
 
 
-######################
-### RESULST METHOD ###
-######################
+##########################
+### POST MODELS METHOD ###
+##########################
 
 #' TODO: documentation
-selbias_results <- function(single_simulation) {
-  # get model result information along with params for run,
-  # join with balance statistics, and return df
-  results <- NULL
-  for (mname in names(single_simulation$model_results)) {
-    cf <- summary(single_simulation$model_results[[mname]])$coefficients
-    est <- cf[grep("treatment", rownames(cf)), "Estimate"]
+selbias_postmodel <- function(model_simulation) {
+  outcome <- model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
+  
+  # get run metadata to merge in after
+  meta_data <- data.frame(
+    model_name = model_simulation$models$name,
+    model_call = model_simulation$models[["model_call"]],
+    outcome = outcome,
+    model_formula = Reduce(paste, trimws(deparse(model_simulation$models[["model_formula"]]))),
+    policy_speed = model_simulation$policy_speed,
+    n_implementation_years = model_simulation$n_implementation_periods,
+    b0 = model_simulation$b_vals.b0,
+    b1 = model_simulation$b_vals.b1,
+    b2 = model_simulation$b_vals.b2,
+    a1 = model_simulation$a_vals.a1,
+    a2 = model_simulation$a_vals.a2
+  )
+  
+  # get model result information and apply standard error adjustments
+  m <- model_simulation$model_result
+  cf <- as.data.frame(summary(m)$coefficients)
+  cf$variable <- row.names(cf)
+  rownames(cf) <- NULL
+  
+  treatment <- cf$variable[grepl("^treatment", cf$variable)][1]
+  
+  cf <- cf[cf$variable == treatment, ]
+  estimate <- cf[["Estimate"]]
+  
+  r <- data.frame(
+    outcome=outcome,
+    se_adjustment="none",
+    estimate=estimate,
+    se=cf[["Std. Error"]],
+    variance=cf[["Std. Error"]] ^ 2,
+    t_stat=cf[["t value"]],
+    p_value=cf[["Pr(>|t|)"]],
+    mse=mean(m[["residuals"]]^2, na.rm=T),
+    stringsAsFactors=FALSE
+  )
+  
+  if ("huber" %in% model_simulation$models[["se_adjust"]]) {
+    cov_h <- sandwich::vcovHC(m, type="HC0")
+    h_se <- sqrt(diag(cov_h))[names(diag(cov_h)) == treatment]
     
-    r <- data.frame(
-      outcome = model_terms(single_simulation$models[[mname]][["model_formula"]])[["lhs"]],
-      estimate = est,
-      model_name = mname,
-      model_call = single_simulation$models[[mname]][["model_call"]],
-      model_formula = Reduce(paste, trimws(deparse(single_simulation$models[[mname]][["model_formula"]]))),
-      policy_speed = single_simulation$policy_speed,
-      n_implementation_years = single_simulation$n_implementation_periods,
-      b0 = single_simulation$b_vals.b0,
-      b1 = single_simulation$b_vals.b1,
-      b2 = single_simulation$b_vals.b2
+    h_r <- data.frame(
+      outcome=outcome,
+      se_adjustment="huber",
+      estimate=estimate,
+      se=h_se,
+      variance=h_se ^ 2,
+      t_stat=estimate / h_se,
+      p_value=2 * pnorm(abs(estimate / h_se), lower.tail=FALSE),
+      mse=mean(m[["residuals"]]^2, na.rm=T),
+      stringsAsFactors=FALSE
     )
-    
-    results <- rbind(results, r)
+    r <- rbind(r, h_r)
+    rownames(r) <- NULL
   }
   
-  results <- left_join(single_simulation$balance_statistics, results, by="outcome")
+  if ("cluster" %in% model_simulation$models[["se_adjust"]]) {
+    clust_indices <- as.numeric(rownames(m$model))
+    clust_var <- as.character(model_simulation$data[[model_simulation$unit_var]][clust_indices])
+    clust_coeffs <- cluster_adjust_se(m, clust_var)[[2]]
+    clust_vcov <- cluster_adjust_se(m, clust_var)[[1]][2,3] #not 100% alginment with SEs from model so worried this is off
+    class(clust_coeffs) <- c("coeftest", "matrix")
+    clust_coeffs <- as.data.frame(clust_coeffs)
+    clust_coeffs$variable <- row.names(clust_coeffs)
+    rownames(clust_coeffs) <- NULL
+    clust_coeffs <- clust_coeffs[clust_coeffs$variable == treatment,]
+    
+    c_r <- data.frame(
+      outcome=outcome,
+      se_adjustment="cluster",
+      estimate=clust_coeffs[["Estimate"]],
+      se=clust_coeffs[["Std. Error"]],
+      variance=clust_coeffs[["Std. Error"]] ^ 2,
+      t_stat=clust_coeffs[["t value"]],
+      p_value=clust_coeffs[["Pr(>|t|)"]],
+      mse=mean(m[["residuals"]]^2, na.rm=T),
+      stringsAsFactors=FALSE
+    )
+    
+    r <- rbind(r, c_r)
+  }
   
-  return(results)
+  if ("arellano" %in% model_simulation$models[["se_adjust"]]) {
+    clust_indices <- as.numeric(rownames(m$model))
+    clust_var <- as.character(model_simulation$data[[model_simulation$unit_var]][clust_indices])
+    cov_hc <- sandwich::vcovHC(m, type="HC1", cluster=clust_var, method="arellano")
+    hc_se <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == treatment]
+    
+    hc_r <- data.frame(
+      outcome=outcome,
+      se_adjustment="arellano",
+      estimate=estimate,
+      se=hc_se,
+      variance=hc_se ^ 2,
+      t_stat=estimate / hc_se,
+      p_value=2 * pnorm(abs(estimate / hc_se), lower.tail=FALSE),
+      mse=mean(m[["residuals"]]^2, na.rm=T),
+      stringsAsFactors=FALSE
+    )
+    r <- rbind(r, hc_r)
+    rownames(r) <- NULL
+  }
+  
+  r <- left_join(r, meta_data, by="outcome")
+  r <- left_join(r, model_simulation$balance_statistics, by="outcome")
+  
+  return(r)
 }
 
+######################
+### RESULTS METHOD ###
+######################
 
+selbias_results <- function(r) {
+  return(do.call(rbind, r))
+}

@@ -2,6 +2,7 @@
 #' 
 #' @param m model object
 #' @param single_simulation R6 class object for simulation config
+#' @export
 iter_results <- function(m, single_simulation) {
   if (class(m)[1] == "lm") {
     iter_results.lm(m, single_simulation)
@@ -19,7 +20,7 @@ mse_resid <- function(x) {
   return(mean(x^2, na.rm=T))
 }
 
-
+#' @export
 iter_results.lm <- function(m, single_simulation) {
   coeffs <- as.data.frame(summary(m)$coefficients)
   coeffs$variable <- row.names(coeffs)

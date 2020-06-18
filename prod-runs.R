@@ -26,15 +26,21 @@ plan("cluster", workers = cl)
 #==============================================================================
 #==============================================================================
 my_models <- list(
-  fixedeff_linear = list(
+  list(
+    name="fixedeff_linear",
+    type="reg",
     model_call="lm",
-    model_formula=crude.rate ~ treatment + unemploymentrate + as.factor(year) + as.factor(state),
-    model_args=list(weights=as.name("population"))
+    model_formula=crude.rate ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state),
+    model_args=list(weights=as.name("population")),
+    se_adjust=c("none", "huber", "cluster", "arellano")
   ),
-  autoreg_linear = list(
+  list(
+    name="autoreg_linear",
     model_call="lm",
-    model_formula=crude.rate ~ change_code_treatment + lag_crude.rate + unemploymentrate + as.factor(year),
-    model_args=list(weights=as.name("population"))
+    type="autoreg",
+    model_formula=crude.rate ~ treatment_change + unemploymentrate + as.factor(year),
+    model_args=list(weights=as.name("population")),
+    se_adjust=c("none", "huber", "cluster", "arellano")
   )
   # fixedeff_negbin = list(
   #   model_call="glm.nb",
@@ -55,12 +61,10 @@ test <- configure_simulation(
   iters=5000,
   
   # specify functions or S3 class of set of functions
-  method_class="simulation",
   method_sample=selbias_sample,
-  method_te=selbias_te,
   method_pre_model=selbias_premodel,
   method_model=selbias_model,
-  method_post_model=NULL,
+  method_post_model=selbias_postmodel,
   method_results=selbias_results,
   
   # parameters that will be expanded and added
@@ -72,15 +76,16 @@ test <- configure_simulation(
     b_vals=list(c(b0=-5, b1=0.05, b2=0.1),
                 c(b0=-5, b1=0.1, b2=0.15),
                 c(b0=-5, b1=0.2, b2=0.3)),
-    lag_variable="crude.rate"
+    a_vals=list(c(a1=0.95, a2=0.05))
   )
 )
+
+single_simulation <- test$setup_single_simulation(1)
 
 cl <- parallel::makeCluster(16L)
 plan("cluster", workers = cl) 
 
-r <- dispatch_simulations(test, use_future = TRUE, verbose = 2, future.packages=c("dplyr", "MASS", "optic"))
-
+r <- dispatch_simulations(test, use_future = TRUE, verbose = 2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic"))
 
 
 #==============================================================================
