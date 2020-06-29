@@ -88,6 +88,70 @@ plan("cluster", workers = cl)
 r <- dispatch_simulations(test, use_future = TRUE, verbose = 2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic"))
 
 
+# need to do some tuning for negative binomial models
+my_models <- list(
+  list(
+    name="fixedeff_negbin",
+    type="reg",
+    model_call="glm.nb",
+    model_formula=deaths ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state) + offset(log(population)),
+    se_adjust=c("none")
+  )
+)
+
+negbin_tuning <- configure_simulation(
+  # data and models required
+  x=x,
+  models=my_models,
+  # iterations
+  iters=100,
+  
+  # specify functions or S3 class of set of functions
+  method_sample=selbias_sample,
+  method_pre_model=selbias_premodel,
+  method_model=selbias_model,
+  method_post_model=selbias_postmodel,
+  method_results=selbias_results,
+  
+  # parameters that will be expanded and added
+  params=list(
+    unit_var="state",
+    time_var="year",
+    policy_speed=list("instant"),
+    n_implementation_periods=list(3),
+    b_vals=list(c(b0=-5, b1=0.05, b2=0.1)),
+    a_vals=list(c(a1=0.95, a2=0.05),
+                c(a1=0.90, a2=0.10),
+                c(a1=0.85, a2=0.15),
+                c(a1=0.80, a2=0.20),
+                c(a1=0.75, a2=0.25),
+                c(a1=0.70, a2=0.30),
+                c(a1=0.65, a2=0.35),
+                c(a1=0.60, a2=0.40),
+                c(a1=0.55, a2=0.45),
+                c(a1=0.50, a2=0.50),
+                c(a1=0.45, a2=0.55),
+                c(a1=0.40, a2=0.60),
+                c(a1=0.35, a2=0.65),
+                c(a1=0.30, a2=0.70),
+                c(a1=0.25, a2=0.75),
+                c(a1=0.20, a2=0.80),
+                c(a1=0.15, a2=0.85),
+                c(a1=0.10, a2=0.90),
+                c(a1=0.05, a2=0.95))
+  )
+)
+
+single_simulation <- negbin_tuning$setup_single_simulation(1)
+
+
+cl <- parallel::makeCluster(8L)
+plan("cluster", workers = cl) 
+r <- dispatch_simulations(negbin_tuning, use_future = TRUE, verbose = 2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic"))
+nb_tuning <- do.call(rbind, r)
+rownames(nb_tuning) <- NULL
+write.csv(nb_tuning, "data/negbin_tuning_alpha.csv", row.names = FALSE)
+
 #==============================================================================
 #==============================================================================
 # CONCURRENT POLICIES
