@@ -265,8 +265,8 @@ selbias_postmodel <- function(model_simulation) {
     estimate=estimate,
     se=cf[["Std. Error"]],
     variance=cf[["Std. Error"]] ^ 2,
-    t_stat=cf[["t value"]],
-    p_value=cf[["Pr(>|t|)"]],
+    t_stat=c(cf[["t value"]], cf[["z value"]]),
+    p_value=c(cf[["Pr(>|t|)"]], cf[["Pr(>|z|)"]]),
     mse=mean(m[["residuals"]]^2, na.rm=T),
     stringsAsFactors=FALSE
   )
