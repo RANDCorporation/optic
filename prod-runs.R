@@ -25,6 +25,9 @@ plan("cluster", workers = cl)
 # SELECTION BIAS
 #==============================================================================
 #==============================================================================
+source("R/selection-bias-methods.R")
+source("R/cluster-adjust-se.r")
+
 my_models <- list(
   list(
     name="fixedeff_linear",
@@ -80,13 +83,14 @@ test <- configure_simulation(
   )
 )
 
-single_simulation <- test$setup_single_simulation(1)
-
 cl <- parallel::makeCluster(16L)
 plan("cluster", workers = cl) 
 
 r <- dispatch_simulations(test, use_future = TRUE, verbose = 2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic"))
 
+full_r <- do.call(rbind, r)
+rownames(full_r) <- NULL
+write.csv(full_r, "data/sel-bias-linear-trial-runs.csv", row.names = FALSE)
 
 #==============================================================================
 #==============================================================================
