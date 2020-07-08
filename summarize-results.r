@@ -2,6 +2,167 @@
 # 2. get summary of min/max/mean distances if applicable
 library(dplyr)
 
+
+#' calculate the correction factor
+#' 
+#' @param test_stats test statistics
+#' @param type what type of test statistic is being supplied; one of "t", "wald"; default is "t"
+correction_factor <- function(test_stats, type="t") {
+  if (type == "t") {
+    f_stats <- (test_stats)^2
+    f_stats <- sort(f_stats)
+    high_cut <- 0.95 * length(test_stats)
+    femp95 <- f_stats[high_cut]
+    freal <- qf(0.95, 1, Inf)
+    corr_factor <- sqrt(femp95 / freal)
+  }
+  
+  return(corr_factor)
+}
+
+coverage <- function(betas, ses, cf, te=0) {
+  adj_ses <- ses*cf
+  ind <- rep(0, length(betas))
+  low95 <- betas - 1.96 * adj_ses
+  high95 <- betas + 1.96 * adj_ses
+  ind[te > low95 & te < high95] <- 1
+  return(sum(ind) / length(betas))
+}
+
+#' formula for correcting p-values using correction factor
+#' 
+#' @param coeffs vector of regression coefficients
+#' @param ses vector of standard errors related to provided coefficients
+#' @param cf correction factor to use for adjustment
+#' @param effect_direction direction of true effect, one of "null", "neg", "pos"
+correct_rejection_rate_flag <- function(coeffs, ses, cf, effect_direction="null") {
+  adj_ses <- ses * cf
+  low95 <- coeffs - 1.96 * adj_ses
+  high95 <- coeffs + 1.96 * adj_ses
+  
+  if (effect_direction == "null") {
+    # 1 if confidence interval contains 0
+    sig_dummy <- as.integer((low95 < 0 & high95 > 0))
+  } else if (effect_direction == "pos") {
+    # 1 if confidence interval does not contain 0
+    sig_dummy <- as.integer((low95 < 0 & high95 > 0) == FALSE)
+    # if significant but in the wrong direction, set to 0
+    sig_dummy[sig_dummy == 1 & coeffs < 0] <- 0
+  } else if (effect_direction == "neg") {
+    # 1 if confidence interval does not contain 0
+    sig_dummy <- as.integer((low95 < 0 & high95 > 0) == FALSE)
+    # if significant but in the wrong direction, set to 0
+    sig_dummy[sig_dummy == 1 & coeffs > 0] <- 0
+  }
+  
+  return(sig_dummy)
+}
+
+
+#==============================================================================
+#==============================================================================
+# SELECTION BIAS SUMMARY METHODS
+#==============================================================================
+#==============================================================================
+summarize_results_selbias <- function(x) {
+  # get means and range values
+  summary_results <- x %>%
+    summarize_at(vars(estimate:mse, mean_es_mva3, mean_es_unempl, mean_es_outcome), mean)
+  summary_results <- cbind(
+    summary_results,
+    x %>% summarize_at(vars(max_es_mva3, max_es_unempl, max_es_outcome), max)
+  )
+  summary_results <- cbind(
+    summary_results,
+    x %>% summarize(min_n_unique_enact_years=min(n_unique_enact_years),
+                    max_n_unique_enact_years=max(n_unique_enact_years),
+                    min_n_treated=min(n),
+                    max_n_treated=max(n))
+  )
+  
+  # bias
+  summary_results <- cbind(
+    summary_results,
+    data.frame(bias=mean(x$estimate - 0))
+  )
+  
+  # type 1 error
+  summary_results <- cbind(
+    summary_results,
+    data.frame(type_1_error=mean(ifelse(x$p_value < 0.05, 1, 0)))
+  )
+  
+  # power
+  summary_results <- cbind(
+    summary_results,
+    data.frame(
+      power=mean(
+        correct_rejection_rate_flag(
+          x$estimate,
+          x$se,
+          correction_factor(x$t_stat),
+          effect_direction = "null"
+        )
+      )
+    )
+  )
+  
+  # coverage
+  summary_results <- cbind(
+    summary_results,
+    data.frame(
+      coverage=coverage(
+        x$estimate,
+        ses=x$se,
+        cf=correction_factor(x$t_stat),
+        te=0
+      )
+    )
+  )
+  
+  summary_results <- cbind(
+    data.frame(
+      outcome=unique(x$outcome),
+      se_adjustment=unique(x$se_adjustment),
+      model_name=unique(x$model_name),
+      model_call=unique(x$model_call),
+      moel_formula=unique(x$model_formula),
+      policy_speed=unique(x$policy_speed),
+      n_implementation_years=unique(x$n_implementation_years),
+      b0=unique(x$b0),
+      b1=unique(x$b1),
+      b2=unique(x$b2),
+      a1=unique(x$a1),
+      a2=unique(x$a2),
+      stringsAsFactors = FALSE
+    ),
+    summary_results
+  )
+  
+  return(summary_results)
+}
+
+trial <- read.csv("data/sel-bias-linear-trial-runs.csv")
+trial <- read.csv('data/sel-bias-negbin-trial-runs.csv')
+
+# to identify unique simulations
+grouping_vars <- c("model_name", "policy_speed", "n_implementation_years",
+                   "b0", "b1", "b2", "a1", "a2")
+
+trial_sims <- split(
+  trial,
+  list(trial$model_name, trial$policy_speed, trial$n_implementation_years,
+       trial$b0, trial$b1, trial$b2, trial$a1, trial$a2, trial$se_adjustment)
+)
+
+trial_sims <- trial_sims[which(sapply(trial_sims, nrow) > 0)]
+
+summarized <- lapply(trial_sims, summarize_results_selbias)
+summarized <- do.call('rbind', summarized)
+rownames(summarized) <- NULL
+
+write.csv(summarized, "data/selbais-negbin-summary.csv", row.names = FALSE)
+
 #==============================================================================
 #==============================================================================
 # EXAMPLE SETUP
@@ -278,34 +439,7 @@ correction_factor <- function(test_stats, type="t") {
   return(corr_factor)
 }
 
-#' formula for correcting p-values using correction factor
-#' 
-#' @param coeffs vector of regression coefficients
-#' @param ses vector of standard errors related to provided coefficients
-#' @param cf correction factor to use for adjustment
-#' @param effect_direction direction of true effect, one of "null", "neg", "pos"
-correct_rejection_rate_flag <- function(coeffs, ses, cf, effect_direction="null") {
-  adj_ses <- ses * cf
-  low95 <- coeffs - 1.96 * adj_ses
-  high95 <- coeffs + 1.96 * adj_ses
-  
-  if (effect_direction == "null") {
-    # 1 if confidence interval contains 0
-    sig_dummy <- as.integer((low95 < 0 & high95 > 0))
-  } else if (effect_direction == "pos") {
-    # 1 if confidence interval does not contain 0
-    sig_dummy <- as.integer((low95 < 0 & high95 > 0) == FALSE)
-    # if significant but in the wrong direction, set to 0
-    sig_dummy[sig_dummy == 1 & coeffs < 0] <- 0
-  } else if (effect_direction == "neg") {
-    # 1 if confidence interval does not contain 0
-    sig_dummy <- as.integer((low95 < 0 & high95 > 0) == FALSE)
-    # if significant but in the wrong direction, set to 0
-    sig_dummy[sig_dummy == 1 & coeffs > 0] <- 0
-  }
-  
-  return(sig_dummy)
-}
+
 
 
 #' Calculate type S error - how often model gets direction of effect wrong
