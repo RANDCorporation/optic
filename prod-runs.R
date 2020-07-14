@@ -32,6 +32,46 @@ plan("cluster", workers = cl)
 source("R/selection-bias-methods.R")
 source("R/cluster-adjust-se.r")
 
+multisynth_models <- list(
+  list(
+    name="multisynth",
+    type="multisynth",
+    model_call="multisynth",
+    model_formula=crude.rate ~ treatment_level,
+    model_args=list(unit=as.name("state"), time=as.name("year"), fixedeff=TRUE, form=crude.rate ~ treatment_level),
+    se_adjust=c("none")
+  )
+)
+
+test <- configure_simulation(
+  # data and models required
+  x=x,
+  models=multisynth_models,
+  # iterations
+  iters=10,
+  
+  # specify functions or S3 class of set of functions
+  method_sample=selbias_sample,
+  method_pre_model=selbias_premodel,
+  method_model=selbias_model,
+  method_post_model=selbias_postmodel,
+  method_results=selbias_results,
+  
+  # parameters that will be expanded and added
+  params=list(
+    unit_var="state",
+    time_var="year",
+    policy_speed=list("instant"),
+    n_implementation_periods=list(3),
+    bias_vals=list(
+      c(b0=-5, b1=0.05, b2=0.1, a1=0.95, a2=0.05),
+      c(b0=-5, b1=0.1, b2=0.15, a1=0.95, a2=0.05),
+      c(b0=-5, b1=0.2, b2=0.3, a1=0.95, a2=0.05))
+  )
+)
+single_simulation <- test$setup_single_simulation(1)
+mname <- "multisynth"
+
 linear_models <- list(
   list(
     name="fixedeff_linear",
@@ -68,44 +108,6 @@ negbin_models <- list(
   )
 )
 
-multisynth_models <- list(
-  list(
-    name="multisynth",
-    type="multisynth",
-    model_call="multisynth",
-    model_formula=crude.rate ~ treatment_level,
-    model_args=list(unit=as.name("state"), time=as.name("year"), fixedeff=TRUE, form=crude.rate ~ treatment_level),
-    se_adjust=c("none")
-  )
-)
-
-test <- configure_simulation(
-  # data and models required
-  x=x,
-  models=multisynth_models,
-  # iterations
-  iters=10,
-  
-  # specify functions or S3 class of set of functions
-  method_sample=selbias_sample,
-  method_pre_model=selbias_premodel,
-  method_model=selbias_model,
-  method_post_model=selbias_postmodel,
-  method_results=selbias_results,
-  
-  # parameters that will be expanded and added
-  params=list(
-    unit_var="state",
-    time_var="year",
-    policy_speed=list("slow", "instant"),
-    n_implementation_periods=list(3),
-    b_vals=list(c(b0=-5, b1=0.05, b2=0.1),
-                c(b0=-5, b1=0.1, b2=0.15),
-                c(b0=-5, b1=0.2, b2=0.3)),
-    a_vals=list(c(a1=0.95, a2=0.05))
-  )
-)
-
 # selection bias runs
 linear_config <- configure_simulation(
   # data and models required
@@ -137,7 +139,7 @@ linear_config <- configure_simulation(
 cl <- parallel::makeCluster(16L)
 plan("cluster", workers = cl) 
 
-r <- dispatch_simulations(linear_config, use_future = TRUE, seed=89721, verbose = 2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic"))
+r <- dispatch_simulations(test, use_future = FALSE, verbose = 2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
 
 
 full_r <- do.call(rbind, r)
