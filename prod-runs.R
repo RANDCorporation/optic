@@ -1,5 +1,6 @@
 library(optic)
 library(dplyr)
+library(augsynth)
 library(future)
 library(future.apply)
 
@@ -29,22 +30,22 @@ source("R/selection-bias-methods.R")
 source("R/cluster-adjust-se.r")
 
 my_models <- list(
-  list(
-    name="fixedeff_linear",
-    type="reg",
-    model_call="lm",
-    model_formula=crude.rate ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state),
-    model_args=list(weights=as.name("population")),
-    se_adjust=c("none", "huber", "cluster", "arellano")
-  ),
-  list(
-    name="autoreg_linear",
-    model_call="lm",
-    type="autoreg",
-    model_formula=crude.rate ~ treatment_change + unemploymentrate + as.factor(year),
-    model_args=list(weights=as.name("population")),
-    se_adjust=c("none", "huber", "cluster", "arellano")
-  )
+  # list(
+  #   name="fixedeff_linear",
+  #   type="reg",
+  #   model_call="lm",
+  #   model_formula=crude.rate ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state),
+  #   model_args=list(weights=as.name("population")),
+  #   se_adjust=c("none", "huber", "cluster", "arellano")
+  # ),
+  # list(
+  #   name="autoreg_linear",
+  #   model_call="lm",
+  #   type="autoreg",
+  #   model_formula=crude.rate ~ treatment_change + unemploymentrate + as.factor(year),
+  #   model_args=list(weights=as.name("population")),
+  #   se_adjust=c("none", "huber", "cluster", "arellano")
+  # )
   # fixedeff_negbin = list(
   #   model_call="glm.nb",
   #   model_formula=deaths ~ treatment + unemploymentrate + as.factor(year) + as.factor(state) + offset(log(population))
@@ -52,7 +53,15 @@ my_models <- list(
   # autoreg_negbin = list(
   #   model_call="glm.nb",
   #   model_formula=deaths ~ change_code_treatment + lag_crude.rate + unemploymentrate + as.factor(year) + offset(log(population))
-  # )
+  # ),
+  list(
+    name="multisynth",
+    type="multisynth",
+    model_call="multisynth",
+    model_formula=crude.rate ~ treatment_level,
+    model_args=list(unit=as.name("state"), time=as.name("year"), fixedeff=TRUE, form=crude.rate ~ treatment_level),
+    se_adjust=c("none")
+  )
 )
 
 # test selection bias
@@ -61,7 +70,7 @@ test <- configure_simulation(
   x=x,
   models=my_models,
   # iterations
-  iters=5000,
+  iters=10,
   
   # specify functions or S3 class of set of functions
   method_sample=selbias_sample,
@@ -86,7 +95,7 @@ test <- configure_simulation(
 cl <- parallel::makeCluster(16L)
 plan("cluster", workers = cl) 
 
-r <- dispatch_simulations(test, use_future = TRUE, verbose = 2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic"))
+r <- dispatch_simulations(test, use_future = FALSE, verbose = 2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
 
 full_r <- do.call(rbind, r)
 rownames(full_r) <- NULL
