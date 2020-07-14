@@ -63,7 +63,8 @@ selbias_sample <- function(single_simulation) {
       treated[[current_unit]] <- list(
         policy_years = yr:max(x$year, na.rm=TRUE),
         policy_month = mo,
-        exposure = optic:::calculate_exposure(mo, number_implementation_years)
+        exposure = optic:::calculate_exposure(mo, number_implementation_years),
+        policy_date = as.Date(paste0(yr, '-', mo, '-01'))
       )
       
       n <- length(treated[[current_unit]][["policy_years"]])
@@ -78,13 +79,15 @@ selbias_sample <- function(single_simulation) {
       treated[[current_unit]] <- list(
         policy_years = yr:max(x$year, na.rm=TRUE),
         policy_month = mo,
-        exposure = c((12 - mo + 1)/12, rep(1, length((yr + 1):max(x$year, na.rm=TRUE))))
+        exposure = c((12 - mo + 1)/12, rep(1, length((yr + 1):max(x$year, na.rm=TRUE)))),
+        policy_date = as.Date(paste0(yr, '-', mo, '-01'))
       )
     }
   }
   
   # apply treatment to data
   x$treatment <- 0
+  x$treatment_date <- as.Date(NA)
   for (sunit in names(treated)) {
     for (i in 1:length(treated[[sunit]][["policy_years"]])) {
       time_period <- treated[[sunit]][["policy_years"]][i]
@@ -94,6 +97,12 @@ selbias_sample <- function(single_simulation) {
         x[[unit_var]] == sunit & x[[time_var]] == time_period,
         exposure,
         x$treatment
+      )
+      
+      x$treatment_date <- dplyr::if_else(
+        x[[unit_var]] == sunit,
+        treated[[sunit]][["policy_date"]],
+        x$treatment_date
       )
     }
   }
@@ -249,27 +258,51 @@ selbias_postmodel <- function(model_simulation) {
   )
   
   # get model result information and apply standard error adjustments
-  m <- model_simulation$model_result
-  cf <- as.data.frame(summary(m)$coefficients)
-  cf$variable <- row.names(cf)
-  rownames(cf) <- NULL
-  
-  treatment <- cf$variable[grepl("^treatment", cf$variable)][1]
-  
-  cf <- cf[cf$variable == treatment, ]
-  estimate <- cf[["Estimate"]]
-  
-  r <- data.frame(
-    outcome=outcome,
-    se_adjustment="none",
-    estimate=estimate,
-    se=cf[["Std. Error"]],
-    variance=cf[["Std. Error"]] ^ 2,
-    t_stat=c(cf[["t value"]], cf[["z value"]]),
-    p_value=c(cf[["Pr(>|t|)"]], cf[["Pr(>|z|)"]]),
-    mse=mean(m[["residuals"]]^2, na.rm=T),
-    stringsAsFactors=FALSE
-  )
+  if (model_simulation$models[["type"]] != "multisnyth") {
+    m <- model_simulation$model_result
+    cf <- as.data.frame(summary(m)$coefficients)
+    cf$variable <- row.names(cf)
+    rownames(cf) <- NULL
+    
+    treatment <- cf$variable[grepl("^treatment", cf$variable)][1]
+    
+    cf <- cf[cf$variable == treatment, ]
+    estimate <- cf[["Estimate"]]
+    
+    r <- data.frame(
+      outcome=outcome,
+      se_adjustment="none",
+      estimate=estimate,
+      se=cf[["Std. Error"]],
+      variance=cf[["Std. Error"]] ^ 2,
+      t_stat=c(cf[["t value"]], cf[["z value"]]),
+      p_value=c(cf[["Pr(>|t|)"]], cf[["Pr(>|z|)"]]),
+      mse=mean(m[["residuals"]]^2, na.rm=T),
+      stringsAsFactors=FALSE
+    )
+  } else {
+    m <- model_simulation$model_result
+    cf <- summary(m)
+    cf <- cf$att
+    estimate <- cf[cf$Level == "Average" & is.na(cf$Time), "Estimate"]
+    se <- cf[cf$Level == "Average" & is.na(cf$Time), "Std.Error"]
+    variance <- se ^ 2
+    t_stat <- NA
+    p_value <- 2 * pnorm(abs(estimate/se), lower.tail = FALSE)
+    mse <- mean(unlist(lapply(m$residuals, function(x) {mean(x^2)})))
+    
+    r <- data.frame(
+      outcome=outcome,
+      se_adjustment="none",
+      estimate=estimate,
+      se=se,
+      variance=variance,
+      t_stat=NA,
+      p_value=p_value,
+      mse=mse,
+      stringsAsFactors=FALSE
+    )
+  }
   
   if ("huber" %in% model_simulation$models[["se_adjust"]]) {
     cov_h <- sandwich::vcovHC(m, type="HC0")

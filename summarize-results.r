@@ -67,10 +67,10 @@ correct_rejection_rate_flag <- function(coeffs, ses, cf, effect_direction="null"
 summarize_results_selbias <- function(x) {
   # get means and range values
   summary_results <- x %>%
-    summarize_at(vars(estimate:mse, mean_es_mva3, mean_es_unempl, mean_es_outcome), mean)
+    summarize_at(vars(estimate:mse, mean_es_prior, mean_es_unempl, mean_es_outcome), mean)
   summary_results <- cbind(
     summary_results,
-    x %>% summarize_at(vars(max_es_mva3, max_es_unempl, max_es_outcome), max)
+    x %>% summarize_at(vars(max_es_prior, max_es_unempl, max_es_outcome), max)
   )
   summary_results <- cbind(
     summary_results,
@@ -144,10 +144,7 @@ summarize_results_selbias <- function(x) {
 
 trial <- read.csv("data/sel-bias-linear-trial-runs.csv")
 trial <- read.csv('data/sel-bias-negbin-trial-runs.csv')
-
-# to identify unique simulations
-grouping_vars <- c("model_name", "policy_speed", "n_implementation_years",
-                   "b0", "b1", "b2", "a1", "a2")
+trial <- read.csv('data/sel-bias-linear-trend-runs.csv')
 
 trial_sims <- split(
   trial,
@@ -161,7 +158,11 @@ summarized <- lapply(trial_sims, summarize_results_selbias)
 summarized <- do.call('rbind', summarized)
 rownames(summarized) <- NULL
 
-write.csv(summarized, "data/selbais-negbin-summary.csv", row.names = FALSE)
+summarized <- summarized %>%
+  rename(max_es_trend = max_es_prior,
+         mean_es_trend = mean_es_prior)
+
+write.csv(summarized, "data/selbais-linear-trend-summary.csv", row.names = FALSE)
 
 #==============================================================================
 #==============================================================================
