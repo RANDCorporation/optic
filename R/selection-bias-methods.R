@@ -16,9 +16,9 @@ selbias_sample <- function(single_simulation) {
   time_var <- single_simulation$time_var
   policy_speed <- single_simulation$policy_speed
   number_implementation_years <- as.numeric(single_simulation$n_implementation_periods)
-  b0 <- single_simulation$b_vals.b0
-  b1 <- single_simulation$b_vals.b1
-  b2 <- single_simulation$b_vals.b2
+  b0 <- single_simulation$bias_vals.b0
+  b1 <- single_simulation$bias_vals.b1
+  b2 <- single_simulation$bias_vals.b2
   
   #need to create a matrix of state x year 
   #probabilities of being assigned to enact policy
@@ -36,7 +36,7 @@ selbias_sample <- function(single_simulation) {
     current_unit <- available_units[i]
     unit_data <- x_simplex[x_simplex[[unit_var]] == current_unit, ]
     
-    logits <- b0 + (b1 * unit_data$moving.ave3) + (b2 * unit_data$unemploymentrate)
+    logits <- b0 + (b1 * unit_data$prior_control) + (b2 * unit_data$unemploymentrate)
     
     trt_pr[i, ] <- exp(logits)/(1+exp(logits))
     # print(trt.pr[s,])
@@ -143,8 +143,8 @@ selbias_sample <- function(single_simulation) {
 selbias_premodel <- function(model_simulation) {
   x <- model_simulation$data
   effect_direction <- model_simulation$effect_direction
-  a1 <- model_simulation$a_vals.a1
-  a2 <- model_simulation$a_vals.a2
+  a1 <- model_simulation$bias_vals.a1
+  a2 <- model_simulation$bias_vals.a2
   model <- model_simulation$models
   balance_statistics <- NULL
   
@@ -154,7 +154,7 @@ selbias_premodel <- function(model_simulation) {
   model_type <- model$type
   
   # apply bias to outcome
-  x[[outcome]] <- x[[outcome]] + (a1 * x$moving.ave3) + (a2 * x$unemploymentrate)
+  x[[outcome]] <- x[[outcome]] + (a1 * x$prior_control) + (a2 * x$unemploymentrate)
   
   # if autoregressive, need to add lag for crude rate
   # when outcome is deaths, derive new crude rate from modified outcome
@@ -181,9 +181,9 @@ selbias_premodel <- function(model_simulation) {
     group_by(year) %>%
     summarize(
       n_trt = sum(treatment > 0),
-      mu1_mva3 = mean(moving.ave3[treatment > 0]),
-      mu0_mva3 = mean(moving.ave3[treatment == 0]),
-      sd_mva3 = sd(moving.ave3),
+      mu1_prior = mean(prior_control[treatment > 0]),
+      mu0_prior = mean(prior_control[treatment == 0]),
+      sd_prior = sd(prior_control),
       mu1_unempl = mean(unemploymentrate[treatment > 0]),
       mu0_unempl = mean(unemploymentrate[treatment == 0]),
       sd_unempl = sd(unemploymentrate),
@@ -192,14 +192,14 @@ selbias_premodel <- function(model_simulation) {
       sd = sd(!!oo)
     ) %>%
     mutate(
-      es_mva3 = (mu1_mva3 - mu0_mva3) / sd_mva3,
+      es_prior = (mu1_prior - mu0_prior) / sd_prior,
       es_unempl = (mu1_unempl - mu0_unempl) / sd_unempl,
       es = (mu1 - mu0) / sd
     ) %>%
     ungroup() %>%
     summarize(n = max(n_trt, na.rm=TRUE),
-              mean_es_mva3 = mean(es_mva3, na.rm=TRUE),
-              max_es_mva3 = max(abs(es_mva3), na.rm=TRUE),
+              mean_es_prior = mean(es_prior, na.rm=TRUE),
+              max_es_prior = max(abs(es_prior), na.rm=TRUE),
               mean_es_unempl = mean(es_unempl, na.rm=TRUE),
               max_es_unempl = max(abs(es_unempl), na.rm=TRUE),
               mean_es_outcome = mean(es, na.rm=TRUE),
@@ -250,11 +250,11 @@ selbias_postmodel <- function(model_simulation) {
     model_formula = Reduce(paste, trimws(deparse(model_simulation$models[["model_formula"]]))),
     policy_speed = model_simulation$policy_speed,
     n_implementation_years = model_simulation$n_implementation_periods,
-    b0 = model_simulation$b_vals.b0,
-    b1 = model_simulation$b_vals.b1,
-    b2 = model_simulation$b_vals.b2,
-    a1 = model_simulation$a_vals.a1,
-    a2 = model_simulation$a_vals.a2
+    b0 = model_simulation$bias_vals.b0,
+    b1 = model_simulation$bias_vals.b1,
+    b2 = model_simulation$bias_vals.b2,
+    a1 = model_simulation$bias_vals.a1,
+    a2 = model_simulation$bias_vals.a2
   )
   
   # get model result information and apply standard error adjustments
@@ -340,8 +340,8 @@ selbias_postmodel <- function(model_simulation) {
       estimate=clust_coeffs[["Estimate"]],
       se=clust_coeffs[["Std. Error"]],
       variance=clust_coeffs[["Std. Error"]] ^ 2,
-      t_stat=clust_coeffs[["t value"]],
-      p_value=clust_coeffs[["Pr(>|t|)"]],
+      t_stat=c(clust_coeffs[["z value"]], clust_coeffs[["t value"]]),
+      p_value=c(clust_coeffs[["Pr(>|z|)"]], clust_coeffs[["Pr(>|t|)"]]),
       mse=mean(m[["residuals"]]^2, na.rm=T),
       stringsAsFactors=FALSE
     )

@@ -1,4 +1,5 @@
 library(optic)
+library(augsynth)
 library(dplyr)
 library(augsynth)
 library(future)
@@ -14,7 +15,10 @@ x <- x %>%
          lag2 = lag(crude.rate, n=2L),
          lag3 = lag(crude.rate, n=3L)) %>%
   ungroup() %>%
-  mutate(moving.ave3 = rowMeans(select(., lag1, lag2, lag3))) %>%
+  # code as moving average
+  #mutate(prior_control = rowMeans(select(., lag1, lag2, lag3))) %>%
+  # code as trend
+  mutate(prior_control = lag1 - lag3) %>%
   select(-lag1, -lag2, -lag3)
 
 
@@ -29,31 +33,7 @@ plan("cluster", workers = cl)
 source("R/selection-bias-methods.R")
 source("R/cluster-adjust-se.r")
 
-my_models <- list(
-  # list(
-  #   name="fixedeff_linear",
-  #   type="reg",
-  #   model_call="lm",
-  #   model_formula=crude.rate ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state),
-  #   model_args=list(weights=as.name("population")),
-  #   se_adjust=c("none", "huber", "cluster", "arellano")
-  # ),
-  # list(
-  #   name="autoreg_linear",
-  #   model_call="lm",
-  #   type="autoreg",
-  #   model_formula=crude.rate ~ treatment_change + unemploymentrate + as.factor(year),
-  #   model_args=list(weights=as.name("population")),
-  #   se_adjust=c("none", "huber", "cluster", "arellano")
-  # )
-  # fixedeff_negbin = list(
-  #   model_call="glm.nb",
-  #   model_formula=deaths ~ treatment + unemploymentrate + as.factor(year) + as.factor(state) + offset(log(population))
-  # ),
-  # autoreg_negbin = list(
-  #   model_call="glm.nb",
-  #   model_formula=deaths ~ change_code_treatment + lag_crude.rate + unemploymentrate + as.factor(year) + offset(log(population))
-  # ),
+multisynth_models <- list(
   list(
     name="multisynth",
     type="multisynth",
@@ -64,11 +44,76 @@ my_models <- list(
   )
 )
 
-# test selection bias
 test <- configure_simulation(
   # data and models required
   x=x,
-  models=my_models,
+  models=multisynth_models,
+  # iterations
+  iters=10,
+  
+  # specify functions or S3 class of set of functions
+  method_sample=selbias_sample,
+  method_pre_model=selbias_premodel,
+  method_model=selbias_model,
+  method_post_model=selbias_postmodel,
+  method_results=selbias_results,
+  
+  # parameters that will be expanded and added
+  params=list(
+    unit_var="state",
+    time_var="year",
+    policy_speed=list("instant"),
+    n_implementation_periods=list(3),
+    bias_vals=list(
+      c(b0=-5, b1=0.05, b2=0.1, a1=0.95, a2=0.05),
+      c(b0=-5, b1=0.1, b2=0.15, a1=0.95, a2=0.05),
+      c(b0=-5, b1=0.2, b2=0.3, a1=0.95, a2=0.05))
+  )
+)
+single_simulation <- test$setup_single_simulation(1)
+mname <- "multisynth"
+
+linear_models <- list(
+  list(
+    name="fixedeff_linear",
+    type="reg",
+    model_call="lm",
+    model_formula=crude.rate ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state),
+    model_args=list(weights=as.name("population")),
+    se_adjust=c("none", "huber", "cluster", "arellano")
+  ),
+  list(
+    name="autoreg_linear",
+    model_call="lm",
+    type="autoreg",
+    model_formula=crude.rate ~ treatment_change + unemploymentrate + as.factor(year),
+    model_args=list(weights=as.name("population")),
+    se_adjust=c("none", "huber", "cluster", "arellano")
+  )
+)
+
+negbin_models <- list(
+  list(
+    name="fixedeff_negbin",
+    type="reg",
+    model_call="glm.nb",
+    model_formula=deaths ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state) + offset(log(population)),
+    se_adjust=c("none", "huber", "cluster", "arellano")
+  ),
+  list(
+    name="autogreg_negbin",
+    type="autoreg",
+    model_call="glm.nb",
+    model_formula=deaths ~ treatment_change + unemploymentrate + as.factor(year) + offset(log(population)),
+    se_adjust=c("none", "huber", "cluster", "arellano")
+  )
+)
+
+# selection bias runs
+linear_config <- configure_simulation(
+  # data and models required
+  x=x,
+  models=linear_models,
   # iterations
   iters=10,
   
@@ -85,10 +130,10 @@ test <- configure_simulation(
     time_var="year",
     policy_speed=list("slow", "instant"),
     n_implementation_periods=list(3),
-    b_vals=list(c(b0=-5, b1=0.05, b2=0.1),
-                c(b0=-5, b1=0.1, b2=0.15),
-                c(b0=-5, b1=0.2, b2=0.3)),
-    a_vals=list(c(a1=0.95, a2=0.05))
+    bias_vals=list(
+      c(b0=-5, b1=0.15, b2=0.1, a1=1.2, a2=0.5),
+      c(b0=-5, b1=0.3, b2=0.2, a1=1.2, a2=0.5),
+      c(b0=-5, b1=0.45, b2=0.3, a1=1.2, a2=0.5))
   )
 )
 
@@ -99,7 +144,7 @@ r <- dispatch_simulations(test, use_future = FALSE, verbose = 2, future.globals=
 
 full_r <- do.call(rbind, r)
 rownames(full_r) <- NULL
-write.csv(full_r, "data/sel-bias-linear-trial-runs.csv", row.names = FALSE)
+write.csv(full_r, "data/sel-bias-linear-trend-runs.csv", row.names = FALSE)
 
 # need to do some tuning for negative binomial models
 my_models <- list(
