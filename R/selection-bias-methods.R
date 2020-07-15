@@ -24,7 +24,9 @@ selbias_sample <- function(single_simulation) {
   #probabilities of being assigned to enact policy
   available_units <- unique(x[[unit_var]])
   #don't include first 3 years in this version where depends on 3-year moving average
-  available_time_periods <- sort(unique(x[[time_var]]))[-1:-3]
+  atp <- sort(unique(x[[time_var]]))[-1:-5]
+  atp <- atp[-length(atp):-(length(atp)-3)]
+  available_time_periods <- atp
   
   x_simplex <- x[x[[time_var]] %in% available_time_periods, ]
   
@@ -174,6 +176,14 @@ selbias_premodel <- function(model_simulation) {
       dplyr::ungroup()
     
     model_simulation$models$model_formula <- update.formula(model_simulation$models$model_formula, ~ . + lag_crude.rate)
+  } else if (model_type == "multisynth") {
+    x$treatment[x$treatment > 0] <- 1
+    x$treatment_level[x$treatment_level > 0] <- 1
+    x <- x %>%
+      filter(!is.na(!!oo))
+    if (sum(is.na(x[[outcome]])) > 0) {
+      stop("multisynth method cannot handle missingness in outcome.")
+    }
   }
   
   # get balance information
@@ -258,7 +268,7 @@ selbias_postmodel <- function(model_simulation) {
   )
   
   # get model result information and apply standard error adjustments
-  if (model_simulation$models[["type"]] != "multisnyth") {
+  if (model_simulation$models[["type"]] != "multisynth") {
     m <- model_simulation$model_result
     cf <- as.data.frame(summary(m)$coefficients)
     cf$variable <- row.names(cf)

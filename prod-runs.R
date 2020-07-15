@@ -1,7 +1,6 @@
 library(optic)
 library(augsynth)
 library(dplyr)
-library(augsynth)
 library(future)
 library(future.apply)
 
@@ -63,7 +62,7 @@ test <- configure_simulation(
     unit_var="state",
     time_var="year",
     policy_speed=list("instant"),
-    n_implementation_periods=list(3),
+    n_implementation_periods=list(0),
     bias_vals=list(
       c(b0=-5, b1=0.05, b2=0.1, a1=0.95, a2=0.05),
       c(b0=-5, b1=0.1, b2=0.15, a1=0.95, a2=0.05),
