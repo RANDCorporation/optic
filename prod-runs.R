@@ -15,9 +15,9 @@ x <- x %>%
          lag3 = lag(crude.rate, n=3L)) %>%
   ungroup() %>%
   # code as moving average
-  #mutate(prior_control = rowMeans(select(., lag1, lag2, lag3))) %>%
-  # code as trend
-  mutate(prior_control = lag1 - lag3) %>%
+  mutate(prior_control = rowMeans(select(., lag1, lag2, lag3))) %>%
+  #code as trend
+  #mutate(prior_control = lag1 - lag3) %>%
   select(-lag1, -lag2, -lag3)
 
 
@@ -43,12 +43,12 @@ multisynth_models <- list(
   )
 )
 
-test <- configure_simulation(
+msynth_config <- configure_simulation(
   # data and models required
   x=x,
   models=multisynth_models,
   # iterations
-  iters=10,
+  iters=5000,
   
   # specify functions or S3 class of set of functions
   method_sample=selbias_sample,
@@ -69,8 +69,7 @@ test <- configure_simulation(
       c(b0=-5, b1=0.2, b2=0.3, a1=0.95, a2=0.05))
   )
 )
-single_simulation <- test$setup_single_simulation(1)
-mname <- "multisynth"
+
 
 linear_models <- list(
   list(
@@ -139,11 +138,11 @@ linear_config <- configure_simulation(
 cl <- parallel::makeCluster(16L)
 plan("cluster", workers = cl) 
 
-r <- dispatch_simulations(test, use_future = FALSE, verbose = 2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
+r <- dispatch_simulations(msynth_config, use_future=TRUE, seed=89721, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
 
 full_r <- do.call(rbind, r)
 rownames(full_r) <- NULL
-write.csv(full_r, "data/sel-bias-linear-trend-runs.csv", row.names = FALSE)
+write.csv(full_r, "data/sel-bias-multisynth-mva-runs.csv", row.names = FALSE)
 
 # need to do some tuning for negative binomial models
 my_models <- list(

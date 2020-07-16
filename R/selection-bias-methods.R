@@ -25,7 +25,7 @@ selbias_sample <- function(single_simulation) {
   available_units <- unique(x[[unit_var]])
   #don't include first 3 years in this version where depends on 3-year moving average
   atp <- sort(unique(x[[time_var]]))[-1:-5]
-  atp <- atp[-length(atp):-(length(atp)-3)]
+  atp <- atp[-length(atp):-(length(atp)-1)]
   available_time_periods <- atp
   
   x_simplex <- x[x[[time_var]] %in% available_time_periods, ]
