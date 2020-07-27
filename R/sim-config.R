@@ -12,7 +12,7 @@ SimConfig <- R6::R6Class(
     initialize = function(
       data, models,
       method_sample, method_pre_model, method_model, method_post_model, method_results,
-      iters, params) {
+      iters, params, globals) {
       
       # create matrix of all combinations of iterable params
       simulation_params <- purrr::cross(params)
@@ -24,6 +24,7 @@ SimConfig <- R6::R6Class(
       private$.models <- models
       private$.iters <- iters
       private$.params <- params
+      private$.globals <- globals
       private$.simulation_params <- simulation_params
       
       private$.method_sample <- method_sample
@@ -43,6 +44,7 @@ SimConfig <- R6::R6Class(
       params$method_model <- self$method_model
       params$method_post_model <- self$method_post_model
       params$method_results <- self$method_results
+      params$globals <- self$globals
       
       return(params)
     },
@@ -69,6 +71,7 @@ SimConfig <- R6::R6Class(
     .method_results=NULL,
     .iters=NULL,
     .params=NULL,
+    .globals=NULL,
     .simulation_params=NULL
   ),
   
@@ -102,6 +105,13 @@ SimConfig <- R6::R6Class(
         private$.params
       } else {
         stop("`$params` is read-only", call.=FALSE)
+      }
+    },
+    globals = function(value) {
+      if (missing(value)) {
+        private$.globals
+      } else {
+        stop("`$globals` is read-only", call.=FALSE)
       }
     },
     simulation_params = function(value) {

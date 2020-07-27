@@ -14,10 +14,9 @@ x <- x %>%
          lag2 = lag(crude.rate, n=2L),
          lag3 = lag(crude.rate, n=3L)) %>%
   ungroup() %>%
-  # code as moving average
-  mutate(prior_control = rowMeans(select(., lag1, lag2, lag3))) %>%
-  #code as trend
-  #mutate(prior_control = lag1 - lag3) %>%
+  # code in moving average and trend versions of prior control
+  mutate(prior_control_mva3 = rowMeans(select(., lag1, lag2, lag3)),
+         prior_control_trend = lag1 - lag3) %>%
   select(-lag1, -lag2, -lag3)
 
 
@@ -31,6 +30,192 @@ plan("cluster", workers = cl)
 #==============================================================================
 source("R/selection-bias-methods.R")
 source("R/cluster-adjust-se.r")
+
+bias_vals <- list(
+  # MULTISYNTH METHOD
+  multisynth = list(
+    linear = list(
+      mva3 = list(
+        small=c(b0=-5, b1=0.06, b2=0.1, b3=0, b4=0, b5=0,
+          a1=1.2, a2=0.5, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.095, b2=0.15, b3=0, b4=0, b5=0,
+          a1=0.95, a2=0.05, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.22, b2=0.3, b3=0, b4=0, b5=0,
+          a1=0.95, a2=0.05, a3=0, a4=0, a5=0)),
+      trend = list(
+        small=c(b0=-5, b1=0.15, b2=0.1, b3=0, b4=0, b5=0,
+          a1=1.2, a2=0.5, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.3, b2=0.2, b3=0, b4=0, b5=0,
+          a1=1.2, a2=0.5, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.7, b2=0.4, b3=0, b4=0, b5=0,
+          a1=1.2, a2=0.5, a3=0, a4=0, a5=0))
+    ),
+    nonlinear = list(
+      mva3 = list(
+        small=c(b0=-5, b1=0.055, b2=0.03, b3=0.00025, b4=0.00005, b5=0.000025,
+          a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06),
+        medium=c(b0=-5, b1=0.085, b2=0.075, b3=0.0005, b4=0.0001, b5=0.00005,
+          a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06),
+        large=c(b0=-5, b1=0.15, b2=0.1, b3=0.001, b4=0.0002, b5=0.0001,
+          a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06)),
+      trend = list(
+        small=c(b0=-5, b1=0.15, b2=0.09, b3=0.0005, b4=0.0001, b5=0.00005,
+          a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06),
+        medium=c(b0=-5, b1=0.265, b2=0.15, b3=0.001, b4=0.0002, b5=0.0001,
+          a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06),
+        large=c(b0=-5, b1=0.5, b2=0.3, b3=0.05, b4=0.025, b5=0.01,
+          a1=1.2, a2=0.5, a3=0.4, a4=0.15, a5=0.06))
+    )
+  ),
+  
+  # LINEAR REGRESSION
+  fixedeff_linear = list(
+    linear = list(
+      mva3 = list(
+        small=c(b0=-5, b1=0.06, b2=0.1, b3=0, b4=0, b5=0,
+                a1=0.95, a2=0.05, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.1, b2=0.15, b3=0, b4=0, b5=0,
+                 a1=0.95, a2=0.05, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.195, b2=0.2, b3=0, b4=0, b5=0,
+                a1=0.95, a2=0.05, a3=0, a4=0, a5=0)
+      ),
+      trend = list(
+        small=c(b0=-5, b1=0.15, b2=0.1, b3=0, b4=0, b5=0,
+                a1=1.2, a2=0.5, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.3, b2=0.2, b3=0, b4=0, b5=0,
+                 a1=1.2, a2=0.5, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.7, b2=0.4, b3=0, b4=0, b5=0,
+                a1=1.2, a2=0.5, a3=0, a4=0, a5=0)
+      )
+    ),
+    nonlinear = list(
+      mva3 = list(
+        small=c(b0=-5, b1=0.055, b2=0.03, b3=0.00025, b4=0.00005, b5=0.000025,
+                a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06),
+        medium=c(b0=-5, b1=0.085, b2=0.075, b3=0.0005, b4=0.0001, b5=0.00005,
+                 a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06),
+        large=c(b0=-5, b1=0.15, b2=0.1, b3=0.001, b4=0.0002, b5=0.0001,
+                a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06)),
+      trend = list(
+        small=c(b0=-5, b1=0.17, b2=0.09, b3=0.0005, b4=0.0001, b5=0.00005,
+                a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06),
+        medium=c(b0=-5, b1=0.265, b2=0.15, b3=0.001, b4=0.0002, b5=0.0001,
+                 a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06),
+        large=c(b0=-5, b1=0.5, b2=0.3, b3=0.05, b4=0.025, b5=0.01,
+                a1=1.2, a2=0.5, a3=0.4, a4=0.15, a5=0.06))
+    )
+  ),
+  autoreg_linear = list(
+    linear = list(
+      mva3 = list(
+        small=c(b0=-5, b1=0.06, b2=0.1, b3=0, b4=0, b5=0,
+                a1=0.95, a2=0.05, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.1, b2=0.15, b3=0, b4=0, b5=0,
+                 a1=0.95, a2=0.05, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.195, b2=0.2, b3=0, b4=0, b5=0,
+                a1=0.95, a2=0.05, a3=0, a4=0, a5=0)
+      ),
+      trend = list(
+        small=c(b0=-5, b1=0.15, b2=0.1, b3=0, b4=0, b5=0,
+                a1=1.2, a2=0.5, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.3, b2=0.2, b3=0, b4=0, b5=0,
+                 a1=1.2, a2=0.5, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.7, b2=0.4, b3=0, b4=0, b5=0,
+                a1=1.2, a2=0.5, a3=0, a4=0, a5=0)
+      )
+    ),
+    nonlinear = list(
+      mva3 = list(
+        small=c(b0=-5, b1=0.055, b2=0.03, b3=0.00025, b4=0.00005, b5=0.000025,
+                a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06),
+        medium=c(b0=-5, b1=0.085, b2=0.075, b3=0.0005, b4=0.0001, b5=0.00005,
+                 a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06),
+        large=c(b0=-5, b1=0.15, b2=0.1, b3=0.001, b4=0.0002, b5=0.0001,
+                a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06)),
+      trend = list(
+        small=c(b0=-5, b1=0.17, b2=0.09, b3=0.0005, b4=0.0001, b5=0.00005,
+                a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06),
+        medium=c(b0=-5, b1=0.265, b2=0.15, b3=0.001, b4=0.0002, b5=0.0001,
+                 a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06),
+        large=c(b0=-5, b1=0.5, b2=0.3, b3=0.05, b4=0.025, b5=0.01,
+                a1=1.2, a2=0.5, a3=0.4, a4=0.15, a5=0.06))
+    )
+  ),
+  
+  # DOUBLY ROBUST DIFFERENCE-IN-DIFFERENCE
+  
+  # NEGATIVE BINOMIAL
+  fixedeff_negbin = list(),
+  autoreg_negbin = list()
+)
+
+linear_models <- list(
+  # list(
+  #   name="fixedeff_linear",
+  #   type="reg",
+  #   model_call="lm",
+  #   model_formula=crude.rate ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state),
+  #   model_args=list(weights=as.name("population")),
+  #   se_adjust=c("none", "huber", "cluster", "arellano")
+  # )
+  list(
+    name="autoreg_linear",
+    model_call="lm",
+    type="autoreg",
+    model_formula=crude.rate ~ treatment_change + unemploymentrate + as.factor(year),
+    model_args=list(weights=as.name("population")),
+    se_adjust=c("none", "huber", "cluster", "arellano")
+  )
+)
+
+linear_config <- configure_simulation(
+  # data and models required
+  x=x,
+  models=linear_models,
+  # iterations
+  iters=5000,
+  
+  # specify functions or S3 class of set of functions
+  method_sample=selbias_sample,
+  method_pre_model=selbias_premodel,
+  method_model=selbias_model,
+  method_post_model=selbias_postmodel,
+  method_results=selbias_results,
+  
+  globals=list(
+    bias_vals=bias_vals[["autoreg_linear"]]
+  ),
+  
+  # parameters that will be expanded and added
+  params=list(
+    unit_var="state",
+    time_var="year",
+    policy_speed=list("instant"),
+    prior_control=c("mva3", "trend"),
+    bias_type=c("linear", "nonlinear"),
+    bias_size=c("small", "medium", "large"),
+    n_implementation_periods=list(0)
+  )
+)
+
+cl <- parallel::makeCluster(16L)
+plan("cluster", workers = cl)
+
+r <- dispatch_simulations(linear_config, use_future=TRUE, seed=89721, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
+
+for (i in 1:length(r)) {
+  print(paste(
+    unique(r[[i]]$prior_control),
+    unique(r[[i]]$bias_type),
+    unique(r[[i]]$bias_size),
+    mean(r[[i]]$mean_es_outcome)))
+}
+
+full_r <- do.call(rbind, r)
+rownames(full_r) <- NULL
+write.csv(full_r, "data/sel-bias-linear-ar-all-runs.csv", row.names = FALSE)
+saveRDS(r, "data/sel-bias-linear-ar-all-runs.rds")
+
 
 multisynth_models <- list(
   list(
@@ -57,38 +242,40 @@ msynth_config <- configure_simulation(
   method_post_model=selbias_postmodel,
   method_results=selbias_results,
   
+  globals=list(
+    bias_vals=bias_vals[["multisynth"]]
+  ),
+  
   # parameters that will be expanded and added
   params=list(
     unit_var="state",
     time_var="year",
     policy_speed=list("instant"),
-    n_implementation_periods=list(0),
-    bias_vals=list(
-      c(b0=-5, b1=0.05, b2=0.1, a1=0.95, a2=0.05),
-      c(b0=-5, b1=0.1, b2=0.15, a1=0.95, a2=0.05),
-      c(b0=-5, b1=0.2, b2=0.3, a1=0.95, a2=0.05))
+    prior_control=c("mva3", "trend"),
+    bias_type=c("linear", "nonlinear"),
+    bias_size=c("small", "medium", "large"),
+    n_implementation_periods=list(0)
   )
 )
 
+cl <- parallel::makeCluster(16L)
+plan("cluster", workers = cl)
 
-linear_models <- list(
-  list(
-    name="fixedeff_linear",
-    type="reg",
-    model_call="lm",
-    model_formula=crude.rate ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state),
-    model_args=list(weights=as.name("population")),
-    se_adjust=c("none", "huber", "cluster", "arellano")
-  ),
-  list(
-    name="autoreg_linear",
-    model_call="lm",
-    type="autoreg",
-    model_formula=crude.rate ~ treatment_change + unemploymentrate + as.factor(year),
-    model_args=list(weights=as.name("population")),
-    se_adjust=c("none", "huber", "cluster", "arellano")
-  )
-)
+r <- dispatch_simulations(msynth_config, use_future=TRUE, seed=89721, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
+
+for (i in 1:length(r)) {
+  print(paste(
+    unique(r[[i]]$prior_control),
+    unique(r[[i]]$bias_type),
+    unique(r[[i]]$bias_size),
+    mean(r[[i]]$mean_es_outcome)))
+}
+
+full_r <- do.call(rbind, r)
+rownames(full_r) <- NULL
+write.csv(full_r, "data/sel-bias-multisynth-all-runs.csv", row.names = FALSE)
+saveRDS(r, "data/sel-bias-multisynth-all-runs.rds")
+
 
 negbin_models <- list(
   list(

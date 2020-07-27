@@ -12,20 +12,35 @@
 #' @param single_simulation object created from SimConfig$setup_single_simulation()
 selbias_sample <- function(single_simulation) {
   x <- single_simulation$data
+  
+  if (single_simulation$prior_control == "mva3") {
+    x$prior_control <- x$prior_control_mva3
+  } else if (single_simulation$prior_control == "trend") {
+    x$prior_control <- x$prior_control_trend
+  } else {
+    stop("invalid prior control option, must be either 'mva3' or 'trend'")
+  }
+  
   unit_var <- single_simulation$unit_var
   time_var <- single_simulation$time_var
   policy_speed <- single_simulation$policy_speed
   number_implementation_years <- as.numeric(single_simulation$n_implementation_periods)
-  b0 <- single_simulation$bias_vals.b0
-  b1 <- single_simulation$bias_vals.b1
-  b2 <- single_simulation$bias_vals.b2
+  
+  # get bias value information
+  bias_vals <- single_simulation$globals[["bias_vals"]][[single_simulation$bias_type]][[single_simulation$prior_control]][[single_simulation$bias_size]]
+  b0 <- bias_vals["b0"]
+  b1 <- bias_vals["b1"]
+  b2 <- bias_vals["b2"]
+  b3 <- bias_vals["b3"]
+  b4 <- bias_vals["b4"]
+  b5 <- bias_vals["b5"]
   
   #need to create a matrix of state x year 
   #probabilities of being assigned to enact policy
   available_units <- unique(x[[unit_var]])
   #don't include first 3 years in this version where depends on 3-year moving average
   atp <- sort(unique(x[[time_var]]))[-1:-5]
-  atp <- atp[-length(atp):-(length(atp)-1)]
+  atp <- atp[-length(atp):-(length(atp)-2)]
   available_time_periods <- atp
   
   x_simplex <- x[x[[time_var]] %in% available_time_periods, ]
@@ -38,7 +53,10 @@ selbias_sample <- function(single_simulation) {
     current_unit <- available_units[i]
     unit_data <- x_simplex[x_simplex[[unit_var]] == current_unit, ]
     
-    logits <- b0 + (b1 * unit_data$prior_control) + (b2 * unit_data$unemploymentrate)
+    # b0+b1*mva3+b2*unemployment+b3*(mva3*unemployment)+b4*mva^2+b5*unemployment^2
+    logits <- b0 + (b1 * unit_data$prior_control) + (b2 * unit_data$unemploymentrate) +
+      (b3 * (unit_data$prior_control * unit_data$unemploymentrate)) +
+      (b4 * (unit_data$prior_control ^ 2)) + (b5 * (unit_data$unemploymentrate ^ 2))
     
     trt_pr[i, ] <- exp(logits)/(1+exp(logits))
     # print(trt.pr[s,])
@@ -145,8 +163,13 @@ selbias_sample <- function(single_simulation) {
 selbias_premodel <- function(model_simulation) {
   x <- model_simulation$data
   effect_direction <- model_simulation$effect_direction
-  a1 <- model_simulation$bias_vals.a1
-  a2 <- model_simulation$bias_vals.a2
+  
+  bias_vals <- model_simulation$globals[["bias_vals"]][[model_simulation$bias_type]][[model_simulation$prior_control]][[model_simulation$bias_size]]
+  a1 <- bias_vals["a1"]
+  a2 <- bias_vals["a2"]
+  a3 <- bias_vals["a3"]
+  a4 <- bias_vals["a4"]
+  a5 <- bias_vals["a5"]
   model <- model_simulation$models
   balance_statistics <- NULL
   
@@ -156,7 +179,10 @@ selbias_premodel <- function(model_simulation) {
   model_type <- model$type
   
   # apply bias to outcome
-  x[[outcome]] <- x[[outcome]] + (a1 * x$prior_control) + (a2 * x$unemploymentrate)
+  #Adj.Y = Y.obs+a1*mva3+a2*unemployment+a3*(mva3*unemployment)+a4*mva^2+a5*unemployment^2
+  x[[outcome]] <- x[[outcome]] + (a1 * x$prior_control) + (a2 * x$unemploymentrate) +
+    (a3 * (x$prior_control * x$unemploymentrate)) +
+    (a4 * (x$prior_control ^ 2)) + (a5 * (x$unemploymentrate ^ 2))
   
   # if autoregressive, need to add lag for crude rate
   # when outcome is deaths, derive new crude rate from modified outcome
@@ -199,7 +225,8 @@ selbias_premodel <- function(model_simulation) {
       sd_unempl = sd(unemploymentrate),
       mu1 = mean((!!oo)[treatment > 0]),
       mu0 = mean((!!oo)[treatment == 0]),
-      sd = sd(!!oo)
+      sd = sd(!!oo),
+      .groups="keep"
     ) %>%
     mutate(
       es_prior = (mu1_prior - mu0_prior) / sd_prior,
@@ -213,7 +240,8 @@ selbias_premodel <- function(model_simulation) {
               mean_es_unempl = mean(es_unempl, na.rm=TRUE),
               max_es_unempl = max(abs(es_unempl), na.rm=TRUE),
               mean_es_outcome = mean(es, na.rm=TRUE),
-              max_es_outcome = max(abs(es), na.rm=TRUE)
+              max_es_outcome = max(abs(es), na.rm=TRUE),
+              .groups="drop"
     ) %>%
     mutate(outcome = outcome,
            n_unique_enact_years = length(unique(sapply(model_simulation$treated_units, function(x) {min(x[["policy_years"]])}))))
@@ -251,7 +279,7 @@ selbias_model <- function(model_simulation) {
 #' TODO: documentation
 selbias_postmodel <- function(model_simulation) {
   outcome <- model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
-  
+  bias_vals <- model_simulation$globals[["bias_vals"]][[model_simulation$bias_type]][[model_simulation$prior_control]][[model_simulation$bias_size]]
   # get run metadata to merge in after
   meta_data <- data.frame(
     model_name = model_simulation$models$name,
@@ -260,11 +288,20 @@ selbias_postmodel <- function(model_simulation) {
     model_formula = Reduce(paste, trimws(deparse(model_simulation$models[["model_formula"]]))),
     policy_speed = model_simulation$policy_speed,
     n_implementation_years = model_simulation$n_implementation_periods,
-    b0 = model_simulation$bias_vals.b0,
-    b1 = model_simulation$bias_vals.b1,
-    b2 = model_simulation$bias_vals.b2,
-    a1 = model_simulation$bias_vals.a1,
-    a2 = model_simulation$bias_vals.a2
+    prior_control = model_simulation$prior_control,
+    bias_type = model_simulation$bias_type,
+    bias_size = model_simulation$bias_size,
+    b0 = bias_vals["b0"],
+    b1 = bias_vals["b1"],
+    b2 = bias_vals["b2"],
+    b3 = bias_vals["b3"],
+    b4 = bias_vals["b4"],
+    b5 = bias_vals["b5"],
+    a1 = bias_vals["a1"],
+    a2 = bias_vals["a2"],
+    a3 = bias_vals["a3"],
+    a4 = bias_vals["a4"],
+    a5 = bias_vals["a5"]
   )
   
   # get model result information and apply standard error adjustments

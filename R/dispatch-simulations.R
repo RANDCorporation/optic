@@ -107,7 +107,7 @@ dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, failur
         if (failed_attempts == 0.10*single_simulation$iters) {
           stop(paste("attempted 10 percent of total iterations in single thread;",
                      "something is not right, here's the most recent error:",
-                     r))
+                     paste(r, collapse=" ")))
         }
         r$iter <- j
         sim_results[[j]] <- r
