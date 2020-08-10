@@ -149,6 +149,53 @@ bias_vals <- list(
   autoreg_negbin = list()
 )
 
+drdid_models <- list(
+  list(
+    name="drdid",
+    type="drdid",
+    model_call="drdid",
+    model_formula=crude.rate ~ treatment_level + unemploymentrate,
+    model_args=list(
+      yname="crude.rate",
+      tname="year",
+      idname="state",
+      dname="treatment_level",
+      xformla=~unemploymentrate
+    )
+  )
+)
+
+drdid_config <- configure_simulation(
+  # data and models required
+  x=x,
+  models=drdid_models,
+  # iterations
+  iters=100,
+  
+  # specify functions or S3 class of set of functions
+  method_sample=selbias_sample,
+  method_pre_model=selbias_premodel,
+  method_model=selbias_model,
+  method_post_model=selbias_postmodel,
+  method_results=selbias_results,
+  
+  globals=list(
+    bias_vals=bias_vals[["fixedeff_linear"]]
+  ),
+  
+  # parameters that will be expanded and added
+  params=list(
+    unit_var="state",
+    time_var="year",
+    policy_speed=list("instant"),
+    prior_control=c("mva3", "trend"),
+    bias_type=c("linear", "nonlinear"),
+    bias_size=c("small", "medium", "large"),
+    n_implementation_periods=list(0)
+  )
+)
+
+
 linear_models <- list(
   # list(
   #   name="fixedeff_linear",
@@ -198,10 +245,10 @@ linear_config <- configure_simulation(
   )
 )
 
-cl <- parallel::makeCluster(16L)
+cl <- parallel::makeCluster(4L)
 plan("cluster", workers = cl)
 
-r <- dispatch_simulations(linear_config, use_future=TRUE, seed=89721, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
+r <- dispatch_simulations(drdid_config, use_future=TRUE, seed=89721, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
 
 for (i in 1:length(r)) {
   print(paste(

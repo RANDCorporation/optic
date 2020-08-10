@@ -210,6 +210,9 @@ selbias_premodel <- function(model_simulation) {
     if (sum(is.na(x[[outcome]])) > 0) {
       stop("multisynth method cannot handle missingness in outcome.")
     }
+  } else if (model_type == "drdid") {
+    x$treatment[x$treatment > 0] <- 1
+    x$treatment_level[x$treatment_level > 0] <- 1
   }
   
   # get balance information
@@ -261,9 +264,15 @@ selbias_model <- function(model_simulation) {
   model <- model_simulation$models
   x <- model_simulation$data
   
+  if (model_simulation$models$name == "drdid") {
+    args = c(list(data=x), model[["model_args"]])
+  } else {
+    args = c(list(data=x, formula=model[["model_formula"]]), model[["model_args"]])
+  }
+  
   m <- do.call(
     model[["model_call"]],
-    c(list(data=x, formula=model[["model_formula"]]), model[["model_args"]])
+    args
   )
   
   model_simulation$model_result <- m

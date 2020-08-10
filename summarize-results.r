@@ -129,11 +129,20 @@ summarize_results_selbias <- function(x) {
       moel_formula=unique(x$model_formula),
       policy_speed=unique(x$policy_speed),
       n_implementation_years=unique(x$n_implementation_years),
+      prior_control=unique(x$prior_control),
+      bias_type=unique(x$bias_type),
+      bias_size=unique(x$bias_size),
       b0=unique(x$b0),
       b1=unique(x$b1),
       b2=unique(x$b2),
+      b3=unique(x$b3),
+      b4=unique(x$b4),
+      b5=unique(x$b5),
       a1=unique(x$a1),
       a2=unique(x$a2),
+      a3=unique(x$a3),
+      a4=unique(x$a4),
+      a5=unique(x$a5),
       stringsAsFactors = FALSE
     ),
     summary_results
@@ -142,14 +151,15 @@ summarize_results_selbias <- function(x) {
   return(summary_results)
 }
 
-trial <- read.csv("data/sel-bias-linear-trial-runs.csv")
-trial <- read.csv('data/sel-bias-negbin-trial-runs.csv')
-trial <- read.csv('data/sel-bias-linear-trend-runs.csv')
+trial <- read.csv("data/sel-bias-linear-fe-all-runs.csv")
+trial <- read.csv("data/sel-bias-linear-ar-all-runs.csv")
+trial <- read.csv('data/sel-bias-multisynth-all-runs.csv')
+
 
 trial_sims <- split(
   trial,
   list(trial$model_name, trial$policy_speed, trial$n_implementation_years,
-       trial$b0, trial$b1, trial$b2, trial$a1, trial$a2, trial$se_adjustment)
+       trial$prior_control, trial$bias_type, trial$bias_size, trial$se_adjustment)
 )
 
 trial_sims <- trial_sims[which(sapply(trial_sims, nrow) > 0)]
@@ -158,11 +168,151 @@ summarized <- lapply(trial_sims, summarize_results_selbias)
 summarized <- do.call('rbind', summarized)
 rownames(summarized) <- NULL
 
-summarized <- summarized %>%
-  rename(max_es_trend = max_es_prior,
-         mean_es_trend = mean_es_prior)
+write.csv(summarized, "~/Downloads/sel-bias-multisynth-summary.csv", row.names = FALSE)
 
-write.csv(summarized, "data/selbais-linear-trend-summary.csv", row.names = FALSE)
+
+lmar <- read.csv("~/Downloads/sel-bias-linear-ar-summary.csv", stringsAsFactors = FALSE)
+lmfe <- read.csv("~/Downloads/sel-bias-linear-fe-summary.csv", stringsAsFactors = FALSE)
+msyn <- read.csv("~/Downloads/sel-bias-multisynth-summary.csv", stringsAsFactors = FALSE)
+
+r <- rbind(lmar, lmfe, msyn)
+
+r <- r %>%
+  filter(se_adjustment == "cluster" | model_name == "multisynth") %>%
+  filter(bias_type == "nonlinear") %>%
+  mutate(coverage = 1 - type_1_error) %>%
+  mutate(
+    bias_size = factor(
+      bias_size, levels=c("small", "medium", "large"),
+      labels=c("Small Selection Bias", "Moderate Selection Bias", "Large Selection Bias")
+    )
+  ) %>%
+  mutate(
+    model_name = factor(
+      model_name, levels=c("fixedeff_linear", "autoreg_linear", "multisynth"),
+      labels=c("Linear 2-way\nFixed Effects Model", "Linear Autoregressive\nModel", "Augmented SCM")
+    )
+  )
+
+
+library(ggplot2)
+cr_sd <- 4.358559
+text_size <- 12
+
+bias_mva3 <- ggplot(r %>% filter(prior_control == "mva3"), aes(x=model_name, y=abs(bias / cr_sd), fill=bias_size)) +
+  geom_col(position=position_dodge(), width=0.8) +
+  scale_fill_manual(values=c("lightblue", "blue", "darkblue")) +
+  scale_y_continuous(limits=c(0, 1)) +
+  theme_bw() +
+  xlab(NULL) +
+  ylab("Bias on an effect size scale") +
+  theme(
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    text = element_text(size=text_size)
+  )
+
+bias_trend <- ggplot(r %>% filter(prior_control == "trend"), aes(x=model_name, y=abs(bias / cr_sd), fill=bias_size)) +
+  geom_col(position=position_dodge(), width=0.8) +
+  scale_fill_manual(values=c("lightblue", "blue", "darkblue")) +
+  scale_y_continuous(limits=c(0, 1)) +
+  theme_bw() +
+  xlab(NULL) +
+  ylab("Bias on an effect size scale") +
+  theme(
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    text = element_text(size=text_size)
+  )
+
+coverage_mva3 <- ggplot(r %>% filter(prior_control == "mva3"), aes(x=model_name, y=coverage, fill=bias_size)) +
+  geom_col(position=position_dodge(), width=0.8) +
+  scale_fill_manual(values=c("lightblue", "blue", "darkblue")) +
+  scale_y_continuous(limits=c(0, 1)) +
+  theme_bw() +
+  xlab(NULL) +
+  ylab("Coverage") +
+  theme(
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    text = element_text(size=text_size)
+  )
+
+coverage_trend <- ggplot(r %>% filter(prior_control == "trend"), aes(x=model_name, y=coverage, fill=bias_size)) +
+  geom_col(position=position_dodge(), width=0.8) +
+  scale_fill_manual(values=c("lightblue", "blue", "darkblue")) +
+  scale_y_continuous(limits=c(0, 1)) +
+  theme_bw() +
+  xlab(NULL) +
+  ylab("Coverage") +
+  theme(
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    text = element_text(size=text_size)
+  )
+
+var_mva3 <- ggplot(r %>% filter(prior_control == "mva3"), aes(x=model_name, y=variance, fill=bias_size)) +
+  geom_col(position=position_dodge(), width=0.8) +
+  scale_fill_manual(values=c("lightblue", "blue", "darkblue")) +
+  scale_y_continuous(limits=c(0, 85)) +
+  theme_bw() +
+  xlab(NULL) +
+  ylab("Variance") +
+  theme(
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    text = element_text(size=text_size)
+  )
+
+var_trend <- ggplot(r %>% filter(prior_control == "trend"), aes(x=model_name, y=variance, fill=bias_size)) +
+  geom_col(position=position_dodge(), width=0.8) +
+  scale_fill_manual(values=c("lightblue", "blue", "darkblue")) +
+  scale_y_continuous(limits=c(0, 85)) +
+  theme_bw() +
+  xlab(NULL) +
+  ylab("Variance") +
+  theme(
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    text = element_text(size=text_size)
+  )
+
+rmse_mva3 <- ggplot(r %>% filter(prior_control == "mva3"), aes(x=model_name, y=sqrt(mse), fill=bias_size)) +
+  geom_col(position=position_dodge(), width=0.8) +
+  scale_fill_manual(values=c("lightblue", "blue", "darkblue")) +
+  scale_y_continuous(limits=c(0, 15)) +
+  theme_bw() +
+  xlab(NULL) +
+  ylab("RMSE") +
+  theme(
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    text = element_text(size=text_size)
+  )
+
+rmse_trend <- ggplot(r %>% filter(prior_control == "trend"), aes(x=model_name, y=sqrt(mse), fill=bias_size)) +
+  geom_col(position=position_dodge(), width=0.8) +
+  scale_fill_manual(values=c("lightblue", "blue", "darkblue")) +
+  scale_y_continuous(limits=c(0, 15)) +
+  theme_bw() +
+  xlab(NULL) +
+  ylab("RMSE") +
+  theme(
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    text = element_text(size=text_size)
+  )
+
+w=6
+h=3
+ggsave("~/Downloads/bias-mva3-nonlinear.png", bias_mva3, dpi=300, width=w, height=h)
+ggsave("~/Downloads/bias-trend-nonlinear.png", bias_trend, dpi=300, width=w, height=h)
+ggsave("~/Downloads/coverage-mva3-nonlinear.png", coverage_mva3, dpi=300, width=w, height=h)
+ggsave("~/Downloads/coverage-trend-nonlinear.png", coverage_trend, dpi=300, width=w, height=h)
+ggsave("~/Downloads/variance-mva3-nonlinear.png", var_mva3, dpi=300, width=w, height=h)
+ggsave("~/Downloads/variance-trend-nonlinear.png", var_trend, dpi=300, width=w, height=h)
+ggsave("~/Downloads/rmse-mva3-nonlinear.png", rmse_mva3, dpi=300, width=w, height=h)
+ggsave("~/Downloads/rmse-trend-nonlinear.png", rmse_trend, dpi=300, width=w, height=h)
 
 #==============================================================================
 #==============================================================================
