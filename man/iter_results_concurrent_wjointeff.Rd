@@ -8,8 +8,6 @@ iter_results_concurrent_wjointeff(model_simulation)
 }
 \arguments{
 \item{model_simulation}{}
-
-\item{m}{model object}
 }
 \description{
 iter results

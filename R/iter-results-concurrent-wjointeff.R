@@ -1,6 +1,5 @@
 #' iter results
 #' 
-#' @param m model object
 #' @param model_simulation
 #' 
 #' @export
