@@ -7,6 +7,8 @@
 #'     for the policy effect phasing in over time
 #' @n_implementation_periods used if policy_speed is slow, number of time periods over
 #'     which to phase in full policy effect
+#'
+#' @export
 exposure_list <- function(sampled_time_period, mo, available_periods, policy_speed, n_implementation_periods) {
   if (policy_speed == "instant") {
     l <- list(

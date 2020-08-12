@@ -8,6 +8,7 @@ dispatch_simulations(
   sim_config,
   use_future = FALSE,
   seed = NULL,
+  failure = NULL,
   verbose = 0,
   ...
 )

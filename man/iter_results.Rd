@@ -4,12 +4,12 @@
 \alias{iter_results}
 \title{iter results}
 \usage{
-iter_results(m, single_simulation)
+iter_results(model_simulation)
 }
 \arguments{
-\item{m}{model object}
+\item{model_simulation}{R6 class object for simulation config}
 
-\item{single_simulation}{R6 class object for simulation config}
+\item{m}{model object}
 }
 \description{
 iter results

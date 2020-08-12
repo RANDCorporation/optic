@@ -2,10 +2,14 @@
 % Please edit documentation in R/selection-bias-methods.R
 \name{selbias_premodel}
 \alias{selbias_premodel}
-\title{TODO: documentation}
+\title{Modify the outcome and prepare data for modeling based on model type}
 \usage{
-selbias_premodel(single_simulation)
+selbias_premodel(model_simulation)
 }
 \description{
-TODO: documentation
+modifies the outcome with bias from trend and unemployemnt
+    rate; if autoregressive run, also adds a lag of the crude rate that
+    is newly derived from modified deaths if using deaths as outcome.
+    Calculates some balance information that is passed along to later
+    steps.
 }

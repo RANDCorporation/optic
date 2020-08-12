@@ -8,14 +8,21 @@
 #'
 #' @param single_simulation object created from SimConfig$setup_single_simulation()
 concurrent_sample <- function(single_simulation) {
+  ##########################################
+  ### PULL DATA AND PARAMETERS/VARIABLES ###
+  ##########################################
   x <- single_simulation$data
   n <- single_simulation$n_units
   unit_var <- single_simulation$unit_var
   time_var <- single_simulation$time_var
+  policy_speed <- single_simulation$policy_speed
   n_implementation_periods <- single_simulation$n_implementation_periods
   rho <- single_simulation$rho
   time_period_restriction <- single_simulation$time_period_restriction
   
+  ###############################################
+  ### IDENTIFY TREATED UNITS AND TIME PERIODS ###
+  ###############################################
   # sample treated units
   sampled_units <- sample(unique(x[[unit_var]]), n, replace=FALSE)
   
@@ -57,16 +64,19 @@ concurrent_sample <- function(single_simulation) {
     sampled_time_period2=floor(sampled_time_period2)
   
     # exposure coding
-    l1 <- exposure_list(sampled_time_period1, mo1, available_periods, policy_speed, n_implementation_periods)
+    l1 <- optic::exposure_list(sampled_time_period1, mo1, available_periods, policy_speed, n_implementation_periods)
     names(l1) <- paste0(names(l1), "1")
-    l2 <- exposure_list(sampled_time_period2, mo2, available_periods, policy_speed, n_implementation_periods)
+    l2 <- optic::exposure_list(sampled_time_period2, mo2, available_periods, policy_speed, n_implementation_periods)
     names(l2) <- paste0(names(l2), "2")
     treated[[sunit]] <- c(l1, l2)
   }
   
-  # calulate the distance (in days) between the two policy start dates
+  # calulate the distance (in days) between the two policy start dates (custom method)
   policy_distances <- get_distance_avgs(treated)
   
+  #############################
+  ### ADD TREATMENT TO DATA ###
+  #############################
   # apply treatment to data
   x$treatment1 <- 0
   x$treatment2 <- 0
@@ -94,9 +104,167 @@ concurrent_sample <- function(single_simulation) {
     }
   }
   
+  #########################################
+  ### LEVEL AND CHANGE CODING TREATMENT ###
+  #########################################
+  # ensure both treatment levels and treatment change code are coded
+  unit_sym <- dplyr::sym(unit_var)
+  time_sym <- dplyr::sym(time_var)
+  
+  x <- x %>%
+    dplyr::arrange(!!unit_sym, !!time_sym) %>%
+    dplyr::group_by(!!unit_sym) %>%
+    dplyr::mutate(temp_lag1 = dplyr::lag(treatment1, n=1L)) %>%
+    dplyr::mutate(temp_lag2 = dplyr::lag(treatment2, n=1L)) %>%
+    dplyr::mutate(treatment1_change = treatment1 - temp_lag1) %>%
+    dplyr::mutate(treatment2_change = treatment2 - temp_lag2) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-temp_lag1, -temp_lag2) %>%
+    # need to save original treatment1 and treatment2 since they are used
+    # for treatment effect application
+    dplyr::mutate(treatment1_level=treatment1, treatment2_level=treatment2)
+  
+  
+  # assign back to config object
   single_simulation$data <- x
   single_simulation$policy_distances <- policy_distances
   
   return(single_simulation)
 }
+
+
+########################
+### PRE MODEL METHOD ###
+########################
+
+#' pre-modeling method to apply to config object/data
+#' 
+#' @description since there are different data transformations needed for different
+#'     model approaches, the treatment effect application and other data prep steps
+#'     are run here before modeling but in the model-specific config object rather 
+#'     than in the sampling step that would apply to all models in the sim
+#' 
+concurrent_premodel <- function(model_simulation) {
+  ##########################################
+  ### PULL DATA AND PARAMETERS/VARIABLES ###
+  ##########################################
+  x <- model_simulation$data
+  model <- model_simulation$models
+  outcome <- model_terms(model$model_formula)[["lhs"]]
+  
+  ##############################
+  ### APPLY TREATMENT EFFECT ###
+  ##############################
+  # custom method that works for concurrent and regular single policy eval
+  x <- apply_treatment_effect(
+    x=x,
+    model_formula=model$model_formula,
+    model_call=model$model_call,
+    te=c(model_simulation$effect_magnitude1, model_simulation$effect_magnitude2),
+    effect_direction=model_simulation$effect_direction,
+    concurrent=TRUE
+  )
+  
+  # if autoregressive, need to add lag for crude rate
+  # when outcome is deaths, derive new crude rate from modified outcome
+  if (model$type == "autoreg") {
+    if (outcome == "deaths") {
+      x$crude.rate <- (x$deaths * 100000)/ x$population
+    }
+    
+    # get lag of crude rate and add it to the model
+    unit_sym <- dplyr::sym(model_simulation$unit_var)
+    time_sym <- dplyr::sym(model_simulation$time_var)
+    
+    x <- x %>%
+      dplyr::arrange(!!unit_sym, !!time_sym) %>%
+      dplyr::group_by(!!unit_sym) %>%
+      dplyr::mutate(lag_crude.rate = dplyr::lag(crude.rate, n=1L)) %>%
+      dplyr::ungroup()
+    
+    model_simulation$models$model_formula <- update.formula(model_simulation$models$model_formula, ~ . + lag_crude.rate)
+  }
+  
+  # modified data back into object
+  model_simulation$data <- x
+  
+  return(model_simulation)
+}
+
+
+####################
+### MODEL METHOD ###
+####################
+#' run model and store results
+#' 
+#' @description runs the model against the prepared data along with
+#'     any provided arguments. Stores the model object in the input
+#'     list, new element named "model_result" and returns full list
+concurrent_model <- function(model_simulation) {
+  model <- model_simulation$models
+  x <- model_simulation$data
+  
+  args = c(list(data=x, formula=model[["model_formula"]]), model[["model_args"]])
+  
+  m <- do.call(
+    model[["model_call"]],
+    args
+  )
+  
+  model_simulation$model_result <- m
+  
+  return(model_simulation)
+}
+
+
+#########################
+### POST_MODEL METHOD ###
+#########################
+concurrent_postmodel <- function(model_simulation) {
+  model <- model_simulation$models
+  
+  # check for one or both treatments in model
+  rhs <- model_terms(model$model_formula)[["rhs"]]
+  if (sum(grepl("^treatment", rhs)) == 2) {
+    results <- iter_results_concurrent_wjointeff(model_simulation)
+  } else if (sum(grepl("^treatment", rhs)) == 1) {
+    results <- iter_results(model_simulation)
+    results <- results %>%
+      dplyr::rename(
+        estimate1=estimate,
+        se1=se,
+        variance1=variance,
+        test_stat1=t_stat,
+        p_value1=p_value
+      ) %>%
+      dplyr::select(-mse)
+  }
+  
+  results$effect_direction <- model_simulation$effect_direction
+  results$effect_magnitude1 <- model_simulation$effect_magnitude1
+  results$effect_magnitude2 <- model_simulation$effect_magnitude2
+  results$policy_speed <- model_simulation$policy_speed
+  results$rho <- model_simulation$rhos
+  results$mean_distance <- mean(model_simulation$policy_distances)
+  results$min_distance <- min(model_simulation$policy_distances)
+  results$max_distance <- max(model_simulation$policy_distances)
+  results$n_implementation_periods <- model_simulation$n_implementation_periods
+  results$model_name <- model_simulation$models$name
+  results$model_type <- model_simulation$models$type
+  results$model_call <- model_simulation$models$model_call
+  results$model_formula <- paste(trimws(deparse(model_simulation$models$model_formula)), collapse=" ")
+  
+  return(results)
+}
+
+
+######################
+### RESULTS METHOD ###
+######################
+
+concurrent_results <- function(r) {
+  return(dplyr::bind_rows(r))
+}
+
+
   

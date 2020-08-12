@@ -2,16 +2,17 @@
 % Please edit documentation in R/cluster-adjust-se.r
 \name{cluster_adjust_se}
 \alias{cluster_adjust_se}
-\title{Adjust standard errors for clusters}
+\title{Adjust standard errors for clusters
+TODO: need to cite source for this code/method}
 \usage{
 cluster_adjust_se(model, cluster)
 }
 \arguments{
 \item{model}{model object from regression fit}
 
-\item{clsuter}{vector of cluster assignments; length should equal length of residuals in model object
-TODO: need to cite source for this code/method}
+\item{clsuter}{vector of cluster assignments; length should equal length of residuals in model object}
 }
 \description{
 Adjust standard errors for clusters
+TODO: need to cite source for this code/method
 }

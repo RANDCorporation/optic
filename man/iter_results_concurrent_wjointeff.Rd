@@ -4,12 +4,12 @@
 \alias{iter_results_concurrent_wjointeff}
 \title{iter results}
 \usage{
-iter_results_concurrent_wjointeff(m, single_simulation)
+iter_results_concurrent_wjointeff(model_simulation)
 }
 \arguments{
-\item{m}{model object}
+\item{model_simulation}{}
 
-\item{single_simulation}{R6 class object for simulation config}
+\item{m}{model object}
 }
 \description{
 iter results

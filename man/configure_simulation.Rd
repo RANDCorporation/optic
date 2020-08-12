@@ -10,12 +10,11 @@ configure_simulation(
   iters,
   params,
   method_sample,
-  method_te,
   method_model,
   method_results,
   method_pre_model = NULL,
   method_post_model = NULL,
-  method_class = "simulation",
+  globals = NULL,
   verbose = TRUE
 )
 }
@@ -31,9 +30,6 @@ optionally `model_args`.}
 \item{method_sample}{function for sampling treated units, should modify the
 single_simulation$data object}
 
-\item{method_te}{function for applying a treatment effect to the outcome,
-should modify the single_simulation$data object}
-
 \item{method_model}{function to run model, default performs a do.call on the 
 model_call, passing model_formula and model_args if provided. Resulting 
 model object is added to single_simulation list under named element
@@ -47,9 +43,6 @@ object prior to modeling}
 
 \item{method_post_model}{optional function for any post-processing on 
 single_simulation object}
-
-\item{method_class}{optional, string name of class that is applied to objects
-allowing use of S3 methods}
 
 \item{verbose}{should I be chatty? Default is yes, I am chatty.}
 }
@@ -67,5 +60,5 @@ The resulting configuration object is passed to run iteration when
     functions should modify elements of the single_simulation list and return
     the entire single_simulation object. The method functions are run in the
     following order (any that are set to NULL will be skipped): method_sample,
-    method_te, method_pre_model, method_model, method_post_model, method_result.
+    method_pre_model, method_model, method_post_model, method_result.
 }

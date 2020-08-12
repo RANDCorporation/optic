@@ -2,10 +2,16 @@
 % Please edit documentation in R/selection-bias-methods.R
 \name{selbias_sample}
 \alias{selbias_sample}
-\title{TODO: documentaion for selection bias sampling method}
+\title{perform sampling and coding of treatment for selection bias simulations}
 \usage{
 selbias_sample(single_simulation)
 }
+\arguments{
+\item{single_simulation}{object created from SimConfig$setup_single_simulation()}
+}
 \description{
-TODO: documentaion for selection bias sampling method
+uses values of b0, b1, b2 to sample treated units based on
+    values of moving average and unemployment rate to induce selection bias.
+    Once treated units are identified, codes level and change version of
+    treatment that are used in various modeling approaches later on.
 }

@@ -1,13 +1,15 @@
 #' iter results
 #' 
 #' @param m model object
-#' @param single_simulation R6 class object for simulation config
+#' @param model_simulation R6 class object for simulation config
 #' @export
-iter_results <- function(m, single_simulation) {
+iter_results <- function(model_simulation) {
+  m <- model_simulation$model_result
+  
   if (class(m)[1] == "lm") {
-    iter_results.lm(m, single_simulation)
+    iter_results.lm(model_simulation)
   } else if ("negbin" %in% class(m)) {
-    iter_results.negbin.glm(m, single_simulation)
+    iter_results.negbin.glm(model_simulation)
   }
 }
 
@@ -21,7 +23,9 @@ mse_resid <- function(x) {
 }
 
 #' @export
-iter_results.lm <- function(m, single_simulation) {
+iter_results.lm <- function(model_simulation) {
+  m <- model_simulation$model_result
+  
   coeffs <- as.data.frame(summary(m)$coefficients)
   coeffs$variable <- row.names(coeffs)
   rownames(coeffs) <- NULL
@@ -43,7 +47,7 @@ iter_results.lm <- function(m, single_simulation) {
     stringsAsFactors=FALSE
   )
   
-  if ("huber" %in% single_simulation$se_adjust) {
+  if ("huber" %in% model_simulation$models$se_adjust) {
     cov_h <- sandwich::vcovHC(m, type="HC0")
     h_se <- sqrt(diag(cov_h))[names(diag(cov_h)) == treatment]
     
@@ -61,9 +65,9 @@ iter_results.lm <- function(m, single_simulation) {
     rownames(r) <- NULL
   }
   
-  if ("cluster" %in% single_simulation$se_adjust) {
+  if ("cluster" %in% model_simulation$models$se_adjust) {
     clust_indices <- as.numeric(rownames(m$model))
-    clust_var <- as.character(single_simulation$data[[single_simulation$unit_var]][clust_indices])
+    clust_var <- as.character(model_simulation$data[[model_simulation$unit_var]][clust_indices])
     clust_coeffs <- cluster_adjust_se(m, clust_var)[[2]]
     clust_vcov <- cluster_adjust_se(m, clust_var)[[1]][2,3] #not 100% alginment with SEs from model so worried this is off
     class(clust_coeffs) <- c("coeftest", "matrix")
@@ -86,14 +90,14 @@ iter_results.lm <- function(m, single_simulation) {
     r <- rbind(r, c_r)
   }
   
-  if ("huber-cluster" %in% single_simulation$se_adjust) {
+  if ("arellano" %in% model_simulation$models$se_adjust) {
     clust_indices <- as.numeric(rownames(m$model))
-    clust_var <- as.character(single_simulation$data[[single_simulation$unit_var]][clust_indices])
+    clust_var <- as.character(model_simulation$data[[model_simulation$unit_var]][clust_indices])
     cov_hc <- sandwich::vcovHC(m, type="HC1", cluster=clust_var, method="arellano")
     hc_se <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == treatment]
     
     hc_r <- data.frame(
-      se_adjustment="huber-cluster",
+      se_adjustment="arellano",
       estimate=estimate,
       se=hc_se,
       variance=hc_se ^ 2,
@@ -109,7 +113,9 @@ iter_results.lm <- function(m, single_simulation) {
   return(r)
 }
 
-iter_results.negbin.glm <- function(m, single_simulation) {
+iter_results.negbin.glm <- function(model_simulation) {
+  m <- model_simulation$model_result
+  
   coeffs <- as.data.frame(summary(m)$coefficients)
   coeffs$variable <- row.names(coeffs)
   rownames(coeffs) <- NULL
@@ -125,13 +131,13 @@ iter_results.negbin.glm <- function(m, single_simulation) {
     estimate=estimate,
     se=coeffs[["Std. Error"]],
     variance=coeffs[["Std. Error"]] ^ 2,
-    z_stat=coeffs[["z value"]],
+    t_stat=coeffs[["z value"]],
     p_value=coeffs[["Pr(>|z|)"]],
     mse=mse_resid(m[["residuals"]]),
     stringsAsFactors=FALSE
   )
   
-  if ("huber" %in% single_simulation$se_adjust) {
+  if ("huber" %in% model_simulation$models$se_adjust) {
     cov_h <- sandwich::vcovHC(m, type="HC0")
     h_se <- sqrt(diag(cov_h))[names(diag(cov_h))==treatment]
     
@@ -140,7 +146,7 @@ iter_results.negbin.glm <- function(m, single_simulation) {
       estimate=estimate,
       se=h_se,
       variance=h_se ^ 2,
-      z_stat=estimate / h_se,
+      t_stat=estimate / h_se,
       p_value=2 * pnorm(abs(estimate / h_se), lower.tail=FALSE),
       mse=mse_resid(m[["residuals"]]),
       stringsAsFactors=FALSE
@@ -149,9 +155,9 @@ iter_results.negbin.glm <- function(m, single_simulation) {
     rownames(r) <- NULL
   }
   
-  if ("cluster" %in% single_simulation$se_adjust) {
+  if ("cluster" %in% model_simulation$models$se_adjust) {
     clust_indices <- as.numeric(rownames(m$model))
-    clust_var <- as.character(single_simulation$data[[single_simulation$unit_var]][clust_indices])
+    clust_var <- as.character(model_simulation$data[[model_simulation$unit_var]][clust_indices])
     clust_coeffs <- cluster_adjust_se(m, clust_var)[[2]]
     class(clust_coeffs) <- c("coeftest", "matrix")
     clust_coeffs <- as.data.frame(clust_coeffs)
@@ -164,7 +170,7 @@ iter_results.negbin.glm <- function(m, single_simulation) {
       estimate=clust_coeffs[["Estimate"]],
       se=clust_coeffs[["Std. Error"]],
       variance=clust_coeffs[["Std. Error"]] ^ 2,
-      z_stat=clust_coeffs[["z value"]],
+      t_stat=clust_coeffs[["z value"]],
       p_value=clust_coeffs[["Pr(>|z|)"]],
       mse=mse_resid(m[["residuals"]]),
       stringsAsFactors=FALSE
@@ -173,18 +179,18 @@ iter_results.negbin.glm <- function(m, single_simulation) {
     r <- rbind(r, c_r)
   }
   
-  if ("huber-cluster" %in% single_simulation$se_adjust) {
+  if ("arellano" %in% model_simulation$models$se_adjust) {
     clust_indices <- as.numeric(rownames(m$model))
-    clust_var <- as.character(single_simulation$data[[single_simulation$unit_var]][clust_indices])
+    clust_var <- as.character(model_simulation$data[[model_simulation$unit_var]][clust_indices])
     cov_hc <- sandwich::vcovHC(m, type="HC1", cluster=clust_var, method="arellano")
     hc_se <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == treatment]
     
     hc_r <- data.frame(
-      se_adjustment="huber-cluster",
+      se_adjustment="arellano",
       estimate=estimate,
       se=hc_se,
       variance=hc_se ^ 2,
-      z_stat=estimate / hc_se,
+      t_stat=estimate / hc_se,
       p_value=2 * pnorm(abs(estimate / hc_se), lower.tail=FALSE),
       mse=mse_resid(m[["residuals"]]),
       stringsAsFactors=FALSE

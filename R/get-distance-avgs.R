@@ -3,6 +3,8 @@
 #' @param treated_units list containing the sampled treated units for a concurrent
 #'     simulation run
 #' @param units time units for distance calculation, default is "days"
+#' 
+#' @export
 get_distance_avgs <- function(treated_units, units="days") {
   distances <- c()
   for (treated in names(treated_units)) {

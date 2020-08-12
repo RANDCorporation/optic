@@ -71,7 +71,12 @@ dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, failur
               failed_attempts <- failed_attempts + 1
             }
           }
-          r$iter <- j
+          if (class(r) == "data.frame") {
+            r$iter <- j
+          } else if (class(r) == "list") {
+            r <- lapply(r, function(x){ x$iter <- j})
+          }
+          
           return(r)
         },
         future.seed=use_seed,
@@ -109,7 +114,12 @@ dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, failur
                      "something is not right, here's the most recent error:",
                      paste(r, collapse=" ")))
         }
-        r$iter <- j
+        if (class(r) == "data.frame") {
+          r$iter <- j
+        } else if (class(r) == "list") {
+          r <- lapply(r, function(x){ x$iter <- j})
+        }
+        
         sim_results[[j]] <- r
         rm(r)
       }
