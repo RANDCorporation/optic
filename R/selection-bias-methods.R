@@ -25,9 +25,35 @@ selbias_sample <- function(single_simulation) {
   time_var <- single_simulation$time_var
   policy_speed <- single_simulation$policy_speed
   number_implementation_years <- as.numeric(single_simulation$n_implementation_periods)
-  
-  # get bias value information
   bias_vals <- single_simulation$globals[["bias_vals"]][[single_simulation$bias_type]][[single_simulation$prior_control]][[single_simulation$bias_size]]
+  
+  #############################
+  ### AUGMENT OUTCOME FIRST ###
+  #############################
+  # get the bias values for outcome augmentation
+  a1 <- bias_vals["a1"]
+  a2 <- bias_vals["a2"]
+  a3 <- bias_vals["a3"]
+  a4 <- bias_vals["a4"]
+  a5 <- bias_vals["a5"]
+  
+  # since this is happening before the model loop in run_iteration, we need to make
+  # sure we augment all unique outcomes used by models
+  outcomes <- unique(sapply(single_simulation$models, function(x) { optic::model_terms(x[["model_formula"]])[["lhs"]] }))
+  
+  # apply bias to outcome
+  for (outcome in outcomes) {
+    #Adj.Y = Y.obs+a1*mva3+a2*unemployment+a3*(mva3*unemployment)+a4*mva^2+a5*unemployment^2
+    x[[outcome]] <- x[[outcome]] + (a1 * x$prior_control) + (a2 * x$unemploymentrate) +
+      (a3 * (x$prior_control * x$unemploymentrate)) +
+      (a4 * (x$prior_control ^ 2)) + (a5 * (x$unemploymentrate ^ 2))
+  }
+  
+  
+  ################################
+  ### IDENTIFY TREATMENT UNITS ###
+  ################################
+  # get bias vals for creating probability of selection
   b0 <- bias_vals["b0"]
   b1 <- bias_vals["b1"]
   b2 <- bias_vals["b2"]
@@ -35,10 +61,12 @@ selbias_sample <- function(single_simulation) {
   b4 <- bias_vals["b4"]
   b5 <- bias_vals["b5"]
   
-  #need to create a matrix of state x year 
-  #probabilities of being assigned to enact policy
+  # need to create a matrix of state x year 
+  # probabilities of being assigned to enact policy
   available_units <- unique(x[[unit_var]])
-  #don't include first 3 years in this version where depends on 3-year moving average
+  # don't include first 3 years in this version where depends on 3-year moving average
+  # also for augsynth cannot include last two years as possible selection for first
+  # treated year since it requires 2+ pre and post periods
   atp <- sort(unique(x[[time_var]]))[-1:-5]
   atp <- atp[-length(atp):-(length(atp)-2)]
   available_time_periods <- atp
@@ -162,27 +190,11 @@ selbias_sample <- function(single_simulation) {
 #'     steps.
 selbias_premodel <- function(model_simulation) {
   x <- model_simulation$data
-  effect_direction <- model_simulation$effect_direction
-  
-  bias_vals <- model_simulation$globals[["bias_vals"]][[model_simulation$bias_type]][[model_simulation$prior_control]][[model_simulation$bias_size]]
-  a1 <- bias_vals["a1"]
-  a2 <- bias_vals["a2"]
-  a3 <- bias_vals["a3"]
-  a4 <- bias_vals["a4"]
-  a5 <- bias_vals["a5"]
   model <- model_simulation$models
-  balance_statistics <- NULL
-  
-  # get the outcome and type for this model
   outcome <- optic:::model_terms(model$model_formula)[["lhs"]]
   oo <- dplyr::sym(outcome)
   model_type <- model$type
-  
-  # apply bias to outcome
-  #Adj.Y = Y.obs+a1*mva3+a2*unemployment+a3*(mva3*unemployment)+a4*mva^2+a5*unemployment^2
-  x[[outcome]] <- x[[outcome]] + (a1 * x$prior_control) + (a2 * x$unemploymentrate) +
-    (a3 * (x$prior_control * x$unemploymentrate)) +
-    (a4 * (x$prior_control ^ 2)) + (a5 * (x$unemploymentrate ^ 2))
+  balance_statistics <- NULL
   
   # if autoregressive, need to add lag for crude rate
   # when outcome is deaths, derive new crude rate from modified outcome

@@ -179,7 +179,7 @@ linear_models <- list(
 linear_fe_config <- configure_simulation(
   # data and models required
   x=x,
-  models=linear_models[[1]],
+  models=list(linear_models[[1]]),
   # iterations
   iters=5000,
   
@@ -209,7 +209,7 @@ linear_fe_config <- configure_simulation(
 linear_ar_config <- configure_simulation(
   # data and models required
   x=x,
-  models=linear_models[[2]],
+  models=list(linear_models[[2]]),
   # iterations
   iters=5000,
   
@@ -279,7 +279,7 @@ msynth_config <- configure_simulation(
 ### DISPATCH JOBS ###
 #####################
 # setup cluster
-cl <- parallel::makeCluster(parallel::detectCores())
+cl <- parallel::makeCluster(parallel::detectCores() - 1)
 plan("cluster", workers = cl)
 
 # dispatch with the same seed (want the same sampled data each run)
