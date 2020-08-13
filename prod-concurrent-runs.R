@@ -3,7 +3,6 @@ library(augsynth)
 library(dplyr)
 library(future)
 library(future.apply)
-library(DRDID)
 library(MASS)
 
 load("data/optic_sim_data_exp.Rdata")
@@ -160,14 +159,14 @@ negbin_config <- configure_simulation(
 # RUN
 #==============================================================================
 #==============================================================================
-start <- Sys.time()
-
-cl <- parallel::makeCluster(parallel::detectCores())
+cl <- parallel::makeCluster(parallel::detectCores() - 1)
 plan("cluster", workers = cl)
 
-lm_results <- dispatch_simulations(lm_config, use_future=TRUE, seed=218, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
+start <- Sys.time()
 
-nb_results <- dispatch_simulations(negbin_config, use_future=TRUE, seed=218, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
+lm_results <- dispatch_simulations(lm_config, use_future=TRUE, seed=218, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
+
+nb_results <- dispatch_simulations(negbin_config, use_future=TRUE, seed=218, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
 
 end <- Sys.time()
 

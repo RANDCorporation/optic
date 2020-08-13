@@ -279,7 +279,7 @@ msynth_config <- configure_simulation(
 ### DISPATCH JOBS ###
 #####################
 # setup cluster
-cl <- parallel::makeCluster(parallel::detectCores())
+cl <- parallel::makeCluster(parallel::detectCores() - 1)
 plan("cluster", workers = cl)
 
 # dispatch with the same seed (want the same sampled data each run)
