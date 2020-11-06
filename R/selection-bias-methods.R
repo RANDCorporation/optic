@@ -12,11 +12,14 @@
 #' @param single_simulation object created from SimConfig$setup_single_simulation()
 selbias_sample <- function(single_simulation) {
   x <- single_simulation$data
+  pc = single_simulation$prior_control
   
   if (single_simulation$prior_control == "mva3") {
-    x$prior_control <- x$prior_control_mva3
+    x$prior_control <- x$prior_control_mva3_OLD
+    x$prior_control_old <- x$prior_control_mva3_OLD
   } else if (single_simulation$prior_control == "trend") {
-    x$prior_control <- x$prior_control_trend
+    x$prior_control <- x$prior_control_trend_OLD
+    x$prior_control_old <- x$prior_control_trend_OLD
   } else {
     stop("invalid prior control option, must be either 'mva3' or 'trend'")
   }
@@ -31,35 +34,34 @@ selbias_sample <- function(single_simulation) {
   ### AUGMENT OUTCOME FIRST ###
   #############################
   # get the bias values for outcome augmentation
-  a1 <- bias_vals["a1"]
-  a2 <- bias_vals["a2"]
-  a3 <- bias_vals["a3"]
-  a4 <- bias_vals["a4"]
-  a5 <- bias_vals["a5"]
+  a1 <- bias_vals["a1"]#bias_vals$a1 
+  a2 <- bias_vals["a2"]#bias_vals$a2
+  a3 <- bias_vals["a3"]#bias_vals$a3
+  a4 <- bias_vals["a4"]#bias_vals$a4
+  a5 <- bias_vals["a5"]#bias_vals$a5
   
   # since this is happening before the model loop in run_iteration, we need to make
   # sure we augment all unique outcomes used by models
   outcomes <- unique(sapply(single_simulation$models, function(x) { optic::model_terms(x[["model_formula"]])[["lhs"]] }))
-  
-  # apply bias to outcome
-  for (outcome in outcomes) {
-    #Adj.Y = Y.obs+a1*mva3+a2*unemployment+a3*(mva3*unemployment)+a4*mva^2+a5*unemployment^2
-    x[[outcome]] <- x[[outcome]] + (a1 * x$prior_control) + (a2 * x$unemploymentrate) +
-      (a3 * (x$prior_control * x$unemploymentrate)) +
-      (a4 * (x$prior_control ^ 2)) + (a5 * (x$unemploymentrate ^ 2))
-  }
-  
+  # 
+  # # apply bias to outcome
+  # for (outcome in outcomes) {
+  #     #Adj.Y = Y.obs+a1*mva3+a2*unemployment+a3*(mva3*unemployment)+a4*mva^2+a5*unemployment^2
+  #     x[[outcome]] <- x[[outcome]] + (a1 * x$prior_control) + (a2 * x$unemploymentrate) +
+  #       (a3 * (x$prior_control * x$unemploymentrate)) +
+  #       (a4 * (x$prior_control ^ 2)) + (a5 * (x$unemploymentrate ^ 2))
+  #   }
   
   ################################
   ### IDENTIFY TREATMENT UNITS ###
   ################################
   # get bias vals for creating probability of selection
-  b0 <- bias_vals["b0"]
-  b1 <- bias_vals["b1"]
-  b2 <- bias_vals["b2"]
-  b3 <- bias_vals["b3"]
-  b4 <- bias_vals["b4"]
-  b5 <- bias_vals["b5"]
+  b0 <- bias_vals["b0"]#bias_vals$b0
+  b1 <- bias_vals["b1"]#bias_vals$b1 
+  b2 <- bias_vals["b2"]#bias_vals$b2
+  b3 <- bias_vals["b3"]#bias_vals$b3
+  b4 <- bias_vals["b4"]#bias_vals$b4
+  b5 <- bias_vals["b5"]#bias_vals$b5
   
   # need to create a matrix of state x year 
   # probabilities of being assigned to enact policy
@@ -67,34 +69,93 @@ selbias_sample <- function(single_simulation) {
   # don't include first 3 years in this version where depends on 3-year moving average
   # also for augsynth cannot include last two years as possible selection for first
   # treated year since it requires 2+ pre and post periods
-  atp <- sort(unique(x[[time_var]]))[-1:-5]
-  atp <- atp[-length(atp):-(length(atp)-2)]
+  atp <- sort(unique(x[[time_var]]))[-1:-3]# atp <- sort(unique(x[[time_var]]))[-1:-5] # why is this -1:-5?
+  # atp <- atp[-length(atp):-(length(atp)-2)] # I don't think we can use this anymore.. (for now)
   available_time_periods <- atp
   
-  x_simplex <- x[x[[time_var]] %in% available_time_periods, ]
+  #vx_simplex <- x[x[[time_var]] %in% available_time_periods, ]
   
   trt_pr <- trt_ind <- matrix(0, length(available_units), length(available_time_periods))
   n_treated <- time_periods <-rep(0, length(available_units))
   
-  #might not need a loop here
+  #for each state (may not need a loop here)
   for(i in 1:length(available_units)) {
-    current_unit <- available_units[i]
-    unit_data <- x_simplex[x_simplex[[unit_var]] == current_unit, ]
+    current_unit <- as.character(available_units[i])
     
-    # b0+b1*mva3+b2*unemployment+b3*(mva3*unemployment)+b4*mva^2+b5*unemployment^2
-    logits <- b0 + (b1 * unit_data$prior_control) + (b2 * unit_data$unemploymentrate) +
-      (b3 * (unit_data$prior_control * unit_data$unemploymentrate)) +
-      (b4 * (unit_data$prior_control ^ 2)) + (b5 * (unit_data$unemploymentrate ^ 2))
-    
-    trt_pr[i, ] <- exp(logits)/(1+exp(logits))
-    # print(trt.pr[s,])
-    for(j in 1:length(trt_pr[i, ])) {
-      trt_ind[i, j] <- sample(c(0,1), 1, prob=c(1-trt_pr[i, j], trt_pr[i, j]))
+    # for each year
+    for(t in 1:length(available_time_periods)){
+      
+      # Get treatment assignment
+      if(t == 1){
+        time = available_time_periods[t]
+        logits <- b0 + 
+          (b1 * x$prior_control[x[time_var]==time & x[unit_var]==current_unit]) + 
+          (b2 * x$unemploymentrate[x[time_var]==time & x[unit_var]==current_unit]) +
+          (b3 * (x$prior_control[x[time_var]==time & x[unit_var]==current_unit] * x$unemploymentrate[x[time_var]==time & x[unit_var]==current_unit])) +
+          (b4 * (x$prior_control[x[time_var]==time & x[unit_var]==current_unit] ^ 2)) + 
+          (b5 * (x$unemploymentrate[x[time_var]==time & x[unit_var]==current_unit] ^ 2))
+        trt_pr[i,t] <- exp(logits)/(1+exp(logits))
+        trt_ind[i,t] <- sample(c(0,1), 1, prob=c(1-trt_pr[i,t], trt_pr[i,t]))
+      } else if(trt_ind[i,t-1]==0){
+        time = available_time_periods[t]
+        logits <- b0 + 
+          (b1 * x$prior_control[x[time_var]==time & x[unit_var]==current_unit]) + 
+          (b2 * x$unemploymentrate[x[time_var]==time & x[unit_var]==current_unit]) +
+          (b3 * (x$prior_control[x[time_var]==time & x[unit_var]==current_unit] * x$unemploymentrate[x[time_var]==time & x[unit_var]==current_unit])) +
+          (b4 * (x$prior_control[x[time_var]==time & x[unit_var]==current_unit] ^ 2)) + 
+          (b5 * (x$unemploymentrate[x[time_var]==time & x[unit_var]==current_unit] ^ 2))
+        trt_pr[i,t] <- exp(logits)/(1+exp(logits))
+        trt_ind[i,t] <- sample(c(0,1), 1, prob=c(1-trt_pr[i,t], trt_pr[i,t]))
+      } else{
+        trt_ind[i,t] <- 1
+      }
+      
+      # Update Outcomes (augment outcomes)
+      #check
+      if(length(which(x[time_var]==time & x[unit_var]==current_unit))!=1){stop("Something went wrong.")}
+      x[[outcomes]][x[time_var]==time & x[unit_var]==current_unit] =
+        x[[outcomes]][x[time_var]==time & x[unit_var]==current_unit] +
+        # (trt_ind[i,t]) + # JDP: IN THE FUTURE EXPLORE WITH MAGNITUDE OF TREATMENT EFFECT!
+        (a1 * x$prior_control[x[time_var]==time & x[unit_var]==current_unit]) + 
+        (a2 * x$unemploymentrate[x[time_var]==time & x[unit_var]==current_unit]) +
+        (a3 * (x$prior_control[x[time_var]==time & x[unit_var]==current_unit] * x$unemploymentrate[x[time_var]==time & x[unit_var]==current_unit])) +
+        (a4 * (x$prior_control[x[time_var]==time & x[unit_var]==current_unit] ^ 2)) + 
+        (a5 * (x$unemploymentrate[x[time_var]==time & x[unit_var]==current_unit] ^ 2))
+      
+      # update prior control
+      if(pc == 'mva3'){
+        x = x %>%
+          group_by(!!as.name(unit_var)) %>%
+          mutate(lag1 = lag(!!as.name(outcomes), n=1L),
+                 lag2 = lag(!!as.name(outcomes), n=2L),
+                 lag3 = lag(!!as.name(outcomes), n=3L)) %>%
+          ungroup() %>%
+          rowwise() %>%
+          mutate(prior_control = mean(c(lag1, lag2, lag3))) %>%
+          ungroup() 
+      } else if(pc == 'trend'){
+        x = x %>%
+          group_by(!!as.name(unit_var)) %>%
+          mutate(lag1 = lag(!!as.name(outcomes), n=1L),
+                 lag2 = lag(!!as.name(outcomes), n=2L),
+                 lag3 = lag(!!as.name(outcomes), n=3L)) %>%
+          ungroup() %>%
+          rowwise() %>%
+          mutate(prior_control = lag1 - lag3) %>%
+          ungroup()
+      } else{
+        stop("invalid prior control option, must be either 'mva3' or 'trend'")
+      } 
     }
-    time_periods[i] <- min(available_time_periods[trt_ind[i, ] == 1])
+    if(identical(available_time_periods[trt_ind[i, ] == 1], integer(0))){
+      time_periods[i] = Inf
+    } else{
+      time_periods[i] <- min(available_time_periods[trt_ind[i, ] == 1])
+    }
     n_treated[i] <- sum(trt_ind[i, ])
   }
   
+  # x[,c('state','year','crude.rate.new','crude.rate','prior_control')]
   #print(table(time_periods)) #this helps me see range; first run was 2002-2006; all happened early (b0=-1,b1=.5,b2=.05)
   #length(n.trted>0) #and all states implemented early on in time series
   #print(table(n_treated))
@@ -260,6 +321,18 @@ selbias_premodel <- function(model_simulation) {
     ) %>%
     mutate(outcome = outcome,
            n_unique_enact_years = length(unique(sapply(model_simulation$treated_units, function(x) {min(x[["policy_years"]])}))))
+  
+  bal_stats2 = x %>%
+    summarize(mu1_prior = mean(prior_control[treatment > 0], na.rm=T),
+              mu0_prior = mean(prior_control[treatment == 0], na.rm=T),
+              sd_prior = sd(prior_control, na.rm=T),
+              mu1_prior_old = mean(prior_control_old[treatment > 0], na.rm=T),
+              mu0_prior_old = mean(prior_control_old[treatment == 0], na.rm=T),
+              sd_prior_old = sd(prior_control_old, na.rm=T),
+              mu1 = mean((!!oo)[treatment > 0], na.rm=T),
+              mu0 = mean((!!oo)[treatment == 0], na.rm=T),
+              sd = sd(!!oo), na.rm=T)
+  bal_stats = bind_cols(bal_stats, bal_stats2)
   
   model_simulation$balance_statistics <- bal_stats
   model_simulation$data <- x
@@ -451,4 +524,5 @@ selbias_postmodel <- function(model_simulation) {
 selbias_results <- function(r) {
   return(do.call(rbind, r))
 }
+
 

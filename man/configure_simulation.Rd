@@ -44,6 +44,8 @@ object prior to modeling}
 \item{method_post_model}{optional function for any post-processing on 
 single_simulation object}
 
+\item{globals}{specifies whether to use globals}
+
 \item{verbose}{should I be chatty? Default is yes, I am chatty.}
 }
 \description{

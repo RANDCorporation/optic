@@ -106,13 +106,16 @@ dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, failur
           })
           if (! "error" %in% class(r)) {
             complete <- complete + 1
+          } else{
+            failed_attempts <- failed_attempts + 1
           }
-          failed_attempts <- failed_attempts + 1
         }
         if (failed_attempts == 0.10*single_simulation$iters) {
+          print(c(i,j))
           stop(paste("attempted 10 percent of total iterations in single thread;",
                      "something is not right, here's the most recent error:",
                      paste(r, collapse=" ")))
+          
         }
         if (class(r) == "data.frame") {
           r$iter <- j

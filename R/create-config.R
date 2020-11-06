@@ -33,14 +33,13 @@
 #' @param method_results function that takes the single_simulation object and
 #'     the return value is what it returned from run_iteration
 #' @param verbose should I be chatty? Default is yes, I am chatty.
+#' @param globals specifies whether to use globals
 #' 
 #' @export
-configure_simulation <- function(
-  x, models, iters, params,
-  method_sample, method_model, method_results,
-  method_pre_model=NULL, method_post_model=NULL,
-  globals=NULL, verbose=TRUE
-) {
+#' 
+configure_simulation <- function(x, models, iters, params, method_sample, method_model, method_results, 
+                                 method_pre_model=NULL, method_post_model=NULL, 
+                                 globals=NULL, verbose=TRUE) {
   ###
   # VALIDATION
   ###

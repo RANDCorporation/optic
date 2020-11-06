@@ -1,5 +1,5 @@
 library(optic)
-library(augsynth)
+library(augsynth) 
 library(dplyr)
 library(future)
 library(future.apply)
@@ -9,46 +9,41 @@ load("data/optic_sim_data_exp.Rdata")
 names(x) <- tolower(names(x))
 
 x <- x %>%
+  mutate(crude.rate.new = crude.rate) %>% # new line of code
   arrange(state, year) %>%
   group_by(state) %>%
   mutate(lag1 = lag(crude.rate, n=1L),
          lag2 = lag(crude.rate, n=2L),
          lag3 = lag(crude.rate, n=3L)) %>%
   ungroup() %>%
+  rowwise() %>%
   # code in moving average and trend versions of prior control
-  mutate(prior_control_mva3 = rowMeans(select(., lag1, lag2, lag3)),
-         prior_control_trend = lag1 - lag3) %>%
+  mutate(prior_control_mva3_OLD = mean(c(lag1, lag2, lag3)),
+         prior_control_trend_OLD = lag1 - lag3) %>%
+  ungroup() %>%
   select(-lag1, -lag2, -lag3)
 
-#==============================================================================
-#==============================================================================
-# SELECTION BIAS
-#==============================================================================
-#==============================================================================
 source("R/selection-bias-methods.R")
 source("R/cluster-adjust-se.r")
 
-###################
-### BIAS VALUES ###
-###################
 bias_vals <- list(
   # MULTISYNTH METHOD
   multisynth = list(
     linear = list(
       mva3 = list(
-        small=c(b0=-5, b1=0.06, b2=0.1, b3=0, b4=0, b5=0,
-                a1=1.2, a2=0.5, a3=0, a4=0, a5=0),
-        medium=c(b0=-5, b1=0.095, b2=0.15, b3=0, b4=0, b5=0,
-                 a1=0.95, a2=0.05, a3=0, a4=0, a5=0),
-        large=c(b0=-5, b1=0.22, b2=0.3, b3=0, b4=0, b5=0,
-                a1=0.95, a2=0.05, a3=0, a4=0, a5=0)),
+        small=c(b0=-5, b1=0.01, b2=0.05, b3=0, b4=0, b5=0,
+                a1=0.15, a2=0.05, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.06, b2=0.05, b3=0, b4=0, b5=0,
+                 a1=0.2, a2=0.05, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.08, b2=0.05, b3=0, b4=0, b5=0,
+                a1=0.92, a2=0.05, a3=0, a4=0, a5=0)),
       trend = list(
-        small=c(b0=-5, b1=0.15, b2=0.1, b3=0, b4=0, b5=0,
-                a1=1.2, a2=0.5, a3=0, a4=0, a5=0),
-        medium=c(b0=-5, b1=0.3, b2=0.2, b3=0, b4=0, b5=0,
-                 a1=1.2, a2=0.5, a3=0, a4=0, a5=0),
-        large=c(b0=-5, b1=0.7, b2=0.4, b3=0, b4=0, b5=0,
-                a1=1.2, a2=0.5, a3=0, a4=0, a5=0))
+        small=c(b0=-5, b1=0.03, b2=0.1, b3=0, b4=0, b5=0,
+                a1=0.05, a2=0.05, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.05, b2=0.1, b3=0, b4=0, b5=0,
+                 a1=0.2, a2=0.1, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.1, b2=0.1, b3=0, b4=0, b5=0,
+                a1=0.5, a2=0.11, a3=0, a4=0, a5=0))
     ),
     nonlinear = list(
       mva3 = list(
@@ -72,21 +67,20 @@ bias_vals <- list(
   fixedeff_linear = list(
     linear = list(
       mva3 = list(
-        small=c(b0=-5, b1=0.06, b2=0.1, b3=0, b4=0, b5=0,
-                a1=0.95, a2=0.05, a3=0, a4=0, a5=0),
-        medium=c(b0=-5, b1=0.1, b2=0.15, b3=0, b4=0, b5=0,
-                 a1=0.95, a2=0.05, a3=0, a4=0, a5=0),
-        large=c(b0=-5, b1=0.195, b2=0.2, b3=0, b4=0, b5=0,
-                a1=0.95, a2=0.05, a3=0, a4=0, a5=0)
+        small=c(b0=-5, b1=0.01, b2=0.05, b3=0, b4=0, b5=0,
+                a1=0.15, a2=0.05, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.06, b2=0.05, b3=0, b4=0, b5=0,
+                 a1=0.2, a2=0.05, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.08, b2=0.05, b3=0, b4=0, b5=0,
+                a1=0.92, a2=0.05, a3=0, a4=0, a5=0)
       ),
       trend = list(
-        small=c(b0=-5, b1=0.15, b2=0.1, b3=0, b4=0, b5=0,
-                a1=1.2, a2=0.5, a3=0, a4=0, a5=0),
-        medium=c(b0=-5, b1=0.3, b2=0.2, b3=0, b4=0, b5=0,
-                 a1=1.2, a2=0.5, a3=0, a4=0, a5=0),
-        large=c(b0=-5, b1=0.7, b2=0.4, b3=0, b4=0, b5=0,
-                a1=1.2, a2=0.5, a3=0, a4=0, a5=0)
-      )
+        small=c(b0=-5, b1=0.03, b2=0.1, b3=0, b4=0, b5=0,
+                a1=0.05, a2=0.05, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.05, b2=0.1, b3=0, b4=0, b5=0,
+                 a1=0.2, a2=0.1, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.1, b2=0.1, b3=0, b4=0, b5=0,
+                a1=0.5, a2=0.11, a3=0, a4=0, a5=0))
     ),
     nonlinear = list(
       mva3 = list(
@@ -108,21 +102,20 @@ bias_vals <- list(
   autoreg_linear = list(
     linear = list(
       mva3 = list(
-        small=c(b0=-5, b1=0.06, b2=0.1, b3=0, b4=0, b5=0,
-                a1=0.95, a2=0.05, a3=0, a4=0, a5=0),
-        medium=c(b0=-5, b1=0.1, b2=0.15, b3=0, b4=0, b5=0,
-                 a1=0.95, a2=0.05, a3=0, a4=0, a5=0),
-        large=c(b0=-5, b1=0.195, b2=0.2, b3=0, b4=0, b5=0,
-                a1=0.95, a2=0.05, a3=0, a4=0, a5=0)
+        small=c(b0=-5, b1=0.01, b2=0.05, b3=0, b4=0, b5=0,
+                a1=0.15, a2=0.05, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.06, b2=0.05, b3=0, b4=0, b5=0,
+                 a1=0.2, a2=0.05, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.08, b2=0.05, b3=0, b4=0, b5=0,
+                a1=0.92, a2=0.05, a3=0, a4=0, a5=0)
       ),
       trend = list(
-        small=c(b0=-5, b1=0.15, b2=0.1, b3=0, b4=0, b5=0,
-                a1=1.2, a2=0.5, a3=0, a4=0, a5=0),
-        medium=c(b0=-5, b1=0.3, b2=0.2, b3=0, b4=0, b5=0,
-                 a1=1.2, a2=0.5, a3=0, a4=0, a5=0),
-        large=c(b0=-5, b1=0.7, b2=0.4, b3=0, b4=0, b5=0,
-                a1=1.2, a2=0.5, a3=0, a4=0, a5=0)
-      )
+        small=c(b0=-5, b1=0.03, b2=0.1, b3=0, b4=0, b5=0,
+                a1=0.05, a2=0.05, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.05, b2=0.1, b3=0, b4=0, b5=0,
+                 a1=0.2, a2=0.1, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.1, b2=0.1, b3=0, b4=0, b5=0,
+                a1=0.5, a2=0.11, a3=0, a4=0, a5=0))
     ),
     nonlinear = list(
       mva3 = list(
@@ -153,16 +146,13 @@ bias_vals <- list(
   autoreg_negbin = list()
 )
 
-#####################
-### LINEAR MODELS ###
-#####################
 linear_models <- list(
   list(
     name="fixedeff_linear",
     type="reg",
     model_call="lm",
     model_formula=crude.rate ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state),
-    model_args=list(weights=as.name("population")),
+    model_args=NULL,#list(weights=as.name("population"))
     se_adjust=c("none", "huber", "cluster", "arellano")
   ),
   list(
@@ -170,7 +160,7 @@ linear_models <- list(
     model_call="lm",
     type="autoreg",
     model_formula=crude.rate ~ treatment_change + unemploymentrate + as.factor(year),
-    model_args=list(weights=as.name("population")),
+    model_args=NULL,#list(weights=as.name("population"))
     se_adjust=c("none", "huber", "cluster", "arellano")
   )
 )
@@ -200,7 +190,7 @@ linear_fe_config <- configure_simulation(
     time_var="year",
     policy_speed=list("instant"),
     prior_control=c("mva3", "trend"),
-    bias_type=c("linear", "nonlinear"),
+    bias_type=c("linear"), #, "nonlinear"
     bias_size=c("small", "medium", "large"),
     n_implementation_periods=list(0)
   )
@@ -230,8 +220,8 @@ linear_ar_config <- configure_simulation(
     time_var="year",
     policy_speed=list("instant"),
     prior_control=c("mva3", "trend"),
-    bias_type=c("linear", "nonlinear"),
-    bias_size=c("small", "medium", "large"),
+    bias_type=c("linear"), #, "nonlinear"
+    bias_size= "large", # c("small", "medium", "large"), #as.character(1:nrow(possible_grid))
     n_implementation_periods=list(0)
   )
 )
@@ -246,7 +236,7 @@ multisynth_models <- list(
     model_call="multisynth",
     model_formula=crude.rate ~ treatment_level,
     model_args=list(unit=as.name("state"), time=as.name("year"), fixedeff=TRUE, form=crude.rate ~ treatment_level),
-    se_adjust=c("none")
+    se_adjust="none"
   )
 )
 
@@ -269,7 +259,7 @@ msynth_config <- configure_simulation(
     time_var="year",
     policy_speed=list("instant"),
     prior_control=c("mva3", "trend"),
-    bias_type=c("linear", "nonlinear"),
+    bias_type=c("linear"),#"nonlinear"
     bias_size=c("small", "medium", "large"),
     n_implementation_periods=list(0)
   )
@@ -283,19 +273,37 @@ cl <- parallel::makeCluster(parallel::detectCores() - 1)
 plan("cluster", workers = cl)
 
 # dispatch with the same seed (want the same sampled data each run)
-linear_fe_r <- dispatch_simulations(linear_fe_config, use_future=TRUE, seed=89721, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
-linear_ar_r <- dispatch_simulations(linear_ar_config, use_future=TRUE, seed=89721, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
-multisynth_r <- dispatch_simulations(msynth_config, use_future=TRUE, seed=89721, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
-
+linear_fe_r <- dispatch_simulations(linear_fe_config, use_future=T,
+                                    seed=89721,
+                                    verbose=2,
+                                    future.globals=c("cluster_adjust_se"),
+                                    future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
 # clean up and write out results
-linear_fe_results <- do.call(rbind(linear_fe_r))
-linear_ar_results <- do.call(rbind(linear_ar_r))
-multisynth_results <- do.call(rbind(multisynth_r))
+linear_fe_results <- do.call(rbind, linear_fe_r)
 rownames(linear_fe_results) <- NULL
-rownames(linear_ar_results) <- NULL
-rownames(multisynth_results) <- NULL
+write.csv(linear_fe_results, "/vincent/b/josephp/OPTIC/output/sel-bias-linear-fe-unweighted.csv", row.names = FALSE)
 
-write.csv(linear_fe_results, "/data/sel-bias-linear-fe-all-runs.csv", row.names = FALSE)
-write.csv(linear_ar_results, "/data/sel-bias-linear-ar-all-runs.csv", row.names = FALSE)
-write.csv(multisynth_results, "/data/sel-bias-multisynth-all-runs.csv", row.names = FALSE)
+linear_ar_r <- dispatch_simulations(linear_ar_config,
+                                    use_future=TRUE,
+                                    seed=89721,
+                                    verbose=2,
+                                    future.globals=c("cluster_adjust_se"),
+                                    future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
+# clean up and write out results
+linear_ar_results <- do.call(rbind, linear_ar_r)
+rownames(linear_ar_results) <- NULL
+write.csv(linear_ar_results, "/vincent/b/josephp/OPTIC/output/sel-bias-linear-ar-unweighted.csv", row.names = FALSE)
+
+multisynth_r <- dispatch_simulations(msynth_config,
+                                     use_future=T,
+                                     seed=89721,
+                                     verbose=2,
+                                     future.globals=c("cluster_adjust_se"),
+                                     future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID")) 
+# clean up and write out results
+multisynth_results <- do.call(rbind, multisynth_r)
+rownames(multisynth_results) <- NULL
+write.csv(multisynth_results, "/vincent/b/josephp/OPTIC/output/sel-bias-multisynth.csv", row.names = FALSE)
+
+#### End-of-file ####
 
