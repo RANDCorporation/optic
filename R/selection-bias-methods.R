@@ -271,10 +271,10 @@ selbias_premodel <- function(model_simulation) {
     x <- x %>%
       dplyr::arrange(!!unit_sym, !!time_sym) %>%
       dplyr::group_by(!!unit_sym) %>%
-      dplyr::mutate(lag_crude.rate = dplyr::lag(crude.rate, n=1L)) %>%
+      dplyr::mutate(lag_outcome = dplyr::lag(!!oo, n=1L)) %>%
       dplyr::ungroup()
     
-    model_simulation$models$model_formula <- update.formula(model_simulation$models$model_formula, ~ . + lag_crude.rate)
+    model_simulation$models$model_formula <- update.formula(model_simulation$models$model_formula, ~ . + lag_outcome)
   } else if (model_type == "multisynth") {
     x$treatment[x$treatment > 0] <- 1
     x$treatment_level[x$treatment_level > 0] <- 1
