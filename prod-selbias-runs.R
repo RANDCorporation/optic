@@ -282,15 +282,15 @@ msynth_config <- configure_simulation(
 cl <- parallel::makeCluster(parallel::detectCores() - 1)
 plan("cluster", workers = cl)
 
-linear_fe_r <- dispatch_tuning(linear_fe_config, use_future=F,
-                                    seed=89721,
-                                    verbose=2,
-                                    future.globals=c("cluster_adjust_se"),
-                                    future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
-# clean up and write out results
-linear_fe_results <- do.call(rbind, linear_fe_r)
-rownames(linear_fe_results) <- NULL
-write.csv(linear_fe_results, "/vincent/b/josephp/OPTIC/output/sel-bias-linear-fe-unweighted.csv", row.names = FALSE)
+# linear_fe_r <- dispatch_tuning(linear_fe_config, use_future=F,
+#                                     seed=89721,
+#                                     verbose=2,
+#                                     future.globals=c("cluster_adjust_se"),
+#                                     future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
+# # clean up and write out results
+# linear_fe_results <- do.call(rbind, linear_fe_r)
+# rownames(linear_fe_results) <- NULL
+# write.csv(linear_fe_results, "/vincent/b/josephp/OPTIC/output/sel-bias-linear-fe-unweighted.csv", row.names = FALSE)
 
 
 # dispatch with the same seed (want the same sampled data each run)

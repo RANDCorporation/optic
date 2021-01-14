@@ -69,10 +69,14 @@ selbias_sample <- function(single_simulation) {
   # don't include first 3 years in this version where depends on 3-year moving average
   # also for augsynth cannot include last two years as possible selection for first
   # treated year since it requires 2+ pre and post periods
-  atp <- sort(unique(x[[time_var]]))[-1:-3]# atp <- sort(unique(x[[time_var]]))[-1:-5] # why is this -1:-5?
-  # atp <- atp[-length(atp):-(length(atp)-2)] # I don't think we can use this anymore.. (for now)
-  available_time_periods <- atp
   
+  if(single_simulation$models$multisynth$type == "multisynth"){
+    atp <- sort(unique(x[[time_var]]))[-1:-5]
+    atp <- atp[-length(atp):-(length(atp)-2)]
+  } else{
+    atp <- sort(unique(x[[time_var]]))[-1:-3]
+  }
+  available_time_periods <- atp
   #vx_simplex <- x[x[[time_var]] %in% available_time_periods, ]
   
   trt_pr <- trt_ind <- matrix(0, length(available_units), length(available_time_periods))

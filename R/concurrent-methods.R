@@ -40,6 +40,10 @@ concurrent_sample <- function(single_simulation) {
     #TODO: this is currently specific to time_var being year and wanting to
     #      sample on months; perhaps look into abstracting for any units of time
     sampled_time_period <- sample(available_periods, 1) #this becomes the mean
+    
+    #TODO: JOE, adjust this
+    # start at 3 , 6, and 9 years apart.
+    # for second argument in mu, add the ability for the user how far those means should be on average.
     data = MASS::mvrnorm(n=200, mu=c(sampled_time_period, sampled_time_period), Sigma=matrix(c(1, rho, rho, 1), nrow=2), empirical=TRUE) #odd - can't set n = 1 so have to sample two
     sampled_time_period1 = data[1, 1]  # standard normal (mu=yr, sd=1)
     sampled_time_period2 = data[1, 2]  # standard normal (mu=yr, sd=1)
