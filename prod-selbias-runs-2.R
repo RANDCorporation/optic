@@ -9,6 +9,12 @@ load("data/optic_sim_data_exp.Rdata")
 names(x) <- tolower(names(x))
 
 x <- x %>%
+  select(state, year, fipscode, population, unemploymentrate, povertyrate,
+         income, statefipyear, opioid_rx, md_access, insured, uninsur,medicare,
+         medicaid, syn_opioid_death, other_opioid_death, her_death, yrslifelost,
+         medicaid_ratio, all_opioid_death, overdose, alldeaths, cr.opioid.death,
+         opioid_rx.lag1, cr.opioid.death.lag1, crude.rate, cr.adj, deaths,
+         cr.adj.lag1) %>%
   mutate(opioid_rx.new = opioid_rx) %>% # new line of code
   filter(!is.na(opioid_rx)) %>%
   arrange(state, year) %>%

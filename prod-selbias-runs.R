@@ -9,6 +9,12 @@ load("data/optic_sim_data_exp.Rdata")
 names(x) <- tolower(names(x))
 
 x <- x %>%
+  select(state, year, fipscode, population, unemploymentrate, povertyrate,
+         income, statefipyear, opioid_rx, md_access, insured, uninsur,medicare,
+         medicaid, syn_opioid_death, other_opioid_death, her_death, yrslifelost,
+         medicaid_ratio, all_opioid_death, overdose, alldeaths, cr.opioid.death,
+         opioid_rx.lag1, cr.opioid.death.lag1, crude.rate, cr.adj, deaths,
+         cr.adj.lag1) %>%
   mutate(crude.rate.new = crude.rate) %>% # new line of code
   arrange(state, year) %>%
   group_by(state) %>%
@@ -245,7 +251,8 @@ multisynth_models <- list(
     type="multisynth",
     model_call="multisynth",
     model_formula=crude.rate ~ treatment_level,
-    model_args=list(unit=as.name("state"), time=as.name("year"), fixedeff=TRUE, form=crude.rate ~ treatment_level),
+    model_args=list(data = x, unit=as.name("state"), time=as.name("year"), fixedeff=TRUE, 
+                    form=crude.rate ~ treatment_level),
     se_adjust="none"
   )
 )
@@ -270,7 +277,7 @@ msynth_config <- configure_simulation(
     policy_speed=list("instant"),
     prior_control=c("mva3", "trend"),
     bias_type=c("linear"),#"nonlinear"
-    bias_size=c("small", "medium", "large"),
+    bias_size=c("none", "small", "medium", "large"),
     n_implementation_periods=list(0)
   )
 )

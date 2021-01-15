@@ -19,6 +19,7 @@ concurrent_sample <- function(single_simulation) {
   n_implementation_periods <- single_simulation$n_implementation_periods
   rho <- single_simulation$rho
   time_period_restriction <- single_simulation$time_period_restriction
+  years_apart = single_simulation$years_apart
   
   ###############################################
   ### IDENTIFY TREATED UNITS AND TIME PERIODS ###
@@ -44,7 +45,12 @@ concurrent_sample <- function(single_simulation) {
     #TODO: JOE, adjust this
     # start at 3 , 6, and 9 years apart.
     # for second argument in mu, add the ability for the user how far those means should be on average.
-    data = MASS::mvrnorm(n=200, mu=c(sampled_time_period, sampled_time_period), Sigma=matrix(c(1, rho, rho, 1), nrow=2), empirical=TRUE) #odd - can't set n = 1 so have to sample two
+    if(sampled_time_period > 2007){
+      sampled_time_periodplusminus = sampled_time_period + years_apart
+      } else{
+        sampled_time_periodplusminus = sampled_time_period - years_apart
+    }
+    data = MASS::mvrnorm(n=2, mu=c(sampled_time_period, sampled_time_periodplusminus), Sigma=matrix(c(1, rho, rho, 1), nrow=2), empirical=TRUE) #odd - can't set n = 1 so have to sample two
     sampled_time_period1 = data[1, 1]  # standard normal (mu=yr, sd=1)
     sampled_time_period2 = data[1, 2]  # standard normal (mu=yr, sd=1)
     #cor(yr1,yr2) #if increasen n to 200; can confirm that correlation = rho with large samples

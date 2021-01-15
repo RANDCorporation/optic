@@ -78,7 +78,8 @@ lm_config <- configure_simulation(
     effect_direction=c("null", "neg"),
     policy_speed=c("instant", "slow"),
     n_implementation_periods=c(3),
-    rhos=c(0, 0.25, 0.5, 0.75, 0.9)
+    rhos=c(0, 0.25, 0.5, 0.75, 0.9),
+    years_apart=c(3,6,9)
   )
 )
 
@@ -134,7 +135,7 @@ negbin_concurrent_models <- list(
 negbin_config <- configure_simulation(
   x=x,
   models=negbin_concurrent_models,
-  iters=5000,
+  iters=5,
   
   method_sample=concurrent_sample,
   method_pre_model=concurrent_premodel,
@@ -150,7 +151,8 @@ negbin_config <- configure_simulation(
     effect_direction=c("null", "neg"),
     policy_speed=c("instant", "slow"),
     n_implementation_periods=c(3),
-    rhos=c(0, 0.25, 0.5, 0.75, 0.9)
+    rhos=c(0, 0.25, 0.5, 0.75, 0.9),
+    years_apart=c(3,6,9)
   )
 )
 
@@ -166,7 +168,7 @@ start <- Sys.time()
 
 lm_results <- dispatch_simulations(lm_config, use_future=TRUE, seed=218, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
 
-nb_results <- dispatch_simulations(negbin_config, use_future=TRUE, seed=218, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
+#nb_results <- dispatch_simulations(negbin_config, use_future=TRUE, seed=218, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
 
 end <- Sys.time()
 
