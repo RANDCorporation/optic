@@ -9,12 +9,6 @@ load("data/optic_sim_data_exp.Rdata")
 names(x) <- tolower(names(x))
 
 x <- x %>%
-  select(state, year, fipscode, population, unemploymentrate, povertyrate,
-         income, statefipyear, opioid_rx, md_access, insured, uninsur,medicare,
-         medicaid, syn_opioid_death, other_opioid_death, her_death, yrslifelost,
-         medicaid_ratio, all_opioid_death, overdose, alldeaths, cr.opioid.death,
-         opioid_rx.lag1, cr.opioid.death.lag1, crude.rate, cr.adj, deaths,
-         cr.adj.lag1) %>%
   mutate(opioid_rx.new = opioid_rx) %>% # new line of code
   filter(!is.na(opioid_rx)) %>%
   arrange(state, year) %>%
@@ -262,7 +256,7 @@ multisynth_models <- list(
 msynth_config <- configure_simulation(
   x=x,
   models=multisynth_models,
-  iters=5000,
+  iters=2,
   method_sample=selbias_sample,
   method_pre_model=selbias_premodel,
   method_model=selbias_model,
@@ -306,41 +300,41 @@ plan("cluster", workers = cl)
 #   dplyr::group_by(prior_control, bias_size) %>%
 #   dplyr::summarize(my_mean = mean(mean_es_outcome))
 
-# dispatch with the same seed (want the same sampled data each run)
-linear_fe_r <- dispatch_simulations(linear_fe_config,
-                                    use_future=TRUE,
-                                    seed=89721,
-                                    verbose=2,
-                                    future.globals=c("cluster_adjust_se"),
-                                    future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
-# clean up and write out results
-linear_fe_results <- do.call(rbind, linear_fe_r)
-rownames(linear_fe_results) <- NULL
-write.csv(linear_fe_results, "~/Desktop/sel-bias-linear-fe-weighted-opioidrx-none.csv", row.names = FALSE)
-# write.csv(linear_fe_results, "/vincent/b/josephp/OPTIC/output/sel-bias-linear-fe-weighted-opioidrx.csv", row.names = FALSE)
-
-linear_ar_r <- dispatch_simulations(linear_ar_config,
-                                    use_future=TRUE,
-                                    seed=89721,
-                                    verbose=2,
-                                    future.globals=c("cluster_adjust_se"),
-                                    future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
-# clean up and write out results
-linear_ar_results <- do.call(rbind, linear_ar_r)
-rownames(linear_ar_results) <- NULL
-write.csv(linear_fe_results, "~/Desktop/sel-bias-linear-ar-weighted-opioidrx-none.csv", row.names = FALSE)
-# write.csv(linear_ar_results, "/vincent/b/josephp/OPTIC/output/sel-bias-linear-ar-weighted-opioidrx.csv", row.names = FALSE)
-
-# multisynth_r <- dispatch_simulations(msynth_config,
-#                                      use_future=T,
-#                                      seed=89721,
-#                                      verbose=2,
-#                                      future.globals=c("cluster_adjust_se"),
-#                                      future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID")) 
+# # dispatch with the same seed (want the same sampled data each run)
+# linear_fe_r <- dispatch_simulations(linear_fe_config,
+#                                     use_future=TRUE,
+#                                     seed=89721,
+#                                     verbose=2,
+#                                     future.globals=c("cluster_adjust_se"),
+#                                     future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
 # # clean up and write out results
+# linear_fe_results <- do.call(rbind, linear_fe_r)
+# rownames(linear_fe_results) <- NULL
+# write.csv(linear_fe_results, "~/Desktop/sel-bias-linear-fe-weighted-opioidrx-none.csv", row.names = FALSE)
+# # write.csv(linear_fe_results, "/vincent/b/josephp/OPTIC/output/sel-bias-linear-fe-weighted-opioidrx.csv", row.names = FALSE)
+# 
+# linear_ar_r <- dispatch_simulations(linear_ar_config,
+#                                     use_future=TRUE,
+#                                     seed=89721,
+#                                     verbose=2,
+#                                     future.globals=c("cluster_adjust_se"),
+#                                     future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
+# # clean up and write out results
+# linear_ar_results <- do.call(rbind, linear_ar_r)
+# rownames(linear_ar_results) <- NULL
+# write.csv(linear_fe_results, "~/Desktop/sel-bias-linear-ar-weighted-opioidrx-none.csv", row.names = FALSE)
+# # write.csv(linear_ar_results, "/vincent/b/josephp/OPTIC/output/sel-bias-linear-ar-weighted-opioidrx.csv", row.names = FALSE)
+
+multisynth_r <- dispatch_simulations(msynth_config,
+                                     use_future=T,
+                                     seed=89721,
+                                     verbose=2,
+                                     future.globals=c("cluster_adjust_se"),
+                                     future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
+# clean up and write out results
 # multisynth_results <- do.call(rbind, multisynth_r)
 # rownames(multisynth_results) <- NULL
-# write.csv(multisynth_results, "/vincent/b/josephp/OPTIC/output/sel-bias-multisynth.csv", row.names = FALSE)
+# write.csv(multisynth_results, "/vincent/b/josephp/OPTIC/output/sel-bias-multisynth-test.csv", row.names = FALSE)
 
 #### End-of-file ####
 

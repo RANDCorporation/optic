@@ -29,7 +29,7 @@ selbias_sample <- function(single_simulation) {
   policy_speed <- single_simulation$policy_speed
   number_implementation_years <- as.numeric(single_simulation$n_implementation_periods)
   bias_vals <- single_simulation$globals[["bias_vals"]][[single_simulation$bias_type]][[single_simulation$prior_control]][[single_simulation$bias_size]]
-  
+  model_type = names(single_simulation$models)
   #############################
   ### AUGMENT OUTCOME FIRST ###
   #############################
@@ -70,7 +70,7 @@ selbias_sample <- function(single_simulation) {
   # also for augsynth cannot include last two years as possible selection for first
   # treated year since it requires 2+ pre and post periods
   
-  if(single_simulation$models$multisynth$type == "multisynth"){
+  if(model_type == "multisynth"){
     atp <- sort(unique(x[[time_var]]))[-1:-5]
     atp <- atp[-length(atp):-(length(atp)-2)]
   } else{

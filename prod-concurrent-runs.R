@@ -45,7 +45,7 @@ lm_concurrent_models <- list(
     model_call="lm",
     # the crude.rate lag is automatically added in the methods after calculating new crude.rate
     # based on augmented outcome (after treatment effect applied)
-    model_formula=deaths ~ unemploymentrate + as.factor(year) + treatment1_change + treatment2_change,
+    model_formula=crude.rate ~ unemploymentrate + as.factor(year) + treatment1_change + treatment2_change,
     model_args=list(weights=as.name('population')),
     se_adjust=c("none", "cluster")
   ),
@@ -53,9 +53,9 @@ lm_concurrent_models <- list(
     name="autoreg_linear_misspec",
     type="autoreg",
     model_call="lm",
-    model_formula=deaths ~ unemploymentrate + as.factor(year) + treatment1_change,
+    model_formula=crude.rate ~ unemploymentrate + as.factor(year) + treatment1_change,
     model_args=list(weights=as.name('population')),
-    se_adjust=c("none", "cluster")
+    se_adjust=c("none", "cluster") 
   )
 )
 
@@ -79,7 +79,7 @@ lm_config <- configure_simulation(
     policy_speed=c("instant", "slow"),
     n_implementation_periods=c(3),
     rhos=c(0, 0.25, 0.5, 0.75, 0.9),
-    years_apart=c(3,6,9)
+    years_apart=c(3)#6,9
   )
 )
 
@@ -135,7 +135,7 @@ negbin_concurrent_models <- list(
 negbin_config <- configure_simulation(
   x=x,
   models=negbin_concurrent_models,
-  iters=5,
+  iters=5000,
   
   method_sample=concurrent_sample,
   method_pre_model=concurrent_premodel,
@@ -152,7 +152,7 @@ negbin_config <- configure_simulation(
     policy_speed=c("instant", "slow"),
     n_implementation_periods=c(3),
     rhos=c(0, 0.25, 0.5, 0.75, 0.9),
-    years_apart=c(3,6,9)
+    years_apart=c(3)#,6,9
   )
 )
 
@@ -166,11 +166,22 @@ plan("cluster", workers = cl)
 
 start <- Sys.time()
 
-lm_results <- dispatch_simulations(lm_config, use_future=TRUE, seed=218, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
-
-#nb_results <- dispatch_simulations(negbin_config, use_future=TRUE, seed=218, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
+lm_results <- dispatch_simulations(lm_config, use_future=T, seed=218, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
+lm_results2 <- do.call(rbind, lm_results)
+rownames(lm_results2) <- NULL
+write.csv(lm_results2, "/vincent/b/josephp/OPTIC/output/concurrent-lm-3yrGap.csv", row.names = FALSE)
 
 end <- Sys.time()
+print("Completed in:\n")
+print(end - start)
 
+start <- Sys.time()
+
+nb_results <- dispatch_simulations(negbin_config, use_future=TRUE, seed=218, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
+nb_results2 <- do.call(rbind, nb_results)
+rownames(nb_results2) <- NULL
+write.csv(nb_results2, "/vincent/b/josephp/OPTIC/output/concurrent-negbin-3yrGap.csv", row.names = FALSE)
+
+end <- Sys.time()
 print("Completed in:\n")
 print(end - start)

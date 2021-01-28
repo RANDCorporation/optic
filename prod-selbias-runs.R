@@ -97,19 +97,19 @@ bias_vals <- list(
     ),
     nonlinear = list(
       mva3 = list(
-        small=c(b0=-5, b1=0.055, b2=0.03, b3=0.00025, b4=0.00005, b5=0.000025,
-                a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06),
-        medium=c(b0=-5, b1=0.085, b2=0.075, b3=0.0005, b4=0.0001, b5=0.00005,
-                 a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06),
-        large=c(b0=-5, b1=0.15, b2=0.1, b3=0.001, b4=0.0002, b5=0.0001,
-                a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06)),
+        small=c(b0=-5, b1=0.01, b2=0.01, b3=0.00025, b4=0.00005, b5=0.000025,
+                a1=0.01, a2=0.01, a3=0.2, a4=0.15, a5=0.06),
+        medium=c(b0=-5, b1=0.01, b2=0.01, b3=0.0005, b4=0.0001, b5=0.00005,
+                 a1=0.01, a2=0.01, a3=0.2, a4=0.15, a5=0.06),
+        large=c(b0=-5, b1=0.01, b2=0.01, b3=0.001, b4=0.0002, b5=0.0001,
+                a1=0.01, a2=0.01, a3=0.2, a4=0.15, a5=0.06)),
       trend = list(
-        small=c(b0=-5, b1=0.17, b2=0.09, b3=0.0005, b4=0.0001, b5=0.00005,
-                a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06),
-        medium=c(b0=-5, b1=0.265, b2=0.15, b3=0.001, b4=0.0002, b5=0.0001,
-                 a1=1.2, a2=0.5, a3=0.2, a4=0.15, a5=0.06),
-        large=c(b0=-5, b1=0.5, b2=0.3, b3=0.05, b4=0.025, b5=0.01,
-                a1=1.2, a2=0.5, a3=0.4, a4=0.15, a5=0.06))
+        small=c(b0=-5, b1=0.01, b2=0.01, b3=0.0005, b4=0.0001, b5=0.00005,
+                a1=0.01, a2=0.01, a3=0.2, a4=0.15, a5=0.06),
+        medium=c(b0=-5, b1=0.01, b2=0.01, b3=0.001, b4=0.0002, b5=0.0001,
+                 a1=0.01, a2=0.01, a3=0.2, a4=0.15, a5=0.06),
+        large=c(b0=-5, b1=0.01, b2=0.01, b3=0.05, b4=0.025, b5=0.01,
+                a1=0.01, a2=0.01, a3=0.4, a4=0.15, a5=0.06))
     )
   ),
   autoreg_linear = list(
@@ -187,7 +187,7 @@ linear_fe_config <- configure_simulation(
   x=x,
   models=list(linear_models[[1]]),
   # iterations
-  iters=2,
+  iters=500,
   
   # specify functions or S3 class of set of functions
   method_sample=selbias_sample,
@@ -206,7 +206,7 @@ linear_fe_config <- configure_simulation(
     time_var="year",
     policy_speed=list("instant"),
     prior_control=c("mva3", "trend"),
-    bias_type=c("linear"), #, "nonlinear"
+    bias_type=c("nonlinear"), #, "linear"
     bias_size=c("small", "medium", "large"),
     n_implementation_periods=list(0)
   )
@@ -236,8 +236,8 @@ linear_ar_config <- configure_simulation(
     time_var="year",
     policy_speed=list("instant"),
     prior_control=c("mva3", "trend"),
-    bias_type=c("linear"), #, "nonlinear"
-    bias_size= "large", # c("small", "medium", "large"), #as.character(1:nrow(possible_grid))
+    bias_type=c("nonlinear"), #, "linear"
+    bias_size= c("small", "medium", "large"), # c("small", "medium", "large"), #as.character(1:nrow(possible_grid))
     n_implementation_periods=list(0)
   )
 )
@@ -251,8 +251,7 @@ multisynth_models <- list(
     type="multisynth",
     model_call="multisynth",
     model_formula=crude.rate ~ treatment_level,
-    model_args=list(data = x, unit=as.name("state"), time=as.name("year"), fixedeff=TRUE, 
-                    form=crude.rate ~ treatment_level),
+    model_args=list(unit=as.name("state"), time=as.name("year"), fixedeff=TRUE, form=crude.rate ~ treatment_level),
     se_adjust="none"
   )
 )
@@ -276,8 +275,8 @@ msynth_config <- configure_simulation(
     time_var="year",
     policy_speed=list("instant"),
     prior_control=c("mva3", "trend"),
-    bias_type=c("linear"),#"nonlinear"
-    bias_size=c("none", "small", "medium", "large"),
+    bias_type=c("nonlinear"),#"linear"
+    bias_size=c("small", "medium", "large"), #, "none"
     n_implementation_periods=list(0)
   )
 )
@@ -289,7 +288,23 @@ msynth_config <- configure_simulation(
 cl <- parallel::makeCluster(parallel::detectCores() - 1)
 plan("cluster", workers = cl)
 
-# linear_fe_r <- dispatch_tuning(linear_fe_config, use_future=F,
+linear_fe_r <- dispatch_tuning(linear_fe_config, use_future=T,
+                                    seed=89721,
+                                    verbose=2,
+                                    future.globals=c("cluster_adjust_se"),
+                                    future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
+# clean up and write out results
+linear_fe_results <- do.call(rbind, linear_fe_r)
+rownames(linear_fe_results) <- NULL
+write.csv(linear_fe_results, "/vincent/b/josephp/OPTIC/output/sel-bias-nonlinear-fe-unweighted-Round2.csv", row.names = FALSE)
+
+# my_results = read.csv("/vincent/b/josephp/OPTIC/output/sel-bias-nonlinear-fe-unweighted.csv") %>%
+#   group_by(prior_control, bias_size) %>%
+#   summarize(n=n(),
+#             mean = mean(mean_es_outcome))
+
+# # dispatch with the same seed (want the same sampled data each run)
+# linear_fe_r <- dispatch_simulations(linear_fe_config, use_future=T,
 #                                     seed=89721,
 #                                     verbose=2,
 #                                     future.globals=c("cluster_adjust_se"),
@@ -298,40 +313,28 @@ plan("cluster", workers = cl)
 # linear_fe_results <- do.call(rbind, linear_fe_r)
 # rownames(linear_fe_results) <- NULL
 # write.csv(linear_fe_results, "/vincent/b/josephp/OPTIC/output/sel-bias-linear-fe-unweighted.csv", row.names = FALSE)
+# 
+# linear_ar_r <- dispatch_simulations(linear_ar_config,
+#                                     use_future=TRUE,
+#                                     seed=89721,
+#                                     verbose=2,
+#                                     future.globals=c("cluster_adjust_se"),
+#                                     future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
+# # clean up and write out results
+# linear_ar_results <- do.call(rbind, linear_ar_r)
+# rownames(linear_ar_results) <- NULL
+# write.csv(linear_ar_results, "/vincent/b/josephp/OPTIC/output/sel-bias-linear-ar-unweighted.csv", row.names = FALSE)
 
-
-# dispatch with the same seed (want the same sampled data each run)
-linear_fe_r <- dispatch_simulations(linear_fe_config, use_future=T,
-                                    seed=89721,
-                                    verbose=2,
-                                    future.globals=c("cluster_adjust_se"),
-                                    future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
-# clean up and write out results
-linear_fe_results <- do.call(rbind, linear_fe_r)
-rownames(linear_fe_results) <- NULL
-write.csv(linear_fe_results, "/vincent/b/josephp/OPTIC/output/sel-bias-linear-fe-unweighted.csv", row.names = FALSE)
-
-linear_ar_r <- dispatch_simulations(linear_ar_config,
-                                    use_future=TRUE,
-                                    seed=89721,
-                                    verbose=2,
-                                    future.globals=c("cluster_adjust_se"),
-                                    future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
-# clean up and write out results
-linear_ar_results <- do.call(rbind, linear_ar_r)
-rownames(linear_ar_results) <- NULL
-write.csv(linear_ar_results, "/vincent/b/josephp/OPTIC/output/sel-bias-linear-ar-unweighted.csv", row.names = FALSE)
-
-multisynth_r <- dispatch_simulations(msynth_config,
-                                     use_future=T,
-                                     seed=89721,
-                                     verbose=2,
-                                     future.globals=c("cluster_adjust_se"),
-                                     future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID")) 
-# clean up and write out results
-multisynth_results <- do.call(rbind, multisynth_r)
-rownames(multisynth_results) <- NULL
-write.csv(multisynth_results, "/vincent/b/josephp/OPTIC/output/sel-bias-multisynth.csv", row.names = FALSE)
+# multisynth_r <- dispatch_simulations(msynth_config,
+#                                      use_future=T,
+#                                      seed=89721,
+#                                      verbose=2,
+#                                      future.globals=c("cluster_adjust_se"),
+#                                      future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID")) 
+# # clean up and write out results
+# multisynth_results <- do.call(rbind, multisynth_r)
+# rownames(multisynth_results) <- NULL
+# write.csv(multisynth_results, "/vincent/b/josephp/OPTIC/output/sel-bias-multisynth-5000iter.csv", row.names = FALSE)
 
 #### End-of-file ####
 
