@@ -40,16 +40,24 @@ concurrent_sample <- function(single_simulation) {
     
     #TODO: this is currently specific to time_var being year and wanting to
     #      sample on months; perhaps look into abstracting for any units of time
-    sampled_time_period <- sample(available_periods, 1) #this becomes the mean
+    available_periods1 = min(available_periods):(max(available_periods)-(years_apart))
+    sampled_time_period <- sample(available_periods1, 1) #this becomes the mean
     
     #TODO: JOE, adjust this
     # start at 3 , 6, and 9 years apart.
     # for second argument in mu, add the ability for the user how far those means should be on average.
     sampled_time_period_yearsapart = sampled_time_period + years_apart
-
+    
     data = MASS::mvrnorm(n=200, mu=c(sampled_time_period, sampled_time_period_yearsapart), Sigma=matrix(c(1, rho, rho, 1), nrow=2), empirical=TRUE) #odd - can't set n = 1 so have to sample two
-    sampled_time_period1 = data[1, 1]  # standard normal (mu=yr, sd=1)
-    sampled_time_period2 = data[1, 2]  # standard normal (mu=yr, sd=1)
+    # if order matters:
+    sampled_time_period1 = min(data[1,1], data[1,2])
+    sampled_time_period2 = max(data[1,1], data[1,2])
+    
+    # if order doesn't matter:
+    # draw = sample(c(1,2),1)
+    # if(draw == 2){draw2 <- 1}else{draw2 <- 2}
+    # sampled_time_period1 = data[1, draw]  # standard normal (mu=yr, sd=1)
+    # sampled_time_period2 = data[1, draw2]  # standard normal (mu=yr, sd=1)
     #cor(yr1,yr2) #if increasen n to 200; can confirm that correlation = rho with large samples
     
     #TODO:
@@ -65,11 +73,11 @@ concurrent_sample <- function(single_simulation) {
     if(mo2==0) {
       mo2=1
     }
-      
+    
     #setting years
     sampled_time_period1=floor(sampled_time_period1)
     sampled_time_period2=floor(sampled_time_period2)
-  
+    
     # exposure coding
     l1 <- optic::exposure_list(sampled_time_period1, mo1, available_periods, policy_speed, n_implementation_periods)
     names(l1) <- paste0(names(l1), "1")
@@ -252,6 +260,7 @@ concurrent_postmodel <- function(model_simulation) {
   results$effect_magnitude2 <- model_simulation$effect_magnitude2
   results$policy_speed <- model_simulation$policy_speed
   results$rho <- model_simulation$rhos
+  results$years_apart <- model_simulation$years_apart
   results$mean_distance <- mean(model_simulation$policy_distances)
   results$min_distance <- min(model_simulation$policy_distances)
   results$max_distance <- max(model_simulation$policy_distances)
@@ -274,4 +283,4 @@ concurrent_results <- function(r) {
 }
 
 
-  
+

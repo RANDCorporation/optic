@@ -18,9 +18,12 @@ source("R/concurrent-methods.R")
 linear5 <- 690 / ((sum(x$population) / length(unique(x$year))) / 100000)
 linear10 <- 1380 / ((sum(x$population) / length(unique(x$year))) / 100000)
 linear15 <- 2070 / ((sum(x$population) / length(unique(x$year))) / 100000)
+linear20 <- 2760 / ((sum(x$population) / length(unique(x$year))) / 100000)
 
 scenario1 <- c(linear10, linear10)
 scenario2 <- c(linear5, linear15)
+scenario3 <- c(linear15, linear5)
+scenario4 <- c(linear10, linear20)
 
 lm_concurrent_models <- list(
   list(
@@ -73,13 +76,13 @@ lm_config <- configure_simulation(
   params=list(
     unit_var="state",
     time_var="year",
-    effect_magnitude=list(scenario1, scenario2),
-    n_units=c(30),
-    effect_direction=c("null", "neg"),
+    effect_magnitude=list(scenario4),#scenario1, scenario2
+    n_units=c(5, 30),# c(5, 30)
+    effect_direction=c("neg"),#"null"
     policy_speed=c("instant", "slow"),
     n_implementation_periods=c(3),
-    rhos=c(0, 0.25, 0.5, 0.75, 0.9),
-    years_apart=c(3)#6,9
+    rhos=c(0.9),# 0, 0.5, 0.9
+    years_apart = c(0, 3, 6, 9)
   )
 )
 
@@ -93,9 +96,12 @@ lm_config <- configure_simulation(
 nb5 <- 690 / (sum(x$deaths) / length(unique(x$year)))
 nb10 <- 1380 / (sum(x$deaths) / length(unique(x$year)))
 nb15 <- 2070 / (sum(x$deaths) / length(unique(x$year)))
+nb20 <- 2760 / (sum(x$deaths) / length(unique(x$year)))
 
 scenario1nb <- c(nb10, nb10)
 scenario2nb <- c(nb5, nb15)
+scenario3nb <- c(nb15, nb5)
+scenario4nb <- c(nb10, nb20)
 
 negbin_concurrent_models <- list(
   list(
@@ -146,13 +152,13 @@ negbin_config <- configure_simulation(
   params=list(
     unit_var="state",
     time_var="year",
-    effect_magnitude=list(scenario1nb, scenario2nb),
-    n_units=c(30),
-    effect_direction=c("null", "neg"),
+    effect_magnitude=list(scenario4nb),#scenario1nb, scenario2nb
+    n_units=c(5, 30),#c(5,30)
+    effect_direction=c("neg"),#"null",
     policy_speed=c("instant", "slow"),
     n_implementation_periods=c(3),
-    rhos=c(0, 0.25, 0.5, 0.75, 0.9),
-    years_apart=c(3)#,6,9
+    rhos=c(0.9),#0, 0.5, 0.9
+    years_apart = c(0, 3, 6, 9)
   )
 )
 
@@ -161,15 +167,15 @@ negbin_config <- configure_simulation(
 # RUN
 #==============================================================================
 #==============================================================================
-cl <- parallel::makeCluster(parallel::detectCores() - 1)
+cl <- parallel::makeCluster((parallel::detectCores()/2-4))
 plan("cluster", workers = cl)
 
 start <- Sys.time()
 
-lm_results <- dispatch_simulations(lm_config, use_future=T, seed=218, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
+lm_results <- dispatch_simulations(lm_config, use_future=TRUE, seed=218, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
 lm_results2 <- do.call(rbind, lm_results)
 rownames(lm_results2) <- NULL
-write.csv(lm_results2, "/vincent/b/josephp/OPTIC/output/concurrent-lm-3yrGap.csv", row.names = FALSE)
+write.csv(lm_results2, paste0("/vincent/b/josephp/OPTIC/output/concurrent-lm-weighted-Ordered-10perc20perc", Sys.Date(), ".csv"), row.names = FALSE)
 
 end <- Sys.time()
 print("Completed in:\n")
@@ -180,7 +186,7 @@ start <- Sys.time()
 nb_results <- dispatch_simulations(negbin_config, use_future=TRUE, seed=218, verbose=2, future.globals=c("cluster_adjust_se"), future.packages=c("dplyr", "MASS", "optic", "augsynth"))
 nb_results2 <- do.call(rbind, nb_results)
 rownames(nb_results2) <- NULL
-write.csv(nb_results2, "/vincent/b/josephp/OPTIC/output/concurrent-negbin-3yrGap.csv", row.names = FALSE)
+write.csv(nb_results2, paste0("/vincent/b/josephp/OPTIC/output/concurrent-negbin-weighted-Ordered-10perc20perc", Sys.Date(), ".csv"), row.names = FALSE)
 
 end <- Sys.time()
 print("Completed in:\n")
