@@ -311,8 +311,38 @@ msynth_config <- configure_simulation(
   )
 )
 
+> class(msynth_config)
+[1] "SimConfig" "R6" 
+
+> names(msynth_config)
+ [1] ".__enclos_env__"         "method_results"          "method_post_model"      
+ [4] "method_model"            "method_pre_model"        "method_sample"          
+ [7] "simulation_params"       "globals"                 "params"                 
+[10] "iters"                   "models"                  "data"                   
+[13] "clone"                   "print"                   "setup_single_simulation"
+[16] "initialize"  
+
+> head(msynth_config$simulation_params)
+  unit_var time_var policy_speed prior_control bias_type bias_size n_implementation_periods
+1    state     year      instant          mva3 nonlinear     small                        0
+2    state     year      instant         trend nonlinear     small                        0
+3    state     year      instant          mva3 nonlinear    medium                        0
+4    state     year      instant         trend nonlinear    medium                        0
+5    state     year      instant          mva3 nonlinear     large                        0
+6    state     year      instant         trend nonlinear     large                        0
+
 # Look at the setup for a single simulation:
 example_single_sim_selbias <- msynth_config$setup_single_simulation(1)
+
+> names(example_single_sim_selbias)
+ [1] "unit_var"                 "time_var"                 "policy_speed"            
+ [4] "prior_control"            "bias_type"                "bias_size"               
+ [7] "n_implementation_periods" "data"                     "models"                  
+[10] "iters"                    "method_sample"            "method_pre_model"        
+[13] "method_model"             "method_post_model"        "method_results"          
+[16] "globals" 
+
+# everything looks good so we are ready to go.
 ```
 
 Dispatch the simulations: Note that we are setting up a cluster and using the future package:
