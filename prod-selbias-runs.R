@@ -165,7 +165,7 @@ linear_models <- list(
     model_call="lm",
     type="autoreg",
     model_formula=crude.rate ~ treatment_change + unemploymentrate + as.factor(year),
-    model_args=NULL,#list(weights=as.name("population"))
+    model_args=list(weights=as.name("population")),#NULL,
     se_adjust=c("none", "huber", "cluster", "arellano")
   )
 )
@@ -225,7 +225,7 @@ linear_ar_config <- configure_simulation(
     time_var="year",
     policy_speed=list("instant"),
     prior_control=c("mva3", "trend"),
-    bias_type=c("nonlinear"), #, "linear"
+    bias_type=c("linear"), #, "nonlinear"
     bias_size= c("small", "medium", "large"), # c("small", "medium", "large"), #as.character(1:nrow(possible_grid))
     n_implementation_periods=list(0)
   )
@@ -274,15 +274,17 @@ msynth_config <- configure_simulation(
 ### DISPATCH JOBS ###
 #####################
 # setup cluster
-cl <- parallel::makeCluster((parallel::detectCores()/2-4))
+cl <- parallel::makeCluster((parallel::detectCores()-8))
 plan("cluster", workers = cl)
 
+#### Tuning (optional) ####
 # proc.time1 = proc.time()
-# linear_fe_r <- dispatch_tuning(linear_fe_config, use_future=T,
-#                                     seed=89721,
-#                                     verbose=2,
-#                                     future.globals=c("cluster_adjust_se"),
-#                                     future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
+# linear_fe_r <- dispatch_tuning(linear_fe_config, 
+#                                use_future=T,
+#                                seed=89721,
+#                                verbose=2,
+#                                future.globals=c("cluster_adjust_se"),
+#                                future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
 # proc.time2 = proc.time()
 # print(proc.time2-proc.time1)
 # # clean up and write out results
@@ -290,14 +292,17 @@ plan("cluster", workers = cl)
 # 
 # rownames(linear_fe_results) <- NULL
 # write.csv(linear_fe_results, "/vincent/b/josephp/OPTIC/output/sel-bias-nonlinear-fe-unweighted-Round10.csv", row.names = FALSE)
-
+# 
 # my_results = read.csv("/vincent/b/josephp/OPTIC/output/sel-bias-nonlinear-fe-unweighted.csv") %>%
 #   group_by(prior_control, bias_size) %>%
 #   summarize(n=n(),
 #             mean = mean(mean_es_outcome))
 
+#### End of Tuning ####
+
+#### 2-Way Fixed Effect Runs ####
 # dispatch with the same seed (want the same sampled data each run)
-linear_fe_r <- dispatch_simulations(linear_fe_config, 
+linear_fe_r <- dispatch_simulations(linear_fe_config,
                                     use_future=T,
                                     seed=89721,
                                     verbose=2,
@@ -308,6 +313,8 @@ linear_fe_results <- do.call(rbind, linear_fe_r)
 rownames(linear_fe_results) <- NULL
 write.csv(linear_fe_results, "/vincent/b/josephp/OPTIC/output/sel-bias-linear-fe-unweighted-nonlin.csv", row.names = FALSE)
 
+#### Autoregressive Runs ####
+proc.time1 = proc.time()
 linear_ar_r <- dispatch_simulations(linear_ar_config,
                                     use_future=T,
                                     seed=89721,
@@ -317,8 +324,11 @@ linear_ar_r <- dispatch_simulations(linear_ar_config,
 # clean up and write out results
 linear_ar_results <- do.call(rbind, linear_ar_r)
 rownames(linear_ar_results) <- NULL
-write.csv(linear_ar_results, "/vincent/b/josephp/OPTIC/output/sel-bias-linear-ar-unweighted-nonlin.csv", row.names = FALSE)
+write.csv(linear_ar_results, "/poppy/programs/josephp/output/sel-bias-linear-ar-weighted-lin-03-12-21.csv", row.names = FALSE)
+proc.time2 = proc.time()
+print(proc.time2-proc.time1)
 
+#### multisynth Runs ####
 multisynth_r <- dispatch_simulations(msynth_config,
                                      use_future=T,
                                      seed=89721,
