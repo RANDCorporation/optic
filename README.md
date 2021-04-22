@@ -15,11 +15,11 @@ devtools::build()
 devtools::install()
 ```
 
-## Running Simulation
+## Running Concurrent Simulation
 
 Example below dependent on access to `optic_sim_data_exp.Rdata` data object.
 
-#### Configure Simulation
+#### Configure Concurrent Simulation
 
 The first step is to congifure the simulation or set of simulations you wish to run. There four main components to the configuration object:
 
@@ -142,7 +142,7 @@ example_single_sim <- sim_config$setup_single_simulation(1)
 [16] "method_post_model"        "method_results"
 ```
 
-#### Dispatch Simulation
+#### Dispatch Concurrent Simulation
 
 When you run a simulation you use the `dispatch_simulation` method, which will iterate over the rows in the `"simulation_params"` element and run the iterations for each simulation either in a loop or in parallel depending on how you choose to dispatch the job.
 
@@ -185,3 +185,181 @@ A `single_simulation` object (list) is created and provided to the `run_iteratio
     1.  If no post model method is provided, the return object from the `method_model` function is assigned to the list directly
 1.  The list of independent model results is provided as the argument to `method_results` and the return object from this final function is returned by the `run_iteration` function.
 
+## Running Selection Bias Simulation 
+
+The following is example code to run the Augmented SCM. The first snippet of code is data cleaning in preparation for the various methods used in this package.
+
+```R
+#### Set names of variables and create lags: ####
+names(x) <- tolower(names(x))
+
+x <- x %>%
+  select(state, year, fipscode, population, unemploymentrate, povertyrate,
+         income, statefipyear, opioid_rx, md_access, insured, uninsur,medicare,
+         medicaid, syn_opioid_death, other_opioid_death, her_death, yrslifelost,
+         medicaid_ratio, all_opioid_death, overdose, alldeaths, cr.opioid.death,
+         opioid_rx.lag1, cr.opioid.death.lag1, crude.rate, cr.adj, deaths,
+         cr.adj.lag1) %>%
+  mutate(crude.rate.new = crude.rate) %>% # new line of code
+  arrange(state, year) %>%
+  group_by(state) %>%
+  mutate(lag1 = lag(crude.rate, n=1L),
+         lag2 = lag(crude.rate, n=2L),
+         lag3 = lag(crude.rate, n=3L)) %>%
+  ungroup() %>%
+  rowwise() %>%
+  # code in moving average and trend versions of prior control
+  mutate(prior_control_mva3_OLD = mean(c(lag1, lag2, lag3)),
+         prior_control_trend_OLD = lag1 - lag3) %>%
+  ungroup() %>%
+  select(-lag1, -lag2, -lag3)
+```
+
+Next we set the selection bias values to be used for our call to multisynth:
+
+```R
+bias_vals <- list(
+  # MULTISYNTH METHOD
+  multisynth = list(
+    linear = list(
+      mva3 = list(
+        small=c(b0=-5, b1=0.01, b2=0.05, b3=0, b4=0, b5=0,
+                a1=0.15, a2=0.05, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.06, b2=0.05, b3=0, b4=0, b5=0,
+                 a1=0.2, a2=0.05, a3=0, a4=0, a5=0),
+        large=c(b0=-6, b1=0.0925, b2=0.1, b3=0, b4=0, b5=0,
+                a1=0.5, a2=0.1, a3=0, a4=0, a5=0),
+        none = c(b0=0, b1=0, b2=0, b3=0, b4=0, b5=0,
+                 a1=0, a2=0, a3=0, a4=0, a5=0)),
+      trend = list(
+        small=c(b0=-5, b1=0.03, b2=0.1, b3=0, b4=0, b5=0,
+                a1=0.05, a2=0.05, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.05, b2=0.1, b3=0, b4=0, b5=0,
+                 a1=0.2, a2=0.1, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.1, b2=0.1, b3=0, b4=0, b5=0,
+                a1=0.5, a2=0.11, a3=0, a4=0, a5=0),
+        none = c(b0=0, b1=0, b2=0, b3=0, b4=0, b5=0,
+                 a1=0, a2=0, a3=0, a4=0, a5=0))),
+    nonlinear = list(
+      mva3 = list(
+        small=c(b0=-5, b1=0.04, b2=0.04, b3=0.0003, b4=0.0001, b5=0.00003,
+                a1=0.01, a2=0.01, a3=0.01, a4=0.01, a5=0.001),
+        medium=c(b0=-5, b1=0.065, b2=0.065, b3=0.0007, b4=0.0004, b5=0.00007,
+                 a1=0.01, a2=0.01, a3=0.01, a4=0.01, a5=0.001),
+        large=c(b0=-5, b1=0.095, b2=0.095, b3=0.0009, b4=0.0006, b5=0.00009,
+                a1=0.01, a2=0.01, a3=0.01, a4=0.01, a5=0.001)),
+      trend = list(
+        small=c(b0=-5, b1=0.05, b2=0.1, b3=0.001, b4=0.00026, b5=0.0001,
+                a1=0.1, a2=0.05, a3=0.2, a4=0.15, a5=0.06),
+        medium=c(b0=-5, b1=0.1, b2=0.12, b3=0.002, b4=0.00463, b5=0.0003,
+                 a1=0.1, a2=0.05, a3=0.2, a4=0.15, a5=0.06),
+        large=c(b0=-5, b1=0.1, b2=0.12, b3=0.002, b4=0.025, b5=0.0003,
+                a1=0.1, a2=0.05, a3=0.2, a4=0.15, a5=0.06)))))
+```
+
+Setup the model::
+
+```R
+#########################
+### MULTISYNTH MODELS ###
+#########################
+multisynth_models <- list(
+  list(
+    name="multisynth",
+    type="multisynth",
+    model_call="multisynth",
+    model_formula=crude.rate ~ treatment_level,
+    model_args=list(unit=as.name("state"), time=as.name("year"), fixedeff=TRUE, form=crude.rate ~ treatment_level),
+    se_adjust="none"
+  )
+)
+```
+
+Specify the configure object:
+
+```R
+msynth_config <- configure_simulation(
+  x=x,
+  models=multisynth_models,
+  iters=5000,
+  method_sample=selbias_sample,
+  method_pre_model=selbias_premodel,
+  method_model=selbias_model,
+  method_post_model=selbias_postmodel,
+  method_results=selbias_results,
+  
+  globals=list(
+    bias_vals=bias_vals[["multisynth"]]
+  ),
+  
+  params=list(
+    unit_var="state",
+    time_var="year",
+    policy_speed=list("instant"),
+    prior_control=c("mva3", "trend"),
+    bias_type=c("nonlinear"),#"linear"
+    bias_size=c("small", "medium", "large"), #, "none"
+    n_implementation_periods=list(0)
+  )
+)
+
+> class(msynth_config)
+[1] "SimConfig" "R6" 
+
+> names(msynth_config)
+ [1] ".__enclos_env__"         "method_results"          "method_post_model"      
+ [4] "method_model"            "method_pre_model"        "method_sample"          
+ [7] "simulation_params"       "globals"                 "params"                 
+[10] "iters"                   "models"                  "data"                   
+[13] "clone"                   "print"                   "setup_single_simulation"
+[16] "initialize"  
+
+> head(msynth_config$simulation_params)
+  unit_var time_var policy_speed prior_control bias_type bias_size n_implementation_periods
+1    state     year      instant          mva3 nonlinear     small                        0
+2    state     year      instant         trend nonlinear     small                        0
+3    state     year      instant          mva3 nonlinear    medium                        0
+4    state     year      instant         trend nonlinear    medium                        0
+5    state     year      instant          mva3 nonlinear     large                        0
+6    state     year      instant         trend nonlinear     large                        0
+
+# Look at the setup for a single simulation:
+example_single_sim_selbias <- msynth_config$setup_single_simulation(1)
+
+> names(example_single_sim_selbias)
+ [1] "unit_var"                 "time_var"                 "policy_speed"            
+ [4] "prior_control"            "bias_type"                "bias_size"               
+ [7] "n_implementation_periods" "data"                     "models"                  
+[10] "iters"                    "method_sample"            "method_pre_model"        
+[13] "method_model"             "method_post_model"        "method_results"          
+[16] "globals" 
+
+# everything looks good so we are ready to go.
+```
+
+Dispatch the simulations: Note that we are setting up a cluster and using the future package:
+
+```R
+# setup cluster
+cl <- parallel::makeCluster((parallel::detectCores()-8))
+plan("cluster", workers = cl)
+
+#### multisynth Runs ####
+# use_future will run the iterations in parallel, in this case we are also showing
+# how you may need to specify certain environment inclusions like a specific method
+# or package to ensure it is used in each of the threads the future library will
+# create
+# you can also set a seed, which will work for both single-threaded and multi-
+# threaded runs to ensure replication is possible.
+
+multisynth_r <- dispatch_simulations(msynth_config,
+                                     use_future=T,
+                                     seed=89721,
+                                     verbose=2,
+                                     future.globals=c("cluster_adjust_se"),
+                                     future.packages=c("dplyr", "MASS", "optic", "augsynth", "DRDID"))
+# clean up and write out results
+multisynth_results <- do.call(rbind, multisynth_r)
+rownames(multisynth_results) <- NULL
+write.csv(multisynth_results, "/vincent/b/josephp/OPTIC/output/sel-bias-multisynth-nonlin.csv", row.names = FALSE)
+```

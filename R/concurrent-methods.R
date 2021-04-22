@@ -20,6 +20,7 @@ concurrent_sample <- function(single_simulation) {
   rho <- single_simulation$rho
   time_period_restriction <- single_simulation$time_period_restriction
   years_apart <- single_simulation$years_apart
+  ordered <- single_simulation$ordered
   
   ###############################################
   ### IDENTIFY TREATED UNITS AND TIME PERIODS ###
@@ -50,15 +51,17 @@ concurrent_sample <- function(single_simulation) {
     
     data = MASS::mvrnorm(n=200, mu=c(sampled_time_period, sampled_time_period_yearsapart), Sigma=matrix(c(1, rho, rho, 1), nrow=2), empirical=TRUE) #odd - can't set n = 1 so have to sample two
     # if order matters:
-    sampled_time_period1 = min(data[1,1], data[1,2])
-    sampled_time_period2 = max(data[1,1], data[1,2])
-    
-    # if order doesn't matter:
-    # draw = sample(c(1,2),1)
-    # if(draw == 2){draw2 <- 1}else{draw2 <- 2}
-    # sampled_time_period1 = data[1, draw]  # standard normal (mu=yr, sd=1)
-    # sampled_time_period2 = data[1, draw2]  # standard normal (mu=yr, sd=1)
-    #cor(yr1,yr2) #if increasen n to 200; can confirm that correlation = rho with large samples
+    if(ordered == "yes"){
+      sampled_time_period1 = min(data[1,1], data[1,2])
+      sampled_time_period2 = max(data[1,1], data[1,2])
+    } else{ # if order doesn't matter:
+      draw = sample(c(1,2),1)
+      if(draw == 2){draw2 <- 1}else{draw2 <- 2}
+      sampled_time_period1 = data[1, draw]  # standard normal (mu=yr, sd=1)
+      sampled_time_period2 = data[1, draw2]  # standard normal (mu=yr, sd=1)
+    }
+
+    ##cor(yr1,yr2) #if increasen n to 200; can confirm that correlation = rho with large samples
     
     #TODO:
     #now we have continuous enactment dates - would be nice if we could just work with these in our slow and instant coding
@@ -261,6 +264,8 @@ concurrent_postmodel <- function(model_simulation) {
   results$policy_speed <- model_simulation$policy_speed
   results$rho <- model_simulation$rhos
   results$years_apart <- model_simulation$years_apart
+  results$ordered <- model_simulation$ordered
+  results$n_units <- model_simulation$n_units
   results$mean_distance <- mean(model_simulation$policy_distances)
   results$min_distance <- min(model_simulation$policy_distances)
   results$max_distance <- max(model_simulation$policy_distances)

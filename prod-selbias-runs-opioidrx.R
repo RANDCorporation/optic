@@ -9,7 +9,7 @@ load("data/optic_sim_data_exp.Rdata")
 names(x) <- tolower(names(x))
 
 x <- x %>%
-  mutate(opioid_rx.new = opioid_rx) %>% # new line of code
+  mutate(opioid_rx.old = opioid_rx) %>% # new line of code
   filter(!is.na(opioid_rx)) %>%
   arrange(state, year) %>%
   group_by(state) %>%
