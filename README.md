@@ -187,7 +187,11 @@ A `single_simulation` object (list) is created and provided to the `run_iteratio
 
 ## Running Selection Bias Simulation 
 
+<<<<<<< HEAD
 The following is example code to run the Augmented SCM. The first snippet of code is data cleaning in preparation for the various methods used in this package.
+=======
+The following is example code to run the Augmented SCM:
+>>>>>>> fa9e5d81ae1b7f7db61532bf065e423c5205f677
 
 ```R
 #### Set names of variables and create lags: ####
@@ -215,7 +219,19 @@ x <- x %>%
   select(-lag1, -lag2, -lag3)
 ```
 
+<<<<<<< HEAD
 Next we set the selection bias values to be used for our call to multisynth:
+=======
+Next we load in the selection bias methods:
+
+```R
+#### Load in selection bias methods ####
+source("R/selection-bias-methods.R")
+source("R/cluster-adjust-se.r")
+```
+
+Next we set the selection bias values:
+>>>>>>> fa9e5d81ae1b7f7db61532bf065e423c5205f677
 
 ```R
 bias_vals <- list(

@@ -212,8 +212,13 @@ linear_models <- list(
     name="autoreg_linear",
     model_call="lm",
     type="autoreg",
+<<<<<<< HEAD:prod-selbias-county-runs.R
     model_formula=opioid_rxrateper100 ~ treatment_change + unemploymentrate + as.factor(year),
     model_args=NULL,#list(weights=as.name("population")),
+=======
+    model_formula=crude.rate ~ treatment_change + unemploymentrate + as.factor(year),
+    model_args=list(weights=as.name("population")),#NULL,
+>>>>>>> fa9e5d81ae1b7f7db61532bf065e423c5205f677:prod-selbias-runs.R
     se_adjust=c("none", "huber", "cluster", "arellano")
   )
 )
@@ -274,6 +279,7 @@ linear_ar_config <- configure_simulation(
     policy_speed=list("instant"),
     prior_control=c("mva3", "trend"),
     bias_type=c("linear"), #, "nonlinear"
+<<<<<<< HEAD:prod-selbias-county-runs.R
     bias_size="none",#c("small", "medium", "large"), # c("small", "medium", "large"), #as.character(1:nrow(possible_grid))
     n_implementation_periods=list(0)
   )
@@ -322,6 +328,9 @@ drdid_config <- configure_simulation(
     prior_control=c("mva3"),#, "trend"
     bias_type=c("linear"), #, "linear"
     bias_size=c("none"),#"small", "medium", "large"
+=======
+    bias_size= c("small", "medium", "large"), # c("small", "medium", "large"), #as.character(1:nrow(possible_grid))
+>>>>>>> fa9e5d81ae1b7f7db61532bf065e423c5205f677:prod-selbias-runs.R
     n_implementation_periods=list(0)
   )
 )
@@ -419,7 +428,11 @@ linear_ar_r <- dispatch_simulations(linear_ar_config,
 # clean up and write out results
 linear_ar_results <- do.call(rbind, linear_ar_r)
 rownames(linear_ar_results) <- NULL
+<<<<<<< HEAD:prod-selbias-county-runs.R
 write.csv(linear_ar_results, "/poppy/programs/josephp/output/sel-bias-linear-ar-unweighted-lin-county.csv", row.names = FALSE)
+=======
+write.csv(linear_ar_results, "/poppy/programs/josephp/output/sel-bias-linear-ar-weighted-lin-03-12-21.csv", row.names = FALSE)
+>>>>>>> fa9e5d81ae1b7f7db61532bf065e423c5205f677:prod-selbias-runs.R
 proc.time2 = proc.time()
 print(proc.time2-proc.time1)
 
