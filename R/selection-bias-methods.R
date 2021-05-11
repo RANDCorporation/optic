@@ -71,11 +71,8 @@ selbias_sample <- function(single_simulation) {
   # need to create a matrix of state x year 
   # probabilities of being assigned to enact policy
   available_units <- unique(x[[unit_var]])
-  # don't include first 3 years in this version where depends on 3-year moving average
-  # also for augsynth cannot include last two years as possible selection for first
-  # treated year since it requires 2+ pre and post periods
   # atp <- sort(unique(x[[time_var]]))[-1:-5]
-  # atp <- atp[-length(atp):-(length(atp)-2)]
+  # atp <- atp[-length(atp):-(length(atp)-1)]
   atp <- sort(unique(x[[time_var]]))[-1:-3]
   available_time_periods <- atp
   
@@ -200,6 +197,7 @@ selbias_sample <- function(single_simulation) {
   for (i in 1:length(sampled_units)) { 
     yr <- start_periods[i]
     current_unit <- as.character(sampled_units[i])
+    # change if don't want everything to be years/months
     mo <- sample(1:12, 1)
     if (policy_speed == "slow") {
       treated[[current_unit]] <- list(
@@ -221,34 +219,41 @@ selbias_sample <- function(single_simulation) {
       treated[[current_unit]] <- list(
         policy_years = yr:max(x$year, na.rm=TRUE),
         policy_month = mo,
-        exposure = c((12 - mo + 1)/12, rep(1, length((yr + 1):max(x$year, na.rm=TRUE)))),
+        exposure = c((12 - mo + 1)/12, rep(1, length(yr:max(x[[time_var]]))-1)),
         policy_date = as.Date(paste0(yr, '-', mo, '-01'))
       )
     }
   }
+  # apply treatment to data updated to make quicker
+  # Get policy date and exposure in proper format quickly...
+  policy_dates = purrr::transpose(treated)$policy_date %>% 
+    dplyr::bind_rows() %>% 
+    tidyr::gather(!!unit_var, treatment_date) 
   
-  # apply treatment to data
-  x$treatment <- 0
-  x$treatment_date <- as.Date(NA)
-  for (sunit in names(treated)) {
-    for (i in 1:length(treated[[sunit]][["policy_years"]])) {
-      time_period <- treated[[sunit]][["policy_years"]][i]
-      exposure <- treated[[sunit]][["exposure"]][i]
-      
-      x$treatment <- dplyr::if_else(
-        x[[unit_var]] == sunit & x[[time_var]] == time_period,
-        exposure,
-        x$treatment
-      )
-      
-      x$treatment_date <- dplyr::if_else(
-        x[[unit_var]] == sunit,
-        treated[[sunit]][["policy_date"]],
-        x$treatment_date
-      )
-    }
+  if(is.factor(x[[unit_var]])){
+    policy_dates = policy_dates %>%
+      dplyr::mutate_if(is.character, factor)
+  } else{
+    policy_dates = policy_dates %>%
+      dplyr::mutate_if(is.character, as.double)
   }
+
+  x_policy_info = x %>%
+      dplyr::filter(trt_ind == 1) %>%
+      dplyr::select(!!as.name(unit_var), !!as.name(time_var))
+  x_policy_info$treatment = purrr::transpose(treated)$exposure %>% unlist
   
+  x_policy_info = x_policy_info %>%
+    dplyr::left_join(., policy_dates, by = unit_var)
+
+  # apply treatment to data
+  x = x %>%
+    dplyr::left_join(., x_policy_info, by = c(unit_var, time_var)) %>%
+    dplyr::mutate(treatment = case_when(is.na(treatment) ~ 0,
+                                        TRUE ~ treatment),
+                  treatment_date = case_when(is.na(treatment_date) ~ as.Date(NA),
+                                             TRUE ~ treatment_date))
+
   # create level and change code versions of treatment variable
   x$treatment_level <- x$treatment
   

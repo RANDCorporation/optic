@@ -1,10 +1,12 @@
+library(dplyr)
 library(optic)
 library(augsynth) 
-library(dplyr)
 library(future)
 library(future.apply)
-library(DRDID)  
+library(DRDID)
 library(readxl)
+# setwd("/poppy/programs/josephp/optic-core")
+
 county_dta = read_excel("data/CDC_OpioidPrescribing_IMS_AnalyticExtract_122818_rs.xlsx",
                         sheet = "county") %>%
   group_by(county_FIPS) %>%
@@ -30,7 +32,7 @@ county_dta <- county_dta %>%
 
 # add county-level unemployment rate
 county_dta_unemploy = haven::read_dta("data/countyCovariates.dta") %>%
-  select(fips, year, unemploymentRate) %>%
+  select(fips, year, unemploymentRate, pop_tot) %>%
   filter(year %in% 2006:2017) %>%
   mutate(fips = as.numeric(fips))
 
@@ -38,9 +40,10 @@ county_dta = county_dta %>%
   left_join(., county_dta_unemploy, by = c("year"="year", "county_fips"="fips")) %>%
   # remove counties that are missing unemployment rate for one of years
   filter(!(county_fips %in% c(2195, 22051, 22071, 22087, 22089, 22095, 22103))) %>%
-  rename(unemploymentrate = unemploymentRate)
+  rename(unemploymentrate = unemploymentRate,
+         population = pop_tot)
 
-source("R/test_selection-bias-methods.R")
+source("R/selection-bias-methods.R")
 source("R/cluster-adjust-se.r")
 
 bias_vals <- list(
@@ -48,150 +51,148 @@ bias_vals <- list(
   multisynth = list(
     linear = list(
       mva3 = list(
-        small=c(b0=-5, b1=0.01, b2=0.05, b3=0, b4=0, b5=0,
-                a1=0.15, a2=0.05, a3=0, a4=0, a5=0),
-        medium=c(b0=-5, b1=0.06, b2=0.05, b3=0, b4=0, b5=0,
-                 a1=0.2, a2=0.05, a3=0, a4=0, a5=0),
-        large=c(b0=-6, b1=0.0925, b2=0.1, b3=0, b4=0, b5=0,
-                a1=0.5, a2=0.1, a3=0, a4=0, a5=0),
+        small=c(b0=-5, b1=0.0027, b2=0.02, b3=0, b4=0, b5=0,
+                a1=0.05, a2=0.01, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.0054, b2=0.02, b3=0, b4=0, b5=0,
+                 a1=0.05, a2=0.01, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.0073, b2=0.02, b3=0, b4=0, b5=0,
+                a1=0.05, a2=0.01, a3=0, a4=0, a5=0),
         none = c(b0=0, b1=0, b2=0, b3=0, b4=0, b5=0,
                  a1=0, a2=0, a3=0, a4=0, a5=0)),
       trend = list(
-        small=c(b0=-5, b1=0.03, b2=0.1, b3=0, b4=0, b5=0,
-                a1=0.05, a2=0.05, a3=0, a4=0, a5=0),
-        medium=c(b0=-5, b1=0.05, b2=0.1, b3=0, b4=0, b5=0,
-                 a1=0.2, a2=0.1, a3=0, a4=0, a5=0),
-        large=c(b0=-5, b1=0.1, b2=0.1, b3=0, b4=0, b5=0,
-                a1=0.5, a2=0.11, a3=0, a4=0, a5=0),
+        small=c(b0=-5, b1=0.0155, b2=0.01, b3=0, b4=0, b5=0,
+                a1=0.2, a2=0.02, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.0235, b2=0.01, b3=0, b4=0, b5=0,
+                 a1=0.2, a2=0.02, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.0325, b2=0.01, b3=0, b4=0, b5=0,
+                a1=0.2, a2=0.02, a3=0, a4=0, a5=0),
         none = c(b0=0, b1=0, b2=0, b3=0, b4=0, b5=0,
                  a1=0, a2=0, a3=0, a4=0, a5=0))),
     nonlinear = list(
       mva3 = list(
-        small=c(b0=-5, b1=0.04, b2=0.04, b3=0.0003, b4=0.0001, b5=0.00003,
+        small=c(b0=-5, b1=0.05, b2=0.05, b3=0.0001, b4=0.0001, b5=0.00003,
                 a1=0.01, a2=0.01, a3=0.01, a4=0.01, a5=0.001),
-        medium=c(b0=-5, b1=0.065, b2=0.065, b3=0.0007, b4=0.0004, b5=0.00007,
+        medium=c(b0=-5, b1=0.05, b2=0.05, b3=0.00155, b4=0.00155, b5=0.000065,
                  a1=0.01, a2=0.01, a3=0.01, a4=0.01, a5=0.001),
-        large=c(b0=-5, b1=0.095, b2=0.095, b3=0.0009, b4=0.0006, b5=0.00009,
+        large=c(b0=-5, b1=0.05, b2=0.05, b3=0.003, b4=0.003, b5=0.0001,
                 a1=0.01, a2=0.01, a3=0.01, a4=0.01, a5=0.001)),
       trend = list(
-        small=c(b0=-5, b1=0.05, b2=0.1, b3=0.001, b4=0.00026, b5=0.0001,
-                a1=0.1, a2=0.05, a3=0.2, a4=0.15, a5=0.06),
-        medium=c(b0=-5, b1=0.1, b2=0.12, b3=0.002, b4=0.00463, b5=0.0003,
-                 a1=0.1, a2=0.05, a3=0.2, a4=0.15, a5=0.06),
-        large=c(b0=-5, b1=0.1, b2=0.12, b3=0.002, b4=0.025, b5=0.0003,
-                a1=0.1, a2=0.05, a3=0.2, a4=0.15, a5=0.06)))),
+        small=c(b0=-5, b1=0.05, b2=0.03, b3=0.005, b4=0.001, b5=0.001,
+                a1=0.1, a2=0.05, a3=0.1, a4=0.01, a5=0.01),
+        medium=c(b0=-5, b1=0.05, b2=0.03, b3=0.0078, b4=0.0028, b5=0.003,
+                 a1=0.1, a2=0.05, a3=0.1, a4=0.01, a5=0.01),
+        large=c(b0=-5, b1=0.05, b2=0.03, b3=0.012, b4=0.006, b5=0.004,
+                a1=0.1, a2=0.05, a3=0.1, a4=0.01, a5=0.01)))),
   # LINEAR REGRESSION
   fixedeff_linear = list(
     linear = list(
       mva3 = list(
-        small=c(b0=-5, b1=0.01, b2=0.05, b3=0, b4=0, b5=0,
-                a1=0.15, a2=0.05, a3=0, a4=0, a5=0),
-        medium=c(b0=-5, b1=0.06, b2=0.05, b3=0, b4=0, b5=0,
-                 a1=0.2, a2=0.05, a3=0, a4=0, a5=0),
-        large=c(b0=-6, b1=0.0925, b2=0.1, b3=0, b4=0, b5=0,
-                a1=0.5, a2=0.1, a3=0, a4=0, a5=0),
+        small=c(b0=-5, b1=0.0027, b2=0.02, b3=0, b4=0, b5=0,
+                a1=0.05, a2=0.01, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.0054, b2=0.02, b3=0, b4=0, b5=0,
+                 a1=0.05, a2=0.01, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.0073, b2=0.02, b3=0, b4=0, b5=0,
+                a1=0.05, a2=0.01, a3=0, a4=0, a5=0),
         none = c(b0=0, b1=0, b2=0, b3=0, b4=0, b5=0,
                  a1=0, a2=0, a3=0, a4=0, a5=0)),
       trend = list(
-        small=c(b0=-5, b1=0.03, b2=0.1, b3=0, b4=0, b5=0,
-                a1=0.05, a2=0.05, a3=0, a4=0, a5=0),
-        medium=c(b0=-5, b1=0.05, b2=0.1, b3=0, b4=0, b5=0,
-                 a1=0.2, a2=0.1, a3=0, a4=0, a5=0),
-        large=c(b0=-5, b1=0.1, b2=0.1, b3=0, b4=0, b5=0,
-                a1=0.5, a2=0.11, a3=0, a4=0, a5=0),
+        small=c(b0=-5, b1=0.0155, b2=0.01, b3=0, b4=0, b5=0,
+                a1=0.2, a2=0.02, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.0235, b2=0.01, b3=0, b4=0, b5=0,
+                 a1=0.2, a2=0.02, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.0325, b2=0.01, b3=0, b4=0, b5=0,
+                a1=0.2, a2=0.02, a3=0, a4=0, a5=0),
         none = c(b0=0, b1=0, b2=0, b3=0, b4=0, b5=0,
                  a1=0, a2=0, a3=0, a4=0, a5=0))),
     nonlinear = list(
       mva3 = list(
-        small=c(b0=-5, b1=0.04, b2=0.04, b3=0.0003, b4=0.0001, b5=0.00003,
+        small=c(b0=-5, b1=0.05, b2=0.05, b3=0.0001, b4=0.0001, b5=0.00003,
                 a1=0.01, a2=0.01, a3=0.01, a4=0.01, a5=0.001),
-        medium=c(b0=-5, b1=0.065, b2=0.065, b3=0.0007, b4=0.0004, b5=0.00007,
+        medium=c(b0=-5, b1=0.05, b2=0.05, b3=0.00155, b4=0.00155, b5=0.000065,
                  a1=0.01, a2=0.01, a3=0.01, a4=0.01, a5=0.001),
-        large=c(b0=-5, b1=0.095, b2=0.095, b3=0.0009, b4=0.0006, b5=0.00009,
+        large=c(b0=-5, b1=0.05, b2=0.05, b3=0.003, b4=0.003, b5=0.0001,
                 a1=0.01, a2=0.01, a3=0.01, a4=0.01, a5=0.001)),
       trend = list(
-        small=c(b0=-5, b1=0.05, b2=0.1, b3=0.001, b4=0.00026, b5=0.0001,
-                a1=0.1, a2=0.05, a3=0.2, a4=0.15, a5=0.06),
-        medium=c(b0=-5, b1=0.1, b2=0.12, b3=0.002, b4=0.00463, b5=0.0003,
-                 a1=0.1, a2=0.05, a3=0.2, a4=0.15, a5=0.06),
-        large=c(b0=-5, b1=0.1, b2=0.12, b3=0.002, b4=0.025, b5=0.0003,
-                a1=0.1, a2=0.05, a3=0.2, a4=0.15, a5=0.06)))),
+        small=c(b0=-5, b1=0.05, b2=0.03, b3=0.005, b4=0.001, b5=0.001,
+                a1=0.1, a2=0.05, a3=0.1, a4=0.01, a5=0.01),
+        medium=c(b0=-5, b1=0.05, b2=0.03, b3=0.0078, b4=0.0028, b5=0.003,
+                 a1=0.1, a2=0.05, a3=0.1, a4=0.01, a5=0.01),
+        large=c(b0=-5, b1=0.05, b2=0.03, b3=0.012, b4=0.006, b5=0.004,
+                a1=0.1, a2=0.05, a3=0.1, a4=0.01, a5=0.01)))),
   # AUTOREG
   autoreg_linear = list(
     linear = list(
       mva3 = list(
-        small=c(b0=-5, b1=0.01, b2=0.05, b3=0, b4=0, b5=0,
-                a1=0.15, a2=0.05, a3=0, a4=0, a5=0),
-        medium=c(b0=-5, b1=0.06, b2=0.05, b3=0, b4=0, b5=0,
-                 a1=0.2, a2=0.05, a3=0, a4=0, a5=0),
-        large=c(b0=-6, b1=0.0925, b2=0.1, b3=0, b4=0, b5=0,
-                a1=0.5, a2=0.1, a3=0, a4=0, a5=0),
+        small=c(b0=-5, b1=0.0027, b2=0.02, b3=0, b4=0, b5=0,
+                a1=0.05, a2=0.01, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.0054, b2=0.02, b3=0, b4=0, b5=0,
+                 a1=0.05, a2=0.01, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.0073, b2=0.02, b3=0, b4=0, b5=0,
+                a1=0.05, a2=0.01, a3=0, a4=0, a5=0),
         none = c(b0=0, b1=0, b2=0, b3=0, b4=0, b5=0,
                  a1=0, a2=0, a3=0, a4=0, a5=0)),
       trend = list(
-        small=c(b0=-5, b1=0.03, b2=0.1, b3=0, b4=0, b5=0,
-                a1=0.05, a2=0.05, a3=0, a4=0, a5=0),
-        medium=c(b0=-5, b1=0.05, b2=0.1, b3=0, b4=0, b5=0,
-                 a1=0.2, a2=0.1, a3=0, a4=0, a5=0),
-        large=c(b0=-5, b1=0.1, b2=0.1, b3=0, b4=0, b5=0,
-                a1=0.5, a2=0.11, a3=0, a4=0, a5=0),
+        small=c(b0=-5, b1=0.0155, b2=0.01, b3=0, b4=0, b5=0,
+                a1=0.2, a2=0.02, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.0235, b2=0.01, b3=0, b4=0, b5=0,
+                 a1=0.2, a2=0.02, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.0325, b2=0.01, b3=0, b4=0, b5=0,
+                a1=0.2, a2=0.02, a3=0, a4=0, a5=0),
         none = c(b0=0, b1=0, b2=0, b3=0, b4=0, b5=0,
-                 a1=0, a2=0, a3=0, a4=0, a5=0))
-    ),
+                 a1=0, a2=0, a3=0, a4=0, a5=0))),
     nonlinear = list(
       mva3 = list(
-        small=c(b0=-5, b1=0.04, b2=0.04, b3=0.0003, b4=0.0001, b5=0.00003,
+        small=c(b0=-5, b1=0.05, b2=0.05, b3=0.0001, b4=0.0001, b5=0.00003,
                 a1=0.01, a2=0.01, a3=0.01, a4=0.01, a5=0.001),
-        medium=c(b0=-5, b1=0.065, b2=0.065, b3=0.0007, b4=0.0004, b5=0.00007,
+        medium=c(b0=-5, b1=0.05, b2=0.05, b3=0.00155, b4=0.00155, b5=0.000065,
                  a1=0.01, a2=0.01, a3=0.01, a4=0.01, a5=0.001),
-        large=c(b0=-5, b1=0.095, b2=0.095, b3=0.0009, b4=0.0006, b5=0.00009,
+        large=c(b0=-5, b1=0.05, b2=0.05, b3=0.003, b4=0.003, b5=0.0001,
                 a1=0.01, a2=0.01, a3=0.01, a4=0.01, a5=0.001)),
       trend = list(
-        small=c(b0=-5, b1=0.05, b2=0.1, b3=0.001, b4=0.00026, b5=0.0001,
-                a1=0.1, a2=0.05, a3=0.2, a4=0.15, a5=0.06),
-        medium=c(b0=-5, b1=0.1, b2=0.12, b3=0.002, b4=0.00463, b5=0.0003,
-                 a1=0.1, a2=0.05, a3=0.2, a4=0.15, a5=0.06),
-        large=c(b0=-5, b1=0.1, b2=0.12, b3=0.002, b4=0.025, b5=0.0003,
-                a1=0.1, a2=0.05, a3=0.2, a4=0.15, a5=0.06)))),
+        small=c(b0=-5, b1=0.05, b2=0.03, b3=0.005, b4=0.001, b5=0.001,
+                a1=0.1, a2=0.05, a3=0.1, a4=0.01, a5=0.01),
+        medium=c(b0=-5, b1=0.05, b2=0.03, b3=0.0078, b4=0.0028, b5=0.003,
+                 a1=0.1, a2=0.05, a3=0.1, a4=0.01, a5=0.01),
+        large=c(b0=-5, b1=0.05, b2=0.03, b3=0.012, b4=0.006, b5=0.004,
+                a1=0.1, a2=0.05, a3=0.1, a4=0.01, a5=0.01)))),
   # DOUBLY ROBUST DIFFERENCE-IN-DIFFERENCE
   # TODO: currently the package does not allow for longitudinal data, only accepts
   #       one pre and post period
   drdid = list(
     linear = list(
       mva3 = list(
-        small=c(b0=-5, b1=0.01, b2=0.05, b3=0, b4=0, b5=0,
-                a1=0.15, a2=0.05, a3=0, a4=0, a5=0),
-        medium=c(b0=-5, b1=0.06, b2=0.05, b3=0, b4=0, b5=0,
-                 a1=0.2, a2=0.05, a3=0, a4=0, a5=0),
-        large=c(b0=-6, b1=0.0925, b2=0.1, b3=0, b4=0, b5=0,
-                a1=0.5, a2=0.1, a3=0, a4=0, a5=0),
+        small=c(b0=-5, b1=0.0027, b2=0.02, b3=0, b4=0, b5=0,
+                a1=0.05, a2=0.01, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.0054, b2=0.02, b3=0, b4=0, b5=0,
+                 a1=0.05, a2=0.01, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.0073, b2=0.02, b3=0, b4=0, b5=0,
+                a1=0.05, a2=0.01, a3=0, a4=0, a5=0),
         none = c(b0=0, b1=0, b2=0, b3=0, b4=0, b5=0,
                  a1=0, a2=0, a3=0, a4=0, a5=0)),
       trend = list(
-        small=c(b0=-5, b1=0.03, b2=0.1, b3=0, b4=0, b5=0,
-                a1=0.05, a2=0.05, a3=0, a4=0, a5=0),
-        medium=c(b0=-5, b1=0.05, b2=0.1, b3=0, b4=0, b5=0,
-                 a1=0.2, a2=0.1, a3=0, a4=0, a5=0),
-        large=c(b0=-5, b1=0.1, b2=0.1, b3=0, b4=0, b5=0,
-                a1=0.5, a2=0.11, a3=0, a4=0, a5=0),
+        small=c(b0=-5, b1=0.0155, b2=0.01, b3=0, b4=0, b5=0,
+                a1=0.2, a2=0.02, a3=0, a4=0, a5=0),
+        medium=c(b0=-5, b1=0.0235, b2=0.01, b3=0, b4=0, b5=0,
+                 a1=0.2, a2=0.02, a3=0, a4=0, a5=0),
+        large=c(b0=-5, b1=0.0325, b2=0.01, b3=0, b4=0, b5=0,
+                a1=0.2, a2=0.02, a3=0, a4=0, a5=0),
         none = c(b0=0, b1=0, b2=0, b3=0, b4=0, b5=0,
-                 a1=0, a2=0, a3=0, a4=0, a5=0))
-    ),
+                 a1=0, a2=0, a3=0, a4=0, a5=0))),
     nonlinear = list(
       mva3 = list(
-        small=c(b0=-5, b1=0.04, b2=0.04, b3=0.0003, b4=0.0001, b5=0.00003,
+        small=c(b0=-5, b1=0.05, b2=0.05, b3=0.0001, b4=0.0001, b5=0.00003,
                 a1=0.01, a2=0.01, a3=0.01, a4=0.01, a5=0.001),
-        medium=c(b0=-5, b1=0.065, b2=0.065, b3=0.0007, b4=0.0004, b5=0.00007,
+        medium=c(b0=-5, b1=0.05, b2=0.05, b3=0.00155, b4=0.00155, b5=0.000065,
                  a1=0.01, a2=0.01, a3=0.01, a4=0.01, a5=0.001),
-        large=c(b0=-5, b1=0.095, b2=0.095, b3=0.0009, b4=0.0006, b5=0.00009,
+        large=c(b0=-5, b1=0.05, b2=0.05, b3=0.003, b4=0.003, b5=0.0001,
                 a1=0.01, a2=0.01, a3=0.01, a4=0.01, a5=0.001)),
       trend = list(
-        small=c(b0=-5, b1=0.05, b2=0.1, b3=0.001, b4=0.00026, b5=0.0001,
-                a1=0.1, a2=0.05, a3=0.2, a4=0.15, a5=0.06),
-        medium=c(b0=-5, b1=0.1, b2=0.12, b3=0.002, b4=0.00463, b5=0.0003,
-                 a1=0.1, a2=0.05, a3=0.2, a4=0.15, a5=0.06),
-        large=c(b0=-5, b1=0.1, b2=0.12, b3=0.002, b4=0.025, b5=0.0003,
-                a1=0.1, a2=0.05, a3=0.2, a4=0.15, a5=0.06)))),
+        small=c(b0=-5, b1=0.05, b2=0.03, b3=0.005, b4=0.001, b5=0.001,
+                a1=0.1, a2=0.05, a3=0.1, a4=0.01, a5=0.01),
+        medium=c(b0=-5, b1=0.05, b2=0.03, b3=0.0078, b4=0.0028, b5=0.003,
+                 a1=0.1, a2=0.05, a3=0.1, a4=0.01, a5=0.01),
+        large=c(b0=-5, b1=0.05, b2=0.03, b3=0.012, b4=0.006, b5=0.004,
+                a1=0.1, a2=0.05, a3=0.1, a4=0.01, a5=0.01)))),
   # NEGATIVE BINOMIAL
   # TODO: currently not implemented for selection bias runs since we need to think
   #       through how to make comparisons to linear models
@@ -205,20 +206,15 @@ linear_models <- list(
     type="reg",
     model_call="lm",
     model_formula=opioid_rxrateper100 ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state_abb),
-    model_args=NULL,#list(weights=as.name("population"))
+    model_args=list(weights=as.name("population")),#NULL,
     se_adjust=c("none", "huber", "cluster", "arellano")
   ),
   list(
     name="autoreg_linear",
     model_call="lm",
     type="autoreg",
-<<<<<<< HEAD:prod-selbias-county-runs.R
     model_formula=opioid_rxrateper100 ~ treatment_change + unemploymentrate + as.factor(year),
-    model_args=NULL,#list(weights=as.name("population")),
-=======
-    model_formula=crude.rate ~ treatment_change + unemploymentrate + as.factor(year),
     model_args=list(weights=as.name("population")),#NULL,
->>>>>>> fa9e5d81ae1b7f7db61532bf065e423c5205f677:prod-selbias-runs.R
     se_adjust=c("none", "huber", "cluster", "arellano")
   )
 )
@@ -229,7 +225,7 @@ linear_fe_config <- configure_simulation(
   x=county_dta,
   models=list(linear_models[[1]]),
   # iterations
-  iters=2500,
+  iters=500,
   
   # specify functions or S3 class of set of functions
   method_sample=selbias_sample,
@@ -249,7 +245,7 @@ linear_fe_config <- configure_simulation(
     policy_speed=list("instant"),
     prior_control=c("mva3", "trend"),
     bias_type=c("linear"), #, "nonlinear"
-    bias_size="none",#c("small", "medium", "large"),
+    bias_size=c("none", "small", "medium", "large"), #"none"
     n_implementation_periods=list(0)
   )
 )
@@ -259,7 +255,7 @@ linear_ar_config <- configure_simulation(
   x=county_dta,
   models=list(linear_models[[2]]),
   # iterations
-  iters=2500,
+  iters=500,
   
   # specify functions or S3 class of set of functions
   method_sample=selbias_sample,
@@ -279,8 +275,7 @@ linear_ar_config <- configure_simulation(
     policy_speed=list("instant"),
     prior_control=c("mva3", "trend"),
     bias_type=c("linear"), #, "nonlinear"
-<<<<<<< HEAD:prod-selbias-county-runs.R
-    bias_size="none",#c("small", "medium", "large"), # c("small", "medium", "large"), #as.character(1:nrow(possible_grid))
+    bias_size=c("none","small", "medium", "large"),#"none"
     n_implementation_periods=list(0)
   )
 )
@@ -288,52 +283,49 @@ linear_ar_config <- configure_simulation(
 #########################################
 ### DOUBLY ROBUST DIFF-in-DIFF MODELS ###
 #########################################
-drdid_models <- list(
-  list(
-    name="drdid",
-    type="drdid",
-    model_call="drdid",
-    model_formula= ~ unemploymentrate,
-    model_args=list(yname=as.name("crude.rate"), tname=as.name("year"), idname=as.name("state"), 
-                    dname="treatment_level", xformla = "~ unemploymentrate", panel=TRUE,
-                    weightsname=NULL),
-    se_adjust=c("none", "huber", "cluster", "arellano")
-  )
-)
-
-# for the linear config, need separate ones for now
-drdid_config <- configure_simulation(
-  # data and models required
-  x=county_dta,
-  models=list(drdid_models[[1]]),
-  # iterations
-  iters=2500,
-  
-  # specify functions or S3 class of set of functions
-  method_sample=selbias_sample,
-  method_pre_model=selbias_premodel,
-  method_model=selbias_model,
-  method_post_model=selbias_postmodel,
-  method_results=selbias_results,
-  
-  globals=list(
-    bias_vals=bias_vals[["drdid"]]
-  ),
-  
-  # parameters that will be expanded and added
-  params=list(
-    unit_var="state",
-    time_var="year",
-    policy_speed=list("instant"),
-    prior_control=c("mva3"),#, "trend"
-    bias_type=c("linear"), #, "linear"
-    bias_size=c("none"),#"small", "medium", "large"
-=======
-    bias_size= c("small", "medium", "large"), # c("small", "medium", "large"), #as.character(1:nrow(possible_grid))
->>>>>>> fa9e5d81ae1b7f7db61532bf065e423c5205f677:prod-selbias-runs.R
-    n_implementation_periods=list(0)
-  )
-)
+# drdid_models <- list(
+#   list(
+#     name="drdid",
+#     type="drdid",
+#     model_call="drdid",
+#     model_formula= ~ unemploymentrate,
+#     model_args=list(yname=as.name("crude.rate"), tname=as.name("year"), idname=as.name("state"), 
+#                     dname="treatment_level", xformla = "~ unemploymentrate", panel=TRUE,
+#                     weightsname=NULL),
+#     se_adjust=c("none", "huber", "cluster", "arellano")
+#   )
+# )
+# 
+# # for the linear config, need separate ones for now
+# drdid_config <- configure_simulation(
+#   # data and models required
+#   x=county_dta,
+#   models=list(drdid_models[[1]]),
+#   # iterations
+#   iters=2500,
+#   
+#   # specify functions or S3 class of set of functions
+#   method_sample=selbias_sample,
+#   method_pre_model=selbias_premodel,
+#   method_model=selbias_model,
+#   method_post_model=selbias_postmodel,
+#   method_results=selbias_results,
+#   
+#   globals=list(
+#     bias_vals=bias_vals[["drdid"]]
+#   ),
+#   
+#   # parameters that will be expanded and added
+#   params=list(
+#     unit_var="state",
+#     time_var="year",
+#     policy_speed=list("instant"),
+#     prior_control=c("mva3"),#, "trend"
+#     bias_type=c("linear"), #, "linear"
+#     bias_size=c("none"),#"small", "medium", "large"
+#     n_implementation_periods=list(0)
+#   )
+# )
 
 #########################
 ### MULTISYNTH MODELS ###
@@ -352,7 +344,7 @@ multisynth_models <- list(
 msynth_config <- configure_simulation(
   x=county_dta,
   models=multisynth_models,
-  iters=2500,
+  iters=500,
   method_sample=selbias_sample,
   method_pre_model=selbias_premodel,
   method_model=selbias_model,
@@ -369,7 +361,7 @@ msynth_config <- configure_simulation(
     policy_speed=list("instant"),
     prior_control=c("mva3", "trend"),
     bias_type=c("linear"),#"nonlinear"
-    bias_size="none",#c("small", "medium", "large"), #, "none"
+    bias_size=c("small", "medium", "large"), # "none"
     n_implementation_periods=list(0)
   )
 )
@@ -383,7 +375,7 @@ plan("cluster", workers = cl)
 
 #### Tuning (optional) ####
 # proc.time1 = proc.time()
-# linear_fe_r <- dispatch_tuning(linear_fe_config, 
+# linear_fe_r <- dispatch_tuning(linear_fe_config,
 #                                use_future=T,
 #                                seed=89721,
 #                                verbose=2,
@@ -393,19 +385,20 @@ plan("cluster", workers = cl)
 # print(proc.time2-proc.time1)
 # # clean up and write out results
 # linear_fe_results <- do.call(rbind, linear_fe_r)
-# 
 # rownames(linear_fe_results) <- NULL
-# write.csv(linear_fe_results, "/vincent/b/josephp/OPTIC/output/sel-bias-nonlinear-fe-unweighted-Round10.csv", row.names = FALSE)
+# write.csv(linear_fe_results, "/poppy/programs/josephp/output/sel-bias-linear-fe-cnty-wght-Round10.csv", row.names = FALSE)
 # 
-# my_results = read.csv("/vincent/b/josephp/OPTIC/output/sel-bias-nonlinear-fe-unweighted.csv") %>%
+# my_results = read.csv("/poppy/programs/josephp/output/sel-bias-linear-fe-cnty-wght-Round10.csv") %>%
 #   group_by(prior_control, bias_size) %>%
 #   summarize(n=n(),
-#             mean = mean(mean_es_outcome))
-
+#             mean = mean(mean_es_outcome),
+#             sd = sd(mean_es_outcome))
+# my_results
 #### End of Tuning ####
 
 #### 2-Way Fixed Effect Runs ####
 # dispatch with the same seed (want the same sampled data each run)
+proc.time1 = proc.time()
 linear_fe_r <- dispatch_simulations(linear_fe_config,
                                     use_future=T,
                                     seed=89721,
@@ -415,7 +408,9 @@ linear_fe_r <- dispatch_simulations(linear_fe_config,
 # clean up and write out results
 linear_fe_results <- do.call(rbind, linear_fe_r)
 rownames(linear_fe_results) <- NULL
-write.csv(linear_fe_results, "/poppy/programs/josephp/output/sel-bias-linear-fe-unweighted-lin-county.csv", row.names = FALSE)
+write.csv(linear_fe_results, "/poppy/programs/josephp/output/sel-bias-linear-fe-weighted-lin-county.csv", row.names = FALSE)
+proc.time2 = proc.time()
+print(proc.time2-proc.time1)
 
 #### Autoregressive Runs ####
 proc.time1 = proc.time()
@@ -428,15 +423,12 @@ linear_ar_r <- dispatch_simulations(linear_ar_config,
 # clean up and write out results
 linear_ar_results <- do.call(rbind, linear_ar_r)
 rownames(linear_ar_results) <- NULL
-<<<<<<< HEAD:prod-selbias-county-runs.R
-write.csv(linear_ar_results, "/poppy/programs/josephp/output/sel-bias-linear-ar-unweighted-lin-county.csv", row.names = FALSE)
-=======
-write.csv(linear_ar_results, "/poppy/programs/josephp/output/sel-bias-linear-ar-weighted-lin-03-12-21.csv", row.names = FALSE)
->>>>>>> fa9e5d81ae1b7f7db61532bf065e423c5205f677:prod-selbias-runs.R
+write.csv(linear_ar_results, "/poppy/programs/josephp/output/sel-bias-linear-ar-weighted-lin-county.csv", row.names = FALSE)
 proc.time2 = proc.time()
 print(proc.time2-proc.time1)
 
 #### multisynth Runs ####
+proc.time1 = proc.time()
 multisynth_r <- dispatch_simulations(msynth_config,
                                      use_future=T,
                                      seed=89721,
@@ -447,6 +439,8 @@ multisynth_r <- dispatch_simulations(msynth_config,
 multisynth_results <- do.call(rbind, multisynth_r)
 rownames(multisynth_results) <- NULL
 write.csv(multisynth_results, "/poppy/programs/josephp/output/sel-bias-multisynth-lin-county.csv", row.names = FALSE)
+proc.time2 = proc.time()
+print(proc.time2-proc.time1)
 
 #### End-of-file ####
 # TEST = drdid(yname="crude.rate", tname="year", idname="state", dname="treatment",
