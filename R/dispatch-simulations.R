@@ -71,9 +71,9 @@ dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, failur
               failed_attempts <- failed_attempts + 1
             }
           }
-          if (class(r) == "data.frame") {
+          if (any(class(r) == "data.frame")) {
             r$iter <- j
-          } else if (class(r) == "list") {
+          } else if (any(class(r) == "list")) {
             r <- lapply(r, function(x){ x$iter <- j})
           }
           

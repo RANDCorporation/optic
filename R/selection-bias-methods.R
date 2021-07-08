@@ -26,6 +26,8 @@ selbias_sample <- function(single_simulation) {
   
   unit_var <- single_simulation$unit_var
   time_var <- single_simulation$time_var
+  effect_magnitude <- single_simulation$effect_magnitude
+  effect_direction <- single_simulation$effect_direction
   policy_speed <- single_simulation$policy_speed
   number_implementation_years <- as.numeric(single_simulation$n_implementation_periods)
   bias_vals <- single_simulation$globals[["bias_vals"]][[single_simulation$bias_type]][[single_simulation$prior_control]][[single_simulation$bias_size]]
@@ -101,12 +103,23 @@ selbias_sample <- function(single_simulation) {
       mutate(trt_ind = sample(c(0, 1), 1, prob = c(One_minus_trt_pr, trt_pr))) %>%
       dplyr::select(-c(logits, One_minus_trt_pr, trt_pr))
     
+    ##############################
+    ### APPLY TREATMENT EFFECT ###
+    ##############################
+    x <- apply_treatment_effect(
+      x=x_treat,
+      model_formula=single_simulation$models$fixedeff_linear$model_formula,
+      model_call=single_simulation$models$fixedeff_linear$model_call,
+      te=effect_magnitude,
+      effect_direction=effect_direction,
+      concurrent=FALSE
+    )
+    
     # Update Outcomes (augment outcomes)
     x_new = x %>%
       filter(!!as.name(time_var) == time) %>%
       mutate(!!outcomes := 
                !!as.name(outcomes) +
-               # trt_ind #JDP: In Future Explore with magnitude of treatment effect
                (a1 * prior_control) +
                (a2 * unemploymentrate) +
                (a3 * (prior_control * unemploymentrate)) +

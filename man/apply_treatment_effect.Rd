@@ -18,7 +18,7 @@ apply_treatment_effect(
 
 \item{model_formula}{formula for sim run used to identify outcome}
 
-\item{te}{true effect as proportion of change (e.g., 0.05 = 5%)}
+\item{te}{true effect as proportion of change (e.g., 0.05 = 5\%)}
 
 \item{effect_direction}{"null", "pos", or "neg"}
 

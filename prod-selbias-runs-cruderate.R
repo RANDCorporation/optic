@@ -33,6 +33,14 @@ x <- x %>%
 source("R/selection-bias-methods.R")
 source("R/cluster-adjust-se.r")
 
+linear0 <- 0 / ((sum(x$population) / length(unique(x$year))) / 100000)
+linear5 <- 690 / ((sum(x$population) / length(unique(x$year))) / 100000)
+linear10 <- 1380 / ((sum(x$population) / length(unique(x$year))) / 100000)
+linear15 <- 2070 / ((sum(x$population) / length(unique(x$year))) / 100000)
+linear20 <- 2760 / ((sum(x$population) / length(unique(x$year))) / 100000)
+
+scenario1 <- c(linear10) #10/10
+
 bias_vals <- list(
   # MULTISYNTH METHOD
   multisynth = list(
@@ -230,9 +238,11 @@ linear_fe_config <- configure_simulation(
     unit_var="state",
     time_var="year",
     policy_speed=list("instant"),
+    effect_magnitude=list(scenario1),
+    effect_direction=c("neg"), # "null"
     prior_control=c("mva3", "trend"),
-    bias_type=c("nonlinear"),#"nonlinear"
-    bias_size=c("small", "medium", "large"),#"none", 
+    bias_type=c("nonlinear"), # "nonlinear"
+    bias_size=c("small", "medium", "large"), # "none", 
     n_implementation_periods=list(0)
   )
 )

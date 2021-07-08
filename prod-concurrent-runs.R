@@ -5,6 +5,7 @@ library(future)
 library(future.apply)
 library(MASS)
 
+# setwd("/poppy/programs/josephp/optic-core")
 load("data/optic_sim_data_exp.Rdata")
 names(x) <- tolower(names(x))
 
@@ -82,11 +83,7 @@ lm_config <- configure_simulation(
   params=list(
     unit_var="state",
     time_var="year",
-<<<<<<< HEAD
     effect_magnitude=list(scenario5, scenario6),#scenario1, scenario2
-=======
-    effect_magnitude=list(scenario3, scenario4),#scenario1, scenario2
->>>>>>> fa9e5d81ae1b7f7db61532bf065e423c5205f677
     n_units=c(5, 30),# c(5, 30)
     effect_direction=c("neg"),#"null"
     policy_speed=c("instant", "slow"),
