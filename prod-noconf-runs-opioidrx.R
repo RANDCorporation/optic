@@ -172,20 +172,20 @@ cl <- parallel::makeCluster(parallel::detectCores()/4*3)
 plan("cluster", workers = cl)
 
 #### 2-Way Fixed Effect Runs ####
-# dispatch with the same seed (want the same sampled data each run)
-# proc.time1 = proc.time()
-# linear_fe_r <- dispatch_simulations(linear_fe_config,
-#                                     use_future=TRUE,
-#                                     seed=89721,
-#                                     verbose=2,
-#                                     future.globals=c("cluster_adjust_se"),
-#                                     future.packages=c("MASS", "dplyr", "optic", "augsynth", "DRDID"))
-# proc.time2 = proc.time()
-# print(proc.time2-proc.time1)
-# # clean up and write out results
-# linear_fe_results <- do.call(rbind, linear_fe_r)
-# rownames(linear_fe_results) <- NULL
-# write.csv(linear_fe_results, "/poppy/programs/josephp/output/noconf-opioidrx-linear-fe-weighted-05-25-21.csv", row.names = FALSE)
+dispatch with the same seed (want the same sampled data each run)
+proc.time1 = proc.time()
+linear_fe_r <- dispatch_simulations(linear_fe_config,
+                                    use_future=TRUE,
+                                    seed=89721,
+                                    verbose=2,
+                                    future.globals=c("cluster_adjust_se"),
+                                    future.packages=c("MASS", "dplyr", "optic", "augsynth", "DRDID"))
+proc.time2 = proc.time()
+print(proc.time2-proc.time1)
+# clean up and write out results
+linear_fe_results <- do.call(rbind, linear_fe_r)
+rownames(linear_fe_results) <- NULL
+write.csv(linear_fe_results, "/poppy/programs/josephp/output/noconf-opioidrx-linear-fe-weighted-05-25-21.csv", row.names = FALSE)
 
 #### Autoregressive Runs ####
 proc.time1 = proc.time()

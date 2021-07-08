@@ -21,9 +21,9 @@ Example below dependent on access to `optic_sim_data_exp.Rdata` data object.
 
 #### Configure Concurrent Simulation
 
-The first step is to congifure the simulation or set of simulations you wish to run. There four main components to the configuration object:
+The first step is to configure the simulation or set of simulations you wish to run. There four main components to the configuration object:
 
-1.  **Basic Parameters**: this includes straighforward arguments like the data, number of iterations, and verbosity
+1.  **Basic Parameters**: this includes straightforward arguments like the data, number of iterations, and verbosity
 1.  **Models**: models are provided to the configuration method in a nested list where each model you want to test/use is a list element with the necessary named values based on the simulation being run (e.g., concurrent or selection bias)
 1.  **Methods**: the configuration object requires at least three methods - `method_sample`, `method_model`, and `method_results`. These "slots", if you will, are intended for the user to provide their sampling, treatment identification, and common data transformation code; modeling code; and code to extract results, fit information, summary statistics, etc. respectively. There are also two optional slots - `method_premodel` and `method_postmodel` that if provided will be applied to the simulation run immediately before and immediately after the `method_model`. See the section on "How an Iteration is Run" below.
 1.  **Iterable and Global Parameters**: The `params` argument is where you provide the named values that will be expanded into a full set of all unique combination of all named elements in the provided list. The `globals` argument should also be a list of named elements that are statically stored for access by any of the methods and will not be expanded with the `params` values.
@@ -45,7 +45,7 @@ scenario2 <- c(linear5, linear15)
 ```
 
 Let's first setup our models object. Note: the methods applied are already defined in `R/concurrent-methods.R`. For each element in the list, we will define the same named attributes:
--  name: a name for the model to idetify it in output
+-  name: a name for the model to identify it in output
 -  type: this is used in some of our methods to transform the data correctly for the type of model being run
 -  model_call: the R function name
 -  model_formula: the formula to run with the specified model_call
@@ -73,7 +73,7 @@ my_models <- list(
 )
 ```
 
-Now we will setup the configuration object that will be used to dispatch each of the simulations. In this case we will tell the configuration function our data, the models we specified above, and the numnber of iterations we want for each simulation. In a production or real simulation we probably want 5,000 iterations, but we are using 10 here for illustrative purposes. We pass each of the models defined in `R/concurrent-methods.R` to their respective arguments, then define the `params` that will be expanded and we will compare with this simulation. This simulation does not have any globals.
+Now we will setup the configuration object that will be used to dispatch each of the simulations. In this case we will tell the configuration function our data, the models we specified above, and the number of iterations we want for each simulation. In a production or real simulation we probably want 5,000 iterations, but we are using 10 here for illustrative purposes. We pass each of the models defined in `R/concurrent-methods.R` to their respective arguments, then define the `params` that will be expanded and we will compare with this simulation. This simulation does not have any global variables.
 
 ```R
 sim_config <- configure_simulation(
@@ -185,13 +185,150 @@ A `single_simulation` object (list) is created and provided to the `run_iteratio
     1.  If no post model method is provided, the return object from the `method_model` function is assigned to the list directly
 1.  The list of independent model results is provided as the argument to `method_results` and the return object from this final function is returned by the `run_iteration` function.
 
+## No Confounding Simulations
+
+The following is example code to run the Two-Way Fixed Effects model for the no confounding simulations. The first snippet of code displays variable cleanup to prepare for running the simulations for the opioid prescribing outcome.
+
+```R
+x <- x %>%
+  select(state, year, fipscode, population, unemploymentrate, povertyrate,
+         income, statefipyear, opioid_rx, md_access, insured, uninsur,medicare,
+         medicaid, syn_opioid_death, other_opioid_death, her_death, yrslifelost,
+         medicaid_ratio, all_opioid_death, overdose, alldeaths, cr.opioid.death,
+         opioid_rx.lag1, cr.opioid.death.lag1, crude.rate, cr.adj, deaths,
+         cr.adj.lag1) %>%
+  mutate(opioid_rx.old = opioid_rx) %>% # new line of code
+  arrange(state, year) %>%
+  group_by(state) %>%
+  mutate(lag1 = lag(opioid_rx, n=1L),
+         lag2 = lag(opioid_rx, n=2L),
+         lag3 = lag(opioid_rx, n=3L)) %>%
+  ungroup() %>%
+  rowwise() %>%
+  # code in moving average and trend versions of prior control
+  mutate(prior_control_mva3_OLD = mean(c(lag1, lag2, lag3)),
+         prior_control_trend_OLD = lag1 - lag3) %>%
+  ungroup() %>%
+  select(-lag1, -lag2, -lag3) %>%
+  mutate(state = factor(as.character(state)))
+  
+linear0 <- 0
+linear5 <- .05*mean(x$opioid_rx, na.rm=T)
+linear15 <- .15*mean(x$opioid_rx, na.rm=T)
+linear25 <- .25*mean(x$opioid_rx, na.rm=T)
+```
+
+The next step is to specify the 2-way fixed effects model, the model call associated with your model, model formula, and other model arguments.
+
+```R
+linear_models <- list(
+  list(
+    name="fixedeff_linear",
+    type="reg",
+    model_call="lm",
+    model_formula=opioid_rx ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state),
+    model_args=list(weights=as.name("population")),
+    se_adjust=c("none", "cluster")
+  )
+)
+```
+
+We now setup our configuration object for the simulation. This configuration object requires the data, model list, and the number of iterations. The list of parameters are unique to the no confounding simulation. The `unit_var` represents the unit of analysis and the `treat_var` represents the treatment unit. In these simulations, we have state-level data and the treatment assignment is generated at the treatment-level. In addition, we have specified the `time_var` to be the variable in `x` that indicates the time object. In this case it is year. The effect magnitudes were specified in the previous code snippet and the number of units `n_units` needs to be the number of treated units generated. The remaining parameters include the effect direction, policy speed, the number of implementation periods, and the prior control (moving average and trend).
+
+```R
+linear_fe_config <- configure_simulation(
+  # data and models required
+  x=x,
+  models=list(linear_models[[1]]),
+  # iterations
+  iters=5000,
+  
+  # specify functions or S3 class of set of functions
+  method_sample=noconf_sample,
+  method_pre_model=noconf_premodel,
+  method_model=noconf_model,
+  method_post_model=noconf_postmodel,
+  method_results=noconf_results,
+  
+  globals=NULL,#list(), # no globals as of now.
+  
+  # parameters that will be expanded and added
+  params=list(
+    unit_var="state",
+    treat_var="state",
+    time_var="year",
+    effect_magnitude=list(linear0, linear5, linear15, linear25),
+    n_units=c(1, 5, 15, 30), #2%, 10%, 30%, 60%
+    effect_direction=c("neg"),
+    policy_speed=list("instant"),
+    n_implementation_periods=list(0), 
+    prior_control=c("mva3", "trend")
+  )
+)
+```
+
+Next, we will double check to make sure the simulations were setup correctly:
+
+```R
+class(linear_fe_config)
+[1] "SimConfig" "R6"       
+
+> names(linear_fe_config)
+ [1] ".__enclos_env__"         "method_results"          "method_post_model"      
+ [4] "method_model"            "method_pre_model"        "method_sample"          
+ [7] "simulation_params"       "globals"                 "params"                 
+[10] "iters"                   "models"                  "data"                   
+[13] "clone"                   "print"                   "setup_single_simulation"
+[16] "initialize"          
+
+> head(linear_fe_config$simulation_params)
+  unit_var treat_var time_var effect_magnitude n_units effect_direction policy_speed
+1    state     state     year         0.000000       1              neg      instant
+2    state     state     year         4.091773       1              neg      instant
+3    state     state     year        12.275318       1              neg      instant
+4    state     state     year        20.458864       1              neg      instant
+5    state     state     year         0.000000       5              neg      instant
+6    state     state     year         4.091773       5              neg      instant
+  n_implementation_periods prior_control
+1                        0          mva3
+2                        0          mva3
+3                        0          mva3
+4                        0          mva3
+5                        0          mva3
+6                        0          mva3
+
+# Look at the setup for a single simulation:
+example_single_sim_selbias <- linear_fe_config$setup_single_simulation(1)
+
+> names(example_single_sim_selbias)
+ [1] "unit_var"                 "treat_var"                "time_var"                
+ [4] "effect_magnitude"         "n_units"                  "effect_direction"        
+ [7] "policy_speed"             "n_implementation_periods" "prior_control"           
+[10] "data"                     "models"                   "iters"                   
+[13] "method_sample"            "method_pre_model"         "method_model"            
+[16] "method_post_model"        "method_results" 
+```
+
+Everything looks correct so we now can dispatch our simulations, using the future package. with the following line of code:
+
+```R
+dispatch with the same seed (want the same sampled data each run)
+linear_fe_r <- dispatch_simulations(linear_fe_config,
+                                    use_future=TRUE,
+                                    seed=89721,
+                                    verbose=2,
+                                    future.globals=c("cluster_adjust_se"),
+                                    future.packages=c("MASS", "dplyr", "optic", "augsynth", "DRDID"))
+
+# clean up and write out results
+linear_fe_results <- do.call(rbind, linear_fe_r)
+rownames(linear_fe_results) <- NULL
+write.csv(linear_fe_results, "name-of-file.csv", row.names = FALSE)
+```
+
 ## Running Selection Bias Simulation 
 
-<<<<<<< HEAD
 The following is example code to run the Augmented SCM. The first snippet of code is data cleaning in preparation for the various methods used in this package.
-=======
-The following is example code to run the Augmented SCM:
->>>>>>> fa9e5d81ae1b7f7db61532bf065e423c5205f677
 
 ```R
 #### Set names of variables and create lags: ####
@@ -219,9 +356,6 @@ x <- x %>%
   select(-lag1, -lag2, -lag3)
 ```
 
-<<<<<<< HEAD
-Next we set the selection bias values to be used for our call to multisynth:
-=======
 Next we load in the selection bias methods:
 
 ```R
@@ -230,8 +364,7 @@ source("R/selection-bias-methods.R")
 source("R/cluster-adjust-se.r")
 ```
 
-Next we set the selection bias values:
->>>>>>> fa9e5d81ae1b7f7db61532bf065e423c5205f677
+Next we set the selection bias values to be used for our call to multisynth:
 
 ```R
 bias_vals <- list(
