@@ -218,7 +218,7 @@ noconf_premodel <- function(model_simulation) {
     }
     
     # get lag of crude rate and add it to the model
-    unit_sym <- dplyr::sym(model_simulation$treat_var)
+    unit_sym <- dplyr::sym(model_simulation$unit_var)
     time_sym <- dplyr::sym(model_simulation$time_var)
     
     x <- x %>%
@@ -230,7 +230,11 @@ noconf_premodel <- function(model_simulation) {
     if(model$model_call == "feols"){
       formula_components <- as.character(model_simulation$models$model_formula)
       updated_3 <- strsplit(formula_components[3], " | ", fixed=TRUE)
-      new_fmla <- as.formula(paste(formula_components[2], formula_components[1], updated_3[[1]][1], "+ lag_outcome |", updated_3[[1]][2]))
+      if(length(updated_3[[1]]==1)){
+        new_fmla <- as.formula(paste(formula_components[2], formula_components[1], updated_3[[1]][1], "+ lag_outcome"))
+      }else{
+        new_fmla <- as.formula(paste(formula_components[2], formula_components[1], updated_3[[1]][1], "+ lag_outcome |", updated_3[[1]][2]))
+      }
       model_simulation$models$model_formula <- new_fmla
     }else{
       model_simulation$models$model_formula <- update.formula(model_simulation$models$model_formula, ~ . + lag_outcome)
@@ -410,7 +414,7 @@ noconf_postmodel <- function(model_simulation) {
     if("cluster-unit" %in% model$se_adjust){
       fml = model[["model_formula"]]
       my_weights <- model[["model_args"]]$weights
-      m_new <- feols(fml = fml, data = x, weights = my_weights, nthreads=4, notes=FALSE)
+      m_new <- feols(fml = fml, data = x, weights = my_weights, cluster = model_simulation$unit_var, nthreads=4, notes=FALSE)
       cf <- as.data.frame(summary(m_new)$coeftable)
       cf$variable <- row.names(cf)
       rownames(cf) <- NULL
@@ -419,7 +423,7 @@ noconf_postmodel <- function(model_simulation) {
       estimate <- cf[["Estimate"]]
       cluster_unit_results <- data.frame(
         outcome=outcome,
-        se_adjustment="none",
+        se_adjustment="cluster-unit",
         estimate=estimate,
         se=cf[["Std. Error"]],
         variance=cf[["Std. Error"]] ^ 2,
@@ -434,7 +438,7 @@ noconf_postmodel <- function(model_simulation) {
     if("cluster-treat" %in% model$se_adjust){
       fml = model[["model_formula"]]
       my_weights <- model[["model_args"]]$weights
-      m_new <- feols(fml = fml, data = x, weights = my_weights, cluster = "state_fips", nthreads=4, notes=FALSE)
+      m_new <- feols(fml = fml, data = x, weights = my_weights, cluster = model_simulation$treat_var, nthreads=4, notes=FALSE)
       cf <- as.data.frame(summary(m_new)$coeftable)
       cf$variable <- row.names(cf)
       rownames(cf) <- NULL
@@ -443,7 +447,7 @@ noconf_postmodel <- function(model_simulation) {
       estimate <- cf[["Estimate"]]
       cluster_treat_results <- data.frame(
         outcome=outcome,
-        se_adjustment="none",
+        se_adjustment="cluster-treat",
         estimate=estimate,
         se=cf[["Std. Error"]],
         variance=cf[["Std. Error"]] ^ 2,
