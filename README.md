@@ -1,5 +1,11 @@
 # OPTIC Core
 
+This project contains the simulation code for OPTIC. This README's purpose is to tell a user how to install the package and get up and running with the different simulation scenarios:
+
+1. Concurrent Simulations
+2. No Confounding Simulations
+3. Selection Bias Simulations
+
 ## Installing Package
 
 #### Clone
@@ -15,18 +21,20 @@ devtools::build()
 devtools::install()
 ```
 
-## Running Concurrent Simulation
+## 1. Running Concurrent Simulation
 
-Example below dependent on access to `optic_sim_data_exp.Rdata` data object.
+Example below is dependent on access to `optic_sim_data_exp.Rdata` data object.
 
-#### Configure Concurrent Simulation
+The following can be used to setup any three of the simulations (Concurrent, No Confounding, or Selection bias), but throughout this section we will use the concurrent simulations as an exampe. 
+
+#### Configure Simulations
 
 The first step is to configure the simulation or set of simulations you wish to run. There four main components to the configuration object:
 
 1.  **Basic Parameters**: this includes straightforward arguments like the data, number of iterations, and verbosity
-1.  **Models**: models are provided to the configuration method in a nested list where each model you want to test/use is a list element with the necessary named values based on the simulation being run (e.g., concurrent or selection bias)
-1.  **Methods**: the configuration object requires at least three methods - `method_sample`, `method_model`, and `method_results`. These "slots", if you will, are intended for the user to provide their sampling, treatment identification, and common data transformation code; modeling code; and code to extract results, fit information, summary statistics, etc. respectively. There are also two optional slots - `method_premodel` and `method_postmodel` that if provided will be applied to the simulation run immediately before and immediately after the `method_model`. See the section on "How an Iteration is Run" below.
-1.  **Iterable and Global Parameters**: The `params` argument is where you provide the named values that will be expanded into a full set of all unique combination of all named elements in the provided list. The `globals` argument should also be a list of named elements that are statically stored for access by any of the methods and will not be expanded with the `params` values.
+2.  **Models**: models are provided to the configuration method in a nested list where each model you want to test/use is a list element with the necessary named values based on the simulation being run (e.g., concurrent or selection bias)
+3.  **Methods**: the configuration object requires at least three methods - `method_sample`, `method_model`, and `method_results`. These "slots", if you will, are intended for the user to provide their sampling, treatment identification, and common data transformation code; modeling code; and code to extract results, fit information, summary statistics, etc. respectively. There are also two optional slots - `method_premodel` and `method_postmodel` that if provided will be applied to the simulation run immediately before and immediately after the `method_model`. See the section on "How an Iteration is Run" below.
+4.  **Iterable and Global Parameters**: The `params` argument is where you provide the named values that will be expanded into a full set of all unique combination of all named elements in the provided list. The `globals` argument should also be a list of named elements that are statically stored for access by any of the methods and will not be expanded with the `params` values.
 
 Here we will walk through an example of setting up the configuration object,  exploring the configuration object prior to running the job, and looking at how a single simulation is defined. For our example, we will look at evaluating a linear 2-way fixed effects model
 compared to a linear autoregressive model under a context of co-occurring policies. Let's assume we have some data and some setup:
@@ -178,16 +186,20 @@ When constructing methods, it is important to understand how they are going to b
 A `single_simulation` object (list) is created and provided to the `run_iteration` function. The `run_iteration` function goes through the methods provided by the user in the following order:
 
 1.  The `method_sample` function is applied to the list and the returned object overwrites `single_simulation`. This is the sampling and common data transformation step. Everything after this step will be looped anf performed once per model element provided in the models argument - in our example above there are two models elements.
-1.  Then, the `run_iteration` method enters a loop - looping over each of the models provided, creates a new `model_simulation` object that is a copy of the `single_simulation` object. This isolates each model to start from the same intitial sampling and data transformation so any further data altering or changes to the object by other methods are not retained/impacting subsequent models' runs. The rest of the methods are then run in order:
+2.  Then, the `run_iteration` method enters a loop - looping over each of the models provided, creates a new `model_simulation` object that is a copy of the `single_simulation` object. This isolates each model to start from the same intitial sampling and data transformation so any further data altering or changes to the object by other methods are not retained/impacting subsequent models' runs. The rest of the methods are then run in order:
     1.  If provided, runs `method_pre_model` passing `model_simulation` as the sole argument, the return object is stored in `model_simulation`
-    1.  Runs the `method_model` function passing `model_simulation` as the sole argument and overwriting the object with the returned object
-    1.  If provided, runs the `method_post_model`, the return object is assigned to a list whose named element is the model name
-    1.  If no post model method is provided, the return object from the `method_model` function is assigned to the list directly
-1.  The list of independent model results is provided as the argument to `method_results` and the return object from this final function is returned by the `run_iteration` function.
+    2.  Runs the `method_model` function passing `model_simulation` as the sole argument and overwriting the object with the returned object
+    3.  If provided, runs the `method_post_model`, the return object is assigned to a list whose named element is the model name
+    4.  If no post model method is provided, the return object from the `method_model` function is assigned to the list directly
+3.  The list of independent model results is provided as the argument to `method_results` and the return object from this final function is returned by the `run_iteration` function.
 
-## No Confounding Simulations
+## 2. No Confounding Simulations
 
-The following is example code to run the Two-Way Fixed Effects model for the no confounding simulations. The first snippet of code displays variable cleanup to prepare for running the simulations for the opioid prescribing outcome.
+You can use the same setup as shown above to apply to the No Confounding Simualations. Throughout this example we will demonstrate how to run the sims.
+
+Example below is dependent on access to `optic_sim_data_exp.Rdata` data object.
+
+The following is example code to run the Two-Way Fixed Effects model for the no confounding simulations. The first snippet of code displays variable cleanup to prepare for running the simulations for the opioid prescribing outcome. A user will have their own startup code to get up and running with the simulation package.
 
 ```R
 x <- x %>%
@@ -218,7 +230,7 @@ linear15 <- .15*mean(x$opioid_rx, na.rm=T)
 linear25 <- .25*mean(x$opioid_rx, na.rm=T)
 ```
 
-The next step is to specify the 2-way fixed effects model, the model call associated with your model, model formula, and other model arguments.
+The linear0, linear5, linear15, and linear25 represent the effect magnitudes for each simulation. The next step is to specify the 2-way fixed effects model, the model call associated with your model, model formula, and other model arguments.
 
 ```R
 linear_models <- list(
@@ -227,10 +239,10 @@ linear_models <- list(
     type="reg",
     model_call="lm",
     model_formula=opioid_rx ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state),
-    model_args=list(weights=as.name("population")),
+    model_args=list(weights=as.name("population")),# NULL
     se_adjust=c("none", "cluster")
   )
-)
+  )
 ```
 
 We now setup our configuration object for the simulation. This configuration object requires the data, model list, and the number of iterations. The list of parameters are unique to the no confounding simulation. The `unit_var` represents the unit of analysis and the `treat_var` represents the treatment unit. In these simulations, we have state-level data and the treatment assignment is generated at the treatment-level. In addition, we have specified the `time_var` to be the variable in `x` that indicates the time object. In this case it is year. The effect magnitudes were specified in the previous code snippet and the number of units `n_units` needs to be the number of treated units generated. The remaining parameters include the effect direction, policy speed, the number of implementation periods, and the prior control (moving average and trend).
@@ -267,6 +279,18 @@ linear_fe_config <- configure_simulation(
 )
 ```
 
+The above will produce the following automatically:
+
+```R
+Number of Simulations: 32
+Number of Models: 1
+Iteration per Simulation : 5000
+Total number of Iterations to Run: 160000
+hey, that's a lot of iterations! we recommend using the parallel options when dispatching this job.
+```
+
+You can see that the outcome prints to screen the number of simulations your specification plans to run, the number of models (i.e. 2-way FE is considered one model but if you were to also run the autoregressive model the number would be 2 reported here), the number of iterations per simulation, and the total number of iterations to run. The package will print a message telling you to utilize the parallel options if you have a lot of iterations to run.
+
 Next, we will double check to make sure the simulations were setup correctly:
 
 ```R
@@ -298,15 +322,15 @@ class(linear_fe_config)
 6                        0          mva3
 
 # Look at the setup for a single simulation:
-example_single_sim_selbias <- linear_fe_config$setup_single_simulation(1)
+example_single_sim_NoConf <- linear_fe_config$setup_single_simulation(1)
 
-> names(example_single_sim_selbias)
+> names(example_single_sim_NoConf)
  [1] "unit_var"                 "treat_var"                "time_var"                
  [4] "effect_magnitude"         "n_units"                  "effect_direction"        
  [7] "policy_speed"             "n_implementation_periods" "prior_control"           
 [10] "data"                     "models"                   "iters"                   
 [13] "method_sample"            "method_pre_model"         "method_model"            
-[16] "method_post_model"        "method_results" 
+[16] "method_post_model"        "method_results"   
 ```
 
 Everything looks correct so we now can dispatch our simulations, using the future package. with the following line of code:
@@ -326,9 +350,9 @@ rownames(linear_fe_results) <- NULL
 write.csv(linear_fe_results, "name-of-file.csv", row.names = FALSE)
 ```
 
-## Running Selection Bias Simulation 
+## 3. Running Selection Bias Simulation 
 
-The following is example code to run the Augmented SCM. The first snippet of code is data cleaning in preparation for the various methods used in this package.
+Finally, the following is example code to run the Augmented synthetic control method under the selection bias scenario. The first snippet of code is data cleaning in preparation for the various methods used in this package.
 
 ```R
 #### Set names of variables and create lags: ####
@@ -510,5 +534,5 @@ multisynth_r <- dispatch_simulations(msynth_config,
 # clean up and write out results
 multisynth_results <- do.call(rbind, multisynth_r)
 rownames(multisynth_results) <- NULL
-write.csv(multisynth_results, "/vincent/b/josephp/OPTIC/output/sel-bias-multisynth-nonlin.csv", row.names = FALSE)
+write.csv(multisynth_results, "/poppy/programs/josephp/output/sel-bias-multisynth-nonlin.csv", row.names = FALSE)
 ```
