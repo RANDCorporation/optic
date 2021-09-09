@@ -534,5 +534,5 @@ multisynth_r <- dispatch_simulations(msynth_config,
 # clean up and write out results
 multisynth_results <- do.call(rbind, multisynth_r)
 rownames(multisynth_results) <- NULL
-write.csv(multisynth_results, "/poppy/programs/josephp/output/sel-bias-multisynth-nonlin.csv", row.names = FALSE)
+write.csv(multisynth_results, "../output/sel-bias-multisynth-nonlin.csv", row.names = FALSE)
 ```
