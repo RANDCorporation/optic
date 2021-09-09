@@ -5,8 +5,10 @@ Description: Implements simulation work to assess the strengths and weaknesses
     to the opioid crisis.
 Version: 0.1
 Authors@R: c(
-    person("Geoffrey", "Grimm", email="ggrimm@rand.org", role=c("cre", "aut")),
-    person("Beth Ann", "Griffin", email="bethg@rand.org", role=c("aut")))
+    person("Adam", "Scherling", email="ascherli@rand.org", role=c("cre", "aut")),
+    person("Beth Ann", "Griffin", email="bethg@rand.org", role=c("aut")),
+    person("Joseph", "Pane", role=c("aut")),
+    person("Geoffrey", "Grimm", role=c("aut")))
 Depends: R (>= 3.6.0)
 License: file LICENSE
 Imports:
