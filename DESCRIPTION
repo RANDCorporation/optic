@@ -10,7 +10,7 @@ Authors@R: c(
     person("Joseph", "Pane", role=c("aut")),
     person("Geoffrey", "Grimm", role=c("aut")))
 Depends: R (>= 3.6.0)
-License: file LICENSE
+License: GPL-3 | file LICENSE
 Imports:
     dplyr,
     tidyr,
