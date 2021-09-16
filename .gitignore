@@ -2,7 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-data/
 *.DS_Store
 *.csv
 nohup.out
