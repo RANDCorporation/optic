@@ -10,6 +10,8 @@
 #'     treatment that are used in various modeling approaches later on.
 #'
 #' @param single_simulation object created from SimConfig$setup_single_simulation()
+#' 
+#' @export
 selbias_sample <- function(single_simulation) {
   x <- single_simulation$data
   pc = single_simulation$prior_control
@@ -300,6 +302,8 @@ selbias_sample <- function(single_simulation) {
 #'     is newly derived from modified deaths if using deaths as outcome.
 #'     Calculates some balance information that is passed along to later
 #'     steps.
+#' 
+#' @export
 selbias_premodel <- function(model_simulation) {
   x <- model_simulation$data
   model <- model_simulation$models
@@ -396,6 +400,8 @@ selbias_premodel <- function(model_simulation) {
 #' @description runs the model against the prepared data along with
 #'     any provided arguments. Stores the model object in the input
 #'     list, new element named "model_result" and returns full list
+#' 
+#' @export
 selbias_model <- function(model_simulation) {
   model <- model_simulation$models
   x <- model_simulation$data
@@ -421,7 +427,11 @@ selbias_model <- function(model_simulation) {
 ### POST MODELS METHOD ###
 ##########################
 
-#' TODO: documentation
+#' brief description
+#' 
+#' @description longer description
+#' 
+#' @export
 selbias_postmodel <- function(model_simulation) {
   outcome <- model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
   bias_vals <- model_simulation$globals[["bias_vals"]][[model_simulation$bias_type]][[model_simulation$prior_control]][[model_simulation$bias_size]]
@@ -572,6 +582,11 @@ selbias_postmodel <- function(model_simulation) {
 ### RESULTS METHOD ###
 ######################
 
+#' brief description
+#' 
+#' @description longer description
+#' 
+#' @export
 selbias_results <- function(r) {
   return(do.call(rbind, r))
 }

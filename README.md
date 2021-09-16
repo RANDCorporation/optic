@@ -40,7 +40,8 @@ Here we will walk through an example of setting up the configuration object,  ex
 compared to a linear autoregressive model under a context of co-occurring policies. Let's assume we have some data and some setup:
 
 ```R
-x <- readRDS("our_data.rds")
+data(cdc_data)
+x <- cdc_data
 
 # we will define two scenarios for different effect magnitudes using
 # 5, 10, and 15 percent changes in the outcome
@@ -103,7 +104,9 @@ sim_config <- configure_simulation(
     effect_direction=c("null", "neg"),
     policy_speed=c("instant", "slow"),
     n_implementation_periods=c(3),
-    rhos=c(0, 0.25, 0.5, 0.75, 0.9)
+    rhos=c(0, 0.25, 0.5, 0.75, 0.9),
+    years_apart=2,
+    ordered=TRUE
   )
 )
 ```

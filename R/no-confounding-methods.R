@@ -7,6 +7,8 @@
 #' @description todo
 #'
 #' @param single_simulation object created from SimConfig$setup_single_simulation()
+#' 
+#' @export
 noconf_sample <- function(single_simulation) {
   ##########################################
   ### PULL DATA AND PARAMETERS/VARIABLES ###
@@ -186,6 +188,7 @@ noconf_sample <- function(single_simulation) {
 #'     are run here before modeling but in the model-specific config object rather 
 #'     than in the sampling step that would apply to all models in the sim
 #' 
+#' @export
 noconf_premodel <- function(model_simulation) {
   ##########################################
   ### PULL DATA AND PARAMETERS/VARIABLES ###
@@ -316,6 +319,8 @@ noconf_premodel <- function(model_simulation) {
 #' @description runs the model against the prepared data along with
 #'     any provided arguments. Stores the model object in the input
 #'     list, new element named "model_result" and returns full list
+#'
+#' @export
 noconf_model <- function(model_simulation) {
   model <- model_simulation$models
   x <- model_simulation$data
@@ -342,6 +347,11 @@ noconf_model <- function(model_simulation) {
 #########################
 ### POST_MODEL METHOD ###
 #########################
+#' brief description
+#' 
+#' @description longer description
+#' 
+#' @export
 noconf_postmodel <- function(model_simulation) {
   outcome <- model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
   # get run metadata to merge in after
@@ -569,6 +579,11 @@ noconf_postmodel <- function(model_simulation) {
 ### RESULTS METHOD ###
 ######################
 
+#' brief description
+#' 
+#' @description longer description
+#' 
+#' @export
 noconf_results <- function(r) {
   return(dplyr::bind_rows(r))
 }
