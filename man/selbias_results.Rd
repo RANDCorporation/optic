@@ -2,10 +2,10 @@
 % Please edit documentation in R/selection-bias-methods.R
 \name{selbias_results}
 \alias{selbias_results}
-\title{brief description}
+\title{compiles the final results}
 \usage{
 selbias_results(r)
 }
 \description{
-longer description
+compiles the results into one table for all permutations of the simulation
 }

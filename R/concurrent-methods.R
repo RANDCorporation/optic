@@ -4,7 +4,7 @@
 
 #' perform sampling and coding of treatment for concurrent policy simulations
 #' 
-#' @description todo
+#' @description samples the treated units (e.g., states) randomly and then generates enacted dates for two policies with a prespeficied average mean difference in length between enactment dates of the two; also computes the needed levels and change levels coding for the time-varying vectors of the treatment/exposure variables representing those two policies 
 #'
 #' @param single_simulation object created from SimConfig$setup_single_simulation()
 #' @export
@@ -40,13 +40,10 @@ concurrent_sample <- function(single_simulation) {
       available_periods <- unique(x[[time_var]])
     }
     
-    #TODO: this is currently specific to time_var being year and wanting to
     #      sample on months; perhaps look into abstracting for any units of time
     available_periods1 = min(available_periods):(max(available_periods)-(years_apart))
     sampled_time_period <- sample(available_periods1, 1) #this becomes the mean
     
-    #TODO: JOE, adjust this
-    # start at 3 , 6, and 9 years apart.
     # for second argument in mu, add the ability for the user how far those means should be on average.
     sampled_time_period_yearsapart = sampled_time_period + years_apart
     
@@ -61,12 +58,8 @@ concurrent_sample <- function(single_simulation) {
       sampled_time_period1 = data[1, draw]  # standard normal (mu=yr, sd=1)
       sampled_time_period2 = data[1, draw2]  # standard normal (mu=yr, sd=1)
     }
-
-    ##cor(yr1,yr2) #if increasen n to 200; can confirm that correlation = rho with large samples
     
-    #TODO:
-    #now we have continuous enactment dates - would be nice if we could just work with these in our slow and instant coding
-    #for now - I will just group to nearest month - very blunt approach
+    #group to nearest month 
     mo1<-sampled_time_period1-floor(sampled_time_period1)
     mo2<-sampled_time_period2-floor(sampled_time_period2)
     mo1=round(12*mo1)
@@ -90,7 +83,7 @@ concurrent_sample <- function(single_simulation) {
     treated[[sunit]] <- c(l1, l2)
   }
   
-  # calulate the distance (in days) between the two policy start dates (custom method)
+  # calulate the distance (in days) between the two policy start dates
   policy_distances <- get_distance_avgs(treated)
   
   #############################
@@ -159,9 +152,9 @@ concurrent_sample <- function(single_simulation) {
 #' pre-modeling method to apply to config object/data
 #' 
 #' @description since there are different data transformations needed for different
-#'     model approaches, the treatment effect application and other data prep steps
-#'     are run here before modeling but in the model-specific config object rather 
-#'     than in the sampling step that would apply to all models in the sim
+#'     model approaches (e.g., linear, count, log-linear), the treatment effect application and other data prep steps
+#'     are run here before modeling in the model-specific config object rather 
+#'     than in the sampling step 
 #' 
 #' @export
 concurrent_premodel <- function(model_simulation) {
@@ -243,9 +236,9 @@ concurrent_model <- function(model_simulation) {
 ### POST_MODEL METHOD ###
 #########################
 
-#' brief description
+#' process results from model(s) 
 #' 
-#' @description longer description
+#' @description summarizes the statistical performance of the model(s) being compared by computing summary information on the model fit, estimated effects and standard errors 
 #' 
 #' @export
 concurrent_postmodel <- function(model_simulation) {
@@ -293,9 +286,9 @@ concurrent_postmodel <- function(model_simulation) {
 ### RESULTS METHOD ###
 ######################
 
-#' brief description
+#' compiles the final results 
 #' 
-#' @description longer description
+#' @description compiles the results into one table for all permutations of the simulation
 #' 
 #' @export
 concurrent_results <- function(r) {

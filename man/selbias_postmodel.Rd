@@ -2,10 +2,10 @@
 % Please edit documentation in R/selection-bias-methods.R
 \name{selbias_postmodel}
 \alias{selbias_postmodel}
-\title{brief description}
+\title{process results from model(s)}
 \usage{
 selbias_postmodel(model_simulation)
 }
 \description{
-longer description
+summarizes the statistical performance of the model(s) being compared by computing summary information on the model fit, estimated effects and standard errors
 }

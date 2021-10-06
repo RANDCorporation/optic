@@ -10,5 +10,5 @@ concurrent_sample(single_simulation)
 \item{single_simulation}{object created from SimConfig$setup_single_simulation()}
 }
 \description{
-todo
+samples the treated units (e.g., states) randomly and then generates enacted dates for two policies with a prespeficied average mean difference in length between enactment dates of the two; also computes the needed levels and change levels coding for the time-varying vectors of the treatment/exposure variables representing those two policies
 }

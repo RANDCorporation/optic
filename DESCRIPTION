@@ -25,7 +25,9 @@ Imports:
 Encoding: UTF-8
 RoxygenNote: 7.1.1
 Suggests: 
+    future,
     knitr,
+    parallel,
     rmarkdown
 VignetteBuilder: knitr
 LazyData: true

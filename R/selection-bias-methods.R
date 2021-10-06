@@ -5,7 +5,7 @@
 #' perform sampling and coding of treatment for selection bias simulations
 #' 
 #' @description uses values of b0, b1, b2 to sample treated units based on
-#'     values of moving average and unemployment rate to induce selection bias.
+#'     values of two covariates (here moving average and unemployment rate) to induce confounding (selection) bias.
 #'     Once treated units are identified, codes level and change version of
 #'     treatment that are used in various modeling approaches later on.
 #'
@@ -200,11 +200,6 @@ selbias_sample <- function(single_simulation) {
     summarize(trt_ind_sum = sum(trt_ind), .groups='drop')
   n_treated = n_treated$trt_ind_sum
   
-  # x[,c('state','year','crude.rate.new','crude.rate','prior_control')]
-  #print(table(time_periods)) #this helps me see range; first run was 2002-2006; all happened early (b0=-1,b1=.5,b2=.05)
-  #length(n.trted>0) #and all states implemented early on in time series
-  #print(table(n_treated))
-  
   sampled_units <- available_units[n_treated > 0]
   start_periods <- time_periods[n_treated > 0]
   
@@ -239,8 +234,8 @@ selbias_sample <- function(single_simulation) {
       )
     }
   }
-  # apply treatment to data updated to make quicker
-  # Get policy date and exposure in proper format quickly...
+  # apply treatment to data
+  # Get policy date and exposure in proper format 
   policy_dates = purrr::transpose(treated)$policy_date %>% 
     dplyr::bind_rows() %>% 
     tidyr::gather(!!unit_var, treatment_date) 
@@ -252,15 +247,15 @@ selbias_sample <- function(single_simulation) {
     policy_dates = policy_dates %>%
       dplyr::mutate_if(is.character, as.double)
   }
-
+  
   x_policy_info = x %>%
-      dplyr::filter(trt_ind == 1) %>%
-      dplyr::select(!!as.name(unit_var), !!as.name(time_var))
+    dplyr::filter(trt_ind == 1) %>%
+    dplyr::select(!!as.name(unit_var), !!as.name(time_var))
   x_policy_info$treatment = purrr::transpose(treated)$exposure %>% unlist
   
   x_policy_info = x_policy_info %>%
     dplyr::left_join(., policy_dates, by = unit_var)
-
+  
   # apply treatment to data
   x = x %>%
     dplyr::left_join(., x_policy_info, by = c(unit_var, time_var)) %>%
@@ -268,7 +263,7 @@ selbias_sample <- function(single_simulation) {
                                         TRUE ~ treatment),
                   treatment_date = case_when(is.na(treatment_date) ~ as.Date(NA),
                                              TRUE ~ treatment_date))
-
+  
   # create level and change code versions of treatment variable
   x$treatment_level <- x$treatment
   
@@ -427,9 +422,9 @@ selbias_model <- function(model_simulation) {
 ### POST MODELS METHOD ###
 ##########################
 
-#' brief description
+#' process results from model(s) 
 #' 
-#' @description longer description
+#' @description summarizes the statistical performance of the model(s) being compared by computing summary information on the model fit, estimated effects and standard errors 
 #' 
 #' @export
 selbias_postmodel <- function(model_simulation) {
@@ -582,9 +577,9 @@ selbias_postmodel <- function(model_simulation) {
 ### RESULTS METHOD ###
 ######################
 
-#' brief description
+#' compiles the final results 
 #' 
-#' @description longer description
+#' @description compiles the results into one table for all permutations of the simulation
 #' 
 #' @export
 selbias_results <- function(r) {

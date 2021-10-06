@@ -2,9 +2,11 @@
 ### SAMPLING METHOD ###
 #######################
 
-#' perform sampling and coding of treatment for no confoudning policy simulations
+#' perform sampling and coding of treatment for no confounding policy simulations
 #' 
-#' @description todo
+#' @description samples treated units (e.g., states) randomly; 
+#'     Once treated units are identified, codes level and change version of
+#'     treatment that are used in various modeling approaches later on.
 #'
 #' @param single_simulation object created from SimConfig$setup_single_simulation()
 #' 
@@ -59,7 +61,7 @@ noconf_sample <- function(single_simulation) {
   trt_dta = data.frame(matrix(nrow=n, ncol=2))
   trt_dta = trt_dta %>%
     dplyr::mutate(!!treat_var := sampled_units,
-           !!time_var := trt_years) %>%
+                  !!time_var := trt_years) %>%
     dplyr::select(-c(X1, X2)) %>%
     dplyr::mutate(trt_ind = 1)
   
@@ -69,7 +71,7 @@ noconf_sample <- function(single_simulation) {
     dplyr::group_by(!!as.name(treat_var)) %>%
     dplyr::mutate(isfirst = as.numeric(trt_ind == 1 & !duplicated(trt_ind==1))) %>%
     dplyr::mutate(trt_ind = cumsum(tidyr::replace_na(isfirst,0)))
-    
+  
   # Get time_periods and n_treated
   # (1) time periods
   the_treated = x %>%
@@ -184,9 +186,9 @@ noconf_sample <- function(single_simulation) {
 #' pre-modeling method to apply to config object/data
 #' 
 #' @description since there are different data transformations needed for different
-#'     model approaches, the treatment effect application and other data prep steps
-#'     are run here before modeling but in the model-specific config object rather 
-#'     than in the sampling step that would apply to all models in the sim
+#'     model approaches (e.g., linear, count, log-linear), the treatment effect application and other data prep steps
+#'     are run here before modeling in the model-specific config object rather 
+#'     than in the sampling step 
 #' 
 #' @export
 noconf_premodel <- function(model_simulation) {
@@ -332,7 +334,7 @@ noconf_model <- function(model_simulation) {
   }else {
     args = c(list(data=x, formula=model[["model_formula"]]), model[["model_args"]])
   }
-
+  
   m <- do.call(
     model[["model_call"]],
     args
@@ -347,9 +349,9 @@ noconf_model <- function(model_simulation) {
 #########################
 ### POST_MODEL METHOD ###
 #########################
-#' brief description
+#' process results from model(s) 
 #' 
-#' @description longer description
+#' @description summarizes the statistical performance of the model(s) being compared by computing summary information on the model fit, estimated effects and standard errors 
 #' 
 #' @export
 noconf_postmodel <- function(model_simulation) {
@@ -366,7 +368,7 @@ noconf_postmodel <- function(model_simulation) {
     effect_magnitude=model_simulation$effect_magnitude,
     n_units=model_simulation$n_units,
     effect_direction=model_simulation$effect_direction  
-    )
+  )
   
   # get model result information and apply standard error adjustments
   if (model_simulation$models[["type"]] != "multisynth") {
@@ -579,9 +581,9 @@ noconf_postmodel <- function(model_simulation) {
 ### RESULTS METHOD ###
 ######################
 
-#' brief description
+#' compiles the final results 
 #' 
-#' @description longer description
+#' @description compiles the results into one table for all permutations of the simulation
 #' 
 #' @export
 noconf_results <- function(r) {

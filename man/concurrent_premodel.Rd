@@ -8,7 +8,7 @@ concurrent_premodel(model_simulation)
 }
 \description{
 since there are different data transformations needed for different
-    model approaches, the treatment effect application and other data prep steps
-    are run here before modeling but in the model-specific config object rather 
-    than in the sampling step that would apply to all models in the sim
+    model approaches (e.g., linear, count, log-linear), the treatment effect application and other data prep steps
+    are run here before modeling in the model-specific config object rather 
+    than in the sampling step
 }
