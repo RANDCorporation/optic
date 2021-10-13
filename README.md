@@ -1,6 +1,6 @@
 # OPTIC Core
 
-This project contains the simulation code for OPTIC. This README's purpose is to tell a user how to install the package and get up and running with the different simulation scenarios:
+This project contains the simulation code for OPTIC. This README's purpose is to tell a user how to install the package and get it up and running with the following simulation scenarios:
 
 1. Concurrent Simulations
 2. No Confounding Simulations
@@ -25,7 +25,7 @@ devtools::install()
 
 The example below uses the `example_data` dataset provided with the package, which is derived from data from the US Bureau of Labor Statistics and the Centers for Disease Control and Prevention.
 
-The following can be used to setup any three of the simulations (Concurrent, No Confounding, or Selection bias), but throughout this section we will use the concurrent simulations as an exampe. 
+The following can be used to setup any of the simulations (Concurrent, No Confounding), but throughout this section we will use the concurrent simulations as an example. 
 
 #### Configure Simulations
 
@@ -36,14 +36,14 @@ The first step is to configure the simulation or set of simulations you wish to 
 3.  **Methods**: the configuration object requires at least three methods - `method_sample`, `method_model`, and `method_results`. These "slots", if you will, are intended for the user to provide their sampling, treatment identification, and common data transformation code; modeling code; and code to extract results, fit information, summary statistics, etc. respectively. There are also two optional slots - `method_premodel` and `method_postmodel` that if provided will be applied to the simulation run immediately before and immediately after the `method_model`. See the section on "How an Iteration is Run" below.
 4.  **Iterable and Global Parameters**: The `params` argument is where you provide the named values that will be expanded into a full set of all unique combinations of all named elements in the provided list. The `globals` argument should also be a list of named elements that are statically stored for access by any of the methods and will not be expanded with the `params` values.
 
-Here we will walk through an example of setting up the configuration object, exploring the configuration object prior to running the job, and looking at how a single simulation is defined. For our example, we will look at evaluating a linear 2-way fixed effects model compared to a linear autoregressive model under a context of co-occurring policies.
+Here we will walk through an example of setting up the configuration object, exploring the configuration object prior to running the job, and looking at how a single simulation is defined. For our example, we will look at evaluating a linear 2-way fixed effects model compared to a linear autoregressive model under the context of having two co-occurring policies.
 
 ```R
 data(example_data)
 x <- example_data
 
-# we will define two scenarios for different effect magnitudes using
-# 5, 10, and 15 percent changes in the outcome
+# we will define two scenarios for different effect magnitudes for
+# the policies using 5, 10, and 15 percent changes in the outcome
 linear5 <- 690 / ((sum(x$population) / length(unique(x$year))) / 100000)
 linear10 <- 1380 / ((sum(x$population) / length(unique(x$year))) / 100000)
 linear15 <- 2070 / ((sum(x$population) / length(unique(x$year))) / 100000)
@@ -53,8 +53,8 @@ scenario2 <- c(linear5, linear15)
 ```
 
 Let's first set up our models object. Note that the methods applied here are already defined in `R/concurrent-methods.R`. For each element in the list, we will define the same named attributes:
--  name: a name for the model to identify it in output
--  type: this is used in some of our methods to transform the data correctly for the type of model being run
+-  name: a name for the model to identify it in the output
+-  type: this is used in some of our methods to transform the data correctly for the type of model being run (e.g. if set to "autoreg" the run will control for a single lag of the outcome)
 -  model_call: the R function name
 -  model_formula: the formula to run with the specified model_call
 -  model_args: will be passed as additional arguments when running model
