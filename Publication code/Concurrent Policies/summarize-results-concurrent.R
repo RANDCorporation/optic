@@ -23,21 +23,29 @@ library(tidyr)
 # load data ---------------------------------------------------------------
 
 files_to_summarize <- c(
-  "slow_unordered" = "from_BethAnn_2.8.2022/concurrent-lm-scen1-slow-30-notordered2022-02-07.csv",
-  "slow_ordered" = "from_BethAnn_2.8.2022/concurrent-lm-scen1-slow-30-ordered2022-02-07.csv",
-  "n30_nextra5_unordered" = "from_BethAnn_2.8.2022/concurrent_nextra_n30_nextra5_notordered2022-02-11.csv",
-  "n30_nextra5_ordered" = "from_BethAnn_2.8.2022/concurrent_nextra_n30_nextra5_ordered2022-02-11.csv",
-  "n30_nextra10_unordered" = "from_BethAnn_2.8.2022/concurrent_nextra_n30_nextra10_notordered2022-02-11.csv",
-  "n30_nextra10_ordered" = "from_BethAnn_2.8.2022/concurrent_nextra_n30_nextra10_ordered2022-02-11.csv",
-  "n10_nextra10_unordered" = "from_BethAnn_2.23.2022/concurrent_nextra_n10_nextra10_notordered2022-02-23.csv",
-  "n10_nextra10_ordered" = "from_BethAnn_2.23.2022/concurrent_nextra_n10_nextra10_ordered2022-02-23.csv",
-  "n20_nextra5_unordered" = "from_BethAnn_2.23.2022/concurrent_nextra_n20_nextra5_notordered2022-02-23.csv",
-  "n20_nextra5_ordered" = "from_BethAnn_2.23.2022/concurrent_nextra_n20_nextra5_ordered2022-02-24.csv",
-  "n3_nextra1_unordered" = "from_BethAnn_2.23.2022/concurrent_nextra_n3_nextra1_notordered2022-02-23.csv",
-  "n3_nextra1_ordered" = "from_BethAnn_2.23.2022/concurrent_nextra_n3_nextra1_ordered2022-02-23.csv",
-  "lm-99to04-notordered_n30" = "from_BethAnn_2.23.2022/concurrent-lm-99to04-notordered_n302022-02-23.csv",
-  "lm-05to10-notordered_n30" = "from_BethAnn_2.23.2022/concurrent-lm-05to10-notordered_n302022-02-23.csv",
-  "lm-11to16-notordered_n30" = "from_BethAnn_2.23.2022/concurrent-lm-11to16-notordered_n302022-02-23.csv"
+  # "slow_unordered" = "from_BethAnn_2.8.2022/concurrent-lm-scen1-slow-30-notordered2022-02-07.csv",
+  # "slow_ordered" = "from_BethAnn_2.8.2022/concurrent-lm-scen1-slow-30-ordered2022-02-07.csv",
+  # "n30_nextra5_unordered" = "from_BethAnn_2.8.2022/concurrent_nextra_n30_nextra5_notordered2022-02-11.csv",
+  # "n30_nextra5_ordered" = "from_BethAnn_2.8.2022/concurrent_nextra_n30_nextra5_ordered2022-02-11.csv",
+  # "n30_nextra10_unordered" = "from_BethAnn_2.8.2022/concurrent_nextra_n30_nextra10_notordered2022-02-11.csv",
+  # "n30_nextra10_ordered" = "from_BethAnn_2.8.2022/concurrent_nextra_n30_nextra10_ordered2022-02-11.csv",
+  # "n10_nextra10_unordered" = "from_BethAnn_2.23.2022/concurrent_nextra_n10_nextra10_notordered2022-02-23.csv",
+  # "n10_nextra10_ordered" = "from_BethAnn_2.23.2022/concurrent_nextra_n10_nextra10_ordered2022-02-23.csv",
+  # "n20_nextra5_unordered" = "from_BethAnn_2.23.2022/concurrent_nextra_n20_nextra5_notordered2022-02-23.csv",
+  # "n20_nextra5_ordered" = "from_BethAnn_2.23.2022/concurrent_nextra_n20_nextra5_ordered2022-02-24.csv",
+  # "n3_nextra1_unordered" = "from_BethAnn_2.23.2022/concurrent_nextra_n3_nextra1_notordered2022-02-23.csv",
+  # "n3_nextra1_ordered" = "from_BethAnn_2.23.2022/concurrent_nextra_n3_nextra1_ordered2022-02-23.csv",
+  # "lm-99to04-notordered_n30" = "from_BethAnn_2.23.2022/concurrent-lm-99to04-notordered_n302022-02-23.csv",
+  # "lm-05to10-notordered_n30" = "from_BethAnn_2.23.2022/concurrent-lm-05to10-notordered_n302022-02-23.csv",
+  # "lm-11to16-notordered_n30" = "from_BethAnn_2.23.2022/concurrent-lm-11to16-notordered_n302022-02-23.csv",
+  # "scen0_ordered" = "replication/concurrent-lm-scen0_ordered2022-04-29.csv",
+  # "scen0_unordered" = "replication/concurrent-lm-scen0_unordered2022-05-03.csv",
+  # "scen1" = "replication/concurrent-lm-scen12022-05-03.csv",
+  # "scen2" = "replication/concurrent-lm-scen2_2022-05-04.csv",
+  # "scen3" = "replication/concurrent-lm-scen3_2022-05-05.csv",
+  # "scen4" = "replication/concurrent-lm-scen4_2022-05-05.csv",
+  "scen5" = "replication/concurrent-lm-scen5_2022-05-09.csv",
+  "scen6" = "replication/concurrent-lm-scen6_2022-05-10.csv"
 )
 
 data_to_summarize <- lapply(files_to_summarize, function(ff) read_csv_arrow(glue("{revisionPath}/{ff}")))
@@ -58,10 +66,19 @@ for (i in 1:length(data_to_summarize)) {
 }
 
 
+# set effect_direction to null when effect magnitudes are zero ------------
+
+data_to_summarize <- lapply(data_to_summarize, function(dd) {
+  dd$effect_direction[dd <- dd$effect_magnitude1==0 & dd$effect_magnitude2==0] <- 'null'
+  return(dd)
+})
+
+
 # check what defines a unique run in each ---------------------------------
 
 # each combination of model_name, se_adjustment, and years_apart has 5000 rows (iterations)
-lapply(data_to_summarize, function(dd) dd %>% count(model_name, se_adjustment, years_apart) %>% count(n)) %>%
+# lapply(data_to_summarize, function(dd) dd %>% count(model_name, se_adjustment, years_apart) %>% count(n)) %>%
+lapply(data_to_summarize, function(dd) dd %>% count(model_name, policy_speed, ordered, rho, n_units, se_adjustment, years_apart) %>% count(n)) %>%
   bind_rows() %>% 
   mutate(sim = names(data_to_summarize)) %>% 
   select(sim, n, nn)
@@ -99,6 +116,17 @@ bias <- function(x, te, effect_direction) {
     (x - te)
   }
 }
+
+#' create binary indicator for significance of p-value based on given level
+#' 
+#' @param p vector of p-values
+#' @param level threshold for significance; default is 0.05
+pval_flag <- function(p, level=0.05) {
+  p[p < level] <- 1
+  p[p != 1] <- 0
+  return(p)
+}
+
 
 #' formula for correcting p-values using correction factor
 #' 
@@ -166,80 +194,96 @@ summarize_concurrent <- function(x) {
   
   # summarize the data
   r <- x %>%
-      summarize(
-        estimate1=mean(na.omit(estimate1)),
-        se1=mean(na.omit(se1)),
-        variance1=mean(na.omit(variance1)),
-        test_stat1=mean(na.omit(test_stat1)),
-        mse1=mean(mseVec(estimate1, as.numeric(effect_magnitude1), unique(effect_direction))),
-        bias1=mean(biasVec(estimate1, as.numeric(effect_magnitude1), unique(effect_direction))),
-        estimate2=mean(na.omit(estimate2)),
-        se2=mean(na.omit(se2)),
-        variance2=mean(na.omit(variance2)),
-        test_stat2=mean(na.omit(test_stat2)),
-        mse2=mean(mseVec(estimate2, as.numeric(effect_magnitude2), unique(effect_direction))),
-        bias2=mean(biasVec(estimate2, as.numeric(effect_magnitude2), unique(effect_direction))),
-        joint.eff=mean(na.omit(joint.eff)),
-        joint.eff.se=mean(na.omit(joint.eff.se)),
-        joint.eff.var=mean(na.omit(variancej)),
-        joint.test.stat=mean(na.omit(test_statj)),
-        joint.mse=mean(mseVec(joint.eff, (as.numeric(effect_magnitude1)+as.numeric(effect_magnitude2)), unique(effect_direction))),
-        joint.bias=mean(biasVec(joint.eff, (as.numeric(effect_magnitude1)+as.numeric(effect_magnitude2)), unique(effect_direction))),
-        avg_min_distance=mean(min_distance),
-        avg_max_distance=mean(max_distance),
-        avg_mean_distance=mean(mean_distance)
-      ) %>%
-      mutate(
-        se_adjustment=unique(x$se_adjustment),
-        effect_magnitude1=as.numeric(unique(x$effect_magnitude1)),
-        effect_magnitude2=as.numeric(unique(x$effect_magnitude2)),
-        effect_direction=unique(x$effect_direction),
-        policy_speed=unique(x$policy_speed),
-        rho=unique(x$rho),
-        n_units = unique(x$n_units),
-        n_extra = unique(x$n_extra),
-        ordered = unique(x$ordered),
-        n_implementation_periods=unique(x$n_units),
-        model_name=unique(x$model_name),
-        model_call=unique(x$model_call),
-        model_formula=unique(x$model_formula),
-        specification=unique(x$specification),
-        years_apart=unique(x$years_apart)
-        ) %>%
+    summarize(
+      estimate1=mean(na.omit(estimate1)),
+      se1=mean(na.omit(se1)),
+      variance1=mean(na.omit(variance1)),
+      test_stat1=mean(na.omit(test_stat1)),
+      mse1=mean(mseVec(estimate1, as.numeric(effect_magnitude1), unique(effect_direction))),
+      bias1=mean(biasVec(estimate1, as.numeric(effect_magnitude1), unique(effect_direction))),
+      estimate2=mean(na.omit(estimate2)),
+      se2=mean(na.omit(se2)),
+      variance2=mean(na.omit(variance2)),
+      test_stat2=mean(na.omit(test_stat2)),
+      mse2=mean(mseVec(estimate2, as.numeric(effect_magnitude2), unique(effect_direction))),
+      bias2=mean(biasVec(estimate2, as.numeric(effect_magnitude2), unique(effect_direction))),
+      joint.eff=mean(na.omit(joint.eff)),
+      joint.eff.se=mean(na.omit(joint.eff.se)),
+      joint.eff.var=mean(na.omit(variancej)),
+      joint.test.stat=mean(na.omit(test_statj)),
+      joint.mse=mean(mseVec(joint.eff, (as.numeric(effect_magnitude1)+as.numeric(effect_magnitude2)), unique(effect_direction))),
+      joint.bias=mean(biasVec(joint.eff, (as.numeric(effect_magnitude1)+as.numeric(effect_magnitude2)), unique(effect_direction))),
+      avg_min_distance=mean(min_distance),
+      avg_max_distance=mean(max_distance),
+      avg_mean_distance=mean(mean_distance)
+    ) %>%
+    mutate(
+      se_adjustment=unique(x$se_adjustment),
+      effect_magnitude1=as.numeric(unique(x$effect_magnitude1)),
+      effect_magnitude2=as.numeric(unique(x$effect_magnitude2)),
+      effect_direction=unique(x$effect_direction),
+      policy_speed=unique(x$policy_speed),
+      rho=unique(x$rho),
+      n_units = unique(x$n_units),
+      n_extra = unique(x$n_extra),
+      ordered = unique(x$ordered),
+      n_implementation_periods=unique(x$n_units),
+      model_name=unique(x$model_name),
+      model_call=unique(x$model_call),
+      model_formula=unique(x$model_formula),
+      specification=unique(x$specification),
+      years_apart=unique(x$years_apart)
+    ) %>%
     mutate(
       orderedTx = case_when(
         ordered=="yes" ~ TRUE,
         ordered=="no" ~ FALSE
       )
     )
+  
+  if (unique(x$effect_direction) == "null") {
+    r$type1_error1 <- mean(pval_flag(x$p_value1))
+    r$type1_error2 <- mean(pval_flag(x$p_value2))
+    r$type1_error_joint <- mean(pval_flag(x$joint.eff.pvalue))
     
-      r$type1_error1 <- NA
-      r$type1_error2 <- NA
-      r$type1_error_joint <- NA
-      
-      r$type_s_error1 <- type_s_error(x$estimate1, x$p_value1, unique(x$effect_direction))
-      r$type_s_error2 <- type_s_error(x$estimate2, x$p_value2, unique(x$effect_direction))
-      r$type_s_error_joint <- type_s_error(x$joint.eff, x$joint.eff.pvalue, unique(x$effect_direction))
-      
-      r$coverage1 <- coverage(betas = x$estimate1, ses = x$se1, cf = 1, 
-                              te = -1*unique(x$effect_magnitude1))
-      r$coverage2 <- coverage(betas = x$estimate2, ses = x$se2, cf = 1,
-                              te = -1*unique(x$effect_magnitude2))
-      r$coverage_joint <- coverage(betas = x$joint.eff, ses = x$joint.eff.se, cf = 1,
-                                   te=-1*(unique(x$effect_magnitude1)+unique(x$effect_magnitude2)))
-      
-      r$power1 <- mean(correct_rejection_rate_flag(coeffs = x$estimate1, 
-                                                   ses = x$se1, 
-                                                   cf = 1, 
-                                                   effect_direction = unique(x$effect_direction)))
-      r$power2 <- mean(correct_rejection_rate_flag(coeffs = x$estimate2, 
-                                                   ses = x$se2, 
-                                                   cf = 1, 
-                                                   effect_direction = unique(x$effect_direction)))
-      r$power_joint <- mean(correct_rejection_rate_flag(coeffs = x$joint.eff, 
-                                                        ses = x$joint.eff.se, 
-                                                        cf = 1, 
-                                                        effect_direction = unique(x$effect_direction)))
+    r$type_s_error1 <- NA
+    r$type_s_error2 <- NA
+    r$type_s_error_joint <- NA
+    
+    r$coverage1 <- coverage(betas = x$estimate1, ses = x$se1, cf = 1, te = 0)
+    r$coverage2 <- coverage(betas = x$estimate2, ses = x$se2, cf = 1, te = 0)
+    r$coverage_joint <- coverage(betas = x$joint.eff, ses = x$joint.eff.se, cf = 1, te=0)
+  } else if(unique(x$effect_direction) == "neg"){
+    r$type1_error1 <- NA
+    r$type1_error2 <- NA
+    r$type1_error_joint <- NA
+    
+    r$type_s_error1 <- type_s_error(x$estimate1, x$p_value1, unique(x$effect_direction))
+    r$type_s_error2 <- type_s_error(x$estimate2, x$p_value2, unique(x$effect_direction))
+    r$type_s_error_joint <- type_s_error(x$joint.eff, x$joint.eff.pvalue, unique(x$effect_direction))
+    
+    r$coverage1 <- coverage(betas = x$estimate1, ses = x$se1, cf = 1, 
+                            te = -1*unique(x$effect_magnitude1))
+    r$coverage2 <- coverage(betas = x$estimate2, ses = x$se2, cf = 1,
+                            te = -1*unique(x$effect_magnitude2))
+    r$coverage_joint <- coverage(betas = x$joint.eff, ses = x$joint.eff.se, cf = 1,
+                                 te=-1*(unique(x$effect_magnitude1)+unique(x$effect_magnitude2)))
+    
+  }
+  
+  
+  r$power1 <- mean(correct_rejection_rate_flag(coeffs = x$estimate1, 
+                                               ses = x$se1, 
+                                               cf = 1, 
+                                               effect_direction = unique(x$effect_direction)))
+  r$power2 <- mean(correct_rejection_rate_flag(coeffs = x$estimate2, 
+                                               ses = x$se2, 
+                                               cf = 1, 
+                                               effect_direction = unique(x$effect_direction)))
+  r$power_joint <- mean(correct_rejection_rate_flag(coeffs = x$joint.eff, 
+                                                    ses = x$joint.eff.se, 
+                                                    cf = 1, 
+                                                    effect_direction = unique(x$effect_direction)))
   
   return(r)
 }
@@ -249,7 +293,8 @@ summarize_concurrent <- function(x) {
 # then calculate the summary for each, and combine
 # lastly, convert to long format
 apply_summary <- function(x) {
-  x <- split(x, list(x$model_name, x$se_adjustment, x$years_apart))
+  # x <- split(x, list(x$model_name, x$se_adjustment, x$years_apart))
+  x <- split(x, list(x$model_name, x$policy_speed, x$ordered, x$rho, x$n_units, x$se_adjustment, x$years_apart))
   
   summarized_results <- lapply(x, summarize_concurrent)
   
