@@ -1,3 +1,8 @@
+---
+title: "demo_optic"
+output: pdf_document
+---
+
 # OPTIC Core
 
 This project contains the simulation code for OPTIC. This README's purpose is to tell a user how to install the package and get it up and running with the following simulation scenarios:

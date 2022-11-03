@@ -37,9 +37,26 @@
 #' 
 #' @export
 #' 
-configure_simulation <- function(x, models, iters, params, method_sample, method_model, method_results, 
-                                 method_pre_model=NULL, method_post_model=NULL, 
+configure_simulation <- function(x, models, iters, params, meth="no_confounding",
                                  globals=NULL, verbose=TRUE) {
+  
+  # Set up method objects, based on the simulation method being employed
+  # (e.g. no confounding, concurrent policy, or selection bias)
+  if (meth == "concurrent"){
+    method_sample=concurrent_sample,
+    method_pre_model=concurrent_premodel,
+    method_model=concurrent_model,
+    method_post_model=concurrent_postmodel,
+    method_results=concurrent_results,
+  }else if (meth == "no_confounding"){
+    method_sample=noconf_sample(),
+    method_pre_model=noconf_premodel,
+    method_model=noconf_model,
+    method_post_model=noconf_postmodel,
+    method_results=noconf_results
+  }
+
+  
   ###
   # VALIDATION
   ###

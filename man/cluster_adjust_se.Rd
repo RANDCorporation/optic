@@ -10,7 +10,7 @@ cluster_adjust_se(model, cluster)
 \arguments{
 \item{model}{model object from regression fit}
 
-\item{cluster}{vector of cluster assignments; length should equal length of residuals in model object}
+\item{clsuter}{vector of cluster assignments; length should equal length of residuals in model object}
 }
 \description{
 Adjust standard errors for clusters

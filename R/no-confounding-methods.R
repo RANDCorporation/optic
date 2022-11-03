@@ -86,7 +86,7 @@ noconf_sample <- function(single_simulation) {
   time_periods[is.na(time_periods)] = Inf
   # (2) n_treated
   n_treated = x %>%
-    group_by(!!as.name(treat_var)) %>%
+    group_by(!!as.name(treat_var)) %>% 
     summarize(trt_ind_sum = sum(trt_ind), .groups='drop')
   n_treated = n_treated$trt_ind_sum
   
@@ -234,6 +234,8 @@ noconf_premodel <- function(model_simulation) {
     
     if(model$model_call == "feols"){
       formula_components <- as.character(model_simulation$models$model_formula)
+      
+      # What is this?
       updated_3 <- strsplit(formula_components[3], " | ", fixed=TRUE)
       if(length(updated_3[[1]]==1)){
         new_fmla <- as.formula(paste(formula_components[2], formula_components[1], updated_3[[1]][1], "+ lag_outcome"))

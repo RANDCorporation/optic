@@ -21,7 +21,9 @@ Imports:
     DataCombine,
     MASS,
     sandwich,
-    lmtest
+    lmtest,
+    ggplot2,
+    ggdist
 Encoding: UTF-8
 RoxygenNote: 7.1.1
 Suggests: 

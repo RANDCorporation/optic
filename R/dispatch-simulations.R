@@ -143,5 +143,26 @@ dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, failur
     return_list[[i]] <- full_results
   }
   
+  # Max edits: Return results as a data.frame, with an additional column
+  # for sim_id:
+
+  return_list <- do.call(rbind, return_list)
+
+  # Add sim_id column to sim_config, then merge this column onto the results
+  # Note: Below should be refactored since this is a hacky method. The sim_params
+  # is read only so I had to make a data.frame copy to add on sim_ids
+
+  sims <- copy(sim_config$simulation_params)
+  sims$sim_id <- 1:nrow(sims)
+
+  # I'm using intersect below since this could be a variable list of params
+  # (depending on if the user was running non-concurrent, concurrent, selection)
+  return_list <- merge(return_list, sims, by = intersect(names(sims), names(return_list)), all.x = T)
+  
+  # Add model_id column:
+  mods <- data.frame("model_name" = unique(return_list$model_name), "mod_id" = 1:length(unique(return_list$model_name)))
+  return_list <- merge(return_list, mods, by = "model_name", all.x = T)
+  
   return(return_list)
+  
 }

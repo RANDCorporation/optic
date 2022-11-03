@@ -34,6 +34,7 @@ selbias_sample <- function(single_simulation) {
   number_implementation_years <- as.numeric(single_simulation$n_implementation_periods)
   bias_vals <- single_simulation$globals[["bias_vals"]][[single_simulation$bias_type]][[single_simulation$prior_control]][[single_simulation$bias_size]]
   model_type = names(single_simulation$models)
+  
   #############################
   ### AUGMENT OUTCOME FIRST ###
   #############################
