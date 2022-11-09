@@ -8,9 +8,7 @@
 #'
 #' @param single_simulation object created from SimConfig$setup_single_simulation()
 #' @export
-#' 
 concurrent_sample <- function(single_simulation) {
-  
   ##########################################
   ### PULL DATA AND PARAMETERS/VARIABLES ###
   ##########################################
@@ -267,12 +265,7 @@ concurrent_postmodel <- function(model_simulation) {
   results$effect_magnitude1 <- model_simulation$effect_magnitude1
   results$effect_magnitude2 <- model_simulation$effect_magnitude2
   results$policy_speed <- model_simulation$policy_speed
-  
-  # Max edit: Argument below was originally called "model_simulat$rhos". I changed to call it
-  # "rho" to ensure this matches the output from results. This allows merging
-  # on a sim_id column in a new results step.
-  
-  results$rho <- model_simulation$rho
+  results$rho <- model_simulation$rhos
   results$years_apart <- model_simulation$years_apart
   results$ordered <- model_simulation$ordered
   results$n_units <- model_simulation$n_units
