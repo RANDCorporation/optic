@@ -65,25 +65,25 @@ configure_simulation <- function(x, models, iters, params, method_sample, method
   iters <- as.integer(iters)
   
   # confirm functions with arg of single_simulation
-  if (class(method_sample) != "function") {
+  if (!is.function(method_sample)) {
     stop("`method_sample` must be of class 'function'")
   }
-  if (class(method_model) != "function") {
+  if (!is.function(method_model)) {
     stop("`method_model` must be of class 'function'")
   }
-  if (class(method_results) != "function") {
+  if (!is.function(method_results)) {
     stop("`method_results` must be of class 'function'")
   }
-  if (class(method_sample) != "function") {
+  if (!is.function(method_sample)) {
     stop("`method_sample` must be of class 'function'")
   }
   if (!is.null(method_pre_model)) {
-    if (class(method_pre_model) != "function") {
+    if (!is.function(method_pre_model)) {
       stop("`method_pre_model` must be of class 'function' or NULL")
     }
   }
   if (!is.null(method_post_model)) {
-    if (class(method_post_model) != "function") {
+    if (!is.function(method_post_model)) {
       stop("`method_post_model` must be of class 'function' or NULL")
     }
   }
