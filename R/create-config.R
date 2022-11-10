@@ -37,6 +37,9 @@
 #' 
 #' @export
 #' 
+#' @importFrom purrr cross
+#' @importFrom purrr transpose
+#' 
 configure_simulation <- function(x, models, iters, params, method_sample, method_model, method_results, 
                                  method_pre_model=NULL, method_post_model=NULL, 
                                  globals=NULL, verbose=TRUE) {

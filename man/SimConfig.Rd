@@ -11,15 +11,15 @@ Configuration object for OPTIC Simulation project
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{SimConfig$new()}}
-\item \href{#method-setup_single_simulation}{\code{SimConfig$setup_single_simulation()}}
-\item \href{#method-print}{\code{SimConfig$print()}}
-\item \href{#method-clone}{\code{SimConfig$clone()}}
+\item \href{#method-SimConfig-new}{\code{SimConfig$new()}}
+\item \href{#method-SimConfig-setup_single_simulation}{\code{SimConfig$setup_single_simulation()}}
+\item \href{#method-SimConfig-print}{\code{SimConfig$print()}}
+\item \href{#method-SimConfig-clone}{\code{SimConfig$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-SimConfig-new"></a>}}
+\if{latex}{\out{\hypertarget{method-SimConfig-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SimConfig$new(
@@ -38,8 +38,8 @@ Configuration object for OPTIC Simulation project
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-setup_single_simulation"></a>}}
-\if{latex}{\out{\hypertarget{method-setup_single_simulation}{}}}
+\if{html}{\out{<a id="method-SimConfig-setup_single_simulation"></a>}}
+\if{latex}{\out{\hypertarget{method-SimConfig-setup_single_simulation}{}}}
 \subsection{Method \code{setup_single_simulation()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SimConfig$setup_single_simulation(i)}\if{html}{\out{</div>}}
@@ -47,8 +47,8 @@ Configuration object for OPTIC Simulation project
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
+\if{html}{\out{<a id="method-SimConfig-print"></a>}}
+\if{latex}{\out{\hypertarget{method-SimConfig-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SimConfig$print(...)}\if{html}{\out{</div>}}
@@ -56,8 +56,8 @@ Configuration object for OPTIC Simulation project
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-SimConfig-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-SimConfig-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

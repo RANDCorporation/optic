@@ -16,6 +16,14 @@ exposure_list(
 \item{sampled_time_period}{year that policy is first enacted}
 
 \item{mo}{month that policy is first enacted}
+
+\item{available_periods}{all available time periods in the data}
+
+\item{policy_speed}{either "instant" for the policy going into immediate effect or "slow"
+for the policy effect phasing in over time}
+
+\item{n_implementation_periods}{used if policy_speed is slow, number of time periods over
+which to phase in full policy effect}
 }
 \description{
 create exposure values across time periods for sampled treated units

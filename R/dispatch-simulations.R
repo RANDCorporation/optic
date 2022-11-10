@@ -8,6 +8,8 @@
 #'     each indepdendent set of simulations
 #' @param verbose default TRUE, have the dispatcher tell you what's currently running
 #' 
+#' @importFrom future.apply future_lapply
+#' 
 #' @export
 dispatch_simulations <- function(sim_config, use_future=FALSE, seed=NULL, failure=NULL, verbose=0, ...) {
   if (!"SimConfig" %in% class(sim_config)) {

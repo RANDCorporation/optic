@@ -11,6 +11,7 @@ SimConfig <- R6::R6Class(
   # PUBLIC
   ###
   public = list(
+    
     initialize = function(
       data, models,
       method_sample, method_pre_model, method_model, method_post_model, method_results,
