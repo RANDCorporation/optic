@@ -22,6 +22,10 @@ mse_resid <- function(x) {
   return(mean(x^2, na.rm=T))
 }
 
+#' TODO: write documentation for this function if the user needs to see this.
+#'
+#' @param model_simulation 
+#'
 #' @export
 iter_results.lm <- function(model_simulation) {
   m <- model_simulation$model_result
