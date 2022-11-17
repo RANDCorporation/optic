@@ -16,9 +16,8 @@
 #'     
 #' 
 #' @param x data.frame to use for model simulation
-#' @param models list of lists for each model that should be run each iteration.
-#'     The elements must be lists containing `model_call`, `model_formula`, and
-#'     optionally `model_args`.
+#' @param models list of `optic_model` objects that should be run each iteration.
+#'     The elements must be created with the `optic_model` function.
 #' @param iters number of iterations for each simulation
 #' @param method_sample function for sampling treated units, should modify the
 #'     single_simulation$data object
@@ -40,7 +39,7 @@
 #' @importFrom purrr cross
 #' @importFrom purrr transpose
 #' 
-configure_simulation <- function(x, models, iters, params, method_sample, method_model, method_results, 
+optic_simulation <- function(x, models, iters, params, method_sample, method_model, method_results, 
                                  method_pre_model=NULL, method_post_model=NULL, 
                                  globals=NULL, verbose=TRUE) {
   ###
@@ -93,6 +92,7 @@ configure_simulation <- function(x, models, iters, params, method_sample, method
   
   ###
   # create config object
+  # It is difficult to 
   ###
   conf <- SimConfig$new(
     data=x,
