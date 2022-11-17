@@ -3,7 +3,7 @@
 #' @importFrom R6 R6Class
 #' @importFrom tidyr crossing
 #' 
-#' @export
+#' @noRd
 SimConfig <- R6::R6Class(
   "SimConfig",
   

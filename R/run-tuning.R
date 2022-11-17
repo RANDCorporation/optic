@@ -1,7 +1,7 @@
 #' TODO: docstring
 #' @param single_simulation SimConfig object created using 'create_config'
 
-#' @export
+#' @noRd
 run_tuning <- function(single_simulation) {
   # sampling occurs outside modeling loop so same sample is used for each model
   single_simulation <- single_simulation$method_sample(single_simulation)

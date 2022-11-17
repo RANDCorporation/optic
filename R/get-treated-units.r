@@ -1,6 +1,7 @@
 #' get treated units
 #' 
 #' @importFrom magrittr %>%
+#' @noRd
 get_treated_units <- function(
   x, n, unit_var, time_var, policy_speed, n_implementation_periods, concurrent, rho, time_period_restriction) {
   # randomly sample units

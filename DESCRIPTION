@@ -21,6 +21,7 @@ Imports:
     MASS,
     purrr,
     R6,
+    rlang,
     sandwich,
     tidyr,
     utils

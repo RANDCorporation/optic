@@ -2,7 +2,7 @@
 #' 
 #' @param model_simulation
 #' 
-#' @export
+#' @noRd
 iter_results_concurrent_wjointeff <- function(model_simulation) {
   m <- model_simulation$model_result
   

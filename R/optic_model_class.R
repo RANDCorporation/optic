@@ -18,7 +18,6 @@
 #' @return optic_model (optic_model) object
 #' @export
 #'
-#' @examples
 optic_model <- function(name, type,call, formula, args, se_adjust) {
   
   # TODO: perform any needed type conversion here

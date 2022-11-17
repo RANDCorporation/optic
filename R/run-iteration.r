@@ -1,6 +1,6 @@
 #' TODO: docstring
 #' 
-#' @export
+#' @noRd
 run_iteration <- function(single_simulation) {
   # sampling occurs outside modeling loop so same sample is used for each model
   single_simulation <- single_simulation$method_sample(single_simulation)

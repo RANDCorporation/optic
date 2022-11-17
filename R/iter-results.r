@@ -2,7 +2,7 @@
 #' 
 #' @param m model object
 #' @param model_simulation R6 class object for simulation config
-#' @export
+#' @noRd
 iter_results <- function(model_simulation) {
   m <- model_simulation$model_result
   
@@ -17,7 +17,7 @@ iter_results <- function(model_simulation) {
 #' 
 #' @param x vector of errors (residuals)
 #' 
-#' @export
+#' @noRd
 mse_resid <- function(x) {
   return(mean(x^2, na.rm=T))
 }
@@ -26,7 +26,7 @@ mse_resid <- function(x) {
 #'
 #' @param model_simulation 
 #'
-#' @export
+#' @noRd
 iter_results.lm <- function(model_simulation) {
   m <- model_simulation$model_result
   

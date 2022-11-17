@@ -2,6 +2,7 @@
 devtools::document()
 devtools::load_all()
 
+# library(optic)
 # Question: Call "example_data" something else. opioid_deaths?
 
 data(example_data)
