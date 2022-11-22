@@ -35,12 +35,7 @@ model_2 <- optic_model(name="autoreg_linear",
               args=list(weights=as.name('population')),
               se_adjust=c("none", "cluster"))
 
-model_2 <- optic_model(name="autoreg_linear",
-                       type="autoreg",
-                       call="lm",
-                       formula=deaths ~ unemploymentrate + as.factor(year) + treatment1_change + treatment2_change,
-                       args=list(weights=as.name('population')),
-                       se_adjust=c("none", "cluster"))
+
 
 # TODO: Look at current script and implement combinations of type and call.
 # Name is arbitrary.
