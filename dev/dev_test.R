@@ -4,9 +4,9 @@ devtools::load_all()
 
 # library(optic)
 # Question: Call "example_data" something else. opioid_deaths?
-
-data(example_data)
-x <- example_data
+# 
+data(overdoses)
+x <- overdoses
 
 # we will define two scenarios for different effect magnitudes for
 # the policies using 5, 10, and 15 percent changes in the outcome
@@ -35,11 +35,33 @@ model_2 <- optic_model(name="autoreg_linear",
               args=list(weights=as.name('population')),
               se_adjust=c("none", "cluster"))
 
+model_2 <- optic_model(name="autoreg_linear",
+                       type="autoreg",
+                       call="lm",
+                       formula=deaths ~ unemploymentrate + as.factor(year) + treatment1_change + treatment2_change,
+                       args=list(weights=as.name('population')),
+                       se_adjust=c("none", "cluster"))
 
+# TODO: Look at current script and implement combinations of type and call.
+# Name is arbitrary.
+# type
+# In the manual, describe how to use count models as well?
+# r
 # sim_config
+# there's also feols, multisynth. check by searching model_type == 
+
+
+# TODO: question
+# Do we need model_type AND model_call?
+# Probably not?
+
+# TODO: There are some code dependent on the data.
+# outcome_count (deaths), outcome_rate (crude.rate)
+# Covariates / Balanced Statistics?
+# Balanced table.
 
 optic_sim <- optic_simulation(
-  x=x,
+  x=overdoses,
   models=list(model_1, model_2),
   iters=10,
   method_sample=concurrent_sample,
@@ -70,4 +92,6 @@ lm_results <- simulate(
   future.globals=c("cluster_adjust_se"),
   future.packages=c("dplyr", "optic")
 )
+
+## look at code that generates that test the 
 
