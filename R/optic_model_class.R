@@ -28,9 +28,9 @@ optic_model <- function(name, type,call, formula, args, se_adjust) {
 
 # Constructor:
 new_optic_model <- function(
-                  name= c("fixedeff_linear", "autoreg_linear"),
-                  type= c("reg", "autoreg"),
-                  call= c("lm"),
+                  name,
+                  type= c("reg", "autoreg", "multisynth", "drdid"),
+                  call= c("lm", "feols", "multisynth", "glm.nb"),
                   formula,
                   args=list(weights=as.name('population')),
                   se_adjust=c("none", "cluster")
@@ -40,7 +40,10 @@ new_optic_model <- function(
   m <- list()
   
   # basic checks and model assigments
-  m$name <- match.arg(name)
+  stopifnot(is.character(name))
+  stopifnot(length(name) == 1)
+  m$name <- name
+  
   m$type <- match.arg(type)
   
   stopifnot(rlang::is_formula(formula))
@@ -52,6 +55,7 @@ new_optic_model <- function(
   m$model_args <- args
   
   # TODO: What check to apply to se_adjust?
+  stopifnot(is.character(se_adjust))
   m$se_adjust <- se_adjust
   
   class(m) <- "optic_model"

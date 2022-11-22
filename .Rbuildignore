@@ -3,3 +3,4 @@
 ^OPTIC_linear*
 dev
 ^data-raw$
+^README\.Rmd$
