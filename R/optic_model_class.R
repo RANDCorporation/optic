@@ -54,11 +54,11 @@ new_optic_model <- function(
   stopifnot(is.list(args))
   m$model_args <- args
   
-  # TODO: What check to apply to se_adjust?
   stopifnot(is.character(se_adjust))
   m$se_adjust <- se_adjust
   
-  class(m) <- "optic_model"
+  # Assign S3 class
+  class(m) <- c("optic_model", "list")
   
   return(m)
 
