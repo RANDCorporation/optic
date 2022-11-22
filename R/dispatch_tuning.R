@@ -8,7 +8,7 @@
 #'     each indepdendent set of simulations
 #' @param verbose default TRUE, have the dispatcher tell you what's currently running
 #' 
-#' @export
+#' @noRd
 dispatch_tuning <- function(sim_config, use_future=FALSE, seed=NULL, failure=NULL, verbose=0, ...) {
   if (!"SimConfig" %in% class(sim_config)) {
     stop("`sim_config` must be a SimConfig object")

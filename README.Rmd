@@ -1,16 +1,24 @@
+---
+output: github_document
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
 # optic <a href='https://optic-tools.github.io/optic/'><img src='inst/figures/optic.png' align="right" height="139" /></a>
+**Simulation test-bed for Longitudinal Causal Inference models (or a better name)**
 
-**Simulation test-bed for Longitudinal Causal Inference models (or a
-better name)**
+The `optic` package helps you scrutinize candidate causal inference models using *your* longitudinal data.
 
-The `optic` package helps you scrutinize candidate causal inference
-models using *your* longitudinal data.
-
-The package supports the traditional Diff-in-Diff model, Callway and
-Santana, Autoregressive models, and multisynth.
+The package supports the traditional Diff-in-Diff model, Callway and Santana, Autoregressive models, and multisynth.
 
 This package is named after the *OPTIC* project.
 
@@ -31,14 +39,9 @@ remotes::install_github("optic-tools/optic")
 
 ## Usage
 
-`optic` provides two main workhorse functions: `optic_model` and
-`optic_simulation`. Use `optic_model` to define model specifications for
-each causal model to be tested in the simulation experiment. Then, pass
-your models, your data, and parameters to the `optic_simulation`
-function, that specifies a set of simulations to be performed for each
-`optic_model` specified.
+`optic` provides two main workhorse functions: `optic_model` and `optic_simulation`. Use `optic_model` to define model specifications for each causal model to be tested in the simulation experiment. Then, pass your models, your data, and parameters to the `optic_simulation` function, that specifies a set of simulations to be performed for each `optic_model` specified.
 
-``` r
+```{r example, eval=FALSE}
 library(optic)
 ## basic example code
 
@@ -94,12 +97,13 @@ optic_sim <- optic_simulation(
     ordered=TRUE
   )
 )
+
 ```
 
-After those steps, run `simulate()` on your `optic_simulation` object.
-Doing so will run your simulations in parallel.
 
-``` r
+After those steps, run `simulate()` on your `optic_simulation` object. Doing so will run your simulations in parallel.
+
+```{r, eval=FALSE}
 results <- simulate(
   optic_sim,
   use_future=TRUE,

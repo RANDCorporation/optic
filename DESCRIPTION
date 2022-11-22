@@ -1,33 +1,33 @@
 Package: optic
 Title: OPTIC
-Description: Implements simulation work to assess the strengths and weaknesses
-    of various model and analytic approaches to evaluating policy that responds
-    to the opioid crisis.
 Version: 0.1
 Authors@R: c(
-    person("Adam", "Scherling", email="ascherli@rand.org", role=c("cre", "aut")),
-    person("Beth Ann", "Griffin", email="bethg@rand.org", role=c("aut")),
-    person("Joseph", "Pane", role=c("aut")),
-    person("Geoffrey", "Grimm", role=c("aut")))
-Depends: R (>= 3.6.0)
+    person("Adam", "Scherling", , "ascherli@rand.org", role = c("cre", "aut")),
+    person("Beth Ann", "Griffin", , "bethg@rand.org", role = "aut"),
+    person("Joseph", "Pane", role = "aut"),
+    person("Geoffrey", "Grimm", role = "aut")
+  )
+Description: Implements simulation work to assess the strengths and
+    weaknesses of various model and analytic approaches to evaluating
+    policy that responds to the opioid crisis.
 License: GPL-3 | file LICENSE
+Depends: 
+    R (>= 3.6.0)
 Imports:
     dplyr,
-    tidyr,
-    rlang,
+    future.apply,
+    lmtest,
     magrittr,
-    R6,
-    twang,
-    DataCombine,
     MASS,
+    purrr,
+    R6,
+    rlang,
     sandwich,
-    lmtest
+    tidyr,
+    utils
 Encoding: UTF-8
-RoxygenNote: 7.1.1
-Suggests: 
-    future,
-    knitr,
-    parallel,
-    rmarkdown
-VignetteBuilder: knitr
 LazyData: true
+RoxygenNote: 7.2.1
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

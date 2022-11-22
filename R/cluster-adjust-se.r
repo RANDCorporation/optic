@@ -3,7 +3,7 @@
 #' 
 #' @param model model object from regression fit
 #' @param clsuter vector of cluster assignments; length should equal length of residuals in model object
-#' @export
+#' @noRd
 cluster_adjust_se <- function(model, cluster) {
   M <- length(unique(cluster))
   N <- length(cluster)

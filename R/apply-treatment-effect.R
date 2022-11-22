@@ -8,7 +8,7 @@
 #' @param effect_direction "null", "pos", or "neg"
 #' @param concurrent bool for whether this is concurrent run or not
 #' 
-#' @export
+#' @noRd
 apply_treatment_effect <- function(x, model_formula, model_call, te, effect_direction, concurrent) {
   # identify outcome
   outcome <- model_terms(model_formula)[["lhs"]]

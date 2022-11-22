@@ -2,10 +2,10 @@
 #'
 #' @param sampled_time_period year that policy is first enacted
 #' @param mo month that policy is first enacted
-#' @available_periods all available time periods in the data
-#' @policy_speed either "instant" for the policy going into immediate effect or "slow"
+#' @param available_periods all available time periods in the data
+#' @param policy_speed either "instant" for the policy going into immediate effect or "slow"
 #'     for the policy effect phasing in over time
-#' @n_implementation_periods used if policy_speed is slow, number of time periods over
+#' @param n_implementation_periods used if policy_speed is slow, number of time periods over
 #'     which to phase in full policy effect
 #'
 #' @export

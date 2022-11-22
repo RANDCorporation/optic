@@ -1,3 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^OPTIC_linear*
+dev
+^data-raw$
+^README\.Rmd$

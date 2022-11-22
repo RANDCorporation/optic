@@ -3,6 +3,7 @@
 #' sum of vector 1:m, when m (month) is not zero
 #' 
 #' @param m month integer
+#' @noRd
 calc_constant <- function(m) {
   if (!is.numeric(m)) {
     stop("'m' (month) must be an numeric representation.")

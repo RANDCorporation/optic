@@ -1,7 +1,7 @@
-#' OPTIC example data.
+#' OPTIC Overdoses example data.
 #'
 #' An example dataset for performing simulations using the OPTIC library,
-#' consisting of state-year data from the US Bureau of Labor Statistics, 
+#' consisting of state-year overdose data from the US Bureau of Labor Statistics, 
 #' the Centers from Disease Control and Prevention, and IQVIA Xponent.
 #'
 #' @format A data frame with 969 rows and 7 variables:
@@ -20,4 +20,4 @@
 #' Centers for Disease Control and Prevention, National Center for Health Statistics. Multiple Cause of Death 1999-2019 on CDC WONDER Online Database, released in 2020. Data are from the Multiple Cause of Death Files, 1999-2019, as compiled from data provided by the 57 vital statistics jurisdictions through the Vital Statistics Cooperative Program. Accessed at \url{http://wonder.cdc.gov/mcd-icd10.html}.
 #' 
 #' Centers for Disease Control and Prevention, IQVIA Xponent 2006–2019. U.S. Opioid Dispensing Rate Maps. Accessed at \url{https://www.cdc.gov/drugoverdose/rxrate-maps/index.html}.
-"example_data"
+"overdoses"

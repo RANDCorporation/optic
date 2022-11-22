@@ -16,9 +16,8 @@
 #'     
 #' 
 #' @param x data.frame to use for model simulation
-#' @param models list of lists for each model that should be run each iteration.
-#'     The elements must be lists containing `model_call`, `model_formula`, and
-#'     optionally `model_args`.
+#' @param models list of `optic_model` objects that should be run each iteration.
+#'     The elements must be created with the `optic_model` function.
 #' @param iters number of iterations for each simulation
 #' @param method_sample function for sampling treated units, should modify the
 #'     single_simulation$data object
@@ -37,7 +36,10 @@
 #' 
 #' @export
 #' 
-configure_simulation <- function(x, models, iters, params, method_sample, method_model, method_results, 
+#' @importFrom purrr cross
+#' @importFrom purrr transpose
+#' 
+optic_simulation <- function(x, models, iters, params, method_sample, method_model, method_results, 
                                  method_pre_model=NULL, method_post_model=NULL, 
                                  globals=NULL, verbose=TRUE) {
   ###
@@ -65,31 +67,32 @@ configure_simulation <- function(x, models, iters, params, method_sample, method
   iters <- as.integer(iters)
   
   # confirm functions with arg of single_simulation
-  if (class(method_sample) != "function") {
+  if (!is.function(method_sample)) {
     stop("`method_sample` must be of class 'function'")
   }
-  if (class(method_model) != "function") {
+  if (!is.function(method_model)) {
     stop("`method_model` must be of class 'function'")
   }
-  if (class(method_results) != "function") {
+  if (!is.function(method_results)) {
     stop("`method_results` must be of class 'function'")
   }
-  if (class(method_sample) != "function") {
+  if (!is.function(method_sample)) {
     stop("`method_sample` must be of class 'function'")
   }
   if (!is.null(method_pre_model)) {
-    if (class(method_pre_model) != "function") {
+    if (!is.function(method_pre_model)) {
       stop("`method_pre_model` must be of class 'function' or NULL")
     }
   }
   if (!is.null(method_post_model)) {
-    if (class(method_post_model) != "function") {
+    if (!is.function(method_post_model)) {
       stop("`method_post_model` must be of class 'function' or NULL")
     }
   }
   
   ###
   # create config object
+  # It is difficult to 
   ###
   conf <- SimConfig$new(
     data=x,
