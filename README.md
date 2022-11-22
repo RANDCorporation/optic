@@ -7,12 +7,25 @@
 better name)**
 
 The `optic` package helps you scrutinize candidate causal inference
-models using *your* longitudinal data.
+models using **your** longitudinal data.
 
-The package supports the traditional Diff-in-Diff model, Callway and
-Santana, Autoregressive models, and multisynth.
+The recent Diff-in-Diff literature revealed issues with the traditional
+Diff-in-Diff model, but we found it very difficult to evaluate the
+performance of causal inference methods using *our data*. Using
+real-world data, [we find that autoregressive models outperform
+diff-in-diff
+models](https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/s12874-021-01471-y).
 
-This package is named after the *OPTIC* project.
+`optic` is an R package we developed to support our work, and now you
+can use it on your datasets as well.
+
+The package supports the traditional two-way Diff-in-Diff model, Callway
+and Santana, Autoregressive models, and multisynth.
+
+### Why `optic`?
+
+`optic` is named after the **Opioid Policy Tools and Information Center
+(OPTIC)** project.
 
 <!-- badges: start -->
 <!-- badges: end -->
