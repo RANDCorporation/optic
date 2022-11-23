@@ -13,17 +13,27 @@ knitr::opts_chunk$set(
 )
 ```
 
-# optic <a href='https://optic-tools.github.io/optic/'><img src='inst/figures/optic.png' align="right" height="139" /></a>
+# optic <a href='https://optic-tools.github.io/optic/'><img src='man/figures/optic.png' align="right" height="139"  style="height:139px !important;" /></a>
 **Simulation test-bed for Longitudinal Causal Inference models (or a better name)**
 
-The `optic` package helps you scrutinize candidate causal inference models using *your* longitudinal data.
-
-The package supports the traditional Diff-in-Diff model, Callway and Santana, Autoregressive models, and multisynth.
-
-This package is named after the *OPTIC* project.
-
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/optic-tools/optic/workflows/R-CMD-check/badge.svg)](https://github.com/optic-tools/optic/actions)
+[![Test Coverage](https://github.com/optic-tools/optic/workflows/test-coverage/badge.svg)](https://github.com/optic-tools/optic/actions)
+[![codecov](https://codecov.io/gh/optic-tools/optic/branch/develop/graph/badge.svg?token=5XYDOFFJMH)](https://codecov.io/gh/optic-tools/optic)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 <!-- badges: end -->
+
+The `optic` package helps you scrutinize candidate causal inference models using **your** longitudinal data.
+
+The recent Diff-in-Diff literature revealed issues with the traditional Diff-in-Diff model, but we found it very difficult to evaluate the performance of causal inference methods using *our data*. Using real-world data, [we find that autoregressive models outperform diff-in-diff models](https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/s12874-021-01471-y).
+
+`optic` is an R package we developed to support our work, and now you can use it on your datasets as well. 
+
+The package supports the traditional two-way Diff-in-Diff model, Callway and Santana, Autoregressive models, and multisynth.
+
+### Why `optic`?
+
+`optic` is named after the **Opioid Policy Tools and Information Center (OPTIC)** project.
 
 ## Installation
 

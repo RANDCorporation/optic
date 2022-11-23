@@ -11,4 +11,4 @@ sticker("./dev/sunglass.png", package = "optic",
         p_color = "#482475",dpi = 300, 
         #p_family = "Noto Sans",  
         h_fill = "white",h_color = "#482475",
-        filename = file.path("inst/figures/optic.png"))
+        filename = file.path("man/figures/optic.png"))
