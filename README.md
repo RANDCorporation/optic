@@ -1,10 +1,20 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# optic <a href='https://optic-tools.github.io/optic/'><img src='inst/figures/optic.png' align="right" height="139" /></a>
+# optic <a href='https://optic-tools.github.io/optic/'><img src='man/figures/optic.png' align="right" height="139"  style="height:139px !important;" /></a>
 
 **Simulation test-bed for Longitudinal Causal Inference models (or a
 better name)**
+
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/optic-tools/optic/workflows/R-CMD-check/badge.svg)](https://github.com/optic-tools/optic/actions)
+[![Test
+Coverage](https://github.com/optic-tools/optic/workflows/test-coverage/badge.svg)](https://github.com/optic-tools/optic/actions)
+[![codecov](https://codecov.io/gh/optic-tools/optic/branch/develop/graph/badge.svg?token=5XYDOFFJMH)](https://codecov.io/gh/optic-tools/optic)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+<!-- badges: end -->
 
 The `optic` package helps you scrutinize candidate causal inference
 models using **your** longitudinal data.
@@ -26,9 +36,6 @@ and Santana, Autoregressive models, and multisynth.
 
 `optic` is named after the **Opioid Policy Tools and Information Center
 (OPTIC)** project.
-
-<!-- badges: start -->
-<!-- badges: end -->
 
 ## Installation
 

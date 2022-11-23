@@ -2,8 +2,10 @@ Package: optic
 Title: OPTIC
 Version: 0.1
 Authors@R: c(
-    person("Adam", "Scherling", , "ascherli@rand.org", role = c("cre", "aut")),
     person("Beth Ann", "Griffin", , "bethg@rand.org", role = "aut"),
+    person("Pedro", "Nascimento de Lima", , "plima@rand.org", role = c("aut")),
+    person("Max", "Grizwold", role = "aut"),
+    person("Adam", "Scherling", , "ascherli@rand.org", role = c("cre", "aut")),
     person("Joseph", "Pane", role = "aut"),
     person("Geoffrey", "Grimm", role = "aut")
   )
