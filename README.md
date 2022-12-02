@@ -3,8 +3,7 @@
 
 # optic <a href='https://optic-tools.github.io/optic/'><img src='man/figures/optic.png' align="right" height="139"  style="height:139px !important;" /></a>
 
-**Simulation test-bed for Longitudinal Causal Inference models (or a
-better name)**
+**Simulation test-bed for Longitudinal Causal Inference models**
 
 <!-- badges: start -->
 
@@ -22,12 +21,13 @@ models using **your** longitudinal data.
 The recent Diff-in-Diff literature revealed issues with the traditional
 Diff-in-Diff model, but we found it very difficult to evaluate the
 performance of causal inference methods using *our data*. Using
-real-world data, [we find that autoregressive models outperform
-diff-in-diff
-models](https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/s12874-021-01471-y).
+real-world data, [we find that autoregressive models outperform the
+traditional diff-in-diff
+models](https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/s12874-021-01471-y),
+but don’t just take our word for it!
 
-`optic` is an R package we developed to support our work, and now you
-can use it on your datasets as well.
+You can now use our `optic` R package to compare causal inference models
+using your own data.
 
 The package supports the traditional two-way Diff-in-Diff model, Callway
 and Santana, Autoregressive models, and multisynth.
