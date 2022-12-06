@@ -16,26 +16,43 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 <!-- badges: end -->
 
 The `optic` package helps you scrutinize candidate causal inference
-models using **your** longitudinal data.
+models using **your own** longitudinal data.
 
 The recent Diff-in-Diff literature revealed issues with the traditional
 Diff-in-Diff model, but we found it very difficult to evaluate the
-performance of causal inference methods using *our data*. Using
-real-world data, [we find that autoregressive models outperform the
-traditional diff-in-diff
-models](https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/s12874-021-01471-y),
-but don’t just take our word for it!
+relative performance of different causal inference methods using *our
+own data*. Thus, we designed a series of simulations to study the
+performance of various methods under different scenarios. Our
+publications to date include:
 
-You can now use our `optic` R package to compare causal inference models
-using your own data.
+1.  Using real-world data on opioid mortality rates, [we found notable
+    limitations of commonly used statistical models for
+    Difference-In-Differences (DID) designs, which are widely used in
+    state policy evaluations. In contrast, the optimal model we
+    identified–the autoregressive model (AR) model- showed a lot of
+    promise.](https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/s12874-021-01471-y),
+    but don’t just take our word for it - try it our with your own data
+    and see how various approaches do relative to each other.
 
-The package supports the traditional two-way Diff-in-Diff model, Callway
-and Santana, Autoregressive models, and multisynth.
+2.  [It is also critical to be able to control for effects of
+    co-occurring policies, and understand the potential bias that might
+    arise from not controlling for those
+    policies.](https://link.springer.com/article/10.1007/s10742-022-00284-w)
+    Our package can also help you assess the impact of co-occurring
+    policies on the performance of commonly-used statistical models in
+    state policy evaluations.
+
+You can now use our `optic` R package to simulate policy effects and
+compare causal inference models using your own data.
+
+The package supports the traditional two-way fixed effects DID model and
+the AR model as well as other leading methods like augment synthetic
+control and the Callaway-Santa’Anna approach to DID.
 
 ### Why `optic`?
 
 `optic` is named after the **Opioid Policy Tools and Information Center
-(OPTIC)** project.
+(OPTIC)** project which provide funding for this effort.
 
 ## Installation
 
@@ -65,6 +82,8 @@ library(optic)
 # overdose example data provided with the package:
 data(overdoses)
 x <- overdoses
+
+#testing a scenario with two co-occuring policies
 
 model_1 <- optic_model(
          name="fixedeff_linear",
