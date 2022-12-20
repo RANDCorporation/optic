@@ -9,3 +9,4 @@ dev
 ^pkgdown$
 ^doc$
 ^Meta$
+^.github$
