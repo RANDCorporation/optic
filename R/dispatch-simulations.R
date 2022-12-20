@@ -73,12 +73,18 @@ simulate.SimConfig <- function(sim_config, use_future=FALSE, seed=NULL, failure=
               failed_attempts <- failed_attempts + 1
             }
           }
-          if (any(class(r) == "data.frame")) {
+          
+          # if this is one data.frame, assign iteration number
+          if (is.data.frame(r)) {
             r$iter <- j
-          } else if (any(class(r) == "list")) {
+            
+          # if this is not a data.frame, then it must be a list of data.frames:
+          } else {
+            # check that it is a list of data.frames:
+            stopifnot(is.list(r))
+            stopifnot(all(sapply(r, is.data.frame)))
             r <- lapply(r, function(x){ x$iter <- j})
           }
-          
           return(r)
         },
         future.seed=use_seed,
@@ -119,9 +125,9 @@ simulate.SimConfig <- function(sim_config, use_future=FALSE, seed=NULL, failure=
                      paste(r, collapse=" ")))
           
         }
-        if (class(r) == "data.frame") {
+        if (is.data.frame(r)) {
           r$iter <- j
-        } else if (class(r) == "list") {
+        } else if (is.list(r)) {
           r <- lapply(r, function(x){ x$iter <- j})
         }
         

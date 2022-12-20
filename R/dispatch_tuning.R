@@ -71,9 +71,9 @@ dispatch_tuning <- function(sim_config, use_future=FALSE, seed=NULL, failure=NUL
               failed_attempts <- failed_attempts + 1
             }
           }
-          if (class(r) == "data.frame") {
+          if (is.data.frame(r)) {
             r$iter <- j
-          } else if (class(r) == "list") {
+          } else if (is.list(r)) {
             r <- lapply(r, function(x){ x$iter <- j})
           }
           
@@ -117,9 +117,9 @@ dispatch_tuning <- function(sim_config, use_future=FALSE, seed=NULL, failure=NUL
                      paste(r, collapse=" ")))
           
         }
-        if (class(r) == "data.frame") {
+        if (is.data.frame(r)) {
           r$iter <- j
-        } else if (class(r) == "list") {
+        } else if (is.list(r)) {
           r <- lapply(r, function(x){ x$iter <- j})
         }
         
