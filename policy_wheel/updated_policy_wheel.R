@@ -14,9 +14,9 @@ df <- fread('bup_policy_state_year.csv')
 df <- melt(df, id.vars = "state", variable.name = "policy", value.name = "year")
 
 # Set up plot options and hardcode plot ordering
-plot_colors <- c("#018571", "#80cdc1", 
+plot_colors <- c("#5e3c99", "#b2abd2", 
                  "#a6611a", "#dfc27d", 
-                 "#0571b0", "#92c5de")
+                 "#0571b0", "#80cdc1")
 
 policy_intervals <- c(2010, 2015, 2018)
 
@@ -154,27 +154,32 @@ plot_policy_wheel <- function(y){
   
 }
 
-png(filename = "policy_wheel_new.png",
-    width = 500, height = 400, units='mm', res = 300)
+svg(filename = "policy_wheel_new_2018.svg",
+    width = 10, height = 10)
 
 # Create layout onto which the chart's title, legend, and policy wheels will be pasted onto
-layout.mat <- matrix(c(1,3,2,3), ncol=2)               # plot matrix
-layout.mat <- rbind(matrix(4, nrow=1, ncol=2), layout.mat) # space for the title
-layout.mat <- rbind(layout.mat, matrix(5, nrow=1, ncol=2)) # space for the legend
+#layout.mat <- matrix(c(1,3,2,3), ncol=2)               # plot matrix
+#layout.mat <- rbind(matrix(4, nrow=1, ncol=2), layout.mat) # space for the title
+#layout.mat <- rbind(layout.mat, matrix(5, nrow=1, ncol=2)) # space for the legend
 
-layout(layout.mat, respect = TRUE, heights = c(0.35, 3, 3, 0.35), widths = c(3, 3))
+#layout(layout.mat, respect = TRUE, heights = c(0.35, 3, 3, 0.35), widths = c(3, 3))
 
-lapply(policy_intervals, plot_policy_wheel)
+lapply(policy_intervals[[3]], plot_policy_wheel)
+
+dev.off()
 
 # Add title
-plot.new()
-plot.window(xlim=c(0,1), ylim=c(0,1))
-ll <- par("usr")
+# plot.new()
+# plot.window(xlim=c(0,1), ylim=c(0,1))
+# ll <- par("usr")
 
-text(0.5, 0.5, "Not sure what title should be", cex=2)
+#text(0.5, 0.5, "Not sure what title should be", cex=2)
+
+svg(filename = "policy_wheel_legend.svg",
+    width = 10, height = 2)
 
 # Add legend in correct order of colors:
-col_order <- matrix(1:(3*2), nrow = 3, ncol = 2, byrow = T)
+col_order <- matrix((3*2):1, nrow = 3, ncol = 2, byrow = T)
 
 par(xpd=TRUE)
 plot.new()
@@ -188,4 +193,3 @@ legend("center",
       x.intersp = 1.3, cex = 1.8, 
       pt.cex = 2.7, bty = "n", ncol = 2)
 
-dev.off()
