@@ -1,12 +1,12 @@
-#' Execute simulations defined in a SimConfig object
+#' Execute simulations defined in a optic_simulation object
 #' 
-#' @param sim_config SimConfig object created using 'create_config'
-#' @param use_future default FALSE, set to TRUE if you have already setup a future
+#' @param sim_config Simulation scenarios created using optic_simulation
+#' @param use_future Runs simulation scenarios in parallel. Default FALSE, set to TRUE if you have already setup a future
 #'     plan (e.g., multiprocess, cluster, etc) and would like for the iterations to
-#'     be run in parallel
-#' @param seed if not null, will use the index of the simulation * seed provided for
-#'     each indepdendent set of simulations
-#' @param verbose default TRUE, have the dispatcher tell you what's currently running
+#'     be run in parallel.
+#' @param seed Specified as either NULL or a numeric. Sets a seed, which is becomes an index in results, for
+#'     each indepdendent set of simulations in optic_simulation.
+#' @param verbose Default TRUE. IF TRUE, provides details on what's currently running.
 #' 
 #' @importFrom future.apply future_lapply
 #' 
