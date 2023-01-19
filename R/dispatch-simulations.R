@@ -7,7 +7,9 @@
 #'     be run in parallel.
 #' @param seed Specified as either NULL or a numeric. Sets a seed, which is becomes an index in results, for
 #'     each indepdendent set of simulations in optic_simulation.
+#' @param failure It is uncleear what this does. Max or Beth, do you happen to know the story behind this parameter?
 #' @param verbose Default TRUE. IF TRUE, provides details on what's currently running.
+#' @param ... additional parameters to be passed to future_apply.
 #' 
 #' @importFrom future.apply future_lapply
 #' @importFrom stats simulate
