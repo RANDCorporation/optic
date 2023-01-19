@@ -2,20 +2,19 @@
 #' Execute simulations defined in a optic_simulation object
 #' 
 #' @param object Simulation scenarios created using optic_simulation
+#' @param seed Specified as either NULL or a numeric. Sets a seed, which is becomes an index in results, for
+#'     each indepdendent set of simulations in optic_simulation.
 #' @param use_future Runs simulation scenarios in parallel. Default FALSE, set to TRUE if you have already setup a future
 #'     plan (e.g., multiprocess, cluster, etc) and would like for the iterations to
 #'     be run in parallel.
-#' @param seed Specified as either NULL or a numeric. Sets a seed, which is becomes an index in results, for
-#'     each indepdendent set of simulations in optic_simulation.
 #' @param failure It is uncleear what this does. Max or Beth, do you happen to know the story behind this parameter?
 #' @param verbose Default TRUE. IF TRUE, provides details on what's currently running.
 #' @param ... additional parameters to be passed to future_apply.
 #' 
 #' @importFrom future.apply future_lapply
 #' @importFrom stats simulate
-#' 
 #' @export
-simulate.OpticSim <- function(object, use_future=FALSE, seed=NULL, failure=NULL, verbose=0, ...) {
+dispatch_simulations.OpticSim <- function(object, seed=NULL, use_future=FALSE, failure=NULL, verbose=0, ...) {
   
   return_list <- list()
   
@@ -158,4 +157,8 @@ simulate.OpticSim <- function(object, use_future=FALSE, seed=NULL, failure=NULL,
   }
   
   return(return_list)
+}
+
+dispatch_simulations <- function(object, ...) {
+  UseMethod("dispatch_simulations")
 }

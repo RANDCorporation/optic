@@ -21,6 +21,7 @@ Imports:
     lmtest,
     magrittr,
     MASS,
+    methods,
     purrr,
     R6,
     rlang,

@@ -6,6 +6,8 @@ attachment::att_amend_desc()
 # document
 devtools::document()
 
+devtools::test()
+
 devtools::build_manual()
 
 # ascciicast 

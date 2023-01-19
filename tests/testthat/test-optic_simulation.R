@@ -66,7 +66,7 @@ optic_sim <- optic_simulation(
 
 # cluster_adjust_se <- optic:::cluster_adjust_se
 
-lm_results <- simulate(
+lm_results <- dispatch_simulations(
   optic_sim,
   use_future=T,
   seed=9782,
