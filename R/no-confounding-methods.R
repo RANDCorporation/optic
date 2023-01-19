@@ -2,15 +2,13 @@
 ### SAMPLING METHOD ###
 #######################
 
-#' perform sampling and coding of treatment for no confounding policy simulations
+#' Perform sampling and coding of treatment effect for no confounding policy simulations
 #' 
-#' @description samples treated units (e.g., states) randomly; 
-#'     Once treated units are identified, codes level and change version of
-#'     treatment that are used in various modeling approaches later on.
+#' @description Simulates treatment status across units by time (e.g., states, counties, schools), generating treatment times for a single policies without any confounding.
 #'
-#' @param single_simulation object created from SimConfig$setup_single_simulation()
+#' @param single_simulation An object created from SimConfig$setup_single_simulation(), which specifies simulation data, number of units, unit variable & time variable, etc.
 #' 
-#' @export
+#' @noRd
 noconf_sample <- function(single_simulation) {
   ##########################################
   ### PULL DATA AND PARAMETERS/VARIABLES ###
@@ -183,14 +181,15 @@ noconf_sample <- function(single_simulation) {
 ### PRE MODEL METHOD ###
 ########################
 
-#' pre-modeling method to apply to config object/data
+#' Functions to apply to simulated treatment effect prior to simulations.
 #' 
-#' @description since there are different data transformations needed for different
-#'     model approaches (e.g., linear, count, log-linear), the treatment effect application and other data prep steps
-#'     are run here before modeling in the model-specific config object rather 
-#'     than in the sampling step 
+#' @description Depending on the exact estimator used, an analyst may wish to apply a functional form to the treatment effect prior to modeling
+#'     (i.e., estimate effect as linear, logged, etc). Can also apply additional pre-modeling steps to each simulate dataset as required. All 
+#'     steps in this function are applied prior to sampling treatment effects.
 #' 
-#' @export
+#' @param model_simulation An object created from OpticModel, which specifies simulation settings such as model formulas, model call, etc
+#' 
+#' @noRd
 noconf_premodel <- function(model_simulation) {
   ##########################################
   ### PULL DATA AND PARAMETERS/VARIABLES ###
@@ -316,13 +315,14 @@ noconf_premodel <- function(model_simulation) {
 ####################
 ### MODEL METHOD ###
 ####################
-#' run model and store results
+#' Runs a given model simulation and stores resuls
 #' 
-#' @description runs the model against the prepared data along with
+#' @description Runs the model against the prepared simulation data along with
 #'     any provided arguments. Stores the model object in the input
-#'     list, new element named "model_result" and returns full list
+#'     list, generating a new element named "model_result" and returns full list
 #'
-#' @export
+#' @param model_simulation An object created from OpticModel, which specifies simulation settings such as model formulas, model call, etc
+#' @noRd
 noconf_model <- function(model_simulation) {
   model <- model_simulation$models
   x <- model_simulation$data
@@ -349,11 +349,12 @@ noconf_model <- function(model_simulation) {
 #########################
 ### POST_MODEL METHOD ###
 #########################
-#' process results from model(s) 
+#' Post process results from a simulation model(
 #' 
-#' @description summarizes the statistical performance of the model(s) being compared by computing summary information on the model fit, estimated effects and standard errors 
+#' @description Summarizes the statistical performance of a model by computing summary information on the model fit, estimated effects and standard errors 
 #' 
-#' @export
+#' @param model_simulation An object created from OpticModel, which specifies simulation settings such as model formulas, model call, etc
+#' @noRd
 noconf_postmodel <- function(model_simulation) {
   outcome <- model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
   # get run metadata to merge in after
@@ -581,11 +582,12 @@ noconf_postmodel <- function(model_simulation) {
 ### RESULTS METHOD ###
 ######################
 
-#' compiles the final results 
+#' Compiles final results across simulation runs into a single dataframe
 #' 
-#' @description compiles the results into one table for all permutations of the simulation
+#' @description A convenience function that takes simulation results and binds into a single table
 #' 
-#' @export
+#' @param r Results from a single model simulation.
+#' @noRd
 noconf_results <- function(r) {
   return(dplyr::bind_rows(r))
 }

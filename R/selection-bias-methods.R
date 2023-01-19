@@ -2,7 +2,7 @@
 ### SAMPLING METHOD ###
 #######################
 
-#' perform sampling and coding of treatment for selection bias simulations
+#' Perform sampling and coding of treatment for selection bias simulations
 #' 
 #' @description uses values of b0, b1, b2 to sample treated units based on
 #'     values of two covariates (here moving average and unemployment rate) to induce confounding (selection) bias.
@@ -11,7 +11,7 @@
 #'
 #' @param single_simulation object created from SimConfig$setup_single_simulation()
 #' 
-#' @export
+#' @noRd
 selbias_sample <- function(single_simulation) {
   x <- single_simulation$data
   pc = single_simulation$prior_control
@@ -298,7 +298,7 @@ selbias_sample <- function(single_simulation) {
 #'     Calculates some balance information that is passed along to later
 #'     steps.
 #' 
-#' @export
+#' @noRd
 selbias_premodel <- function(model_simulation) {
   x <- model_simulation$data
   model <- model_simulation$models
@@ -426,7 +426,7 @@ selbias_model <- function(model_simulation) {
 #' 
 #' @description summarizes the statistical performance of the model(s) being compared by computing summary information on the model fit, estimated effects and standard errors 
 #' 
-#' @export
+#' @noRd
 selbias_postmodel <- function(model_simulation) {
   outcome <- model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
   bias_vals <- model_simulation$globals[["bias_vals"]][[model_simulation$bias_type]][[model_simulation$prior_control]][[model_simulation$bias_size]]
@@ -577,11 +577,12 @@ selbias_postmodel <- function(model_simulation) {
 ### RESULTS METHOD ###
 ######################
 
-#' compiles the final results 
+#' Compiles final results across simulation runs into a single dataframe
 #' 
-#' @description compiles the results into one table for all permutations of the simulation
+#' @description A convenience function that takes simulation results and binds into a single table
 #' 
-#' @export
+#' @param r Results from a single model simulation.
+#' @noRd
 selbias_results <- function(r) {
   return(do.call(rbind, r))
 }
