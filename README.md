@@ -114,12 +114,15 @@ optic_sim <- optic_simulation(
   x=overdoses,
   models=list(model_1, model_2),
   iters=10,
+  # method_type = c("concurrent", "confounding", "standard?")
+  # By choosing this method, all the parameters below would be set.
   method_sample=concurrent_sample,
   method_pre_model=concurrent_premodel,
   method_model=concurrent_model,
   method_post_model=concurrent_postmodel,
   method_results=concurrent_results,
   
+  # Look into de-nest this and construct it back within the optic_simulation function.
   params=list(
     unit_var="state",
     time_var="year",

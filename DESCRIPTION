@@ -3,9 +3,9 @@ Title: OPTIC
 Version: 0.1
 Authors@R: c(
     person("Beth Ann", "Griffin", , "bethg@rand.org", role = "aut"),
-    person("Pedro", "Nascimento de Lima", , "plima@rand.org", role = c("aut")),
+    person("Pedro", "Nascimento de Lima", , "plima@rand.org", role = c("cre", "aut"),
     person("Max", "Grizwold", role = "aut"),
-    person("Adam", "Scherling", , "ascherli@rand.org", role = c("cre", "aut")),
+    person("Adam", "Scherling", , "ascherli@rand.org", role = "aut"),
     person("Joseph", "Pane", role = "aut"),
     person("Geoffrey", "Grimm", role = "aut")
   )
@@ -27,12 +27,13 @@ Imports:
     sandwich,
     tidyr,
     utils
-Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.2.1
 Suggests: 
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)
+VignetteBuilder: 
+    knitr
 Config/testthat/edition: 3
-VignetteBuilder: knitr
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.1
