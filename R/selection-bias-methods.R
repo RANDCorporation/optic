@@ -396,7 +396,7 @@ selbias_premodel <- function(model_simulation) {
 #'     any provided arguments. Stores the model object in the input
 #'     list, new element named "model_result" and returns full list
 #' 
-#' @export
+#' @noRd
 selbias_model <- function(model_simulation) {
   model <- model_simulation$models
   x <- model_simulation$data

@@ -75,9 +75,9 @@ concurrent_sample <- function(single_simulation) {
     sampled_time_period2=floor(sampled_time_period2)
     
     # exposure coding
-    l1 <- optic::exposure_list(sampled_time_period1, mo1, available_periods, policy_speed, n_implementation_periods)
+    l1 <- optic:::exposure_list(sampled_time_period1, mo1, available_periods, policy_speed, n_implementation_periods)
     names(l1) <- paste0(names(l1), "1")
-    l2 <- optic::exposure_list(sampled_time_period2, mo2, available_periods, policy_speed, n_implementation_periods)
+    l2 <- optic:::exposure_list(sampled_time_period2, mo2, available_periods, policy_speed, n_implementation_periods)
     names(l2) <- paste0(names(l2), "2")
     treated[[sunit]] <- c(l1, l2)
   }

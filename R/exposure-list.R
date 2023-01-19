@@ -10,7 +10,7 @@
 #'     for the policy effect phasing in linearly across n_implement_periods 
 #' @param n_implementation_periods Number of periods until full treatment effect is applied. Only used if policy_speed is 'slow'.
 #'
-#' @export
+#' @noRd
 exposure_list <- function(sampled_time_period, mo, available_periods, policy_speed, n_implementation_periods) {
   if (policy_speed == "instant") {
     l <- list(

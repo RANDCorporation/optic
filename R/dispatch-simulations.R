@@ -1,7 +1,7 @@
 
 #' Execute simulations defined in a optic_simulation object
 #' 
-#' @param sim_config Simulation scenarios created using optic_simulation
+#' @param object Simulation scenarios created using optic_simulation
 #' @param use_future Runs simulation scenarios in parallel. Default FALSE, set to TRUE if you have already setup a future
 #'     plan (e.g., multiprocess, cluster, etc) and would like for the iterations to
 #'     be run in parallel.
@@ -13,15 +13,15 @@
 #' @importFrom stats simulate
 #' 
 #' @export
-simulate.optic_simulation <- function(sim_config, use_future=FALSE, seed=NULL, failure=NULL, verbose=0, ...) {
+simulate.OpticSim <- function(object, use_future=FALSE, seed=NULL, failure=NULL, verbose=0, ...) {
   
   return_list <- list()
   
   # iterate over all combinations in config
-  for (i in 1:nrow(sim_config$simulation_params)) {
-    single_simulation <- sim_config$setup_single_simulation(i)
+  for (i in 1:nrow(object$simulation_params)) {
+    single_simulation <- object$setup_single_simulation(i)
     if (verbose > 0) {
-      cat(paste("JOB", i, "OF", nrow(sim_config$simulation_params), "DISPATCHED:\n"))
+      cat(paste("JOB", i, "OF", nrow(object$simulation_params), "DISPATCHED:\n"))
       if (use_future) {
         cat("        DISPATCH METHOD: parallel (future)\n")
       } else {
@@ -29,8 +29,8 @@ simulate.optic_simulation <- function(sim_config, use_future=FALSE, seed=NULL, f
       }
       if (verbose > 1) {
         cat("        PARAMS:\n")
-        for (p in names(sim_config$simulation_params[i, ])) {
-          cat(paste0("            ", p, ": ", sim_config$simulation_params[i, p], "\n"))
+        for (p in names(object$simulation_params[i, ])) {
+          cat(paste0("            ", p, ": ", object$simulation_params[i, p], "\n"))
         }
       }
     }
@@ -81,7 +81,12 @@ simulate.optic_simulation <- function(sim_config, use_future=FALSE, seed=NULL, f
           } else {
             # check that it is a list of data.frames:
             stopifnot(is.list(r))
-            stopifnot(all(sapply(r, is.data.frame)))
+            
+            if(!all(sapply(r, is.data.frame))) {
+              print(r$message)
+              stop(paste0("Error in simulate.sim_config. Results are not data.frames. Error: \n", r$message))
+            }
+            # stopifnot(all(sapply(r, is.data.frame)))
             r <- lapply(r, function(x){ x$iter <- j})
           }
           return(r)
