@@ -84,10 +84,10 @@ optic_simulation <- function(x, models, iters, params, method_sample, method_mod
   }
   
   ###
-  # create a simconfig object
+  # create a OpticSim object
   # It is difficult to 
   ###
-  conf <- SimConfig$new(
+  conf <- OpticSim$new(
     data=x,
     models=models,
     iters=iters,

@@ -4,8 +4,8 @@
 #' @importFrom tidyr crossing
 #' 
 #' @noRd
-SimConfig <- R6::R6Class(
-  "SimConfig",
+OpticSim <- R6::R6Class(
+  "OpticSim",
   
   ###
   # PUBLIC

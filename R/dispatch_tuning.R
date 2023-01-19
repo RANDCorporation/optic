@@ -1,6 +1,6 @@
-#' Execute simulations defined in a SimConfig object
+#' Execute simulations defined in a OpticSim object
 #' 
-#' @param sim_config SimConfig object created using 'create_config'
+#' @param sim_config OpticSim object created using 'create_config'
 #' @param use_future default FALSE, set to TRUE if you have already setup a future
 #'     plan (e.g., multiprocess, cluster, etc) and would like for the iterations to
 #'     be run in parallel

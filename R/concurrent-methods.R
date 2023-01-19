@@ -5,7 +5,7 @@
 #' Perform sampling and coding of treatment effect for concurrent policy simulations
 #' @description Simulates treatment status across units by time (e.g., states, counties, schools), generating treatment times for two policies with an  average mean difference in time between the two policies; Additionally simulates a static treatment effect in level-space for each policy.
 #'
-#' @param single_simulation An object created from SimConfig$setup_single_simulation(), which specifies simulation data, number of units, unit variable & time variable, etc.
+#' @param single_simulation An object created from OpticSim$setup_single_simulation(), which specifies simulation data, number of units, unit variable & time variable, etc.
 #' @noRd
 concurrent_sample <- function(single_simulation) {
   ##########################################

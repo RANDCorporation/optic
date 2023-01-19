@@ -6,7 +6,7 @@
 #' 
 #' @description Simulates treatment status across units by time (e.g., states, counties, schools), generating treatment times for a single policies without any confounding.
 #'
-#' @param single_simulation An object created from SimConfig$setup_single_simulation(), which specifies simulation data, number of units, unit variable & time variable, etc.
+#' @param single_simulation An object created from OpticSim$setup_single_simulation(), which specifies simulation data, number of units, unit variable & time variable, etc.
 #' 
 #' @noRd
 noconf_sample <- function(single_simulation) {

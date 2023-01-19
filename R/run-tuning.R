@@ -1,5 +1,5 @@
 #' TODO: docstring
-#' @param single_simulation SimConfig object created using 'create_config'
+#' @param single_simulation OpticSim object created using 'create_config'
 
 #' @noRd
 run_tuning <- function(single_simulation) {

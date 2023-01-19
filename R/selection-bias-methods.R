@@ -9,7 +9,7 @@
 #'     Once treated units are identified, codes level and change version of
 #'     treatment that are used in various modeling approaches later on.
 #'
-#' @param single_simulation object created from SimConfig$setup_single_simulation()
+#' @param single_simulation object created from OpticSim$setup_single_simulation()
 #' 
 #' @noRd
 selbias_sample <- function(single_simulation) {
