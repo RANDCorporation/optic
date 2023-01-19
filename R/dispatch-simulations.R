@@ -10,12 +10,10 @@
 #' @param verbose Default TRUE. IF TRUE, provides details on what's currently running.
 #' 
 #' @importFrom future.apply future_lapply
+#' @importFrom stats simulate
 #' 
 #' @export
-simulate.SimConfig <- function(sim_config, use_future=FALSE, seed=NULL, failure=NULL, verbose=0, ...) {
-  if (!"SimConfig" %in% class(sim_config)) {
-    stop("`sim_config` must be a SimConfig object")
-  }
+simulate.optic_simulation <- function(sim_config, use_future=FALSE, seed=NULL, failure=NULL, verbose=0, ...) {
   
   return_list <- list()
   

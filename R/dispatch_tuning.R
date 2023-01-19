@@ -10,8 +10,9 @@
 #' 
 #' @noRd
 dispatch_tuning <- function(sim_config, use_future=FALSE, seed=NULL, failure=NULL, verbose=0, ...) {
-  if (!"SimConfig" %in% class(sim_config)) {
-    stop("`sim_config` must be a SimConfig object")
+
+  if (!"optic_simulation" %in% class(sim_config)) {
+    stop("`sim_config` must be an optic_simulation object")
   }
   
   return_list <- list()

@@ -110,8 +110,6 @@ optic_simulation <- function(x, models, iters, params, method_sample, method_mod
       cat("hey, that's a lot of iterations! we recommend using the parallel options when dispatching this job.\n")
     }
   }
-
-  browser()
   
   return(conf)
 }
