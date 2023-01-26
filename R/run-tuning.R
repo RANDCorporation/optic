@@ -19,7 +19,7 @@ run_tuning <- function(single_simulation) {
   if (!is.null(single_simulation$method_pre_model)) {
     model_simulation <- single_simulation$method_pre_model(model_simulation)
   }
-  outcome <- model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
+  outcome <- optic::model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
   bias_vals <- model_simulation$globals[["bias_vals"]][[model_simulation$bias_type]][[model_simulation$prior_control]][[model_simulation$bias_size]]
   # get run metadata to merge in after
   meta_data <- data.frame(

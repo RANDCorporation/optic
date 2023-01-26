@@ -213,7 +213,7 @@ selbias_sample <- function(single_simulation) {
       treated[[current_unit]] <- list(
         policy_years = yr:max(x$year, na.rm=TRUE),
         policy_month = mo,
-        exposure = optic:::calculate_exposure(mo, number_implementation_years),
+        exposure = optic::calculate_exposure(mo, number_implementation_years),
         policy_date = as.Date(paste0(yr, '-', mo, '-01'))
       )
       
@@ -302,7 +302,7 @@ selbias_sample <- function(single_simulation) {
 selbias_premodel <- function(model_simulation) {
   x <- model_simulation$data
   model <- model_simulation$models
-  outcome <- optic:::model_terms(model$model_formula)[["lhs"]]
+  outcome <- optic::model_terms(model$model_formula)[["lhs"]]
   oo <- dplyr::sym(outcome)
   model_type <- model$type
   balance_statistics <- NULL
@@ -428,7 +428,7 @@ selbias_model <- function(model_simulation) {
 #' 
 #' @noRd
 selbias_postmodel <- function(model_simulation) {
-  outcome <- model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
+  outcome <- optic::model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
   bias_vals <- model_simulation$globals[["bias_vals"]][[model_simulation$bias_type]][[model_simulation$prior_control]][[model_simulation$bias_size]]
   # get run metadata to merge in after
   meta_data <- data.frame(

@@ -55,44 +55,17 @@ get_treated_units <- function(
     
     # exposure coding
     if (concurrent) {
-      l1 <- exposure_list(sampled_time_period1, mo1, available_periods, policy_speed, n_implementation_periods)
+      l1 <- optic::exposure_list(sampled_time_period1, mo1, available_periods, policy_speed, n_implementation_periods)
       names(l1) <- paste0(names(l1), "1")
-      l2 <- exposure_list(sampled_time_period2, mo2, available_periods, policy_speed, n_implementation_periods)
+      l2 <- optic::exposure_list(sampled_time_period2, mo2, available_periods, policy_speed, n_implementation_periods)
       names(l2) <- paste0(names(l2), "2")
       treated[[sunit]] <- c(l1, l2)
     } else {
-      treated[[sunit]] <- exposure_list(sampled_time_period, mo, available_periods, policy_speed, n_implementation_periods)
+      treated[[sunit]] <- optic::exposure_list(sampled_time_period, mo, available_periods, policy_speed, n_implementation_periods)
     }
   }
   
   return(treated)
-}
-
-exposure_list <- function(sampled_time_period, mo, available_periods, policy_speed, n_implementation_periods) {
-  if (policy_speed == "instant") {
-    l <- list(
-      policy_years = sampled_time_period:max(available_periods, na.rm=TRUE),
-      policy_month = mo,
-      exposure = c((12 - mo + 1)/12, rep(1, length((sampled_time_period + 1):max(available_periods, na.rm=TRUE))))
-    )
-  } else if (policy_speed == "slow") {
-    l <- list(
-      policy_years = sampled_time_period:max(available_periods, na.rm=TRUE),
-      policy_month = mo,
-      exposure = calculate_exposure(mo, n_implementation_periods)
-    )
-    
-    n <- length(l[["policy_years"]])
-    exposure <- l[["exposure"]]
-    if (n < length(exposure)) {
-      l[["exposure"]] <- exposure[1:n]
-    } else {
-      n_more_years <- n - length(exposure)
-      l[["exposure"]] <- c(exposure, rep(1, n_more_years))
-    }
-  }
-  
-  return(l)
 }
 
 

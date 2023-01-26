@@ -10,7 +10,7 @@
 #'     for the policy effect phasing in linearly across n_implement_periods 
 #' @param n_implementation_periods Number of periods until full treatment effect is applied. Only used if policy_speed is 'slow'.
 #'
-#' @noRd
+#' @export
 exposure_list <- function(sampled_time_period, mo, available_periods, policy_speed, n_implementation_periods) {
   if (policy_speed == "instant") {
     l <- list(
@@ -22,7 +22,7 @@ exposure_list <- function(sampled_time_period, mo, available_periods, policy_spe
     l <- list(
       policy_years = sampled_time_period:max(available_periods, na.rm=TRUE),
       policy_month = mo,
-      exposure = calculate_exposure(mo, n_implementation_periods)
+      exposure = optic::calculate_exposure(mo, n_implementation_periods)
     )
     
     n <- length(l[["policy_years"]])

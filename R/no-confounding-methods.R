@@ -101,7 +101,7 @@ noconf_sample <- function(single_simulation) {
       treated[[current_unit]] <- list(
         policy_years = yr:max(x$year, na.rm=TRUE),
         policy_month = mo,
-        exposure = optic:::calculate_exposure(mo, number_implementation_years),
+        exposure = optic::calculate_exposure(mo, number_implementation_years),
         policy_date = as.Date(paste0(yr, '-', mo, '-01'))
       )
       
@@ -196,7 +196,7 @@ noconf_premodel <- function(model_simulation) {
   ##########################################
   x <- model_simulation$data
   model <- model_simulation$models
-  outcome <- optic:::model_terms(model$model_formula)[["lhs"]]
+  outcome <- optic::model_terms(model$model_formula)[["lhs"]]
   oo <- dplyr::sym(outcome)
   model_type <- model$type
   balance_statistics <- NULL
@@ -356,7 +356,7 @@ noconf_model <- function(model_simulation) {
 #' @param model_simulation An object created from OpticModel, which specifies simulation settings such as model formulas, model call, etc
 #' @noRd
 noconf_postmodel <- function(model_simulation) {
-  outcome <- model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
+  outcome <- optic::model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
   # get run metadata to merge in after
   meta_data <- data.frame(
     model_name = model_simulation$models$name,
