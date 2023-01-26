@@ -7,3 +7,6 @@
 nohup.out
 test_summary.R
 inst/doc
+docs
+/doc/
+/Meta/

@@ -1,12 +1,14 @@
-#' create exposure values across time periods for sampled treated units
+#' Applies a time-varying treatment effect 
+#' 
+#' @description Simulates a time-varying treatment effect that starts at zero in time period zero, then linearly increases to a 'full treatment' effect, based on
+#' analyst-provided choices concerning time until full treatment effect and 'speed'
 #'
-#' @param sampled_time_period year that policy is first enacted
-#' @param mo month that policy is first enacted
-#' @param available_periods all available time periods in the data
-#' @param policy_speed either "instant" for the policy going into immediate effect or "slow"
-#'     for the policy effect phasing in over time
-#' @param n_implementation_periods used if policy_speed is slow, number of time periods over
-#'     which to phase in full policy effect
+#' @param sampled_time_period Year that treatment is first enacted
+#' @param mo Month that treatment is first enacted
+#' @param available_periods Maximum number of time periods in the data (e.g. if policy is between 1950-2000, then available_periods == 50)
+#' @param policy_speed A string which is either "instant" for the policy going into immediate effect or "slow"
+#'     for the policy effect phasing in linearly across n_implement_periods 
+#' @param n_implementation_periods Number of periods until full treatment effect is applied. Only used if policy_speed is 'slow'.
 #'
 #' @export
 exposure_list <- function(sampled_time_period, mo, available_periods, policy_speed, n_implementation_periods) {
@@ -20,7 +22,7 @@ exposure_list <- function(sampled_time_period, mo, available_periods, policy_spe
     l <- list(
       policy_years = sampled_time_period:max(available_periods, na.rm=TRUE),
       policy_month = mo,
-      exposure = calculate_exposure(mo, n_implementation_periods)
+      exposure = optic::calculate_exposure(mo, n_implementation_periods)
     )
     
     n <- length(l[["policy_years"]])

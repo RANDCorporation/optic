@@ -2,10 +2,12 @@
 #' 
 #' @importFrom R6 R6Class
 #' @importFrom tidyr crossing
+#' @importFrom methods new
+#' @importFrom stats as.formula pnorm sd vcov
 #' 
 #' @noRd
-SimConfig <- R6::R6Class(
-  "SimConfig",
+OpticSim <- R6::R6Class(
+  "OpticSim",
   
   ###
   # PUBLIC

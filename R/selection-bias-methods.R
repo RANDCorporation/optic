@@ -2,16 +2,16 @@
 ### SAMPLING METHOD ###
 #######################
 
-#' perform sampling and coding of treatment for selection bias simulations
+#' Perform sampling and coding of treatment for selection bias simulations
 #' 
 #' @description uses values of b0, b1, b2 to sample treated units based on
 #'     values of two covariates (here moving average and unemployment rate) to induce confounding (selection) bias.
 #'     Once treated units are identified, codes level and change version of
 #'     treatment that are used in various modeling approaches later on.
 #'
-#' @param single_simulation object created from SimConfig$setup_single_simulation()
+#' @param single_simulation object created from OpticSim$setup_single_simulation()
 #' 
-#' @export
+#' @noRd
 selbias_sample <- function(single_simulation) {
   x <- single_simulation$data
   pc = single_simulation$prior_control
@@ -213,7 +213,7 @@ selbias_sample <- function(single_simulation) {
       treated[[current_unit]] <- list(
         policy_years = yr:max(x$year, na.rm=TRUE),
         policy_month = mo,
-        exposure = optic:::calculate_exposure(mo, number_implementation_years),
+        exposure = optic::calculate_exposure(mo, number_implementation_years),
         policy_date = as.Date(paste0(yr, '-', mo, '-01'))
       )
       
@@ -298,11 +298,11 @@ selbias_sample <- function(single_simulation) {
 #'     Calculates some balance information that is passed along to later
 #'     steps.
 #' 
-#' @export
+#' @noRd
 selbias_premodel <- function(model_simulation) {
   x <- model_simulation$data
   model <- model_simulation$models
-  outcome <- optic:::model_terms(model$model_formula)[["lhs"]]
+  outcome <- optic::model_terms(model$model_formula)[["lhs"]]
   oo <- dplyr::sym(outcome)
   model_type <- model$type
   balance_statistics <- NULL
@@ -396,7 +396,7 @@ selbias_premodel <- function(model_simulation) {
 #'     any provided arguments. Stores the model object in the input
 #'     list, new element named "model_result" and returns full list
 #' 
-#' @export
+#' @noRd
 selbias_model <- function(model_simulation) {
   model <- model_simulation$models
   x <- model_simulation$data
@@ -426,9 +426,9 @@ selbias_model <- function(model_simulation) {
 #' 
 #' @description summarizes the statistical performance of the model(s) being compared by computing summary information on the model fit, estimated effects and standard errors 
 #' 
-#' @export
+#' @noRd
 selbias_postmodel <- function(model_simulation) {
-  outcome <- model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
+  outcome <- optic::model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
   bias_vals <- model_simulation$globals[["bias_vals"]][[model_simulation$bias_type]][[model_simulation$prior_control]][[model_simulation$bias_size]]
   # get run metadata to merge in after
   meta_data <- data.frame(
@@ -577,11 +577,12 @@ selbias_postmodel <- function(model_simulation) {
 ### RESULTS METHOD ###
 ######################
 
-#' compiles the final results 
+#' Compiles final results across simulation runs into a single dataframe
 #' 
-#' @description compiles the results into one table for all permutations of the simulation
+#' @description A convenience function that takes simulation results and binds into a single table
 #' 
-#' @export
+#' @param r Results from a single model simulation.
+#' @noRd
 selbias_results <- function(r) {
   return(do.call(rbind, r))
 }

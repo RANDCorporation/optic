@@ -1,21 +1,59 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# optic <a href='https://optic-tools.github.io/optic/'><img src='inst/figures/optic.png' align="right" height="139" /></a>
+# optic <a href='https://optic-tools.github.io/optic/'><img src='man/figures/optic.png' align="right" height="139"  style="height:139px !important;" /></a>
 
-**Simulation test-bed for Longitudinal Causal Inference models (or a
-better name)**
-
-The `optic` package helps you scrutinize candidate causal inference
-models using *your* longitudinal data.
-
-The package supports the traditional Diff-in-Diff model, Callway and
-Santana, Autoregressive models, and multisynth.
-
-This package is named after the *OPTIC* project.
+**Simulation test-bed for Longitudinal Causal Inference models**
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/optic-tools/optic/workflows/R-CMD-check/badge.svg)](https://github.com/optic-tools/optic/actions)
+[![Test
+Coverage](https://github.com/optic-tools/optic/workflows/test-coverage/badge.svg)](https://github.com/optic-tools/optic/actions)
+[![codecov](https://codecov.io/gh/optic-tools/optic/branch/develop/graph/badge.svg?token=5XYDOFFJMH)](https://codecov.io/gh/optic-tools/optic)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![R-CMD-check](https://github.com/optic-tools/optic/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/optic-tools/optic/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
+
+The `optic` package helps you scrutinize candidate causal inference
+models using **your own** longitudinal data.
+
+The recent Diff-in-Diff literature revealed issues with the traditional
+Diff-in-Diff model, but we found it very difficult to evaluate the
+relative performance of different causal inference methods using *our
+own data*. Thus, we designed a series of simulations to study the
+performance of various methods under different scenarios. Our
+publications to date include:
+
+1.  Using real-world data on opioid mortality rates, [we found notable
+    limitations of commonly used statistical models for
+    Difference-In-Differences (DID) designs, which are widely used in
+    state policy evaluations. In contrast, the optimal model we
+    identified–the autoregressive model (AR) model- showed a lot of
+    promise.](https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/s12874-021-01471-y),
+    but don’t just take our word for it - try it our with your own data
+    and see how various approaches do relative to each other.
+
+2.  [It is also critical to be able to control for effects of
+    co-occurring policies, and understand the potential bias that might
+    arise from not controlling for those
+    policies.](https://link.springer.com/article/10.1007/s10742-022-00284-w)
+    Our package can also help you assess the impact of co-occurring
+    policies on the performance of commonly-used statistical models in
+    state policy evaluations.
+
+You can now use our `optic` R package to simulate policy effects and
+compare causal inference models using your own data.
+
+The package supports the traditional two-way fixed effects DID model and
+the AR model as well as other leading methods like augment synthetic
+control and the Callaway-Santa’Anna approach to DID.
+
+### Why `optic`?
+
+`optic` is named after the **Opioid Policy Tools and Information Center
+(OPTIC)** project which provide funding for this effort.
 
 ## Installation
 
@@ -46,6 +84,8 @@ library(optic)
 data(overdoses)
 x <- overdoses
 
+#testing a scenario with two co-occuring policies
+
 model_1 <- optic_model(
          name="fixedeff_linear",
          type="reg",
@@ -75,12 +115,15 @@ optic_sim <- optic_simulation(
   x=overdoses,
   models=list(model_1, model_2),
   iters=10,
+  # method_type = c("concurrent", "confounding", "standard?")
+  # By choosing this method, all the parameters below would be set.
   method_sample=concurrent_sample,
   method_pre_model=concurrent_premodel,
   method_model=concurrent_model,
   method_post_model=concurrent_postmodel,
   method_results=concurrent_results,
   
+  # Look into de-nest this and construct it back within the optic_simulation function.
   params=list(
     unit_var="state",
     time_var="year",

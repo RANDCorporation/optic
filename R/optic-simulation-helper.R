@@ -1,24 +1,17 @@
 #' Create a configuration object used to run simulations
 #' 
 #' @description Performs validation on inputs and produces a configuration object
-#'     that contains all required parameters to dispatch simulation runs for data
+#'     that contains all required parameters to dispatch simulation runs for the empirical data
 #'     provided.
 #'
-#' @details The resulting configuration object is passed to run iteration when
-#'     dispatching simulations. The run_iteration method will first create a
-#'     single_simulation object from self$setup_single_simulation(i), where i is
-#'     the ith simulation that was configured. Then run_iteration will pass the
-#'     single_simulation object to each of the method functions. The method
-#'     functions should modify elements of the single_simulation list and return
-#'     the entire single_simulation object. The method functions are run in the
-#'     following order (any that are set to NULL will be skipped): method_sample,
-#'     method_pre_model, method_model, method_post_model, method_result.
-#'     
+#' @details The resulting configuration object is used to pass simulation scenarios to the 'simulate' function. Provided as a convenience function to the user
+#'          so they can investigate simulation arguments prior to running models.
 #' 
-#' @param x data.frame to use for model simulation
-#' @param models list of `optic_model` objects that should be run each iteration.
-#'     The elements must be created with the `optic_model` function.
-#' @param iters number of iterations for each simulation
+#' @param x Empirical data used to simulate synthetic datasets with specified treatment effect.
+#' @param models List of `optic_model` objects that should be run for each iteration and simulation scenario.
+#'     The elements must be created using the `optic_model` function.
+#' @param iters Number of iterations for each simulation scenario.
+#' @param params Additional parameters that modify settings across all simulation scenarios. Possible parameters vary depending on if the simulation method is 'no confounding', 'concurrent', or 'selection bias'. Please refer to the README and vignettefor additional details on required parameters by simulation method type. 
 #' @param method_sample function for sampling treated units, should modify the
 #'     single_simulation$data object
 #' @param method_pre_model optional function that will be applied single_simulation
@@ -31,8 +24,8 @@
 #'     single_simulation object
 #' @param method_results function that takes the single_simulation object and
 #'     the return value is what it returned from run_iteration
-#' @param verbose should I be chatty? Default is yes, I am chatty.
-#' @param globals specifies whether to use globals
+#' @param verbose Default True. If TRUE, provides summary details on simulation runs across iterations
+#' @param globals Additional globals to pass to the simulate function, such as parallelization packages or additional R packages used by method calls.
 #' 
 #' @export
 #' 
@@ -91,10 +84,10 @@ optic_simulation <- function(x, models, iters, params, method_sample, method_mod
   }
   
   ###
-  # create config object
+  # create a OpticSim object
   # It is difficult to 
   ###
-  conf <- SimConfig$new(
+  conf <- OpticSim$new(
     data=x,
     models=models,
     iters=iters,

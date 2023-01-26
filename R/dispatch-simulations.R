@@ -1,28 +1,28 @@
-#' Execute simulations defined in a SimConfig object
+
+#' Execute simulations defined in a optic_simulation object
 #' 
-#' @param sim_config SimConfig object created using 'create_config'
-#' @param use_future default FALSE, set to TRUE if you have already setup a future
+#' @param object Simulation scenarios created using optic_simulation
+#' @param seed Specified as either NULL or a numeric. Sets a seed, which is becomes an index in results, for
+#'     each indepdendent set of simulations in optic_simulation.
+#' @param use_future Runs simulation scenarios in parallel. Default FALSE, set to TRUE if you have already setup a future
 #'     plan (e.g., multiprocess, cluster, etc) and would like for the iterations to
-#'     be run in parallel
-#' @param seed if not null, will use the index of the simulation * seed provided for
-#'     each indepdendent set of simulations
-#' @param verbose default TRUE, have the dispatcher tell you what's currently running
+#'     be run in parallel.
+#' @param failure It is uncleear what this does. Max or Beth, do you happen to know the story behind this parameter?
+#' @param verbose Default TRUE. IF TRUE, provides details on what's currently running.
+#' @param ... additional parameters to be passed to future_apply.
 #' 
 #' @importFrom future.apply future_lapply
-#' 
+#' @importFrom stats simulate
 #' @export
-simulate.SimConfig <- function(sim_config, use_future=FALSE, seed=NULL, failure=NULL, verbose=0, ...) {
-  if (!"SimConfig" %in% class(sim_config)) {
-    stop("`sim_config` must be a SimConfig object")
-  }
+dispatch_simulations.OpticSim <- function(object, seed=NULL, use_future=FALSE, failure=NULL, verbose=0, ...) {
   
   return_list <- list()
   
   # iterate over all combinations in config
-  for (i in 1:nrow(sim_config$simulation_params)) {
-    single_simulation <- sim_config$setup_single_simulation(i)
+  for (i in 1:nrow(object$simulation_params)) {
+    single_simulation <- object$setup_single_simulation(i)
     if (verbose > 0) {
-      cat(paste("JOB", i, "OF", nrow(sim_config$simulation_params), "DISPATCHED:\n"))
+      cat(paste("JOB", i, "OF", nrow(object$simulation_params), "DISPATCHED:\n"))
       if (use_future) {
         cat("        DISPATCH METHOD: parallel (future)\n")
       } else {
@@ -30,8 +30,8 @@ simulate.SimConfig <- function(sim_config, use_future=FALSE, seed=NULL, failure=
       }
       if (verbose > 1) {
         cat("        PARAMS:\n")
-        for (p in names(sim_config$simulation_params[i, ])) {
-          cat(paste0("            ", p, ": ", sim_config$simulation_params[i, p], "\n"))
+        for (p in names(object$simulation_params[i, ])) {
+          cat(paste0("            ", p, ": ", object$simulation_params[i, p], "\n"))
         }
       }
     }
@@ -73,12 +73,23 @@ simulate.SimConfig <- function(sim_config, use_future=FALSE, seed=NULL, failure=
               failed_attempts <- failed_attempts + 1
             }
           }
-          if (any(class(r) == "data.frame")) {
+          
+          # if this is one data.frame, assign iteration number
+          if (is.data.frame(r)) {
             r$iter <- j
-          } else if (any(class(r) == "list")) {
+            
+          # if this is not a data.frame, then it must be a list of data.frames:
+          } else {
+            # check that it is a list of data.frames:
+            stopifnot(is.list(r))
+            
+            if(!all(sapply(r, is.data.frame))) {
+              print(r$message)
+              stop(paste0("Error in simulate.sim_config. Results are not data.frames. Error: \n", r$message))
+            }
+            # stopifnot(all(sapply(r, is.data.frame)))
             r <- lapply(r, function(x){ x$iter <- j})
           }
-          
           return(r)
         },
         future.seed=use_seed,
@@ -119,9 +130,9 @@ simulate.SimConfig <- function(sim_config, use_future=FALSE, seed=NULL, failure=
                      paste(r, collapse=" ")))
           
         }
-        if (class(r) == "data.frame") {
+        if (is.data.frame(r)) {
           r$iter <- j
-        } else if (class(r) == "list") {
+        } else if (is.list(r)) {
           r <- lapply(r, function(x){ x$iter <- j})
         }
         
@@ -146,4 +157,8 @@ simulate.SimConfig <- function(sim_config, use_future=FALSE, seed=NULL, failure=
   }
   
   return(return_list)
+}
+
+dispatch_simulations <- function(object, ...) {
+  UseMethod("dispatch_simulations")
 }

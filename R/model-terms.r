@@ -4,7 +4,7 @@
 #' 
 #' @return list with named elements "lhs" and "rhs"
 #' 
-#' @noRd
+#' @export
 model_terms <- function(x) {
   stopifnot(class(x) == "formula")
   # convert to string

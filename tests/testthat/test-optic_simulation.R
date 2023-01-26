@@ -44,11 +44,11 @@ optic_sim <- optic_simulation(
   x=overdoses,
   models=list(model_1, model_2),
   iters=2,
-  method_sample=concurrent_sample,
-  method_pre_model=concurrent_premodel,
-  method_model=concurrent_model,
-  method_post_model=concurrent_postmodel,
-  method_results=concurrent_results,
+  method_sample= optic:::concurrent_sample,
+  method_pre_model=optic:::concurrent_premodel,
+  method_model=optic:::concurrent_model,
+  method_post_model=optic:::concurrent_postmodel,
+  method_results=optic:::concurrent_results,
   
   params=list(
     unit_var="state",
@@ -64,9 +64,11 @@ optic_sim <- optic_simulation(
   )
 )
 
-lm_results <- simulate(
+# cluster_adjust_se <- optic:::cluster_adjust_se
+
+lm_results <- dispatch_simulations(
   optic_sim,
-  use_future=TRUE,
+  use_future=T,
   seed=9782,
   verbose=2,
   future.globals=c("cluster_adjust_se"),

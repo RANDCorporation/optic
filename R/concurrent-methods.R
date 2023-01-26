@@ -2,12 +2,11 @@
 ### SAMPLING METHOD ###
 #######################
 
-#' perform sampling and coding of treatment for concurrent policy simulations
-#' 
-#' @description samples the treated units (e.g., states) randomly and then generates enacted dates for two policies with a prespeficied average mean difference in length between enactment dates of the two; also computes the needed levels and change levels coding for the time-varying vectors of the treatment/exposure variables representing those two policies 
+#' Perform sampling and coding of treatment effect for concurrent policy simulations
+#' @description Simulates treatment status across units by time (e.g., states, counties, schools), generating treatment times for two policies with an  average mean difference in time between the two policies; Additionally simulates a static treatment effect in level-space for each policy.
 #'
-#' @param single_simulation object created from SimConfig$setup_single_simulation()
-#' @export
+#' @param single_simulation An object created from OpticSim$setup_single_simulation(), which specifies simulation data, number of units, unit variable & time variable, etc.
+#' @noRd
 concurrent_sample <- function(single_simulation) {
   ##########################################
   ### PULL DATA AND PARAMETERS/VARIABLES ###
@@ -149,14 +148,14 @@ concurrent_sample <- function(single_simulation) {
 ### PRE MODEL METHOD ###
 ########################
 
-#' pre-modeling method to apply to config object/data
+#' Functions to apply to simulated treatment effect prior to simulations.
+#' @description Depending on the exact estimator used, an analyst may wish to apply a functional form to the treatment effect prior to modeling
+#'     (i.e., estimate effect as linear, logged, etc). Can also apply additional pre-modeling steps to each simulate dataset as required. All 
+#'     steps in this function are applied prior to sampling treatment effects.
 #' 
-#' @description since there are different data transformations needed for different
-#'     model approaches (e.g., linear, count, log-linear), the treatment effect application and other data prep steps
-#'     are run here before modeling in the model-specific config object rather 
-#'     than in the sampling step 
+#' @param model_simulation An object created from OpticModel, which specifies simulation settings such as model formulas, model call, etc
 #' 
-#' @export
+#' @noRd
 concurrent_premodel <- function(model_simulation) {
   ##########################################
   ### PULL DATA AND PARAMETERS/VARIABLES ###
@@ -182,6 +181,7 @@ concurrent_premodel <- function(model_simulation) {
   # when outcome is deaths, derive new crude rate from modified outcome
   if (model$type == "autoreg") {
     if (outcome == "deaths") {
+      #TODO: As Max noted, we need to coherently pass an option to do that.
       x$crude.rate <- (x$deaths * 100000)/ x$population
     }
     
@@ -208,13 +208,13 @@ concurrent_premodel <- function(model_simulation) {
 ####################
 ### MODEL METHOD ###
 ####################
-#' run model and store results
-#' 
-#' @description runs the model against the prepared data along with
+#' Runs a given model simulation and stores resuls
+#' @description Runs the model against the prepared simulation data along with
 #'     any provided arguments. Stores the model object in the input
-#'     list, new element named "model_result" and returns full list
+#'     list, generating a new element named "model_result" and returns full list
 #'
-#' @export
+#' @param model_simulation An object created from OpticModel, which specifies simulation settings such as model formulas, model call, etc
+#' @noRd
 concurrent_model <- function(model_simulation) {
   model <- model_simulation$models
   x <- model_simulation$data
@@ -236,11 +236,11 @@ concurrent_model <- function(model_simulation) {
 ### POST_MODEL METHOD ###
 #########################
 
-#' process results from model(s) 
+#' Post process results from a simulation model(
+#' @description Summarizes the statistical performance of a model by computing summary information on the model fit, estimated effects and standard errors 
 #' 
-#' @description summarizes the statistical performance of the model(s) being compared by computing summary information on the model fit, estimated effects and standard errors 
-#' 
-#' @export
+#' @param model_simulation An object created from OpticModel, which specifies simulation settings such as model formulas, model call, etc
+#' @noRd
 concurrent_postmodel <- function(model_simulation) {
   model <- model_simulation$models
   
@@ -286,11 +286,12 @@ concurrent_postmodel <- function(model_simulation) {
 ### RESULTS METHOD ###
 ######################
 
-#' compiles the final results 
+#' Compiles final results across simulation runs into a single dataframe
 #' 
-#' @description compiles the results into one table for all permutations of the simulation
+#' @description A convenience function that takes simulation results and binds into a single table
 #' 
-#' @export
+#' @param r Results from a single model simulation.
+#' @noRd
 concurrent_results <- function(r) {
   return(dplyr::bind_rows(r))
 }
