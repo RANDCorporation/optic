@@ -181,6 +181,7 @@ concurrent_premodel <- function(model_simulation) {
   # when outcome is deaths, derive new crude rate from modified outcome
   if (model$type == "autoreg") {
     if (outcome == "deaths") {
+      #TODO: As Max noted, we need to coherently pass an option to do that.
       x$crude.rate <- (x$deaths * 100000)/ x$population
     }
     
