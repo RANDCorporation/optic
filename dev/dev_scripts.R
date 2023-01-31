@@ -21,3 +21,16 @@ asciicast::write_svg(cast, "file.svg", window = TRUE)
 
 
 asciicast::write_gif(cast, "file.gif")
+
+
+
+
+# Load two packages
+library(dplyr)
+library(stringr)
+# Count your lines of R code
+list.files(path = "./R/", recursive = T, full.names = T) %>%
+  str_subset("[.][R]$") %>%
+  sapply(function(x) x %>% readLines() %>% length()) %>%
+  sum()
+
