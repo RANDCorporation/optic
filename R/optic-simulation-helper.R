@@ -11,7 +11,16 @@
 #' @param models List of `optic_model` objects that should be run for each iteration and simulation scenario.
 #'     The elements must be created using the `optic_model` function.
 #' @param iters Number of iterations for each simulation scenario.
-#' @param params Additional parameters that modify settings across all simulation scenarios. Possible parameters vary depending on if the simulation method is 'no confounding', 'concurrent', or 'selection bias'. Please refer to the README and vignettefor additional details on required parameters by simulation method type. 
+#' @param unit_var char(1) variable specifying the unit to be simulate (i.e., "state")
+#' @param time_var char(1) variable specifying the time variable (i.e., "year")
+#' @param effect_magnitude document. list of scenarios to consider
+#' @param n_units integer. document.
+#' @param effect_direction character vector containing the effects direction to consider. can include "null", "pos" and/or "neg"
+#' @param policy_speed document. either "instant" or "slow"
+#' @param n_implementation_periods document
+#' @param rhos document
+#' @param years_apart document
+#' @param ordered boolean. document
 #' @param method_sample function for sampling treated units, should modify the
 #'     single_simulation$data object
 #' @param method_pre_model optional function that will be applied single_simulation
@@ -32,9 +41,15 @@
 #' @importFrom purrr cross
 #' @importFrom purrr transpose
 #' 
-optic_simulation <- function(x, models, iters, params, method_sample, method_model, method_results, 
-                                 method_pre_model=NULL, method_post_model=NULL, 
-                                 globals=NULL, verbose=TRUE) {
+optic_simulation <- function(x, models, iters,
+                             unit_var, time_var, 
+                             effect_magnitude, n_units, 
+                             effect_direction, 
+                             policy_speed, 
+                             n_implementation_periods, rhos, years_apart, ordered,  
+                             method_sample, method_model, method_results,     
+                             method_pre_model=NULL, method_post_model=NULL, 
+                             globals=NULL, verbose=TRUE) {
   ###
   # VALIDATION
   ###
@@ -82,6 +97,30 @@ optic_simulation <- function(x, models, iters, params, method_sample, method_mod
       stop("`method_post_model` must be of class 'function' or NULL")
     }
   }
+  
+  # check parameters
+  # these checks are likely very stringent and could be relaxed for some
+  # combinations of inputs
+  stopifnot(is.character(unit_var), length(unit_var) == 1)
+  stopifnot(is.character(time_var), length(time_var) == 1)
+  stopifnot(is.list(effect_magnitude))
+  stopifnot(is.numeric(n_units), length(n_units) == 1)
+  stopifnot(all(effect_direction %in% c("null", "neg", "pos")))
+  stopifnot(all(policy_speed %in% c("instant", "slow")))
+  stopifnot(is.numeric(n_implementation_periods))
+  stopifnot(is.numeric(rhos))
+  stopifnot(is.logical(ordered))
+  
+  params <- list(unit_var = unit_var,
+                 time_var = time_var,
+                 effect_magnitude = effect_magnitude,
+                 n_units = n_units,
+                 effect_direction = effect_direction,
+                 policy_speed = policy_speed,
+                 n_implementation_periods = n_implementation_periods,
+                 rhos = rhos,
+                 years_apart = years_apart,
+                 ordered = ordered)
   
   ###
   # create a OpticSim object

@@ -49,19 +49,16 @@ optic_sim <- optic_simulation(
   method_model=optic:::concurrent_model,
   method_post_model=optic:::concurrent_postmodel,
   method_results=optic:::concurrent_results,
-  
-  params=list(
-    unit_var="state",
-    time_var="year",
-    effect_magnitude=list(scenario1, scenario2),
-    n_units=c(10),
-    effect_direction=c("null", "neg", "pos"),
-    policy_speed=c("instant", "slow"),
-    n_implementation_periods=c(3),
-    rhos=c(0, 0.5, 0.9),
-    years_apart=2,
-    ordered=TRUE
-  )
+  unit_var="state",
+  time_var="year",
+  effect_magnitude=list(scenario1, scenario2),
+  n_units=c(10),
+  effect_direction=c("null", "neg", "pos"),
+  policy_speed=c("instant", "slow"),
+  n_implementation_periods=c(3),
+  rhos=c(0, 0.5, 0.9),
+  years_apart=2,
+  ordered=TRUE
 )
 
 # cluster_adjust_se <- optic:::cluster_adjust_se

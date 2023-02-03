@@ -8,7 +8,16 @@ optic_simulation(
   x,
   models,
   iters,
-  params,
+  unit_var,
+  time_var,
+  effect_magnitude,
+  n_units,
+  effect_direction,
+  policy_speed,
+  n_implementation_periods,
+  rhos,
+  years_apart,
+  ordered,
   method_sample,
   method_model,
   method_results,
@@ -26,7 +35,25 @@ The elements must be created using the `optic_model` function.}
 
 \item{iters}{Number of iterations for each simulation scenario.}
 
-\item{params}{Additional parameters that modify settings across all simulation scenarios. Possible parameters vary depending on if the simulation method is 'no confounding', 'concurrent', or 'selection bias'. Please refer to the README and vignettefor additional details on required parameters by simulation method type.}
+\item{unit_var}{char(1) variable specifying the unit to be simulate (i.e., "state")}
+
+\item{time_var}{char(1) variable specifying the time variable (i.e., "year")}
+
+\item{effect_magnitude}{document. list of scenarios to consider}
+
+\item{n_units}{integer. document.}
+
+\item{effect_direction}{character vector containing the effects direction to consider. can include "null", "pos" and/or "neg"}
+
+\item{policy_speed}{document. either "instant" or "slow"}
+
+\item{n_implementation_periods}{document}
+
+\item{rhos}{document}
+
+\item{years_apart}{document}
+
+\item{ordered}{boolean. document}
 
 \item{method_sample}{function for sampling treated units, should modify the
 single_simulation$data object}
