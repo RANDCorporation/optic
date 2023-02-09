@@ -1,4 +1,11 @@
 
+
+#------------------------------------------------------------------------------#
+# OPTIC R Package Code Repository
+# Copyright (C) 2023 by The RAND Corporation
+# See README.md for information on usage and licensing
+#------------------------------------------------------------------------------#
+
 # dplyr is used in this package; this fixes some of the issues created by it:
 # https://community.rstudio.com/t/how-to-solve-no-visible-binding-for-global-variable-note/28887
 #' To produce this list run the CRAN check, copy the undefined global functions or variables that appear in the check. Paste them into sublime, replace spaces with a new line dash n, then use command shift L to edit all lines and format approproately 

@@ -1,3 +1,11 @@
+
+
+#------------------------------------------------------------------------------#
+# OPTIC R Package Code Repository
+# Copyright (C) 2023 by The RAND Corporation
+# See README.md for information on usage and licensing
+#------------------------------------------------------------------------------#
+
 #' constant needed for slow coding
 #' 
 #' sum of vector 1:m, when m (month) is not zero

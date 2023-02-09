@@ -1,3 +1,11 @@
+
+
+#------------------------------------------------------------------------------#
+# OPTIC R Package Code Repository
+# Copyright (C) 2023 by The RAND Corporation
+# See README.md for information on usage and licensing
+#------------------------------------------------------------------------------#
+
 #' TODO: docstring
 #' @param single_simulation OpticSim object created using 'create_config'
 

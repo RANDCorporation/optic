@@ -1,3 +1,11 @@
+
+
+#------------------------------------------------------------------------------#
+# OPTIC R Package Code Repository
+# Copyright (C) 2023 by The RAND Corporation
+# See README.md for information on usage and licensing
+#------------------------------------------------------------------------------#
+
 #' Create a configuration object used to run simulations
 #' 
 #' @description Performs validation on inputs and produces a configuration object

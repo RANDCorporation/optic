@@ -1,3 +1,11 @@
+
+
+#------------------------------------------------------------------------------#
+# OPTIC R Package Code Repository
+# Copyright (C) 2023 by The RAND Corporation
+# See README.md for information on usage and licensing
+#------------------------------------------------------------------------------#
+
 #' get distance between concurrent policies for each treated unit and summarize
 #' 
 #' @param treated_units list containing the sampled treated units for a concurrent

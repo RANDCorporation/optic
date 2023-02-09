@@ -135,3 +135,15 @@ results <- simulate(
 ```
 
 Max: Explain what the user can do with this result.
+
+## Contact
+
+Reach out to [Beth Ann Griffin](https://www.rand.org/about/people/g/griffin_beth_ann.html) for questions related to this repository.
+
+# Automated Tests
+
+This package contains `thestthat` tests in the tests package.
+
+## License 
+
+Copyright (C) 2023 by The [RAND Corporation](https://www.rand.org). This repository is released as open-source software under a GPL-3.0 license. See the LICENSE file.

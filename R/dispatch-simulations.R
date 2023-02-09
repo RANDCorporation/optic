@@ -1,4 +1,12 @@
 
+
+#------------------------------------------------------------------------------#
+# OPTIC R Package Code Repository
+# Copyright (C) 2023 by The RAND Corporation
+# See README.md for information on usage and licensing
+#------------------------------------------------------------------------------#
+
+
 #' Execute simulations defined in a optic_simulation object
 #' 
 #' @param object Simulation scenarios created using optic_simulation

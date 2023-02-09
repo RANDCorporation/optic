@@ -1,3 +1,11 @@
+
+
+#------------------------------------------------------------------------------#
+# OPTIC R Package Code Repository
+# Copyright (C) 2023 by The RAND Corporation
+# See README.md for information on usage and licensing
+#------------------------------------------------------------------------------#
+
 #' @importFrom magrittr %>%
 #' @import dplyr
 change_code_treatment <- function(x, unit_var, time_var, concurrent) {
