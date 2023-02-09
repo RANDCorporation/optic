@@ -29,6 +29,7 @@
 #' @param rhos document
 #' @param years_apart document
 #' @param ordered boolean. document
+#' @param method character. either no_confounding, confounding or concurrent
 #' @param method_sample function for sampling treated units, should modify the
 #'     single_simulation$data object
 #' @param method_pre_model optional function that will be applied single_simulation
@@ -54,9 +55,10 @@ optic_simulation <- function(x, models, iters,
                              effect_magnitude, n_units, 
                              effect_direction, 
                              policy_speed, 
-                             n_implementation_periods, rhos, years_apart, ordered,  
+                             n_implementation_periods, rhos, years_apart, ordered,
+                             method,
                              method_sample, method_model, method_results,     
-                             method_pre_model=NULL, method_post_model=NULL, 
+                             method_pre_model, method_post_model, 
                              globals=NULL, verbose=TRUE) {
   ###
   # VALIDATION
@@ -82,6 +84,53 @@ optic_simulation <- function(x, models, iters,
   # iters should be integer
   iters <- as.integer(iters)
   
+  
+  # Start setting the default methods:
+  if(method == "concurrent") {
+    d_method_sample= concurrent_sample
+    d_method_pre_model= concurrent_premodel
+    d_method_model= concurrent_model
+    d_method_post_model= concurrent_postmodel
+    d_method_results= concurrent_results
+  } else if (method == "no_confounding") {
+    d_method_sample = noconf_sample
+    d_method_pre_model = noconf_premodel
+    d_method_model = noconf_model
+    d_method_post_model = noconf_postmodel
+    d_method_results = noconf_results
+  } else if (method == "confounding") {
+    stop("Confounding is currently not implemented.")
+    # Uncomment once we bring the confounding code to the package.
+    #d_method_sample = conf_sample
+    #d_method_pre_model = conf_premodel
+    #d_method_model = conf_model
+    #d_method_post_model = conf_postmodel
+    #d_method_results = conf_results
+  } else {
+    stop("method argument must be either no_confounding, confounding, or concurrent")
+  }
+  
+  # Choose among default methods or user-provided methods.
+  if(missing(method_sample)) {
+    method_sample <- d_method_sample
+  } 
+  
+  if(missing(method_pre_model)) {
+    method_pre_model <- d_method_pre_model
+  } 
+  
+  if(missing(method_model)) {
+    method_model <- d_method_model
+  } 
+  
+  if(missing(method_post_model)) {
+    method_post_model <- d_method_post_model
+  } 
+  
+  if(missing(method_results)) {
+    method_results <- d_method_results
+  } 
+  
   # confirm functions with arg of single_simulation
   if (!is.function(method_sample)) {
     stop("`method_sample` must be of class 'function'")
@@ -97,12 +146,12 @@ optic_simulation <- function(x, models, iters,
   }
   if (!is.null(method_pre_model)) {
     if (!is.function(method_pre_model)) {
-      stop("`method_pre_model` must be of class 'function' or NULL")
+      stop("`method_pre_model` must be of class 'function'")
     }
   }
   if (!is.null(method_post_model)) {
     if (!is.function(method_post_model)) {
-      stop("`method_post_model` must be of class 'function' or NULL")
+      stop("`method_post_model` must be of class 'function'")
     }
   }
   

@@ -47,15 +47,13 @@ test_that("can create optic_model", {
 })
 
 
-optic_sim <- optic_simulation(
+# Test Concurrent Methods -------------------------------------------------
+
+concurrent_optic_sim <- optic_simulation(
   x=overdoses,
   models=list(model_1, model_2),
   iters=2,
-  method_sample= optic:::concurrent_sample,
-  method_pre_model=optic:::concurrent_premodel,
-  method_model=optic:::concurrent_model,
-  method_post_model=optic:::concurrent_postmodel,
-  method_results=optic:::concurrent_results,
+  method="concurrent",
   unit_var="state",
   time_var="year",
   effect_magnitude=list(scenario1, scenario2),
@@ -70,8 +68,8 @@ optic_sim <- optic_simulation(
 
 # cluster_adjust_se <- optic:::cluster_adjust_se
 
-lm_results <- dispatch_simulations(
-  optic_sim,
+concurrent_results_list <- dispatch_simulations(
+  concurrent_optic_sim,
   use_future=T,
   seed=9782,
   verbose=2,
@@ -79,12 +77,12 @@ lm_results <- dispatch_simulations(
   future.packages=c("dplyr", "optic")
 )
 
-results <- do.call(rbind, lm_results) %>% as.data.frame()
+concurrent_results <- do.call(rbind, concurrent_results_list) %>% as.data.frame()
 
 test_that("simulation results seem sensible", {
   
-  expect_type(lm_results, "list")
+  expect_type(concurrent_results_list, "list")
 
-  expect_false(any(is.na(results)))
+  expect_false(any(is.na(concurrent_results)))
   
 })

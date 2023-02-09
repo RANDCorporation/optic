@@ -18,11 +18,12 @@ optic_simulation(
   rhos,
   years_apart,
   ordered,
+  method,
   method_sample,
   method_model,
   method_results,
-  method_pre_model = NULL,
-  method_post_model = NULL,
+  method_pre_model,
+  method_post_model,
   globals = NULL,
   verbose = TRUE
 )
@@ -54,6 +55,8 @@ The elements must be created using the `optic_model` function.}
 \item{years_apart}{document}
 
 \item{ordered}{boolean. document}
+
+\item{method}{character. either no_confounding, confounding or concurrent}
 
 \item{method_sample}{function for sampling treated units, should modify the
 single_simulation$data object}
