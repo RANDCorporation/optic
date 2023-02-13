@@ -2,6 +2,7 @@
 
 S3method(dispatch_simulations,OpticSim)
 export(calculate_exposure)
+export(dispatch_simulations)
 export(exposure_list)
 export(model_terms)
 export(optic_model)

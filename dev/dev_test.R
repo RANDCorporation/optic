@@ -1,8 +1,8 @@
 
 devtools::document()
-devtools::load_all()
+#devtools::load_all()
 
-# library(optic)
+library(optic)
 # Question: Call "example_data" something else. opioid_deaths?
 # 
 data(overdoses)
