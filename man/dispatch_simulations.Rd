@@ -14,7 +14,7 @@ dispatch_simulations(
 )
 }
 \arguments{
-\item{object}{Simulation scenarios created using optic_simulation}
+\item{object}{Simulation scenarios object created using optic_simulation}
 
 \item{seed}{Specified as either NULL or a numeric. Sets a seed, which is becomes an index in results, for
 each indepdendent set of simulations in optic_simulation.}

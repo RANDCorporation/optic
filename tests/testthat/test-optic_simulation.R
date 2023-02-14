@@ -28,14 +28,14 @@ model_1 <- optic_model(
   type="reg",
   call="lm",
   formula=crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level,
-  args=list(weights=as.name('population')),
+  weights="population",
   se_adjust=c("none", "cluster"))
 
 model_2 <- optic_model(name="autoreg_linear",
                        type="autoreg",
                        call="lm",
                        formula=deaths ~ unemploymentrate + as.factor(year) + treatment1_change + treatment2_change,
-                       args=list(weights=as.name('population')),
+                       weights= "population",
                        se_adjust=c("none", "cluster"))
 
 
@@ -86,3 +86,4 @@ test_that("simulation results seem sensible", {
   expect_false(any(is.na(concurrent_results)))
   
 })
+
