@@ -14,7 +14,7 @@ Description: Implements a simulation study to assess the strengths and
     policy effects using panel data.
 License: GPL-3 | file LICENSE
 Depends: 
-    R (>= 3.6.3)
+    R (>= 3.6.0)
 Imports:
     dplyr,
     future.apply,
