@@ -1,8 +1,9 @@
 
-devtools::document()
+#devtools::document()
+#devtools::build_manual()
 devtools::load_all()
 
-# library(optic)
+#library(optic)
 # Question: Call "example_data" something else. opioid_deaths?
 # 
 data(overdoses)
@@ -35,45 +36,29 @@ model_2 <- optic_model(name="autoreg_linear",
               weights= as.name("population"),
               se_adjust=c("none", "cluster"))
 
-
-# TODO: Look at current script and implement combinations of type and call.
-# Name is arbitrary.
-# type
-# In the manual, describe how to use count models as well?
-# r
-# sim_config
-# there's also feols, multisynth. check by searching model_type == 
-
-
-# TODO: question
-# Do we need model_type AND model_call?
-# Probably not?
-
-# TODO: There are some code dependent on the data.
-# outcome_count (deaths), outcome_rate (crude.rate)
-# Covariates / Balanced Statistics?
-# Balanced table.
+# Test optic_simulation
 
 optic_sim <- optic_simulation(
   x=overdoses,
   models=list(model_1, model_2),
-  iters=10,
+  iters=2,
   method = "concurrent",
   unit_var="state",
   time_var="year",
   effect_magnitude=list(scenario1, scenario2),
-  n_units=c(30),
+  n_units=c(10),
   effect_direction=c("null", "neg"),
   policy_speed=c("instant", "slow"),
   n_implementation_periods=c(3),
-  rhos=c(0, 0.25, 0.5, 0.75, 0.9),
+  rhos=c(0, 0.5, 0.9),
   years_apart=2,
   ordered=TRUE
 )
 
+# future.globals and future.packages may be needed on windows machines.
 lm_results <- dispatch_simulations(
   optic_sim,
-  use_future=T,
+  use_future=F,
   seed=9782,
   verbose=2,
   future.globals=c("cluster_adjust_se"),
@@ -81,4 +66,6 @@ lm_results <- dispatch_simulations(
 )
 
 ## look at code that generates that test the 
+
+do.call(rbind, lm_results)
 
