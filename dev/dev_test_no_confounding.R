@@ -39,7 +39,7 @@ fixedeff_linear <- optic_model(
 )
 
 
-linear_fe_config <- optic_simulation(
+no_confounding_fe_config <- optic_simulation(
   # data and models required
   x=modified_data,
   models=list(fixedeff_linear),
@@ -60,8 +60,8 @@ linear_fe_config <- optic_simulation(
 )
 
 
-linear_results <- dispatch_simulations(
-  linear_fe_config,
+no_confounding_results <- dispatch_simulations(
+  no_confounding_fe_config,
   use_future=F,
   seed=9782,
   verbose=2,
@@ -69,4 +69,14 @@ linear_results <- dispatch_simulations(
   future.packages=c("MASS", "dplyr", "optic")
 )
 
-linear_results_df <- do.call(rbind, linear_results)
+no_confounding_results_df <- do.call(rbind, no_confounding_results) %>% as.data.frame()
+
+
+test_that("no_confounding simulations work", {
+  
+  expect_type(no_confounding_results, "list")
+  
+  expect_false(any(is.na(no_confounding_results_df)))
+  
+})
+
