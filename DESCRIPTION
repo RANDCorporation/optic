@@ -1,17 +1,17 @@
 Package: optic
 Title: OPTIC
-Version: 0.1
+Version: 1.0.0
 Authors@R: c(
-    person("Beth Ann", "Griffin", , "bethg@rand.org", role = "aut"),
-    person("Pedro", "Nascimento de Lima", , "plima@rand.org", role = c("cre", "aut")),
-    person("Max", "Grizwold", role = "aut"),
-    person("Adam", "Scherling", , "ascherli@rand.org", role = "aut"),
+    person("Beth Ann", "Griffin", email = "bethg@rand.org", role = "aut", comment = c(ORCID = "0000-0002-2391-4601")),
+    person("Pedro", "Nascimento de Lima", email = "plima@rand.org", role = c("cre", "aut"),comment = c(ORCID = "0000-0001-9057-198X")),
+    person("Max", "Grizwold", role = "aut", comment = c(ORCID = "0000-0002-6387-128X")),
+    person("Adam", "Scherling", role = "aut"),
     person("Joseph", "Pane", role = "aut"),
     person("Geoffrey", "Grimm", role = "aut")
   )
-Description: Implements simulation work to assess the strengths and
-    weaknesses of various model and analytic approaches to evaluating
-    policy that responds to the opioid crisis.
+Description: Implements a simulation study to assess the strengths and
+    weaknesses of causal inference methods for estimating
+    policy effects using panel data.
 License: GPL-3 | file LICENSE
 Depends: 
     R (>= 3.6.0)

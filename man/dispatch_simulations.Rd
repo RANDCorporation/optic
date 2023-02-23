@@ -14,7 +14,7 @@ dispatch_simulations(
 )
 }
 \arguments{
-\item{object}{Simulation scenarios created using optic_simulation}
+\item{object}{Simulation scenarios object created using optic_simulation}
 
 \item{seed}{Specified as either NULL or a numeric. Sets a seed, which is becomes an index in results, for
 each indepdendent set of simulations in optic_simulation.}
@@ -27,7 +27,7 @@ be run in parallel.}
 
 \item{verbose}{Default TRUE. IF TRUE, provides details on what's currently running.}
 
-\item{...}{additional parameters to be passed to future_apply.}
+\item{...}{additional parameters to be passed to future_apply. User can pass future.globals and future.packages if your code relies on additrional packages}
 }
 \description{
 Execute simulations defined in a optic_simulation object
