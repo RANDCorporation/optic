@@ -187,7 +187,8 @@ optic_simulation <- function(x, models, iters,
                  effect_magnitude = effect_magnitude,
                  n_units = n_units,
                  effect_direction = effect_direction,
-                 policy_speed = policy_speed)
+                 policy_speed = policy_speed,
+                 n_implementation_periods = n_implementation_periods)
   
   # Add method-specific parameters if they are provided:
   
@@ -210,8 +211,6 @@ optic_simulation <- function(x, models, iters,
   if(!missing(treat_var)) {
     params$treat_var <- treat_var
   }
-  
-  dput(params)
   
   ###
   # create a OpticSim object

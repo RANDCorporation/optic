@@ -69,4 +69,4 @@ linear_results <- dispatch_simulations(
   future.packages=c("MASS", "dplyr", "optic")
 )
 
-
+linear_results_df <- do.call(rbind, linear_results)
