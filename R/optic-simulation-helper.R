@@ -25,6 +25,8 @@
 #' @param n_units integer. document.
 #' @param effect_direction character vector containing the effects direction to consider. can include "null", "pos" and/or "neg"
 #' @param policy_speed document. either "instant" or "slow"
+#' @param prior_control character(n) document. apparently only used for no_confounding
+#' @param treat_var character(1). document. apparently only used for no_confounding.
 #' @param n_implementation_periods document
 #' @param rhos document
 #' @param years_apart document
@@ -55,7 +57,10 @@ optic_simulation <- function(x, models, iters,
                              effect_magnitude, n_units, 
                              effect_direction, 
                              policy_speed, 
-                             n_implementation_periods, rhos, years_apart, ordered,
+                             n_implementation_periods,
+                             prior_control,
+                             treat_var,
+                             rhos, years_apart, ordered,
                              method,
                              method_sample, method_model, method_results,     
                              method_pre_model, method_post_model, 
@@ -92,14 +97,23 @@ optic_simulation <- function(x, models, iters,
     d_method_model= concurrent_model
     d_method_post_model= concurrent_postmodel
     d_method_results= concurrent_results
+    
+    # Check method-specific inputs:
+    stopifnot(is.numeric(years_apart))
+    stopifnot(is.numeric(rhos))
+    stopifnot(is.logical(ordered))
+    
   } else if (method == "no_confounding") {
+    stopifnot(prior_control %in% c("mva3", "trend"))
+    stopifnot(is.character(treat_var))
     d_method_sample = noconf_sample
     d_method_pre_model = noconf_premodel
     d_method_model = noconf_model
     d_method_post_model = noconf_postmodel
     d_method_results = noconf_results
   } else if (method == "confounding") {
-    stop("Confounding is currently not implemented.")
+    #stop("Confounding is currently not implemented.")
+    # Here, assign confounding methods once they are implemented
     # Uncomment once we bring the confounding code to the package.
     #d_method_sample = conf_sample
     #d_method_pre_model = conf_premodel
@@ -161,23 +175,40 @@ optic_simulation <- function(x, models, iters,
   stopifnot(is.character(unit_var), length(unit_var) == 1)
   stopifnot(is.character(time_var), length(time_var) == 1)
   stopifnot(is.list(effect_magnitude))
-  stopifnot(is.numeric(n_units), length(n_units) == 1)
+  stopifnot(is.numeric(n_units))
   stopifnot(all(effect_direction %in% c("null", "neg", "pos")))
   stopifnot(all(policy_speed %in% c("instant", "slow")))
-  stopifnot(is.numeric(n_implementation_periods))
-  stopifnot(is.numeric(rhos))
-  stopifnot(is.logical(ordered))
+  #stopifnot(is.numeric(n_implementation_periods))
   
+  # Crete list with mandatory parameters
   params <- list(unit_var = unit_var,
                  time_var = time_var,
                  effect_magnitude = effect_magnitude,
                  n_units = n_units,
                  effect_direction = effect_direction,
-                 policy_speed = policy_speed,
-                 n_implementation_periods = n_implementation_periods,
-                 rhos = rhos,
-                 years_apart = years_apart,
-                 ordered = ordered)
+                 policy_speed = policy_speed)
+  
+  # Add method-specific parameters if they are provided:
+  
+  if(!missing(rhos)) {
+    params$rhos <- rhos
+  }
+  
+  if(!missing(years_apart)) {
+    params$years_apart <- years_apart
+  }
+  
+  if(!missing(ordered)) {
+    params$ordered <- ordered
+  }
+  
+  if(!missing(prior_control)) {
+    params$prior_control <- prior_control
+  }
+  
+  if(!missing(treat_var)) {
+    params$treat_var <- treat_var
+  }
   
   ###
   # create a OpticSim object
