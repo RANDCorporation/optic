@@ -1,0 +1,143 @@
+[
+	{
+		"id": "http://zotero.org/users/3390799/items/ZNCVTPJF",
+		"type": "article-journal",
+		"abstract": "Reliable evaluations of state-level policies are essential for identifying effective policies and informing policymakers’ decisions. State-level policy evaluations commonly use a difference-in-differences (DID) study design; yet within this framework, statistical model specification varies notably across studies. More guidance is needed about which set of statistical models perform best when estimating how state-level policies affect outcomes.",
+		"container-title": "BMC Medical Research Methodology",
+		"DOI": "10.1186/s12874-021-01471-y",
+		"ISSN": "1471-2288",
+		"issue": "1",
+		"journalAbbreviation": "BMC Medical Research Methodology",
+		"page": "279",
+		"source": "BioMed Central",
+		"title": "Moving beyond the classic difference-in-differences model: a simulation study comparing statistical methods for estimating effectiveness of state-level policies",
+		"title-short": "Moving beyond the classic difference-in-differences model",
+		"URL": "https://doi.org/10.1186/s12874-021-01471-y",
+		"volume": "21",
+		"author": [
+			{
+				"family": "Griffin",
+				"given": "Beth Ann"
+			},
+			{
+				"family": "Schuler",
+				"given": "Megan S."
+			},
+			{
+				"family": "Stuart",
+				"given": "Elizabeth A."
+			},
+			{
+				"family": "Patrick",
+				"given": "Stephen"
+			},
+			{
+				"family": "McNeer",
+				"given": "Elizabeth"
+			},
+			{
+				"family": "Smart",
+				"given": "Rosanna"
+			},
+			{
+				"family": "Powell",
+				"given": "David"
+			},
+			{
+				"family": "Stein",
+				"given": "Bradley D."
+			},
+			{
+				"family": "Schell",
+				"given": "Terry L."
+			},
+			{
+				"family": "Pacula",
+				"given": "Rosalie Liccardo"
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2022",
+					10,
+					7
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2021",
+					12,
+					13
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/3390799/items/V3Q6ARUA",
+		"type": "article-journal",
+		"abstract": "Understanding how best to estimate state-level policy effects is important, and several unanswered questions remain, particularly about the ability of statistical models to disentangle the effects of concurrently enacted policies. In practice, many policy evaluation studies do not attempt to control for effects of co-occurring policies, and this issue has not received extensive attention in the methodological literature to date. In this study, we utilized Monte Carlo simulations to assess the impact of co-occurring policies on the performance of commonly-used statistical models in state policy evaluations. Simulation conditions varied effect sizes of the co-occurring policies and length of time between policy enactment dates, among other factors. Outcome data (annual state-specific opioid mortality rate per 100,000) were obtained from 1999 to 2016 National Vital Statistics System (NVSS) Multiple Cause of Death mortality files, thus yielding longitudinal annual state-level data over 18 years from 50 states. When co-occurring policies are ignored (i.e., omitted from the analytic model), our results demonstrated that high relative bias (> 82%) arises, particularly when policies are enacted in rapid succession. Moreover, as expected, controlling for all co-occurring policies will effectively mitigate the threat of confounding bias; however, effect estimates may be relatively imprecise (i.e., larger variance) when policies are enacted in near succession. Our findings highlight several key methodological issues regarding co-occurring policies in the context of opioid-policy research yet also generalize more broadly to evaluation of other state-level policies, such as policies related to firearms or COVID-19, showcasing the need to think critically about co-occurring policies that are likely to influence the outcome when specifying analytic models.",
+		"container-title": "Health Services and Outcomes Research Methodology",
+		"DOI": "10.1007/s10742-022-00284-w",
+		"ISSN": "1572-9400",
+		"journalAbbreviation": "Health Serv Outcomes Res Method",
+		"language": "en",
+		"source": "Springer Link",
+		"title": "Methodological considerations for estimating policy effects in the context of co-occurring policies",
+		"URL": "https://doi.org/10.1007/s10742-022-00284-w",
+		"author": [
+			{
+				"family": "Griffin",
+				"given": "Beth Ann"
+			},
+			{
+				"family": "Schuler",
+				"given": "Megan S."
+			},
+			{
+				"family": "Pane",
+				"given": "Joseph"
+			},
+			{
+				"family": "Patrick",
+				"given": "Stephen W."
+			},
+			{
+				"family": "Smart",
+				"given": "Rosanna"
+			},
+			{
+				"family": "Stein",
+				"given": "Bradley D."
+			},
+			{
+				"family": "Grimm",
+				"given": "Geoffrey"
+			},
+			{
+				"family": "Stuart",
+				"given": "Elizabeth A."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2022",
+					10,
+					7
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2022",
+					7,
+					9
+				]
+			]
+		}
+	}
+]

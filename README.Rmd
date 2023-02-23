@@ -92,29 +92,24 @@ scenario1 <- c(linear10, linear10)
 scenario2 <- c(linear5, linear15)
 
 optic_sim <- optic_simulation(
+  
   x=overdoses,
   models=list(model_1, model_2),
   iters=10,
-  # method_type = c("concurrent", "confounding", "standard?")
-  # By choosing this method, all the parameters below would be set.
-  method_sample=concurrent_sample,
-  method_pre_model=concurrent_premodel,
-  method_model=concurrent_model,
-  method_post_model=concurrent_postmodel,
-  method_results=concurrent_results,
+  method_type = c("noconf")
+
+
+  unit_var="state",
+  time_var="year",
+  effect_magnitude=list(scenario1, scenario2),
+  n_units=c(30),
+  effect_direction=c("null", "neg"),
+  policy_speed=c("instant", "slow"),
+  n_implementation_periods=c(3),
+  rhos=c(0, 0.25, 0.5, 0.75, 0.9),
+  years_apart=2,
+  ordered=TRUE
   
-  # Look into de-nest this and construct it back within the optic_simulation function.
-  params=list(
-    unit_var="state",
-    time_var="year",
-    effect_magnitude=list(scenario1, scenario2),
-    n_units=c(30),
-    effect_direction=c("null", "neg"),
-    policy_speed=c("instant", "slow"),
-    n_implementation_periods=c(3),
-    rhos=c(0, 0.25, 0.5, 0.75, 0.9),
-    years_apart=2,
-    ordered=TRUE
   )
 )
 

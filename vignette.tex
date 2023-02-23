@@ -1,0 +1,2950 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames*,x11names*}{xcolor}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  filecolor=Maroon,
+  citecolor=Blue,
+  urlcolor=blue,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs}
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newenvironment{cslreferences}%
+  {}%
+  {\par}
+
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+
+{
+\hypersetup{linkcolor=}
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\hypertarget{optic-introduction}{%
+\section*{OPTIC Introduction}\label{optic-introduction}}
+\addcontentsline{toc}{section}{OPTIC Introduction}
+
+This vignette covers use of the OPTIC package, which contains tools to
+simulate the performance of commonly-used statistical models. Briefly,
+OPTIC uses Monte Carlo simulations to estimate the performance of models
+typically used for state-level policy evaluation (for example,
+differences-in-differences estimators). Package users provide the
+simulation procedure with a policy evaluation scenario, a hypothetical
+treatment effect, an estimator and model specification, and simulation
+parameters. OPTIC then constructs simulations for all chosen simulation
+parameters and estimators, returning summary statistics on each
+simulation's performance.
+
+Currently, OPTIC has been developed for policy evaluation scenarios with
+the following assumptions:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  No confounding : There are no confounding variables which determine a
+  observation's selection into treatment. Additionally, treatment
+  effects are assumed to be constant rather than time-varying.
+\item
+  Confounding due to co-occurring policies: There is one or more
+  policies which co-occur with the the policy of-interest. Selection
+  into treatment is still random.
+\end{enumerate}
+
+Additional details on the simulation procedures within OPTIC are
+available in Griffin et al.,
+2021\textsuperscript{\protect\hyperlink{ref-http:ux2fux2fzotero.orgux2fusersux2f3390799ux2fitemsux2fZNCVTPJF}{1}}
+and Griffin et al.,
+2022.\textsuperscript{\protect\hyperlink{ref-http:ux2fux2fzotero.orgux2fusersux2f3390799ux2fitemsux2fV3Q6ARUA}{2}}
+Forthcoming updates to OPTIC will provides simulations which test the
+effect of selection bias on model performance.
+
+This README covers the use of OPTIC in R and provides examples of the
+package's features. Section one covers package installation, section two
+provides a general overview of the package's usage, and section three
+provides two examples of the package under different policy scenarios.
+
+\hypertarget{installation}{%
+\section{Installation}\label{installation}}
+
+Clone the repository to your machine. Once you have the project on your
+local machine, the first thing you will want to do is build and install
+the package. Open the project in RStudio - it's easiest to open the
+optic.Rproj file to do so. Make sure you have \texttt{devtools}
+installed.
+
+\hypertarget{overview-of-the-optic-package}{%
+\section{Overview of the OPTIC
+Package}\label{overview-of-the-optic-package}}
+
+OPTIC contains two core functions for performing simulations, which
+require four user-provided inputs. Figure 1 below displays a flowchart
+of OPTIC's required steps to produce simulation results.
+
+\includegraphics{optic_flowchart.pdf}
+
+The following sections describe OPTIC inputs and steps in detail.
+
+\hypertarget{user-inputs}{%
+\subsection{User inputs}\label{user-inputs}}
+
+\hypertarget{data}{%
+\subsubsection{Data}\label{data}}
+
+Analysts will need to shape their data to work properly with OPTIC. The
+package contains an example dataset which demonstrates the format
+required by the function ``configure\_simulation''.
+
+\begin{longtable}[]{@{}lrrrrrr@{}}
+\toprule
+state & year & population & unemploymentrate & opioid\_rx & deaths &
+crude.rate\tabularnewline
+\midrule
+\endhead
+Alabama & 1999 & 4430141 & 4.7 & NA & 169 & 3.8\tabularnewline
+Alabama & 2000 & 4447100 & 4.6 & NA & 197 & 4.4\tabularnewline
+Alabama & 2001 & 4467634 & 5.1 & NA & 216 & 4.8\tabularnewline
+Alabama & 2002 & 4480089 & 5.9 & NA & 211 & 4.7\tabularnewline
+Alabama & 2003 & 4503491 & 6.0 & NA & 197 & 4.4\tabularnewline
+Alabama & 2004 & 4530729 & 5.7 & NA & 283 & 6.2\tabularnewline
+Alabama & 2005 & 4569805 & 4.5 & NA & 283 & 6.2\tabularnewline
+Alabama & 2006 & 4628981 & 4.0 & 115.6 & 398 & 8.6\tabularnewline
+Alabama & 2007 & 4672840 & 4.0 & 120.3 & 511 & 10.9\tabularnewline
+Alabama & 2008 & 4718206 & 5.7 & 126.1 & 607 & 12.9\tabularnewline
+Alabama & 2009 & 4757938 & 11.0 & 131.6 & 630 & 13.2\tabularnewline
+Alabama & 2010 & 4779736 & 10.5 & 134.3 & 547 & 11.4\tabularnewline
+Alabama & 2011 & 4802740 & 9.6 & 136.6 & 552 & 11.5\tabularnewline
+Alabama & 2012 & 4822023 & 8.0 & 143.8 & 562 & 11.7\tabularnewline
+Alabama & 2013 & 4833722 & 7.2 & 142.4 & 598 & 12.4\tabularnewline
+Alabama & 2014 & 4849377 & 6.8 & 135.2 & 723 & 14.9\tabularnewline
+Alabama & 2015 & 4858979 & 6.1 & 125.0 & 736 & 15.1\tabularnewline
+Alabama & 2016 & 4863300 & 5.8 & 121.0 & 756 & 15.5\tabularnewline
+Alabama & 2017 & 4874747 & 4.4 & 108.8 & 835 & 17.1\tabularnewline
+Alaska & 1999 & 624779 & 6.5 & NA & 46 & 7.4\tabularnewline
+Alaska & 2000 & 626932 & 6.4 & NA & 48 & 7.7\tabularnewline
+Alaska & 2001 & 633714 & 6.4 & NA & 62 & 9.8\tabularnewline
+Alaska & 2002 & 642337 & 7.3 & NA & 84 & 13.1\tabularnewline
+Alaska & 2003 & 648414 & 7.8 & NA & 83 & 12.8\tabularnewline
+Alaska & 2004 & 659286 & 7.5 & NA & 86 & 13.0\tabularnewline
+Alaska & 2005 & 666946 & 6.9 & NA & 79 & 11.8\tabularnewline
+Alaska & 2006 & 675302 & 6.6 & 63.4 & 76 & 11.3\tabularnewline
+Alaska & 2007 & 680300 & 6.3 & 66.6 & 72 & 10.6\tabularnewline
+Alaska & 2008 & 687455 & 6.7 & 68.5 & 127 & 18.5\tabularnewline
+Alaska & 2009 & 698895 & 7.7 & 67.3 & 131 & 18.7\tabularnewline
+Alaska & 2010 & 710231 & 7.9 & 68.4 & 83 & 11.7\tabularnewline
+Alaska & 2011 & 722718 & 7.6 & 68.0 & 107 & 14.8\tabularnewline
+Alaska & 2012 & 731449 & 7.1 & 66.8 & 129 & 17.6\tabularnewline
+Alaska & 2013 & 735132 & 7.0 & 63.7 & 105 & 14.3\tabularnewline
+Alaska & 2014 & 736732 & 6.9 & 62.7 & 124 & 16.8\tabularnewline
+Alaska & 2015 & 738432 & 6.5 & 60.8 & 122 & 16.5\tabularnewline
+Alaska & 2016 & 741894 & 6.9 & 58.9 & 128 & 17.3\tabularnewline
+Alaska & 2017 & 739795 & 7.0 & 52.0 & 147 & 19.9\tabularnewline
+Arizona & 1999 & 5023823 & 4.4 & NA & 511 & 10.2\tabularnewline
+Arizona & 2000 & 5130632 & 4.0 & NA & 522 & 10.2\tabularnewline
+Arizona & 2001 & 5273477 & 4.8 & NA & 552 & 10.5\tabularnewline
+Arizona & 2002 & 5396255 & 6.1 & NA & 624 & 11.6\tabularnewline
+Arizona & 2003 & 5510364 & 5.7 & NA & 674 & 12.2\tabularnewline
+Arizona & 2004 & 5652404 & 5.0 & NA & 744 & 13.2\tabularnewline
+Arizona & 2005 & 5839077 & 4.7 & NA & 794 & 13.6\tabularnewline
+Arizona & 2006 & 6029141 & 4.2 & 74.3 & 876 & 14.5\tabularnewline
+Arizona & 2007 & 6167681 & 3.9 & 77.8 & 943 & 15.3\tabularnewline
+Arizona & 2008 & 6280362 & 6.2 & 80.9 & 828 & 13.2\tabularnewline
+Arizona & 2009 & 6343154 & 9.9 & 84.2 & 1002 & 15.8\tabularnewline
+Arizona & 2010 & 6392017 & 10.4 & 88.5 & 1098 & 17.2\tabularnewline
+Arizona & 2011 & 6482505 & 9.5 & 88.6 & 1071 & 16.5\tabularnewline
+Arizona & 2012 & 6553255 & 8.3 & 85.3 & 1134 & 17.3\tabularnewline
+Arizona & 2013 & 6626624 & 7.7 & 80.4 & 1222 & 18.4\tabularnewline
+Arizona & 2014 & 6731484 & 6.8 & 79.7 & 1211 & 18.0\tabularnewline
+Arizona & 2015 & 6828065 & 6.1 & 75.5 & 1274 & 18.7\tabularnewline
+Arizona & 2016 & 6931071 & 5.4 & 70.2 & 1382 & 19.9\tabularnewline
+Arizona & 2017 & 7016270 & 4.9 & 60.8 & 1532 & 21.8\tabularnewline
+Arkansas & 1999 & 2651860 & 4.6 & NA & 113 & 4.3\tabularnewline
+Arkansas & 2000 & 2673400 & 4.3 & NA & 140 & 5.2\tabularnewline
+Arkansas & 2001 & 2691571 & 5.0 & NA & 126 & 4.7\tabularnewline
+Arkansas & 2002 & 2705927 & 5.5 & NA & 176 & 6.5\tabularnewline
+Arkansas & 2003 & 2724816 & 5.9 & NA & 184 & 6.8\tabularnewline
+Arkansas & 2004 & 2749686 & 5.7 & NA & 230 & 8.4\tabularnewline
+Arkansas & 2005 & 2781097 & 5.2 & NA & 269 & 9.7\tabularnewline
+Arkansas & 2006 & 2821761 & 5.2 & 98.3 & 285 & 10.1\tabularnewline
+Arkansas & 2007 & 2848650 & 5.3 & 108.2 & 301 & 10.6\tabularnewline
+Arkansas & 2008 & 2874554 & 5.5 & 112.1 & 360 & 12.5\tabularnewline
+Arkansas & 2009 & 2896843 & 7.8 & 116.0 & 351 & 12.1\tabularnewline
+Arkansas & 2010 & 2915918 & 8.2 & 120.8 & 350 & 12.0\tabularnewline
+Arkansas & 2011 & 2937979 & 8.3 & 115.2 & 355 & 12.1\tabularnewline
+Arkansas & 2012 & 2949131 & 7.6 & 121.8 & 373 & 12.6\tabularnewline
+Arkansas & 2013 & 2959373 & 7.2 & 120.9 & 319 & 10.8\tabularnewline
+Arkansas & 2014 & 2966369 & 6.0 & 123.2 & 356 & 12.0\tabularnewline
+Arkansas & 2015 & 2978204 & 5.0 & 117.2 & 392 & 13.2\tabularnewline
+Arkansas & 2016 & 2988248 & 4.0 & 114.6 & 401 & 13.4\tabularnewline
+Arkansas & 2017 & 3004279 & 3.7 & 106.1 & 446 & 14.8\tabularnewline
+California & 1999 & 33499204 & 5.2 & NA & 2662 & 7.9\tabularnewline
+California & 2000 & 33871648 & 4.9 & NA & 1941 & 5.7\tabularnewline
+California & 2001 & 34479458 & 5.4 & NA & 1226 & 3.6\tabularnewline
+California & 2002 & 34871843 & 6.7 & NA & 2975 & 8.5\tabularnewline
+California & 2003 & 35253159 & 6.8 & NA & 3108 & 8.8\tabularnewline
+California & 2004 & 35574576 & 6.2 & NA & 3125 & 8.8\tabularnewline
+California & 2005 & 35827943 & 5.4 & NA & 3214 & 9.0\tabularnewline
+California & 2006 & 36021202 & 4.9 & 51.0 & 3494 & 9.7\tabularnewline
+California & 2007 & 36250311 & 5.4 & 53.6 & 3854 & 10.6\tabularnewline
+California & 2008 & 36604337 & 7.3 & 55.1 & 3863 & 10.6\tabularnewline
+California & 2009 & 36961229 & 11.2 & 55.6 & 4056 & 11.0\tabularnewline
+California & 2010 & 37253956 & 12.2 & 55.8 & 4057 & 10.9\tabularnewline
+California & 2011 & 37691912 & 11.7 & 55.9 & 4180 & 11.1\tabularnewline
+California & 2012 & 38041430 & 10.4 & 56.4 & 4040 & 10.6\tabularnewline
+California & 2013 & 38332521 & 8.9 & 54.4 & 4452 & 11.6\tabularnewline
+California & 2014 & 38802500 & 7.5 & 52.7 & 4521 & 11.7\tabularnewline
+California & 2015 & 39144818 & 6.2 & 47.7 & 4659 & 11.9\tabularnewline
+California & 2016 & 39250017 & 5.5 & 44.8 & 4654 & 11.9\tabularnewline
+California & 2017 & 39536653 & 4.8 & 39.8 & 4868 & 12.3\tabularnewline
+Colorado & 1999 & 4226018 & 3.1 & NA & 349 & 8.3\tabularnewline
+Colorado & 2000 & 4301261 & 2.8 & NA & 352 & 8.2\tabularnewline
+Colorado & 2001 & 4425687 & 3.8 & NA & 411 & 9.3\tabularnewline
+Colorado & 2002 & 4490406 & 5.5 & NA & 448 & 10.0\tabularnewline
+Colorado & 2003 & 4528732 & 6.0 & NA & 502 & 11.1\tabularnewline
+Colorado & 2004 & 4575013 & 5.5 & NA & 518 & 11.3\tabularnewline
+Colorado & 2005 & 4631888 & 5.0 & NA & 608 & 13.1\tabularnewline
+Colorado & 2006 & 4720423 & 4.3 & 62.2 & 627 & 13.3\tabularnewline
+Colorado & 2007 & 4803868 & 3.7 & 65.9 & 734 & 15.3\tabularnewline
+Colorado & 2008 & 4889730 & 4.8 & 67.7 & 749 & 15.3\tabularnewline
+Colorado & 2009 & 4972195 & 7.3 & 69.8 & 769 & 15.5\tabularnewline
+Colorado & 2010 & 5029196 & 8.7 & 72.0 & 654 & 13.0\tabularnewline
+Colorado & 2011 & 5116796 & 8.4 & 73.0 & 843 & 16.5\tabularnewline
+Colorado & 2012 & 5187582 & 7.9 & 73.5 & 807 & 15.6\tabularnewline
+Colorado & 2013 & 5268367 & 6.9 & 71.2 & 846 & 16.1\tabularnewline
+Colorado & 2014 & 5355866 & 5.0 & 69.6 & 899 & 16.8\tabularnewline
+Colorado & 2015 & 5456574 & 3.9 & 65.1 & 869 & 15.9\tabularnewline
+Colorado & 2016 & 5540545 & 3.2 & 59.8 & 942 & 17.0\tabularnewline
+Colorado & 2017 & 5607154 & 2.7 & 52.4 & 1015 & 18.1\tabularnewline
+Connecticut & 1999 & 3386401 & 2.9 & NA & 310 & 9.2\tabularnewline
+Connecticut & 2000 & 3405565 & 2.4 & NA & 320 & 9.4\tabularnewline
+Connecticut & 2001 & 3432835 & 3.1 & NA & 307 & 8.9\tabularnewline
+Connecticut & 2002 & 3458749 & 4.3 & NA & 354 & 10.2\tabularnewline
+Connecticut & 2003 & 3484336 & 5.4 & NA & 307 & 8.8\tabularnewline
+Connecticut & 2004 & 3496094 & 5.0 & NA & 333 & 9.5\tabularnewline
+Connecticut & 2005 & 3506956 & 4.9 & NA & 295 & 8.4\tabularnewline
+Connecticut & 2006 & 3517460 & 4.3 & 64.7 & 407 & 11.6\tabularnewline
+Connecticut & 2007 & 3527270 & 4.5 & 67.5 & 433 & 12.3\tabularnewline
+Connecticut & 2008 & 3545579 & 5.7 & 68.7 & 386 & 10.9\tabularnewline
+Connecticut & 2009 & 3561807 & 7.9 & 68.1 & 393 & 11.0\tabularnewline
+Connecticut & 2010 & 3574097 & 9.1 & 68.6 & 363 & 10.2\tabularnewline
+Connecticut & 2011 & 3580709 & 8.8 & 69.1 & 402 & 11.2\tabularnewline
+Connecticut & 2012 & 3590347 & 8.3 & 69.3 & 439 & 12.2\tabularnewline
+Connecticut & 2013 & 3596080 & 7.8 & 67.4 & 582 & 16.2\tabularnewline
+Connecticut & 2014 & 3596677 & 6.6 & 66.0 & 623 & 17.3\tabularnewline
+Connecticut & 2015 & 3590886 & 5.7 & 62.3 & 800 & 22.3\tabularnewline
+Connecticut & 2016 & 3576452 & 5.1 & 55.9 & 971 & 27.1\tabularnewline
+Connecticut & 2017 & 3588184 & 4.7 & 48.6 & 1072 & 29.9\tabularnewline
+Delaware & 1999 & 774990 & 3.4 & NA & 50 & 6.5\tabularnewline
+Delaware & 2000 & 783600 & 3.7 & NA & 55 & 7.0\tabularnewline
+Delaware & 2001 & 795699 & 3.5 & NA & 64 & 8.0\tabularnewline
+Delaware & 2002 & 806169 & 4.0 & NA & 84 & 10.4\tabularnewline
+Delaware & 2003 & 818003 & 4.3 & NA & 77 & 9.4\tabularnewline
+Delaware & 2004 & 830803 & 4.0 & NA & 63 & 7.6\tabularnewline
+Delaware & 2005 & 845150 & 4.1 & NA & 62 & 7.3\tabularnewline
+Delaware & 2006 & 859268 & 3.6 & 86.6 & 78 & 9.1\tabularnewline
+Delaware & 2007 & 871749 & 3.4 & 92.3 & 97 & 11.1\tabularnewline
+Delaware & 2008 & 883874 & 4.9 & 95.4 & 124 & 14.0\tabularnewline
+Delaware & 2009 & 891730 & 8.3 & 97.5 & 136 & 15.3\tabularnewline
+Delaware & 2010 & 897934 & 8.4 & 101.1 & 145 & 16.1\tabularnewline
+Delaware & 2011 & 907135 & 7.5 & 99.7 & 160 & 17.6\tabularnewline
+Delaware & 2012 & 917092 & 7.2 & 94.0 & 141 & 15.4\tabularnewline
+Delaware & 2013 & 925749 & 6.7 & 92.7 & 166 & 17.9\tabularnewline
+Delaware & 2014 & 935614 & 5.7 & 91.0 & 189 & 20.2\tabularnewline
+Delaware & 2015 & 945934 & 4.9 & 84.4 & 198 & 20.9\tabularnewline
+Delaware & 2016 & 952065 & 4.5 & 79.2 & 282 & 29.6\tabularnewline
+Delaware & 2017 & 961939 & 4.5 & 68.6 & 338 & 35.1\tabularnewline
+District of Columbia & 1999 & 570213 & 6.4 & NA & 48 &
+8.4\tabularnewline
+District of Columbia & 2000 & 572059 & 5.6 & NA & 76 &
+13.3\tabularnewline
+District of Columbia & 2001 & 574504 & 6.3 & NA & 93 &
+16.2\tabularnewline
+District of Columbia & 2002 & 573158 & 6.4 & NA & 61 &
+10.6\tabularnewline
+District of Columbia & 2003 & 568502 & 6.8 & NA & 103 &
+18.1\tabularnewline
+District of Columbia & 2004 & 567754 & 7.8 & NA & 87 &
+15.3\tabularnewline
+District of Columbia & 2005 & 567136 & 6.4 & NA & 77 &
+13.6\tabularnewline
+District of Columbia & 2006 & 570681 & 5.8 & 31.7 & 101 &
+17.7\tabularnewline
+District of Columbia & 2007 & 574404 & 5.5 & 41.2 & 61 &
+10.6\tabularnewline
+District of Columbia & 2008 & 580236 & 6.5 & 34.5 & 56 &
+9.7\tabularnewline
+District of Columbia & 2009 & 592228 & 9.3 & 34.4 & 26 &
+4.4\tabularnewline
+District of Columbia & 2010 & 601723 & 9.4 & 37.1 & 78 &
+13.0\tabularnewline
+District of Columbia & 2011 & 617996 & 10.2 & 39.8 & 86 &
+13.9\tabularnewline
+District of Columbia & 2012 & 632323 & 9.0 & 40.3 & 77 &
+12.2\tabularnewline
+District of Columbia & 2013 & 646449 & 8.5 & 41.1 & 102 &
+15.8\tabularnewline
+District of Columbia & 2014 & 658893 & 7.8 & 40.1 & 96 &
+14.6\tabularnewline
+District of Columbia & 2015 & 672228 & 6.9 & 35.7 & 125 &
+18.6\tabularnewline
+District of Columbia & 2016 & 681170 & 6.1 & 32.5 & 269 &
+39.5\tabularnewline
+District of Columbia & 2017 & 693972 & 6.1 & 28.4 & 310 &
+44.7\tabularnewline
+Florida & 1999 & 15759421 & 3.9 & NA & 997 & 6.3\tabularnewline
+Florida & 2000 & 15982378 & 3.7 & NA & 1159 & 7.3\tabularnewline
+Florida & 2001 & 16356966 & 4.7 & NA & 1746 & 10.7\tabularnewline
+Florida & 2002 & 16689370 & 5.6 & NA & 1927 & 11.5\tabularnewline
+Florida & 2003 & 17004085 & 5.2 & NA & 2054 & 12.1\tabularnewline
+Florida & 2004 & 17415318 & 4.6 & NA & 2264 & 13.0\tabularnewline
+Florida & 2005 & 17842038 & 3.7 & NA & 2371 & 13.3\tabularnewline
+Florida & 2006 & 18166990 & 3.2 & 79.7 & 2591 & 14.3\tabularnewline
+Florida & 2007 & 18367842 & 4.0 & 82.2 & 2794 & 15.2\tabularnewline
+Florida & 2008 & 18527305 & 6.3 & 84.3 & 2963 & 16.0\tabularnewline
+Florida & 2009 & 18652644 & 10.4 & 86.3 & 3092 & 16.6\tabularnewline
+Florida & 2010 & 18801310 & 11.1 & 87.6 & 3061 & 16.3\tabularnewline
+Florida & 2011 & 19057542 & 10.0 & 83.5 & 2918 & 15.3\tabularnewline
+Florida & 2012 & 19317568 & 8.5 & 75.9 & 2597 & 13.4\tabularnewline
+Florida & 2013 & 19552860 & 7.2 & 73.5 & 2474 & 12.7\tabularnewline
+Florida & 2014 & 19893297 & 6.3 & 71.4 & 2634 & 13.2\tabularnewline
+Florida & 2015 & 20271272 & 5.5 & 67.1 & 3228 & 15.9\tabularnewline
+Florida & 2016 & 20612439 & 4.8 & 66.6 & 4728 & 22.9\tabularnewline
+Florida & 2017 & 20984400 & 4.2 & 61.5 & 5088 & 24.2\tabularnewline
+Georgia & 1999 & 8045965 & 3.9 & NA & 283 & 3.5\tabularnewline
+Georgia & 2000 & 8186453 & 3.6 & NA & 364 & 4.4\tabularnewline
+Georgia & 2001 & 8377038 & 4.0 & NA & 511 & 6.1\tabularnewline
+Georgia & 2002 & 8508256 & 5.0 & NA & 563 & 6.6\tabularnewline
+Georgia & 2003 & 8622793 & 4.8 & NA & 607 & 7.0\tabularnewline
+Georgia & 2004 & 8769252 & 4.8 & NA & 666 & 7.6\tabularnewline
+Georgia & 2005 & 8925922 & 5.3 & NA & 738 & 8.3\tabularnewline
+Georgia & 2006 & 9155813 & 4.7 & 79.8 & 830 & 9.1\tabularnewline
+Georgia & 2007 & 9349988 & 4.5 & 82.5 & 923 & 9.9\tabularnewline
+Georgia & 2008 & 9504843 & 6.2 & 86.3 & 935 & 9.8\tabularnewline
+Georgia & 2009 & 9620846 & 9.9 & 88.2 & 1007 & 10.5\tabularnewline
+Georgia & 2010 & 9687653 & 10.5 & 90.2 & 1054 & 10.9\tabularnewline
+Georgia & 2011 & 9815210 & 10.2 & 88.6 & 1058 & 10.8\tabularnewline
+Georgia & 2012 & 9919945 & 9.2 & 89.4 & 1056 & 10.6\tabularnewline
+Georgia & 2013 & 9992167 & 8.2 & 86.6 & 1098 & 11.0\tabularnewline
+Georgia & 2014 & 10097343 & 7.1 & 83.8 & 1206 & 11.9\tabularnewline
+Georgia & 2015 & 10214860 & 6.0 & 79.4 & 1302 & 12.7\tabularnewline
+Georgia & 2016 & 10310371 & 5.4 & 77.8 & 1394 & 13.5\tabularnewline
+Georgia & 2017 & 10429379 & 4.7 & 71.3 & 1537 & 14.7\tabularnewline
+Hawaii & 1999 & 1210300 & 5.4 & NA & 80 & 6.6\tabularnewline
+Hawaii & 2000 & 1211537 & 4.2 & NA & 63 & 5.2\tabularnewline
+Hawaii & 2001 & 1225948 & 4.5 & NA & 77 & 6.3\tabularnewline
+Hawaii & 2002 & 1239613 & 4.2 & NA & 77 & 6.2\tabularnewline
+Hawaii & 2003 & 1251154 & 4.1 & NA & 92 & 7.4\tabularnewline
+Hawaii & 2004 & 1273569 & 3.4 & NA & 103 & 8.1\tabularnewline
+Hawaii & 2005 & 1292729 & 2.9 & NA & 126 & 9.7\tabularnewline
+Hawaii & 2006 & 1309731 & 2.6 & 42.3 & 86 & 6.6\tabularnewline
+Hawaii & 2007 & 1315675 & 2.8 & 44.5 & 136 & 10.3\tabularnewline
+Hawaii & 2008 & 1332213 & 4.3 & 46.6 & 123 & 9.2\tabularnewline
+Hawaii & 2009 & 1346717 & 7.2 & 47.8 & 136 & 10.1\tabularnewline
+Hawaii & 2010 & 1360301 & 6.9 & 50.1 & 151 & 11.1\tabularnewline
+Hawaii & 2011 & 1374810 & 6.8 & 50.1 & 180 & 13.1\tabularnewline
+Hawaii & 2012 & 1392313 & 6.0 & 50.4 & 155 & 11.1\tabularnewline
+Hawaii & 2013 & 1404054 & 4.9 & 49.4 & 158 & 11.3\tabularnewline
+Hawaii & 2014 & 1419561 & 4.4 & 47.7 & 157 & 11.1\tabularnewline
+Hawaii & 2015 & 1431603 & 3.6 & 44.3 & 169 & 11.8\tabularnewline
+Hawaii & 2016 & 1428557 & 3.0 & 41.9 & 191 & 13.4\tabularnewline
+Hawaii & 2017 & 1427538 & 2.4 & 38.2 & 203 & 14.2\tabularnewline
+Idaho & 1999 & 1275674 & 4.9 & NA & 64 & 5.0\tabularnewline
+Idaho & 2000 & 1293953 & 4.7 & NA & 64 & 4.9\tabularnewline
+Idaho & 2001 & 1319962 & 5.1 & NA & 98 & 7.4\tabularnewline
+Idaho & 2002 & 1340372 & 5.6 & NA & 117 & 8.7\tabularnewline
+Idaho & 2003 & 1363380 & 5.6 & NA & 102 & 7.5\tabularnewline
+Idaho & 2004 & 1391802 & 4.9 & NA & 98 & 7.0\tabularnewline
+Idaho & 2005 & 1428241 & 4.0 & NA & 109 & 7.6\tabularnewline
+Idaho & 2006 & 1468669 & 3.5 & 75.6 & 130 & 8.9\tabularnewline
+Idaho & 2007 & 1505105 & 3.1 & 78.8 & 126 & 8.4\tabularnewline
+Idaho & 2008 & 1534320 & 5.1 & 82.7 & 146 & 9.5\tabularnewline
+Idaho & 2009 & 1554439 & 8.8 & 85.2 & 171 & 11.0\tabularnewline
+Idaho & 2010 & 1567582 & 9.0 & 88.6 & 178 & 11.4\tabularnewline
+Idaho & 2011 & 1584985 & 8.3 & 91.4 & 193 & 12.2\tabularnewline
+Idaho & 2012 & 1595728 & 7.2 & 92.0 & 181 & 11.3\tabularnewline
+Idaho & 2013 & 1612136 & 6.1 & 89.2 & 207 & 12.8\tabularnewline
+Idaho & 2014 & 1634464 & 4.8 & 87.4 & 212 & 13.0\tabularnewline
+Idaho & 2015 & 1654930 & 4.2 & 81.9 & 218 & 13.2\tabularnewline
+Idaho & 2016 & 1683140 & 3.8 & 77.6 & 243 & 14.4\tabularnewline
+Idaho & 2017 & 1716943 & 3.2 & 70.3 & 236 & 13.7\tabularnewline
+Illinois & 1999 & 12359020 & 4.4 & NA & 825 & 6.7\tabularnewline
+Illinois & 2000 & 12419293 & 4.3 & NA & 868 & 7.0\tabularnewline
+Illinois & 2001 & 12488445 & 5.3 & NA & 892 & 7.1\tabularnewline
+Illinois & 2002 & 12525556 & 6.5 & NA & 986 & 7.9\tabularnewline
+Illinois & 2003 & 12556006 & 6.8 & NA & 847 & 6.7\tabularnewline
+Illinois & 2004 & 12589773 & 6.2 & NA & 1035 & 8.2\tabularnewline
+Illinois & 2005 & 12609903 & 5.7 & NA & 1067 & 8.5\tabularnewline
+Illinois & 2006 & 12643955 & 4.5 & 55.6 & 1369 & 10.8\tabularnewline
+Illinois & 2007 & 12695866 & 5.0 & 59.2 & 1192 & 9.4\tabularnewline
+Illinois & 2008 & 12747038 & 6.3 & 60.2 & 1353 & 10.6\tabularnewline
+Illinois & 2009 & 12796778 & 10.2 & 61.0 & 1381 & 10.8\tabularnewline
+Illinois & 2010 & 12830632 & 10.4 & 63.1 & 1288 & 10.0\tabularnewline
+Illinois & 2011 & 12869257 & 9.7 & 64.3 & 1408 & 10.9\tabularnewline
+Illinois & 2012 & 12875255 & 9.0 & 66.1 & 1628 & 12.6\tabularnewline
+Illinois & 2013 & 12882135 & 9.0 & 63.7 & 1579 & 12.3\tabularnewline
+Illinois & 2014 & 12880580 & 7.1 & 62.3 & 1705 & 13.2\tabularnewline
+Illinois & 2015 & 12859995 & 6.0 & 59.1 & 1835 & 14.3\tabularnewline
+Illinois & 2016 & 12801539 & 5.8 & 56.8 & 2411 & 18.8\tabularnewline
+Illinois & 2017 & 12802023 & 4.9 & 56.7 & 2778 & 21.7\tabularnewline
+Indiana & 1999 & 6044969 & 3.0 & NA & 191 & 3.2\tabularnewline
+Indiana & 2000 & 6080485 & 3.1 & NA & 214 & 3.5\tabularnewline
+Indiana & 2001 & 6127760 & 4.2 & NA & 283 & 4.6\tabularnewline
+Indiana & 2002 & 6155967 & 5.2 & NA & 293 & 4.8\tabularnewline
+Indiana & 2003 & 6196638 & 5.3 & NA & 434 & 7.0\tabularnewline
+Indiana & 2004 & 6233007 & 5.4 & NA & 542 & 8.7\tabularnewline
+Indiana & 2005 & 6278616 & 5.5 & NA & 610 & 9.7\tabularnewline
+Indiana & 2006 & 6332669 & 5.0 & 94.3 & 736 & 11.6\tabularnewline
+Indiana & 2007 & 6379599 & 4.6 & 99.7 & 781 & 12.2\tabularnewline
+Indiana & 2008 & 6424806 & 5.9 & 103.3 & 830 & 12.9\tabularnewline
+Indiana & 2009 & 6459325 & 10.3 & 105.6 & 896 & 13.9\tabularnewline
+Indiana & 2010 & 6483802 & 10.4 & 107.1 & 927 & 14.3\tabularnewline
+Indiana & 2011 & 6516922 & 9.1 & 106.7 & 975 & 15.0\tabularnewline
+Indiana & 2012 & 6537334 & 8.3 & 110.5 & 1011 & 15.5\tabularnewline
+Indiana & 2013 & 6570902 & 7.7 & 106.3 & 1064 & 16.2\tabularnewline
+Indiana & 2014 & 6596855 & 6.0 & 96.7 & 1172 & 17.8\tabularnewline
+Indiana & 2015 & 6619680 & 4.8 & 89.1 & 1245 & 18.8\tabularnewline
+Indiana & 2016 & 6633053 & 4.4 & 83.9 & 1526 & 23.0\tabularnewline
+Indiana & 2017 & 6666818 & 3.6 & 51.4 & 1852 & 27.8\tabularnewline
+Iowa & 1999 & 2917634 & 2.6 & NA & 53 & 1.8\tabularnewline
+Iowa & 2000 & 2926324 & 2.6 & NA & 73 & 2.5\tabularnewline
+Iowa & 2001 & 2931997 & 3.3 & NA & 87 & 3.0\tabularnewline
+Iowa & 2002 & 2934234 & 4.0 & NA & 91 & 3.1\tabularnewline
+Iowa & 2003 & 2941999 & 4.5 & NA & 96 & 3.3\tabularnewline
+Iowa & 2004 & 2953635 & 4.5 & NA & 122 & 4.1\tabularnewline
+Iowa & 2005 & 2964454 & 4.3 & NA & 141 & 4.8\tabularnewline
+Iowa & 2006 & 2982644 & 3.7 & 59.3 & 187 & 6.3\tabularnewline
+Iowa & 2007 & 2999212 & 3.7 & 57.1 & 203 & 6.8\tabularnewline
+Iowa & 2008 & 3016734 & 4.2 & 59.1 & 209 & 6.9\tabularnewline
+Iowa & 2009 & 3032870 & 6.4 & 60.4 & 207 & 6.8\tabularnewline
+Iowa & 2010 & 3046355 & 6.0 & 62.3 & 253 & 8.3\tabularnewline
+Iowa & 2011 & 3062309 & 5.5 & 64.0 & 250 & 8.2\tabularnewline
+Iowa & 2012 & 3074186 & 5.0 & 74.1 & 259 & 8.4\tabularnewline
+Iowa & 2013 & 3090416 & 4.7 & 72.2 & 275 & 8.9\tabularnewline
+Iowa & 2014 & 3107126 & 4.2 & 72.3 & 264 & 8.5\tabularnewline
+Iowa & 2015 & 3123899 & 3.8 & 68.6 & 309 & 9.9\tabularnewline
+Iowa & 2016 & 3134693 & 3.6 & 64.0 & 314 & 10.0\tabularnewline
+Iowa & 2017 & 3145711 & 3.1 & 75.7 & 341 & 10.8\tabularnewline
+Kansas & 1999 & 2678338 & 3.3 & NA & 89 & 3.3\tabularnewline
+Kansas & 2000 & 2688418 & 3.6 & NA & 103 & 3.8\tabularnewline
+Kansas & 2001 & 2702162 & 4.2 & NA & 138 & 5.1\tabularnewline
+Kansas & 2002 & 2713535 & 5.1 & NA & 170 & 6.3\tabularnewline
+Kansas & 2003 & 2723004 & 5.5 & NA & 188 & 6.9\tabularnewline
+Kansas & 2004 & 2734373 & 5.5 & NA & 224 & 8.2\tabularnewline
+Kansas & 2005 & 2745299 & 5.0 & NA & 241 & 8.8\tabularnewline
+Kansas & 2006 & 2762931 & 4.4 & 77.5 & 257 & 9.3\tabularnewline
+Kansas & 2007 & 2783785 & 4.2 & 80.6 & 270 & 9.7\tabularnewline
+Kansas & 2008 & 2808076 & 4.6 & 82.7 & 219 & 7.8\tabularnewline
+Kansas & 2009 & 2832704 & 6.9 & 82.8 & 304 & 10.7\tabularnewline
+Kansas & 2010 & 2853118 & 7.1 & 86.1 & 269 & 9.4\tabularnewline
+Kansas & 2011 & 2871238 & 6.5 & 87.8 & 280 & 9.8\tabularnewline
+Kansas & 2012 & 2885905 & 5.7 & 90.3 & 318 & 11.0\tabularnewline
+Kansas & 2013 & 2893957 & 5.3 & 88.7 & 331 & 11.4\tabularnewline
+Kansas & 2014 & 2904021 & 4.5 & 86.5 & 332 & 11.4\tabularnewline
+Kansas & 2015 & 2911641 & 4.2 & 80.5 & 329 & 11.3\tabularnewline
+Kansas & 2016 & 2907289 & 4.0 & 76.9 & 313 & 10.8\tabularnewline
+Kansas & 2017 & 2913123 & 3.7 & 70.3 & 333 & 11.4\tabularnewline
+Kentucky & 1999 & 4018053 & 4.5 & NA & 197 & 4.9\tabularnewline
+Kentucky & 2000 & 4041769 & 4.2 & NA & 241 & 6.0\tabularnewline
+Kentucky & 2001 & 4068132 & 5.2 & NA & 345 & 8.5\tabularnewline
+Kentucky & 2002 & 4089875 & 5.7 & NA & 426 & 10.4\tabularnewline
+Kentucky & 2003 & 4117170 & 6.1 & NA & 560 & 13.6\tabularnewline
+Kentucky & 2004 & 4146101 & 5.4 & NA & 526 & 12.7\tabularnewline
+Kentucky & 2005 & 4182742 & 5.9 & NA & 638 & 15.3\tabularnewline
+Kentucky & 2006 & 4219239 & 5.7 & 122.6 & 728 & 17.3\tabularnewline
+Kentucky & 2007 & 4256672 & 5.4 & 130.8 & 708 & 16.6\tabularnewline
+Kentucky & 2008 & 4289878 & 6.4 & 136.6 & 764 & 17.8\tabularnewline
+Kentucky & 2009 & 4317074 & 10.3 & 135.2 & 769 & 17.8\tabularnewline
+Kentucky & 2010 & 4339367 & 10.2 & 136.5 & 1007 & 23.2\tabularnewline
+Kentucky & 2011 & 4369356 & 9.4 & 137.0 & 1058 & 24.2\tabularnewline
+Kentucky & 2012 & 4380415 & 8.2 & 127.9 & 1078 & 24.6\tabularnewline
+Kentucky & 2013 & 4395295 & 8.0 & 111.7 & 1019 & 23.2\tabularnewline
+Kentucky & 2014 & 4413457 & 6.5 & 110.0 & 1077 & 24.4\tabularnewline
+Kentucky & 2015 & 4425092 & 5.3 & 102.6 & 1273 & 28.8\tabularnewline
+Kentucky & 2016 & 4436974 & 5.1 & 97.2 & 1419 & 32.0\tabularnewline
+Kentucky & 2017 & 4454189 & 4.9 & 88.1 & 1566 & 35.2\tabularnewline
+Louisiana & 1999 & 4460811 & 5.1 & NA & 188 & 4.2\tabularnewline
+Louisiana & 2000 & 4468976 & 5.3 & NA & 248 & 5.5\tabularnewline
+Louisiana & 2001 & 4477875 & 5.7 & NA & 265 & 5.9\tabularnewline
+Louisiana & 2002 & 4497267 & 6.1 & NA & 365 & 8.1\tabularnewline
+Louisiana & 2003 & 4521042 & 6.4 & NA & 536 & 11.9\tabularnewline
+Louisiana & 2004 & 4552238 & 5.9 & NA & 539 & 11.8\tabularnewline
+Louisiana & 2005 & 4576628 & 7.2 & NA & 661 & 14.4\tabularnewline
+Louisiana & 2006 & 4302665 & 4.5 & 109.2 & 705 & 16.4\tabularnewline
+Louisiana & 2007 & 4375581 & 4.3 & 110.1 & 808 & 18.5\tabularnewline
+Louisiana & 2008 & 4435586 & 4.9 & 113.7 & 647 & 14.6\tabularnewline
+Louisiana & 2009 & 4491648 & 6.8 & 113.0 & 584 & 13.0\tabularnewline
+Louisiana & 2010 & 4533372 & 8.0 & 112.6 & 591 & 13.0\tabularnewline
+Louisiana & 2011 & 4574836 & 7.8 & 111.7 & 601 & 13.1\tabularnewline
+Louisiana & 2012 & 4601893 & 7.1 & 113.0 & 566 & 12.3\tabularnewline
+Louisiana & 2013 & 4625470 & 6.7 & 112.4 & 809 & 17.5\tabularnewline
+Louisiana & 2014 & 4649676 & 6.4 & 108.9 & 777 & 16.7\tabularnewline
+Louisiana & 2015 & 4670724 & 6.3 & 100.4 & 861 & 18.4\tabularnewline
+Louisiana & 2016 & 4681666 & 6.1 & 98.1 & 996 & 21.3\tabularnewline
+Louisiana & 2017 & 4684333 & 5.1 & 89.8 & 1108 & 23.7\tabularnewline
+Maine & 1999 & 1266808 & 4.0 & NA & 67 & 5.3\tabularnewline
+Maine & 2000 & 1274923 & 3.4 & NA & 61 & 4.8\tabularnewline
+Maine & 2001 & 1285692 & 3.8 & NA & 85 & 6.6\tabularnewline
+Maine & 2002 & 1295960 & 4.3 & NA & 139 & 10.7\tabularnewline
+Maine & 2003 & 1306513 & 5.0 & NA & 133 & 10.2\tabularnewline
+Maine & 2004 & 1313688 & 4.6 & NA & 140 & 10.7\tabularnewline
+Maine & 2005 & 1318787 & 4.9 & NA & 163 & 12.4\tabularnewline
+Maine & 2006 & 1323619 & 4.6 & 83.6 & 159 & 12.0\tabularnewline
+Maine & 2007 & 1327040 & 4.7 & 85.4 & 159 & 12.0\tabularnewline
+Maine & 2008 & 1330509 & 5.5 & 88.7 & 162 & 12.2\tabularnewline
+Maine & 2009 & 1329590 & 8.1 & 87.9 & 173 & 13.0\tabularnewline
+Maine & 2010 & 1328361 & 8.1 & 92.8 & 135 & 10.2\tabularnewline
+Maine & 2011 & 1328188 & 7.9 & 93.1 & 156 & 11.7\tabularnewline
+Maine & 2012 & 1329192 & 7.5 & 89.7 & 150 & 11.3\tabularnewline
+Maine & 2013 & 1328302 & 6.6 & 85.9 & 174 & 13.1\tabularnewline
+Maine & 2014 & 1330089 & 5.6 & 82.4 & 216 & 16.2\tabularnewline
+Maine & 2015 & 1329328 & 4.4 & 76.5 & 269 & 20.2\tabularnewline
+Maine & 2016 & 1331479 & 3.8 & 66.9 & 353 & 26.5\tabularnewline
+Maine & 2017 & 1335907 & 3.4 & 55.5 & 424 & 31.7\tabularnewline
+Maryland & 1999 & 5254509 & 3.6 & NA & 629 & 12.0\tabularnewline
+Maryland & 2000 & 5296486 & 3.6 & NA & 623 & 11.8\tabularnewline
+Maryland & 2001 & 5374691 & 4.0 & NA & 639 & 11.9\tabularnewline
+Maryland & 2002 & 5440389 & 4.4 & NA & 723 & 13.3\tabularnewline
+Maryland & 2003 & 5496269 & 4.4 & NA & 779 & 14.2\tabularnewline
+Maryland & 2004 & 5546935 & 4.3 & NA & 676 & 12.2\tabularnewline
+Maryland & 2005 & 5592379 & 4.1 & NA & 656 & 11.7\tabularnewline
+Maryland & 2006 & 5627367 & 3.9 & 60.1 & 762 & 13.5\tabularnewline
+Maryland & 2007 & 5653408 & 3.5 & 63.3 & 769 & 13.6\tabularnewline
+Maryland & 2008 & 5684965 & 4.2 & 65.5 & 693 & 12.2\tabularnewline
+Maryland & 2009 & 5730388 & 7.0 & 66.9 & 743 & 13.0\tabularnewline
+Maryland & 2010 & 5773552 & 7.7 & 71.2 & 650 & 11.3\tabularnewline
+Maryland & 2011 & 5828289 & 7.2 & 72.9 & 707 & 12.1\tabularnewline
+Maryland & 2012 & 5884563 & 7.0 & 72.2 & 831 & 14.1\tabularnewline
+Maryland & 2013 & 5928814 & 6.6 & 69.0 & 892 & 15.0\tabularnewline
+Maryland & 2014 & 5976407 & 5.8 & 67.6 & 1070 & 17.9\tabularnewline
+Maryland & 2015 & 6006401 & 5.1 & 63.0 & 1285 & 21.4\tabularnewline
+Maryland & 2016 & 6016447 & 4.5 & 58.7 & 2044 & 34.0\tabularnewline
+Maryland & 2017 & 6052177 & 4.3 & 52.0 & 2247 & 37.1\tabularnewline
+Massachusetts & 1999 & 6317345 & 3.2 & NA & 488 & 7.7\tabularnewline
+Massachusetts & 2000 & 6349097 & 2.7 & NA & 463 & 7.3\tabularnewline
+Massachusetts & 2001 & 6397634 & 3.7 & NA & 689 & 10.8\tabularnewline
+Massachusetts & 2002 & 6417206 & 5.3 & NA & 705 & 11.0\tabularnewline
+Massachusetts & 2003 & 6422565 & 5.7 & NA & 823 & 12.8\tabularnewline
+Massachusetts & 2004 & 6412281 & 5.1 & NA & 669 & 10.4\tabularnewline
+Massachusetts & 2005 & 6403290 & 4.8 & NA & 780 & 12.2\tabularnewline
+Massachusetts & 2006 & 6410084 & 4.9 & 66.0 & 970 & 15.1\tabularnewline
+Massachusetts & 2007 & 6431559 & 4.6 & 68.2 & 922 & 14.3\tabularnewline
+Massachusetts & 2008 & 6468967 & 5.5 & 69.2 & 786 & 12.2\tabularnewline
+Massachusetts & 2009 & 6517613 & 8.1 & 68.9 & 816 & 12.5\tabularnewline
+Massachusetts & 2010 & 6547629 & 8.3 & 67.9 & 738 & 11.3\tabularnewline
+Massachusetts & 2011 & 6587536 & 7.3 & 65.9 & 857 & 13.0\tabularnewline
+Massachusetts & 2012 & 6646144 & 6.7 & 65.7 & 859 & 12.9\tabularnewline
+Massachusetts & 2013 & 6692824 & 6.7 & 63.0 & 1081 & 16.2\tabularnewline
+Massachusetts & 2014 & 6745408 & 5.7 & 59.6 & 1289 & 19.1\tabularnewline
+Massachusetts & 2015 & 6794422 & 4.8 & 54.0 & 1724 & 25.4\tabularnewline
+Massachusetts & 2016 & 6811779 & 3.9 & 47.1 & 2227 & 32.7\tabularnewline
+Massachusetts & 2017 & 6859819 & 3.8 & 40.0 & 2168 & 31.6\tabularnewline
+Michigan & 1999 & 9897116 & 3.7 & NA & 460 & 4.6\tabularnewline
+Michigan & 2000 & 9938444 & 3.6 & NA & 561 & 5.6\tabularnewline
+Michigan & 2001 & 9991120 & 5.2 & NA & 621 & 6.2\tabularnewline
+Michigan & 2002 & 10015710 & 6.3 & NA & 751 & 7.5\tabularnewline
+Michigan & 2003 & 10041152 & 7.2 & NA & 761 & 7.6\tabularnewline
+Michigan & 2004 & 10055315 & 7.0 & NA & 867 & 8.6\tabularnewline
+Michigan & 2005 & 10051137 & 6.8 & NA & 985 & 9.8\tabularnewline
+Michigan & 2006 & 10036081 & 7.0 & 80.2 & 1176 & 11.7\tabularnewline
+Michigan & 2007 & 10001284 & 7.0 & 85.6 & 1236 & 12.4\tabularnewline
+Michigan & 2008 & 9946889 & 8.0 & 89.9 & 1239 & 12.5\tabularnewline
+Michigan & 2009 & 9901591 & 13.7 & 91.6 & 1429 & 14.4\tabularnewline
+Michigan & 2010 & 9883640 & 12.6 & 96.0 & 1394 & 14.1\tabularnewline
+Michigan & 2011 & 9876187 & 10.4 & 98.8 & 1386 & 14.0\tabularnewline
+Michigan & 2012 & 9883360 & 9.1 & 100.7 & 1308 & 13.2\tabularnewline
+Michigan & 2013 & 9895622 & 8.8 & 98.9 & 1553 & 15.7\tabularnewline
+Michigan & 2014 & 9909877 & 7.2 & 98.0 & 1762 & 17.8\tabularnewline
+Michigan & 2015 & 9922576 & 5.4 & 90.5 & 1980 & 20.0\tabularnewline
+Michigan & 2016 & 9928300 & 5.0 & 84.9 & 2347 & 23.6\tabularnewline
+Michigan & 2017 & 9962311 & 4.6 & 75.5 & 2694 & 27.0\tabularnewline
+Minnesota & 1999 & 4873481 & 2.8 & NA & 136 & 2.8\tabularnewline
+Minnesota & 2000 & 4919479 & 3.2 & NA & 130 & 2.6\tabularnewline
+Minnesota & 2001 & 4982796 & 3.8 & NA & 185 & 3.7\tabularnewline
+Minnesota & 2002 & 5018935 & 4.5 & NA & 201 & 4.0\tabularnewline
+Minnesota & 2003 & 5053572 & 4.9 & NA & 246 & 4.9\tabularnewline
+Minnesota & 2004 & 5087713 & 4.7 & NA & 250 & 4.9\tabularnewline
+Minnesota & 2005 & 5119598 & 4.1 & NA & 282 & 5.5\tabularnewline
+Minnesota & 2006 & 5163555 & 4.0 & 50.3 & 311 & 6.0\tabularnewline
+Minnesota & 2007 & 5207203 & 4.6 & 53.7 & 341 & 6.5\tabularnewline
+Minnesota & 2008 & 5247018 & 5.4 & 56.5 & 384 & 7.3\tabularnewline
+Minnesota & 2009 & 5281203 & 7.8 & 58.6 & 419 & 7.9\tabularnewline
+Minnesota & 2010 & 5303925 & 7.4 & 59.0 & 397 & 7.5\tabularnewline
+Minnesota & 2011 & 5344861 & 6.5 & 60.0 & 511 & 9.6\tabularnewline
+Minnesota & 2012 & 5379139 & 5.6 & 60.9 & 482 & 9.0\tabularnewline
+Minnesota & 2013 & 5420380 & 5.0 & 58.3 & 523 & 9.6\tabularnewline
+Minnesota & 2014 & 5457173 & 4.2 & 56.6 & 517 & 9.5\tabularnewline
+Minnesota & 2015 & 5489594 & 3.7 & 52.1 & 581 & 10.6\tabularnewline
+Minnesota & 2016 & 5519952 & 3.9 & 46.9 & 672 & 12.2\tabularnewline
+Minnesota & 2017 & 5576606 & 3.4 & 40.8 & 733 & 13.1\tabularnewline
+Mississippi & 1999 & 2828408 & 5.1 & NA & 87 & 3.1\tabularnewline
+Mississippi & 2000 & 2844658 & 5.4 & NA & 114 & 4.0\tabularnewline
+Mississippi & 2001 & 2852994 & 5.5 & NA & 169 & 5.9\tabularnewline
+Mississippi & 2002 & 2858681 & 6.6 & NA & 183 & 6.4\tabularnewline
+Mississippi & 2003 & 2868312 & 6.3 & NA & 207 & 7.2\tabularnewline
+Mississippi & 2004 & 2889010 & 6.2 & NA & 224 & 7.8\tabularnewline
+Mississippi & 2005 & 2905943 & 7.5 & NA & 248 & 8.5\tabularnewline
+Mississippi & 2006 & 2904978 & 6.5 & 102.7 & 339 & 11.7\tabularnewline
+Mississippi & 2007 & 2928350 & 6.1 & 109.9 & 314 & 10.7\tabularnewline
+Mississippi & 2008 & 2947806 & 6.6 & 113.2 & 303 & 10.3\tabularnewline
+Mississippi & 2009 & 2958774 & 9.5 & 117.3 & 323 & 10.9\tabularnewline
+Mississippi & 2010 & 2967297 & 10.4 & 118.1 & 334 & 11.3\tabularnewline
+Mississippi & 2011 & 2978512 & 10.0 & 117.2 & 302 & 10.1\tabularnewline
+Mississippi & 2012 & 2984926 & 9.0 & 121.8 & 310 & 10.4\tabularnewline
+Mississippi & 2013 & 2991207 & 8.5 & 119.6 & 316 & 10.6\tabularnewline
+Mississippi & 2014 & 2994079 & 7.5 & 116.3 & 336 & 11.2\tabularnewline
+Mississippi & 2015 & 2992333 & 6.4 & 110.9 & 351 & 11.7\tabularnewline
+Mississippi & 2016 & 2988726 & 5.8 & 105.6 & 352 & 11.8\tabularnewline
+Mississippi & 2017 & 2984100 & 5.1 & 93.4 & 354 & 11.9\tabularnewline
+Missouri & 1999 & 5561948 & 3.3 & NA & 276 & 5.0\tabularnewline
+Missouri & 2000 & 5595211 & 3.6 & NA & 303 & 5.4\tabularnewline
+Missouri & 2001 & 5641142 & 4.6 & NA & 351 & 6.2\tabularnewline
+Missouri & 2002 & 5674825 & 5.4 & NA & 416 & 7.3\tabularnewline
+Missouri & 2003 & 5709403 & 5.6 & NA & 522 & 9.1\tabularnewline
+Missouri & 2004 & 5747741 & 5.9 & NA & 548 & 9.5\tabularnewline
+Missouri & 2005 & 5790300 & 5.4 & NA & 608 & 10.5\tabularnewline
+Missouri & 2006 & 5842704 & 4.8 & 80.5 & 743 & 12.7\tabularnewline
+Missouri & 2007 & 5887612 & 5.1 & 84.3 & 714 & 12.1\tabularnewline
+Missouri & 2008 & 5923916 & 6.1 & 86.8 & 765 & 12.9\tabularnewline
+Missouri & 2009 & 5961088 & 9.3 & 88.5 & 863 & 14.5\tabularnewline
+Missouri & 2010 & 5988927 & 9.6 & 91.0 & 998 & 16.7\tabularnewline
+Missouri & 2011 & 6010688 & 8.5 & 91.6 & 963 & 16.0\tabularnewline
+Missouri & 2012 & 6021988 & 6.9 & 95.4 & 942 & 15.6\tabularnewline
+Missouri & 2013 & 6044171 & 6.7 & 93.3 & 1025 & 17.0\tabularnewline
+Missouri & 2014 & 6063589 & 6.1 & 90.7 & 1067 & 17.6\tabularnewline
+Missouri & 2015 & 6083672 & 5.0 & 84.5 & 1066 & 17.5\tabularnewline
+Missouri & 2016 & 6093000 & 4.6 & 80.4 & 1371 & 22.5\tabularnewline
+Missouri & 2017 & 6113532 & 3.8 & 72.2 & 1367 & 22.4\tabularnewline
+Montana & 1999 & 897507 & 5.3 & NA & 41 & 4.6\tabularnewline
+Montana & 2000 & 902195 & 5.0 & NA & 41 & 4.5\tabularnewline
+Montana & 2001 & 906961 & 4.5 & NA & 56 & 6.2\tabularnewline
+Montana & 2002 & 911667 & 4.4 & NA & 78 & 8.6\tabularnewline
+Montana & 2003 & 919630 & 4.7 & NA & 93 & 10.1\tabularnewline
+Montana & 2004 & 930009 & 4.8 & NA & 98 & 10.5\tabularnewline
+Montana & 2005 & 940102 & 4.4 & NA & 96 & 10.2\tabularnewline
+Montana & 2006 & 952692 & 3.5 & 79.1 & 97 & 10.2\tabularnewline
+Montana & 2007 & 964706 & 3.6 & 81.1 & 125 & 13.0\tabularnewline
+Montana & 2008 & 976415 & 5.1 & 85.3 & 134 & 13.7\tabularnewline
+Montana & 2009 & 983982 & 6.8 & 85.8 & 142 & 14.4\tabularnewline
+Montana & 2010 & 989415 & 7.3 & 87.2 & 118 & 11.9\tabularnewline
+Montana & 2011 & 998199 & 6.9 & 85.3 & 141 & 14.1\tabularnewline
+Montana & 2012 & 1005141 & 6.0 & 87.7 & 118 & 11.7\tabularnewline
+Montana & 2013 & 1015165 & 5.4 & 84.2 & 137 & 13.5\tabularnewline
+Montana & 2014 & 1023579 & 4.7 & 80.1 & 125 & 12.2\tabularnewline
+Montana & 2015 & 1032949 & 4.2 & 73.3 & 138 & 13.4\tabularnewline
+Montana & 2016 & 1042520 & 4.1 & 69.8 & 119 & 11.4\tabularnewline
+Montana & 2017 & 1050493 & 3.9 & 61.3 & 119 & 11.3\tabularnewline
+Nebraska & 1999 & 1704764 & 2.8 & NA & 39 & 2.3\tabularnewline
+Nebraska & 2000 & 1711263 & 2.8 & NA & 46 & 2.7\tabularnewline
+Nebraska & 2001 & 1719836 & 3.1 & NA & 66 & 3.8\tabularnewline
+Nebraska & 2002 & 1728292 & 3.6 & NA & 66 & 3.8\tabularnewline
+Nebraska & 2003 & 1738643 & 3.9 & NA & 55 & 3.2\tabularnewline
+Nebraska & 2004 & 1749370 & 3.9 & NA & 59 & 3.4\tabularnewline
+Nebraska & 2005 & 1761497 & 3.8 & NA & 86 & 4.9\tabularnewline
+Nebraska & 2006 & 1772693 & 3.1 & 64.3 & 91 & 5.1\tabularnewline
+Nebraska & 2007 & 1783440 & 3.0 & 65.1 & 80 & 4.5\tabularnewline
+Nebraska & 2008 & 1796378 & 3.3 & 66.2 & 94 & 5.2\tabularnewline
+Nebraska & 2009 & 1812683 & 4.6 & 66.4 & 106 & 5.8\tabularnewline
+Nebraska & 2010 & 1826341 & 4.6 & 69.0 & 117 & 6.4\tabularnewline
+Nebraska & 2011 & 1842641 & 4.4 & 68.8 & 129 & 7.0\tabularnewline
+Nebraska & 2012 & 1855525 & 4.0 & 73.2 & 146 & 7.9\tabularnewline
+Nebraska & 2013 & 1868516 & 3.8 & 71.3 & 117 & 6.3\tabularnewline
+Nebraska & 2014 & 1881503 & 3.3 & 70.1 & 125 & 6.6\tabularnewline
+Nebraska & 2015 & 1896190 & 3.0 & 65.5 & 126 & 6.6\tabularnewline
+Nebraska & 2016 & 1907116 & 3.1 & 62.8 & 120 & 6.3\tabularnewline
+Nebraska & 2017 & 1920076 & 2.9 & 56.6 & 152 & 7.9\tabularnewline
+Nevada & 1999 & 1934718 & 4.0 & NA & 227 & 11.7\tabularnewline
+Nevada & 2000 & 1998257 & 4.2 & NA & 273 & 13.7\tabularnewline
+Nevada & 2001 & 2098399 & 5.2 & NA & 261 & 12.4\tabularnewline
+Nevada & 2002 & 2173791 & 5.6 & NA & 323 & 14.9\tabularnewline
+Nevada & 2003 & 2248850 & 5.1 & NA & 342 & 15.2\tabularnewline
+Nevada & 2004 & 2346222 & 4.3 & NA & 380 & 16.2\tabularnewline
+Nevada & 2005 & 2432143 & 4.1 & NA & 457 & 18.8\tabularnewline
+Nevada & 2006 & 2522658 & 4.0 & 87.7 & 461 & 18.3\tabularnewline
+Nevada & 2007 & 2601072 & 4.5 & 90.2 & 499 & 19.2\tabularnewline
+Nevada & 2008 & 2653630 & 6.7 & 97.0 & 519 & 19.6\tabularnewline
+Nevada & 2009 & 2684665 & 11.3 & 94.0 & 550 & 20.5\tabularnewline
+Nevada & 2010 & 2700551 & 13.5 & 97.3 & 578 & 21.4\tabularnewline
+Nevada & 2011 & 2723322 & 13.0 & 100.3 & 639 & 23.5\tabularnewline
+Nevada & 2012 & 2758931 & 11.2 & 98.9 & 602 & 21.8\tabularnewline
+Nevada & 2013 & 2790136 & 9.6 & 91.1 & 614 & 22.0\tabularnewline
+Nevada & 2014 & 2839099 & 7.9 & 90.1 & 545 & 19.2\tabularnewline
+Nevada & 2015 & 2890845 & 6.8 & 85.4 & 619 & 21.4\tabularnewline
+Nevada & 2016 & 2940058 & 5.7 & 80.7 & 665 & 22.6\tabularnewline
+Nevada & 2017 & 2998039 & 5.1 & 73.2 & 676 & 22.5\tabularnewline
+New Hampshire & 1999 & 1222014 & 2.7 & NA & 54 & 4.4\tabularnewline
+New Hampshire & 2000 & 1235786 & 2.7 & NA & 45 & 3.6\tabularnewline
+New Hampshire & 2001 & 1255517 & 3.4 & NA & 79 & 6.3\tabularnewline
+New Hampshire & 2002 & 1269089 & 4.5 & NA & 111 & 8.7\tabularnewline
+New Hampshire & 2003 & 1279840 & 4.3 & NA & 127 & 9.9\tabularnewline
+New Hampshire & 2004 & 1290121 & 3.8 & NA & 124 & 9.6\tabularnewline
+New Hampshire & 2005 & 1298492 & 3.6 & NA & 142 & 10.9\tabularnewline
+New Hampshire & 2006 & 1308389 & 3.4 & 75.0 & 149 & 11.4\tabularnewline
+New Hampshire & 2007 & 1312540 & 3.5 & 78.5 & 186 & 14.2\tabularnewline
+New Hampshire & 2008 & 1315906 & 3.9 & 81.7 & 126 & 9.6\tabularnewline
+New Hampshire & 2009 & 1316102 & 6.2 & 81.5 & 168 & 12.8\tabularnewline
+New Hampshire & 2010 & 1316470 & 5.8 & 81.6 & 160 & 12.2\tabularnewline
+New Hampshire & 2011 & 1318194 & 5.4 & 80.9 & 210 & 15.9\tabularnewline
+New Hampshire & 2012 & 1320718 & 5.5 & 83.7 & 173 & 13.1\tabularnewline
+New Hampshire & 2013 & 1323459 & 5.1 & 82.0 & 203 & 15.3\tabularnewline
+New Hampshire & 2014 & 1326813 & 4.3 & 79.6 & 334 & 25.2\tabularnewline
+New Hampshire & 2015 & 1330608 & 3.4 & 74.8 & 422 & 31.7\tabularnewline
+New Hampshire & 2016 & 1334795 & 2.9 & 64.3 & 481 & 36.0\tabularnewline
+New Hampshire & 2017 & 1342795 & 2.7 & 52.5 & 467 & 34.8\tabularnewline
+New Jersey & 1999 & 8359592 & 4.5 & NA & 557 & 6.7\tabularnewline
+New Jersey & 2000 & 8414350 & 3.7 & NA & 643 & 7.6\tabularnewline
+New Jersey & 2001 & 8492671 & 4.3 & NA & 705 & 8.3\tabularnewline
+New Jersey & 2002 & 8552643 & 5.8 & NA & 813 & 9.5\tabularnewline
+New Jersey & 2003 & 8601402 & 5.8 & NA & 721 & 8.4\tabularnewline
+New Jersey & 2004 & 8634561 & 4.8 & NA & 590 & 6.8\tabularnewline
+New Jersey & 2005 & 8651974 & 4.5 & NA & 823 & 9.5\tabularnewline
+New Jersey & 2006 & 8661679 & 4.7 & 54.7 & 847 & 9.8\tabularnewline
+New Jersey & 2007 & 8677885 & 4.3 & 57.2 & 727 & 8.4\tabularnewline
+New Jersey & 2008 & 8711090 & 5.3 & 59.5 & 702 & 8.1\tabularnewline
+New Jersey & 2009 & 8755602 & 9.1 & 59.9 & 263 & 3.0\tabularnewline
+New Jersey & 2010 & 8791894 & 9.5 & 61.0 & 868 & 9.9\tabularnewline
+New Jersey & 2011 & 8821155 & 9.3 & 61.5 & 1012 & 11.5\tabularnewline
+New Jersey & 2012 & 8864590 & 9.3 & 60.1 & 1222 & 13.8\tabularnewline
+New Jersey & 2013 & 8899339 & 8.2 & 58.3 & 1294 & 14.5\tabularnewline
+New Jersey & 2014 & 8938175 & 6.8 & 57.2 & 1253 & 14.0\tabularnewline
+New Jersey & 2015 & 8958013 & 5.8 & 56.0 & 1454 & 16.2\tabularnewline
+New Jersey & 2016 & 8944469 & 5.0 & 52.6 & 2056 & 23.0\tabularnewline
+New Jersey & 2017 & 9005644 & 4.6 & 45.0 & 2685 & 29.8\tabularnewline
+New Mexico & 1999 & 1808082 & 5.6 & NA & 266 & 14.7\tabularnewline
+New Mexico & 2000 & 1819046 & 4.9 & NA & 271 & 14.9\tabularnewline
+New Mexico & 2001 & 1831690 & 4.9 & NA & 258 & 14.1\tabularnewline
+New Mexico & 2002 & 1855309 & 5.5 & NA & 287 & 15.5\tabularnewline
+New Mexico & 2003 & 1877574 & 5.9 & NA & 358 & 19.1\tabularnewline
+New Mexico & 2004 & 1903808 & 5.5 & NA & 314 & 16.5\tabularnewline
+New Mexico & 2005 & 1932274 & 5.1 & NA & 373 & 19.3\tabularnewline
+New Mexico & 2006 & 1962137 & 4.2 & 61.8 & 418 & 21.3\tabularnewline
+New Mexico & 2007 & 1990070 & 3.8 & 69.0 & 462 & 23.2\tabularnewline
+New Mexico & 2008 & 2010662 & 4.5 & 71.4 & 518 & 25.8\tabularnewline
+New Mexico & 2009 & 2036802 & 7.5 & 75.3 & 438 & 21.5\tabularnewline
+New Mexico & 2010 & 2059179 & 8.1 & 81.9 & 478 & 23.2\tabularnewline
+New Mexico & 2011 & 2082224 & 7.5 & 81.6 & 529 & 25.4\tabularnewline
+New Mexico & 2012 & 2085538 & 7.1 & 76.8 & 492 & 23.6\tabularnewline
+New Mexico & 2013 & 2085287 & 6.9 & 71.4 & 458 & 22.0\tabularnewline
+New Mexico & 2014 & 2085572 & 6.7 & 71.5 & 547 & 26.2\tabularnewline
+New Mexico & 2015 & 2085109 & 6.5 & 69.8 & 501 & 24.0\tabularnewline
+New Mexico & 2016 & 2081015 & 6.6 & 65.1 & 500 & 24.0\tabularnewline
+New Mexico & 2017 & 2088070 & 5.9 & 56.4 & 493 & 23.6\tabularnewline
+New York & 1999 & 18882725 & 5.2 & NA & 959 & 5.1\tabularnewline
+New York & 2000 & 18976457 & 4.5 & NA & 767 & 4.0\tabularnewline
+New York & 2001 & 19082838 & 4.8 & NA & 1079 & 5.7\tabularnewline
+New York & 2002 & 19137800 & 6.1 & NA & 923 & 4.8\tabularnewline
+New York & 2003 & 19175939 & 6.4 & NA & 964 & 5.0\tabularnewline
+New York & 2004 & 19171567 & 5.8 & NA & 831 & 4.3\tabularnewline
+New York & 2005 & 19132610 & 5.0 & NA & 944 & 4.9\tabularnewline
+New York & 2006 & 19104631 & 4.5 & 44.2 & 1680 & 8.8\tabularnewline
+New York & 2007 & 19132335 & 4.6 & 46.1 & 1708 & 8.9\tabularnewline
+New York & 2008 & 19212436 & 5.4 & 48.4 & 1691 & 8.8\tabularnewline
+New York & 2009 & 19307066 & 8.3 & 49.5 & 1592 & 8.2\tabularnewline
+New York & 2010 & 19378102 & 8.6 & 51.0 & 1557 & 8.0\tabularnewline
+New York & 2011 & 19465197 & 8.3 & 51.1 & 1948 & 10.0\tabularnewline
+New York & 2012 & 19570261 & 8.5 & 51.8 & 2106 & 10.8\tabularnewline
+New York & 2013 & 19651127 & 7.7 & 46.7 & 2309 & 11.7\tabularnewline
+New York & 2014 & 19746227 & 6.3 & 43.9 & 2300 & 11.6\tabularnewline
+New York & 2015 & 19795791 & 5.3 & 45.1 & 2754 & 13.9\tabularnewline
+New York & 2016 & 19745289 & 4.9 & 42.7 & 3638 & 18.4\tabularnewline
+New York & 2017 & 19849399 & 4.7 & 38.3 & 3921 & 19.8\tabularnewline
+North Carolina & 1999 & 7949361 & 3.2 & NA & 366 & 4.6\tabularnewline
+North Carolina & 2000 & 8049313 & 3.7 & NA & 491 & 6.1\tabularnewline
+North Carolina & 2001 & 8210122 & 5.5 & NA & 551 & 6.7\tabularnewline
+North Carolina & 2002 & 8326201 & 6.6 & NA & 647 & 7.8\tabularnewline
+North Carolina & 2003 & 8422501 & 6.4 & NA & 762 & 9.0\tabularnewline
+North Carolina & 2004 & 8553152 & 5.5 & NA & 854 & 10.0\tabularnewline
+North Carolina & 2005 & 8705407 & 5.2 & NA & 1000 & 11.5\tabularnewline
+North Carolina & 2006 & 8917270 & 4.7 & 85.2 & 1059 &
+11.9\tabularnewline
+North Carolina & 2007 & 9118037 & 4.7 & 87.5 & 1084 &
+11.9\tabularnewline
+North Carolina & 2008 & 9309449 & 6.1 & 88.6 & 1196 &
+12.8\tabularnewline
+North Carolina & 2009 & 9449566 & 10.6 & 89.3 & 1191 &
+12.6\tabularnewline
+North Carolina & 2010 & 9535483 & 10.9 & 93.1 & 1093 &
+11.5\tabularnewline
+North Carolina & 2011 & 9656401 & 10.3 & 93.5 & 1264 &
+13.1\tabularnewline
+North Carolina & 2012 & 9752073 & 9.3 & 98.6 & 1298 &
+13.3\tabularnewline
+North Carolina & 2013 & 9848060 & 8.0 & 96.7 & 1259 &
+12.8\tabularnewline
+North Carolina & 2014 & 9943964 & 6.3 & 93.7 & 1358 &
+13.7\tabularnewline
+North Carolina & 2015 & 10042802 & 5.7 & 88.4 & 1567 &
+15.6\tabularnewline
+North Carolina & 2016 & 10146788 & 5.1 & 82.5 & 1956 &
+19.3\tabularnewline
+North Carolina & 2017 & 10273419 & 4.5 & 72.2 & 2414 &
+23.5\tabularnewline
+North Dakota & 1999 & 644259 & 3.3 & NA & 12 & NA\tabularnewline
+North Dakota & 2000 & 642200 & 3.0 & NA & 14 & NA\tabularnewline
+North Dakota & 2001 & 639062 & 2.9 & NA & 14 & NA\tabularnewline
+North Dakota & 2002 & 638168 & 3.7 & NA & 17 & NA\tabularnewline
+North Dakota & 2003 & 638817 & 3.7 & NA & 22 & 3.4\tabularnewline
+North Dakota & 2004 & 644705 & 3.4 & NA & 17 & NA\tabularnewline
+North Dakota & 2005 & 646089 & 3.4 & NA & 12 & NA\tabularnewline
+North Dakota & 2006 & 649422 & 3.2 & 56.0 & 14 & NA\tabularnewline
+North Dakota & 2007 & 652822 & 3.1 & 59.3 & 32 & 4.9\tabularnewline
+North Dakota & 2008 & 657569 & 3.2 & 61.7 & 46 & 7.0\tabularnewline
+North Dakota & 2009 & 664968 & 4.1 & 60.3 & 27 & 4.1\tabularnewline
+North Dakota & 2010 & 672591 & 3.8 & 63.0 & 23 & 3.4\tabularnewline
+North Dakota & 2011 & 683932 & 3.5 & 61.3 & 16 & NA\tabularnewline
+North Dakota & 2012 & 699628 & 3.1 & 62.1 & 21 & 3.0\tabularnewline
+North Dakota & 2013 & 723393 & 2.9 & 60.1 & 20 & 2.8\tabularnewline
+North Dakota & 2014 & 739482 & 2.7 & 58.1 & 43 & 5.8\tabularnewline
+North Dakota & 2015 & 756927 & 2.8 & 53.0 & 61 & 8.1\tabularnewline
+North Dakota & 2016 & 757952 & 3.1 & 47.8 & 77 & 10.2\tabularnewline
+North Dakota & 2017 & 755393 & 2.7 & 41.7 & 68 & 9.0\tabularnewline
+Ohio & 1999 & 11335454 & 4.3 & NA & 467 & 4.1\tabularnewline
+Ohio & 2000 & 11353140 & 4.0 & NA & 563 & 5.0\tabularnewline
+Ohio & 2001 & 11387404 & 4.3 & NA & 737 & 6.5\tabularnewline
+Ohio & 2002 & 11407889 & 5.7 & NA & 931 & 8.2\tabularnewline
+Ohio & 2003 & 11434788 & 6.2 & NA & 775 & 6.8\tabularnewline
+Ohio & 2004 & 11452251 & 6.3 & NA & 1136 & 9.9\tabularnewline
+Ohio & 2005 & 11463320 & 5.9 & NA & 1243 & 10.8\tabularnewline
+Ohio & 2006 & 11481213 & 5.4 & 87.7 & 1515 & 13.2\tabularnewline
+Ohio & 2007 & 11500468 & 5.6 & 92.7 & 1592 & 13.8\tabularnewline
+Ohio & 2008 & 11515391 & 6.4 & 97.5 & 1733 & 15.0\tabularnewline
+Ohio & 2009 & 11528896 & 10.3 & 100.4 & 1236 & 10.7\tabularnewline
+Ohio & 2010 & 11536504 & 10.3 & 102.4 & 1835 & 15.9\tabularnewline
+Ohio & 2011 & 11544951 & 8.8 & 101.5 & 2025 & 17.5\tabularnewline
+Ohio & 2012 & 11544225 & 7.4 & 97.5 & 2125 & 18.4\tabularnewline
+Ohio & 2013 & 11570808 & 7.5 & 93.1 & 2347 & 20.3\tabularnewline
+Ohio & 2014 & 11594163 & 5.8 & 89.5 & 2744 & 23.7\tabularnewline
+Ohio & 2015 & 11613423 & 4.9 & 82.7 & 3310 & 28.5\tabularnewline
+Ohio & 2016 & 11614373 & 5.0 & 75.3 & 4329 & 37.3\tabularnewline
+Ohio & 2017 & 11658609 & 5.0 & 63.8 & 5111 & 43.8\tabularnewline
+Oklahoma & 1999 & 3437147 & 3.5 & NA & 178 & 5.2\tabularnewline
+Oklahoma & 2000 & 3450654 & 3.0 & NA & 237 & 6.9\tabularnewline
+Oklahoma & 2001 & 3467100 & 3.7 & NA & 269 & 7.8\tabularnewline
+Oklahoma & 2002 & 3489080 & 4.7 & NA & 240 & 6.9\tabularnewline
+Oklahoma & 2003 & 3504892 & 5.5 & NA & 400 & 11.4\tabularnewline
+Oklahoma & 2004 & 3525233 & 4.9 & NA & 476 & 13.5\tabularnewline
+Oklahoma & 2005 & 3548597 & 4.5 & NA & 478 & 13.5\tabularnewline
+Oklahoma & 2006 & 3594090 & 4.0 & 108.7 & 563 & 15.7\tabularnewline
+Oklahoma & 2007 & 3634349 & 4.1 & 114.4 & 666 & 18.3\tabularnewline
+Oklahoma & 2008 & 3668976 & 3.7 & 111.3 & 564 & 15.4\tabularnewline
+Oklahoma & 2009 & 3717572 & 6.4 & 115.0 & 756 & 20.3\tabularnewline
+Oklahoma & 2010 & 3751351 & 6.8 & 119.6 & 717 & 19.1\tabularnewline
+Oklahoma & 2011 & 3791508 & 5.9 & 122.3 & 703 & 18.5\tabularnewline
+Oklahoma & 2012 & 3814820 & 5.2 & 127.4 & 771 & 20.2\tabularnewline
+Oklahoma & 2013 & 3850568 & 5.3 & 123.3 & 790 & 20.5\tabularnewline
+Oklahoma & 2014 & 3878051 & 4.5 & 110.9 & 777 & 20.0\tabularnewline
+Oklahoma & 2015 & 3911338 & 4.4 & 104.4 & 725 & 18.5\tabularnewline
+Oklahoma & 2016 & 3923561 & 4.8 & 97.9 & 813 & 20.7\tabularnewline
+Oklahoma & 2017 & 3930864 & 4.2 & 88.6 & 775 & 19.7\tabularnewline
+Oregon & 1999 & 3393941 & 5.5 & NA & 210 & 6.2\tabularnewline
+Oregon & 2000 & 3421399 & 5.1 & NA & 208 & 6.1\tabularnewline
+Oregon & 2001 & 3467937 & 6.4 & NA & 241 & 6.9\tabularnewline
+Oregon & 2002 & 3513424 & 7.5 & NA & 318 & 9.1\tabularnewline
+Oregon & 2003 & 3547376 & 8.1 & NA & 355 & 10.0\tabularnewline
+Oregon & 2004 & 3569463 & 7.3 & NA & 365 & 10.2\tabularnewline
+Oregon & 2005 & 3613202 & 6.2 & NA & 386 & 10.7\tabularnewline
+Oregon & 2006 & 3670883 & 5.3 & 91.0 & 485 & 13.2\tabularnewline
+Oregon & 2007 & 3722417 & 5.2 & 95.5 & 502 & 13.5\tabularnewline
+Oregon & 2008 & 3768748 & 6.5 & 99.1 & 452 & 12.0\tabularnewline
+Oregon & 2009 & 3808600 & 11.3 & 99.3 & 501 & 13.2\tabularnewline
+Oregon & 2010 & 3831074 & 10.6 & 101.2 & 503 & 13.1\tabularnewline
+Oregon & 2011 & 3871859 & 9.5 & 100.7 & 532 & 13.7\tabularnewline
+Oregon & 2012 & 3899353 & 8.8 & 98.7 & 490 & 12.6\tabularnewline
+Oregon & 2013 & 3930065 & 7.9 & 94.2 & 455 & 11.6\tabularnewline
+Oregon & 2014 & 3970239 & 6.8 & 91.9 & 522 & 13.1\tabularnewline
+Oregon & 2015 & 4028977 & 5.6 & 84.2 & 505 & 12.5\tabularnewline
+Oregon & 2016 & 4093465 & 4.8 & 76.3 & 506 & 12.4\tabularnewline
+Oregon & 2017 & 4142776 & 4.1 & 65.8 & 530 & 12.8\tabularnewline
+Pennsylvania & 1999 & 12263805 & 4.4 & NA & 990 & 8.1\tabularnewline
+Pennsylvania & 2000 & 12281054 & 4.1 & NA & 1147 & 9.3\tabularnewline
+Pennsylvania & 2001 & 12298970 & 4.8 & NA & 958 & 7.8\tabularnewline
+Pennsylvania & 2002 & 12331031 & 5.6 & NA & 1097 & 8.9\tabularnewline
+Pennsylvania & 2003 & 12374658 & 5.7 & NA & 1381 & 11.2\tabularnewline
+Pennsylvania & 2004 & 12410722 & 5.4 & NA & 1544 & 12.4\tabularnewline
+Pennsylvania & 2005 & 12449990 & 5.0 & NA & 1613 & 13.0\tabularnewline
+Pennsylvania & 2006 & 12510809 & 4.6 & 69.5 & 1638 & 13.1\tabularnewline
+Pennsylvania & 2007 & 12563937 & 4.4 & 73.7 & 1733 & 13.8\tabularnewline
+Pennsylvania & 2008 & 12612285 & 5.3 & 76.5 & 1850 & 14.7\tabularnewline
+Pennsylvania & 2009 & 12666858 & 8.0 & 78.1 & 1909 & 15.1\tabularnewline
+Pennsylvania & 2010 & 12702379 & 8.5 & 81.0 & 1916 & 15.1\tabularnewline
+Pennsylvania & 2011 & 12742886 & 7.9 & 81.7 & 2289 & 18.0\tabularnewline
+Pennsylvania & 2012 & 12763536 & 7.8 & 83.3 & 2365 & 18.5\tabularnewline
+Pennsylvania & 2013 & 12773801 & 7.4 & 81.6 & 2426 & 19.0\tabularnewline
+Pennsylvania & 2014 & 12787209 & 5.9 & 79.9 & 2732 & 21.4\tabularnewline
+Pennsylvania & 2015 & 12802503 & 5.3 & 75.5 & 3264 & 25.5\tabularnewline
+Pennsylvania & 2016 & 12784227 & 5.4 & 69.5 & 4627 & 36.2\tabularnewline
+Pennsylvania & 2017 & 12805537 & 4.9 & 58.3 & 5388 & 42.1\tabularnewline
+Rhode Island & 1999 & 1040402 & 4.2 & NA & 58 & 5.6\tabularnewline
+Rhode Island & 2000 & 1048319 & 4.1 & NA & 74 & 7.1\tabularnewline
+Rhode Island & 2001 & 1057142 & 4.6 & NA & 110 & 10.4\tabularnewline
+Rhode Island & 2002 & 1065995 & 5.0 & NA & 99 & 9.3\tabularnewline
+Rhode Island & 2003 & 1071342 & 5.3 & NA & 146 & 13.6\tabularnewline
+Rhode Island & 2004 & 1074579 & 5.2 & NA & 106 & 9.9\tabularnewline
+Rhode Island & 2005 & 1067916 & 5.0 & NA & 156 & 14.6\tabularnewline
+Rhode Island & 2006 & 1063096 & 4.9 & 78.7 & 175 & 16.5\tabularnewline
+Rhode Island & 2007 & 1057315 & 5.2 & 82.2 & 135 & 12.8\tabularnewline
+Rhode Island & 2008 & 1055003 & 7.8 & 82.9 & 185 & 17.5\tabularnewline
+Rhode Island & 2009 & 1053646 & 11.0 & 82.5 & 161 & 15.3\tabularnewline
+Rhode Island & 2010 & 1052567 & 11.2 & 82.7 & 167 & 15.9\tabularnewline
+Rhode Island & 2011 & 1051302 & 11.0 & 82.5 & 190 & 18.1\tabularnewline
+Rhode Island & 2012 & 1050292 & 10.4 & 83.2 & 196 & 18.7\tabularnewline
+Rhode Island & 2013 & 1051511 & 9.3 & 76.9 & 241 & 22.9\tabularnewline
+Rhode Island & 2014 & 1055173 & 7.7 & 72.8 & 247 & 23.4\tabularnewline
+Rhode Island & 2015 & 1056298 & 6.0 & 65.7 & 310 & 29.3\tabularnewline
+Rhode Island & 2016 & 1056426 & 5.2 & 60.3 & 326 & 30.9\tabularnewline
+Rhode Island & 2017 & 1059639 & 4.4 & 51.4 & 320 & 30.2\tabularnewline
+South Carolina & 1999 & 3974682 & 4.3 & NA & 147 & 3.7\tabularnewline
+South Carolina & 2000 & 4012012 & 3.8 & NA & 258 & 6.4\tabularnewline
+South Carolina & 2001 & 4064995 & 5.2 & NA & 242 & 6.0\tabularnewline
+South Carolina & 2002 & 4107795 & 5.8 & NA & 217 & 5.3\tabularnewline
+South Carolina & 2003 & 4150297 & 6.9 & NA & 287 & 6.9\tabularnewline
+South Carolina & 2004 & 4210921 & 6.8 & NA & 356 & 8.5\tabularnewline
+South Carolina & 2005 & 4270150 & 6.7 & NA & 427 & 10.0\tabularnewline
+South Carolina & 2006 & 4357847 & 6.4 & 90.4 & 554 & 12.7\tabularnewline
+South Carolina & 2007 & 4444110 & 5.7 & 91.7 & 545 & 12.3\tabularnewline
+South Carolina & 2008 & 4528996 & 6.8 & 94.1 & 565 & 12.5\tabularnewline
+South Carolina & 2009 & 4589872 & 11.2 & 95.8 & 615 &
+13.4\tabularnewline
+South Carolina & 2010 & 4625364 & 11.2 & 98.6 & 678 &
+14.7\tabularnewline
+South Carolina & 2011 & 4679230 & 10.6 & 96.8 & 618 &
+13.2\tabularnewline
+South Carolina & 2012 & 4723723 & 9.2 & 104.0 & 587 &
+12.4\tabularnewline
+South Carolina & 2013 & 4774839 & 7.6 & 103.0 & 620 &
+13.0\tabularnewline
+South Carolina & 2014 & 4832482 & 6.5 & 101.3 & 701 &
+14.5\tabularnewline
+South Carolina & 2015 & 4896146 & 6.0 & 95.1 & 761 & 15.5\tabularnewline
+South Carolina & 2016 & 4961119 & 5.0 & 89.4 & 879 & 17.7\tabularnewline
+South Carolina & 2017 & 5024369 & 4.3 & 79.8 & 1008 &
+20.1\tabularnewline
+South Dakota & 1999 & 750412 & 2.7 & NA & 17 & NA\tabularnewline
+South Dakota & 2000 & 754844 & 2.5 & NA & 20 & 2.6\tabularnewline
+South Dakota & 2001 & 757972 & 3.1 & NA & 24 & 3.2\tabularnewline
+South Dakota & 2002 & 760020 & 3.2 & NA & 22 & 2.9\tabularnewline
+South Dakota & 2003 & 763729 & 3.5 & NA & 24 & 3.1\tabularnewline
+South Dakota & 2004 & 770396 & 3.7 & NA & 43 & 5.6\tabularnewline
+South Dakota & 2005 & 775493 & 3.8 & NA & 40 & 5.2\tabularnewline
+South Dakota & 2006 & 783033 & 3.1 & 50.0 & 37 & 4.7\tabularnewline
+South Dakota & 2007 & 791623 & 2.8 & 49.9 & 32 & 4.0\tabularnewline
+South Dakota & 2008 & 799124 & 3.1 & 52.1 & 54 & 6.8\tabularnewline
+South Dakota & 2009 & 807067 & 4.9 & 52.3 & 49 & 6.1\tabularnewline
+South Dakota & 2010 & 814180 & 5.0 & 54.0 & 45 & 5.5\tabularnewline
+South Dakota & 2011 & 824082 & 4.7 & 55.1 & 57 & 6.9\tabularnewline
+South Dakota & 2012 & 833354 & 4.3 & 60.1 & 42 & 5.0\tabularnewline
+South Dakota & 2013 & 844877 & 3.8 & 60.6 & 55 & 6.5\tabularnewline
+South Dakota & 2014 & 853175 & 3.4 & 61.7 & 63 & 7.4\tabularnewline
+South Dakota & 2015 & 858469 & 3.1 & 59.1 & 65 & 7.6\tabularnewline
+South Dakota & 2016 & 865454 & 3.0 & 54.8 & 69 & 8.0\tabularnewline
+South Dakota & 2017 & 869666 & 3.2 & 48.8 & 73 & 8.4\tabularnewline
+Tennessee & 1999 & 5638706 & 4.0 & NA & 344 & 6.1\tabularnewline
+Tennessee & 2000 & 5689283 & 3.9 & NA & 397 & 7.0\tabularnewline
+Tennessee & 2001 & 5750789 & 4.6 & NA & 424 & 7.4\tabularnewline
+Tennessee & 2002 & 5795918 & 5.2 & NA & 491 & 8.5\tabularnewline
+Tennessee & 2003 & 5847812 & 5.6 & NA & 662 & 11.3\tabularnewline
+Tennessee & 2004 & 5910809 & 5.3 & NA & 763 & 12.9\tabularnewline
+Tennessee & 2005 & 5991057 & 5.6 & NA & 872 & 14.6\tabularnewline
+Tennessee & 2006 & 6088766 & 5.2 & 124.8 & 975 & 16.0\tabularnewline
+Tennessee & 2007 & 6175727 & 4.7 & 128.8 & 985 & 15.9\tabularnewline
+Tennessee & 2008 & 6247411 & 6.6 & 132.9 & 938 & 15.0\tabularnewline
+Tennessee & 2009 & 6306019 & 10.5 & 138.4 & 962 & 15.3\tabularnewline
+Tennessee & 2010 & 6346105 & 9.7 & 140.0 & 1080 & 17.0\tabularnewline
+Tennessee & 2011 & 6403353 & 9.0 & 138.5 & 1090 & 17.0\tabularnewline
+Tennessee & 2012 & 6456243 & 7.8 & 136.1 & 1131 & 17.5\tabularnewline
+Tennessee & 2013 & 6495978 & 7.8 & 127.1 & 1187 & 18.3\tabularnewline
+Tennessee & 2014 & 6549352 & 6.6 & 121.3 & 1269 & 19.4\tabularnewline
+Tennessee & 2015 & 6600299 & 5.6 & 114.9 & 1457 & 22.1\tabularnewline
+Tennessee & 2016 & 6651194 & 4.7 & 107.5 & 1630 & 24.5\tabularnewline
+Tennessee & 2017 & 6715984 & 3.8 & 95.2 & 1776 & 26.4\tabularnewline
+Texas & 1999 & 20558220 & 4.7 & NA & 1087 & 5.3\tabularnewline
+Texas & 2000 & 20851820 & 4.3 & NA & 1021 & 4.9\tabularnewline
+Texas & 2001 & 21319622 & 5.0 & NA & 1374 & 6.4\tabularnewline
+Texas & 2002 & 21690325 & 6.4 & NA & 1598 & 7.4\tabularnewline
+Texas & 2003 & 22030931 & 6.7 & NA & 1753 & 8.0\tabularnewline
+Texas & 2004 & 22394023 & 5.9 & NA & 1813 & 8.1\tabularnewline
+Texas & 2005 & 22778123 & 5.4 & NA & 1910 & 8.4\tabularnewline
+Texas & 2006 & 23359580 & 4.9 & 66.8 & 2191 & 9.4\tabularnewline
+Texas & 2007 & 23831983 & 4.3 & 71.2 & 2194 & 9.2\tabularnewline
+Texas & 2008 & 24309039 & 4.8 & 71.3 & 2053 & 8.4\tabularnewline
+Texas & 2009 & 24801761 & 7.6 & 71.8 & 2409 & 9.7\tabularnewline
+Texas & 2010 & 25145561 & 8.1 & 73.0 & 2399 & 9.5\tabularnewline
+Texas & 2011 & 25674681 & 7.8 & 72.0 & 2589 & 10.1\tabularnewline
+Texas & 2012 & 26059203 & 6.7 & 73.4 & 2447 & 9.4\tabularnewline
+Texas & 2013 & 26448193 & 6.3 & 70.0 & 2446 & 9.2\tabularnewline
+Texas & 2014 & 26956958 & 5.1 & 67.0 & 2601 & 9.6\tabularnewline
+Texas & 2015 & 27469114 & 4.4 & 59.8 & 2588 & 9.4\tabularnewline
+Texas & 2016 & 27862596 & 4.6 & 57.6 & 2831 & 10.2\tabularnewline
+Texas & 2017 & 28304596 & 4.3 & 52.2 & 2989 & 10.6\tabularnewline
+Utah & 1999 & 2203482 & 3.5 & NA & 205 & 9.3\tabularnewline
+Utah & 2000 & 2233169 & 3.3 & NA & 210 & 9.4\tabularnewline
+Utah & 2001 & 2283715 & 4.4 & NA & 209 & 9.2\tabularnewline
+Utah & 2002 & 2324815 & 5.8 & NA & 288 & 12.4\tabularnewline
+Utah & 2003 & 2360137 & 5.6 & NA & 353 & 15.0\tabularnewline
+Utah & 2004 & 2401580 & 5.0 & NA & 358 & 14.9\tabularnewline
+Utah & 2005 & 2457719 & 4.1 & NA & 438 & 17.8\tabularnewline
+Utah & 2006 & 2525507 & 3.0 & 87.0 & 444 & 17.6\tabularnewline
+Utah & 2007 & 2597746 & 2.6 & 89.8 & 511 & 19.7\tabularnewline
+Utah & 2008 & 2663029 & 3.6 & 91.3 & 468 & 17.6\tabularnewline
+Utah & 2009 & 2723421 & 7.3 & 86.9 & 478 & 17.6\tabularnewline
+Utah & 2010 & 2763885 & 7.8 & 86.6 & 433 & 15.7\tabularnewline
+Utah & 2011 & 2817222 & 6.7 & 85.2 & 504 & 17.9\tabularnewline
+Utah & 2012 & 2855287 & 5.4 & 84.5 & 601 & 21.0\tabularnewline
+Utah & 2013 & 2900872 & 4.6 & 82.1 & 594 & 20.5\tabularnewline
+Utah & 2014 & 2942902 & 3.8 & 78.8 & 603 & 20.5\tabularnewline
+Utah & 2015 & 2995919 & 3.6 & 74.4 & 646 & 21.6\tabularnewline
+Utah & 2016 & 3051217 & 3.4 & 70.4 & 635 & 20.8\tabularnewline
+Utah & 2017 & 3101833 & 3.3 & 63.8 & 650 & 21.0\tabularnewline
+Vermont & 1999 & 604683 & 3.0 & NA & 29 & 4.8\tabularnewline
+Vermont & 2000 & 608827 & 2.8 & NA & 36 & 5.9\tabularnewline
+Vermont & 2001 & 612223 & 3.3 & NA & 44 & 7.2\tabularnewline
+Vermont & 2002 & 615442 & 4.0 & NA & 47 & 7.6\tabularnewline
+Vermont & 2003 & 617858 & 4.3 & NA & 65 & 10.5\tabularnewline
+Vermont & 2004 & 619920 & 3.7 & NA & 50 & 8.1\tabularnewline
+Vermont & 2005 & 621215 & 3.5 & NA & 53 & 8.5\tabularnewline
+Vermont & 2006 & 622892 & 3.7 & 56.9 & 75 & 12.0\tabularnewline
+Vermont & 2007 & 623481 & 4.0 & 56.0 & 66 & 10.6\tabularnewline
+Vermont & 2008 & 624151 & 4.7 & 56.5 & 73 & 11.7\tabularnewline
+Vermont & 2009 & 624817 & 6.6 & 54.5 & 55 & 8.8\tabularnewline
+Vermont & 2010 & 625741 & 6.1 & 54.1 & 63 & 10.1\tabularnewline
+Vermont & 2011 & 626431 & 5.5 & 53.6 & 83 & 13.2\tabularnewline
+Vermont & 2012 & 626011 & 5.0 & 54.6 & 70 & 11.2\tabularnewline
+Vermont & 2013 & 626630 & 4.4 & 52.2 & 93 & 14.8\tabularnewline
+Vermont & 2014 & 626562 & 3.9 & 50.4 & 83 & 13.2\tabularnewline
+Vermont & 2015 & 626042 & 3.6 & 60.1 & 99 & 15.8\tabularnewline
+Vermont & 2016 & 624594 & 3.2 & 58.6 & 125 & 20.0\tabularnewline
+Vermont & 2017 & 623657 & 3.0 & 50.0 & 134 & 21.5\tabularnewline
+Virginia & 1999 & 7000174 & 2.7 & NA & 366 & 5.2\tabularnewline
+Virginia & 2000 & 7078515 & 2.3 & NA & 411 & 5.8\tabularnewline
+Virginia & 2001 & 7198362 & 3.2 & NA & 459 & 6.4\tabularnewline
+Virginia & 2002 & 7286873 & 4.2 & NA & 509 & 7.0\tabularnewline
+Virginia & 2003 & 7366977 & 4.1 & NA & 547 & 7.4\tabularnewline
+Virginia & 2004 & 7475575 & 3.8 & NA & 558 & 7.5\tabularnewline
+Virginia & 2005 & 7577105 & 3.6 & NA & 581 & 7.7\tabularnewline
+Virginia & 2006 & 7673725 & 3.1 & 67.2 & 629 & 8.2\tabularnewline
+Virginia & 2007 & 7751000 & 3.0 & 70.1 & 700 & 9.0\tabularnewline
+Virginia & 2008 & 7833496 & 3.9 & 73.0 & 718 & 9.2\tabularnewline
+Virginia & 2009 & 7925937 & 6.7 & 74.1 & 685 & 8.6\tabularnewline
+Virginia & 2010 & 8001024 & 7.1 & 75.5 & 558 & 7.0\tabularnewline
+Virginia & 2011 & 8096604 & 6.6 & 76.6 & 798 & 9.9\tabularnewline
+Virginia & 2012 & 8185867 & 6.1 & 79.6 & 733 & 9.0\tabularnewline
+Virginia & 2013 & 8260405 & 5.7 & 76.6 & 854 & 10.3\tabularnewline
+Virginia & 2014 & 8326289 & 5.2 & 73.5 & 980 & 11.8\tabularnewline
+Virginia & 2015 & 8382993 & 4.5 & 68.1 & 1039 & 12.4\tabularnewline
+Virginia & 2016 & 8411808 & 4.1 & 63.4 & 1405 & 16.7\tabularnewline
+Virginia & 2017 & 8470020 & 3.7 & 53.3 & 1507 & 17.8\tabularnewline
+Washington & 1999 & 5842564 & 4.9 & NA & 555 & 9.5\tabularnewline
+Washington & 2000 & 5894121 & 5.2 & NA & 556 & 9.4\tabularnewline
+Washington & 2001 & 5985722 & 6.3 & NA & 499 & 8.3\tabularnewline
+Washington & 2002 & 6052349 & 7.4 & NA & 643 & 10.6\tabularnewline
+Washington & 2003 & 6104115 & 7.4 & NA & 696 & 11.4\tabularnewline
+Washington & 2004 & 6178645 & 6.3 & NA & 811 & 13.1\tabularnewline
+Washington & 2005 & 6257305 & 5.6 & NA & 850 & 13.6\tabularnewline
+Washington & 2006 & 6370753 & 5.0 & 80.8 & 897 & 14.1\tabularnewline
+Washington & 2007 & 6461587 & 4.7 & 84.4 & 962 & 14.9\tabularnewline
+Washington & 2008 & 6562231 & 5.4 & 86.6 & 1011 & 15.4\tabularnewline
+Washington & 2009 & 6667426 & 9.2 & 86.1 & 987 & 14.8\tabularnewline
+Washington & 2010 & 6724540 & 10.0 & 85.0 & 916 & 13.6\tabularnewline
+Washington & 2011 & 6830038 & 9.3 & 81.6 & 997 & 14.6\tabularnewline
+Washington & 2012 & 6897012 & 8.1 & 78.7 & 985 & 14.3\tabularnewline
+Washington & 2013 & 6971406 & 7.0 & 75.2 & 969 & 13.9\tabularnewline
+Washington & 2014 & 7061530 & 6.1 & 74.2 & 979 & 13.9\tabularnewline
+Washington & 2015 & 7170351 & 5.6 & 69.8 & 1094 & 15.3\tabularnewline
+Washington & 2016 & 7288000 & 5.3 & 64.9 & 1102 & 15.1\tabularnewline
+Washington & 2017 & 7405743 & 4.7 & 57.1 & 1169 & 15.8\tabularnewline
+West Virginia & 1999 & 1811799 & 6.5 & NA & 75 & 4.1\tabularnewline
+West Virginia & 2000 & 1808344 & 5.5 & NA & 113 & 6.2\tabularnewline
+West Virginia & 2001 & 1801481 & 5.0 & NA & 206 & 11.4\tabularnewline
+West Virginia & 2002 & 1805414 & 5.9 & NA & 229 & 12.7\tabularnewline
+West Virginia & 2003 & 1812295 & 6.0 & NA & 262 & 14.5\tabularnewline
+West Virginia & 2004 & 1816438 & 5.3 & NA & 333 & 18.3\tabularnewline
+West Virginia & 2005 & 1820492 & 5.1 & NA & 184 & 10.1\tabularnewline
+West Virginia & 2006 & 1827912 & 4.9 & 129.9 & 362 & 19.8\tabularnewline
+West Virginia & 2007 & 1834052 & 4.6 & 135.1 & 397 & 21.6\tabularnewline
+West Virginia & 2008 & 1840310 & 4.3 & 145.5 & 459 & 24.9\tabularnewline
+West Virginia & 2009 & 1847775 & 7.7 & 146.9 & 226 & 12.2\tabularnewline
+West Virginia & 2010 & 1852994 & 8.7 & 143.1 & 512 & 27.6\tabularnewline
+West Virginia & 2011 & 1855364 & 8.1 & 139.6 & 635 & 34.2\tabularnewline
+West Virginia & 2012 & 1855413 & 7.5 & 136.9 & 558 & 30.1\tabularnewline
+West Virginia & 2013 & 1854304 & 6.8 & 129.0 & 570 & 30.7\tabularnewline
+West Virginia & 2014 & 1850326 & 6.6 & 126.4 & 627 & 33.9\tabularnewline
+West Virginia & 2015 & 1844128 & 6.7 & 111.3 & 725 & 39.3\tabularnewline
+West Virginia & 2016 & 1831102 & 6.1 & 96.0 & 884 & 48.3\tabularnewline
+West Virginia & 2017 & 1815857 & 5.2 & 82.2 & 974 & 53.6\tabularnewline
+Wisconsin & 1999 & 5332666 & 3.1 & NA & 212 & 4.0\tabularnewline
+Wisconsin & 2000 & 5363675 & 3.5 & NA & 248 & 4.6\tabularnewline
+Wisconsin & 2001 & 5406835 & 4.5 & NA & 269 & 5.0\tabularnewline
+Wisconsin & 2002 & 5445162 & 5.4 & NA & 340 & 6.2\tabularnewline
+Wisconsin & 2003 & 5479203 & 5.7 & NA & 383 & 7.0\tabularnewline
+Wisconsin & 2004 & 5514026 & 5.0 & NA & 437 & 7.9\tabularnewline
+Wisconsin & 2005 & 5546166 & 4.7 & NA & 518 & 9.3\tabularnewline
+Wisconsin & 2006 & 5577655 & 4.7 & 64.7 & 593 & 10.6\tabularnewline
+Wisconsin & 2007 & 5610775 & 4.9 & 69.2 & 622 & 11.1\tabularnewline
+Wisconsin & 2008 & 5640996 & 4.9 & 70.6 & 606 & 10.7\tabularnewline
+Wisconsin & 2009 & 5669264 & 8.6 & 71.9 & 631 & 11.1\tabularnewline
+Wisconsin & 2010 & 5686986 & 8.7 & 74.4 & 630 & 11.1\tabularnewline
+Wisconsin & 2011 & 5711767 & 7.8 & 75.2 & 698 & 12.2\tabularnewline
+Wisconsin & 2012 & 5726398 & 7.0 & 76.8 & 692 & 12.1\tabularnewline
+Wisconsin & 2013 & 5742713 & 6.7 & 73.8 & 856 & 14.9\tabularnewline
+Wisconsin & 2014 & 5757564 & 5.4 & 71.9 & 853 & 14.8\tabularnewline
+Wisconsin & 2015 & 5771337 & 4.6 & 67.5 & 878 & 15.2\tabularnewline
+Wisconsin & 2016 & 5778708 & 4.0 & 62.2 & 1074 & 18.6\tabularnewline
+Wisconsin & 2017 & 5795483 & 3.3 & 52.7 & 1177 & 20.3\tabularnewline
+Wyoming & 1999 & 491780 & 4.6 & NA & 20 & 4.1\tabularnewline
+Wyoming & 2000 & 493782 & 3.9 & NA & 22 & 4.5\tabularnewline
+Wyoming & 2001 & 494657 & 3.8 & NA & 22 & 4.4\tabularnewline
+Wyoming & 2002 & 500017 & 4.0 & NA & 34 & 6.8\tabularnewline
+Wyoming & 2003 & 503453 & 4.3 & NA & 30 & 6.0\tabularnewline
+Wyoming & 2004 & 509106 & 3.8 & NA & 46 & 9.0\tabularnewline
+Wyoming & 2005 & 514157 & 3.6 & NA & 26 & 5.1\tabularnewline
+Wyoming & 2006 & 522667 & 3.2 & 79.9 & 55 & 10.5\tabularnewline
+Wyoming & 2007 & 534876 & 2.8 & 80.8 & 63 & 11.8\tabularnewline
+Wyoming & 2008 & 546043 & 3.1 & 81.0 & 74 & 13.6\tabularnewline
+Wyoming & 2009 & 559851 & 6.3 & 81.0 & 60 & 10.7\tabularnewline
+Wyoming & 2010 & 563626 & 6.4 & 80.4 & 85 & 15.1\tabularnewline
+Wyoming & 2011 & 568158 & 5.8 & 78.2 & 85 & 15.0\tabularnewline
+Wyoming & 2012 & 576412 & 5.3 & 80.5 & 98 & 17.0\tabularnewline
+Wyoming & 2013 & 582658 & 4.7 & 81.5 & 98 & 16.8\tabularnewline
+Wyoming & 2014 & 584153 & 4.1 & 80.9 & 109 & 18.7\tabularnewline
+Wyoming & 2015 & 586107 & 4.3 & 75.4 & 96 & 16.4\tabularnewline
+Wyoming & 2016 & 585501 & 5.3 & 71.1 & 99 & 16.9\tabularnewline
+Wyoming & 2017 & 579315 & 4.2 & 64.4 & 69 & 11.9\tabularnewline
+\bottomrule
+\end{longtable}
+
+The data should generally be structured to work as an input to a two-way
+fixed effect model, using a ``long-format'', with variables for
+``group'', ``time'', covariates, and an outcome variable. The example
+data included in the package is derived from data provided by the US
+Bureau of Labor Statistics and the Centers for Disease Control and
+Prevention.
+
+\hypertarget{policy-evaluation-scenarios}{%
+\subsubsection{Policy evaluation
+scenarios}\label{policy-evaluation-scenarios}}
+
+Policy evaluation scenarios are single string inputs into the
+``configure\_simulation'' function, representing either the no
+confounding scenario (``noconf'') or the confounding due to co-occurring
+policies scenario (``concurrent''). For the ``concurrent'' scenario,
+there are additional parameters required within
+``configure\_simulation'', which are discussed in the ``parameter''
+section below. Additional details on policy evaluation scenarios are
+provided in Griffin et al.,
+2021{[}@\url{http://zotero.org/users/3390799/items/ZNCVTPJF}{]} and
+Griffin et al.,
+2022{[}@\url{http://zotero.org/users/3390799/items/V3Q6ARUA}{]}.
+
+\hypertarget{treatment-scenarios}{%
+\subsubsection{Treatment scenarios}\label{treatment-scenarios}}
+
+This input represents the ``true treatment effects'' that OPTIC will
+simulate across model iterations. OPTIC is currently designed to work on
+static treatment effects (rather than dynamic treatment effects, such as
+time-varying treatment effects). Users should structure their treatment
+scenarios in a list, corresponding to a change in the outcome variable.
+The list will contain two effects within a vector, if the user is
+simulating models for the ``concurrent'' policy evaluation scenario.
+Using the example\_data:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{data}\NormalTok{(overdoses)}
+
+\CommentTok{\# Calculate 5\% and 10\% changes in mean opioid\_death\_rate,}
+\CommentTok{\# across states and years.}
+\NormalTok{five\_percent\_effect \textless{}{-}}\StringTok{ }\FloatTok{0.05} \OperatorTok{*}\StringTok{ }\KeywordTok{mean}\NormalTok{(overdoses}\OperatorTok{$}\NormalTok{crude.rate, }\DataTypeTok{na.rm =}\NormalTok{ T)}
+\NormalTok{ten\_percent\_effect \textless{}{-}}\StringTok{ }\FloatTok{0.1} \OperatorTok{*}\StringTok{ }\KeywordTok{mean}\NormalTok{(overdoses}\OperatorTok{$}\NormalTok{crude.rate, }\DataTypeTok{na.rm =}\NormalTok{ T)}
+
+\CommentTok{\# Calculate a confounding policy effect}
+\NormalTok{confound\_effect \textless{}{-}}\StringTok{ }\FloatTok{{-}0.02} \OperatorTok{*}\StringTok{ }\KeywordTok{mean}\NormalTok{(overdoses}\OperatorTok{$}\NormalTok{crude.rate, }\DataTypeTok{na.rm =}\NormalTok{ T)}
+
+\CommentTok{\# Scenario object for \textquotesingle{}no confounding\textquotesingle{} evaluation scenario:}
+\NormalTok{scenarios\_no\_confounding \textless{}{-}}\StringTok{ }\KeywordTok{list}\NormalTok{(five\_percent\_effect, ten\_percent\_effect)}
+
+\CommentTok{\# Scenario object for \textquotesingle{}co{-}occuring policy\textquotesingle{} evaluation}
+\CommentTok{\# scenario:}
+\NormalTok{scenarios\_co\_occur \textless{}{-}}\StringTok{ }\KeywordTok{list}\NormalTok{(}\KeywordTok{c}\NormalTok{(five\_percent\_effect, confound\_effect),}
+    \KeywordTok{c}\NormalTok{(ten\_percent\_effect, confound\_effect))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{list-of-models}{%
+\subsubsection{List of models}\label{list-of-models}}
+
+For each treatment scenario, OPTIC will simulate a treatment effect and
+then attempt to estimate this effect based on user-provided models. The
+\texttt{configure\_simulation} function takes a list of lists, with
+inner lists requiring several named arguments. Model lists should
+contain:
+
+\begin{itemize}
+\item
+  \texttt{name}: A name for the model to identify the model type in
+  results.
+\item
+  \texttt{type}: Users can set this as either ``autoreg'', ``drdid'',
+  ``multisynth'', or ``reg''.
+
+  \begin{itemize}
+  \item
+    ``reg'' uses a typical regression framework, implementing the
+    procedure chosen in \texttt{model\_call}.
+  \item
+    ``autoreg'' adds a dependent lag to the model formula.
+  \item
+    ``drdid'' estimates a treatment effect using a doubly-robust
+    difference-in-difference estimator, with covariates in the
+    \texttt{model\_formula} argument used within both the propensity
+    score stage and (for more details on doubly robust
+    difference-in-differences, see Sant'Anna \textbackslash\& Zhao,
+    2020)
+  \item
+    ``multisynth'' estimates a treatment effect using augmented
+    synthetic controls (for additional details on augmented synthetic
+    controls, see Ben-Michael, Feller, \textbackslash\& Rothstein,
+    2021).
+  \end{itemize}
+\item
+  \texttt{call}: The call for the model in R (e.g.~``lm'', ``glm'',
+  etc).
+\item
+  \texttt{formula}: The model specification, in an R formula. Needs to
+  include a variable labeled ``treament\_level'' for treatment status or
+  labeled ``treatment\_change'' for coding a change in treatment status
+  (e.g.~ used in autoregressive models). For ``concurrent'' scenarios,
+  treatment variables should labeled ``treatment1'', ``treatment2'', . .
+  ., ``treatment\{n\}'' for each policy included.
+\item
+  \texttt{args}: Any additional arguments passed to the model\_call
+  (e.g.~``weights'', ``family'', ``control'' etc.).
+\item
+  \texttt{se\_adjust}: Any adjustments to standard errors after
+  estimation. OPTIC recognizes either ``none'' for no adjustment or
+  ``cluster'' for clustered standard errors (OPTIC will use the
+  \texttt{configure\_simulation} parameter ``unit\_var'' to determine
+  clusters for clustered standard errors). \# Add additional se
+\end{itemize}
+
+Below provides an example of a model list using the
+\texttt{example\_data}:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{lm\_fe \textless{}{-}}\StringTok{ }\KeywordTok{optic\_model}\NormalTok{(}\DataTypeTok{name =} \StringTok{"fixed\_effect\_linear"}\NormalTok{, }\DataTypeTok{type =} \StringTok{"reg"}\NormalTok{,}
+    \DataTypeTok{call =} \StringTok{"lm"}\NormalTok{, }\DataTypeTok{formula =}\NormalTok{ crude.rate }\OperatorTok{\textasciitilde{}}\StringTok{ }\NormalTok{unemploymentrate }\OperatorTok{+}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(year) }\OperatorTok{+}
+\StringTok{        }\KeywordTok{as.factor}\NormalTok{(state) }\OperatorTok{+}\StringTok{ }\NormalTok{treatment1\_level }\OperatorTok{+}\StringTok{ }\NormalTok{treatment2\_level,}
+    \DataTypeTok{args =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{weights =} \KeywordTok{as.name}\NormalTok{(}\StringTok{"population"}\NormalTok{)), }\DataTypeTok{se\_adjust =} \StringTok{"cluster"}\NormalTok{)}
+
+\NormalTok{lm\_ar \textless{}{-}}\StringTok{ }\KeywordTok{optic\_model}\NormalTok{(}\DataTypeTok{name =} \StringTok{"Auto{-}regressive linear"}\NormalTok{, }\DataTypeTok{type =} \StringTok{"autoreg"}\NormalTok{,}
+    \DataTypeTok{call =} \StringTok{"lm"}\NormalTok{, }\DataTypeTok{formula =}\NormalTok{ crude.rate }\OperatorTok{\textasciitilde{}}\StringTok{ }\NormalTok{unemploymentrate }\OperatorTok{+}\StringTok{ }\NormalTok{year }\OperatorTok{+}
+\StringTok{        }\NormalTok{treatment1\_change }\OperatorTok{+}\StringTok{ }\NormalTok{treatment2\_change, }\DataTypeTok{args =} \KeywordTok{list}\NormalTok{(),}
+    \DataTypeTok{se\_adjust =} \StringTok{"cluster"}\NormalTok{)}
+
+\NormalTok{sim\_models \textless{}{-}}\StringTok{ }\KeywordTok{list}\NormalTok{(lm\_fe, lm\_ar)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{optic-functions}{%
+\subsection{OPTIC functions}\label{optic-functions}}
+
+\hypertarget{configure_simulation}{%
+\subsubsection{\texorpdfstring{\texttt{configure\_simulation}}{configure\_simulation}}\label{configure_simulation}}
+
+This function takes the policy evaluation scenario, treatment scenarios,
+model list, and function parameters to generate synthetic datasets with
+simulated treatment effects. \texttt{configure\_simulation} has the
+following arguments:
+
+\begin{itemize}
+\item
+  \texttt{x}: The prepped analysis dataset. See section above for more
+  details.
+\item
+  \texttt{models}: List of models. See section above for more details.
+\item
+  \texttt{method}: Policy evaluation scenario. Can either be ``noconf''
+  or ``concurrent''.
+\item
+  \texttt{unit\_var}: Variable for groups within the dataset. Used to
+  determine clusters for clustered standard errors
+\item
+  \texttt{time\_var}: The variable used for time units.
+\item
+  \texttt{effect\_magnitude}: A vector of treatment scenarios. See
+  section above for more details. Synthetic datasets will be generated
+  for each entry in the vector.
+\item
+  \texttt{n\_units}: A vector with the number of units to simulate
+  treatment. Synthetic datasets will be generated for each entry in the
+  vector.
+\item
+  \texttt{effect\_direction}: A vector containing either `neg', `null',
+  or `pos'. Synthetic datasets will be generated for each entry in the
+  vector. Determines the direction of the simulated effect.
+\item
+  \texttt{policy\_speed}: A vector containing either `instant' or `slow'
+  entries, determining how quickly treated units obtain the simulated
+  effect. Synthetic datasets will be generated for each entry in the
+  vector. Can either be `instant" (so treatment effect applies fully in
+  the first treated time period) or 'slow' (treatment effect ramps up
+  linearly to the desired effect size, based on
+  \texttt{n\_implementation\_periods}.
+\item
+  \texttt{n\_implementation\_periods} A vector with number of periods
+  after implementation until treated units reach the desired simulated
+  treatment effect. Synthetic datasets will be generated for each entry
+  in the vector.
+\end{itemize}
+
+Three arguments to \texttt{configure\_simulation} only apply within the
+``concurrent'' policy scenario:
+
+\begin{itemize}
+\item
+  \texttt{rhos}: A vector of 0-1 values indicating the correlation
+  between the primary policy and a confounding policy. Synthetic
+  datasets will be generated for each entry in the vector.
+\item
+  \texttt{years\_apart}: Number of years between the primary policy
+  being implemented and the confounding policy.
+\item
+  \texttt{ordered}: Determines if the primary policy always occurs
+  before the confounding policy (\texttt{TRUE}) or if the policies are
+  randomly ordered (\texttt{FALSE}).
+\end{itemize}
+
+The function returns a configuration object that's used as an input to
+\texttt{dispatch\_simulation}. This object contains a dataset listing
+all possible simulations that will be run for each model (. An example
+call of \texttt{configure\_simulation} is displayed below:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sim\_config \textless{}{-}}\StringTok{ }\KeywordTok{optic\_simulation}\NormalTok{(}
+  
+  \DataTypeTok{x      =}\NormalTok{ overdoses,}
+  \DataTypeTok{models =}\NormalTok{ sim\_models,}
+  \DataTypeTok{iters  =} \DecValTok{10}\NormalTok{,}
+  \DataTypeTok{method =} \StringTok{"concurrent"}\NormalTok{,}
+
+  \DataTypeTok{unit\_var                 =} \StringTok{"state"}\NormalTok{,}
+  \DataTypeTok{time\_var                 =} \StringTok{"year"}\NormalTok{,}
+  \DataTypeTok{effect\_magnitude         =}\NormalTok{ scenarios\_co\_occur,}
+  \DataTypeTok{n\_units                  =} \KeywordTok{c}\NormalTok{(}\DecValTok{30}\NormalTok{),}
+  \DataTypeTok{effect\_direction         =} \KeywordTok{c}\NormalTok{(}\StringTok{"neg"}\NormalTok{),}
+  \DataTypeTok{policy\_speed             =} \KeywordTok{c}\NormalTok{(}\StringTok{"instant"}\NormalTok{, }\StringTok{"slow"}\NormalTok{),}
+  \DataTypeTok{n\_implementation\_periods =} \KeywordTok{c}\NormalTok{(}\DecValTok{3}\NormalTok{),}
+  \DataTypeTok{rhos                     =} \KeywordTok{c}\NormalTok{(}\FloatTok{0.5}\NormalTok{),}
+  \DataTypeTok{years\_apart              =} \DecValTok{2}\NormalTok{,}
+  \DataTypeTok{ordered                  =} \OtherTok{TRUE}
+
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Number of Simulations: 4
+## Number of Models: 2
+## Iteration per Simulation : 10
+## Total number of Iterations to Run: 80
+\end{verbatim}
+
+\hypertarget{simulate}{%
+\subsubsection{\texorpdfstring{\texttt{simulate}}{simulate}}\label{simulate}}
+
+With the configuration object built, we can now simulate models with the
+configuration scenarios using the \texttt{simulate} function. This
+function accepts arguments to parallelize code through the use of the
+``future'' package. If this setting is turned on, the function will try
+to parallelize simulation iterations on the analyst's machine. Any
+additional packages required by the user for model calls (e.g.~a
+specific modeling package) must also be passed to dispatch\_simulations
+using future.globals and future.packages arguments.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{results \textless{}{-}}\StringTok{ }\KeywordTok{dispatch\_simulations}\NormalTok{(sim\_config, }\DataTypeTok{use\_future =} \OtherTok{FALSE}\NormalTok{,}
+    \DataTypeTok{seed =} \DecValTok{9782}\NormalTok{, }\DataTypeTok{verbose =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## JOB 1 OF 4 DISPATCHED:
+##         DISPATCH METHOD: single-threaded
+##         PARAMS:
+##             unit_var: state
+##             time_var: year
+##             effect_magnitude1: 0.632536458333333
+##             effect_magnitude2: -0.253014583333333
+##             n_units: 30
+##             effect_direction: neg
+##             policy_speed: instant
+##             n_implementation_periods: 3
+##             rhos: 0.5
+##             years_apart: 2
+##             ordered: TRUE
+## JOB 2 OF 4 DISPATCHED:
+##         DISPATCH METHOD: single-threaded
+##         PARAMS:
+##             unit_var: state
+##             time_var: year
+##             effect_magnitude1: 1.26507291666667
+##             effect_magnitude2: -0.253014583333333
+##             n_units: 30
+##             effect_direction: neg
+##             policy_speed: instant
+##             n_implementation_periods: 3
+##             rhos: 0.5
+##             years_apart: 2
+##             ordered: TRUE
+## JOB 3 OF 4 DISPATCHED:
+##         DISPATCH METHOD: single-threaded
+##         PARAMS:
+##             unit_var: state
+##             time_var: year
+##             effect_magnitude1: 0.632536458333333
+##             effect_magnitude2: -0.253014583333333
+##             n_units: 30
+##             effect_direction: neg
+##             policy_speed: slow
+##             n_implementation_periods: 3
+##             rhos: 0.5
+##             years_apart: 2
+##             ordered: TRUE
+## JOB 4 OF 4 DISPATCHED:
+##         DISPATCH METHOD: single-threaded
+##         PARAMS:
+##             unit_var: state
+##             time_var: year
+##             effect_magnitude1: 1.26507291666667
+##             effect_magnitude2: -0.253014583333333
+##             n_units: 30
+##             effect_direction: neg
+##             policy_speed: slow
+##             n_implementation_periods: 3
+##             rhos: 0.5
+##             years_apart: 2
+##             ordered: TRUE
+\end{verbatim}
+
+OPTIC will provide a short summary on the models being run if verbose is
+set to 1 or 2. We now have results which can be used to construct
+summary statistics and compare models for policy evaluation. Each
+scenario will be saved as a list entry in the results object, with each
+list entry containing a dataframe with rows for model results. Model
+results returns model point estimates \& standard errors for each
+treatment variable (in the `noconf' method, this variable would be
+`treatment' and for the 'concurrent" method, this variable would be
+treatment1 \& treatment2), along with policy scenario settings.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{results}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [[1]]
+##    se_adjustment  estimate1       se1 variance1 test_stat1     p_value1
+## 1           none -0.5284882 0.4878267 0.2379748 -1.0833524 2.789461e-01
+## 2        cluster -0.5284882 0.9381647 0.8801530 -0.5633213 5.733583e-01
+## 3           none -0.7968430 0.5265215 0.2772249 -1.5134102 1.305262e-01
+## 4        cluster -0.7968430 0.4151039 0.1723113 -1.9196228 5.522110e-02
+## 5           none -1.6770666 0.4677220 0.2187639 -3.5856053 3.546398e-04
+## 6        cluster -1.6770666 0.8911761 0.7941948 -1.8818577 6.018219e-02
+## 7           none -1.3658538 0.5226872 0.2732019 -2.6131380 9.121034e-03
+## 8        cluster -1.3658538 0.3883284 0.1507990 -3.5172646 4.577942e-04
+## 9           none -1.5686058 0.4989707 0.2489718 -3.1436829 1.723780e-03
+## 10       cluster -1.5686058 0.9214082 0.8489931 -1.7024005 8.903029e-02
+## 11          none -2.0456496 0.5386836 0.2901800 -3.7974973 1.559586e-04
+## 12       cluster -2.0456496 0.4386639 0.1924260 -4.6633643 3.581412e-06
+## 13          none -0.0778667 0.4875813 0.2377355 -0.1596999 8.731538e-01
+## 14       cluster -0.0778667 0.9926710 0.9853956 -0.0784416 9.374945e-01
+## 15          none -0.5520011 0.4844549 0.2346965 -1.1394272 2.548278e-01
+## 16       cluster -0.5520011 0.3253981 0.1058839 -1.6963868 9.015807e-02
+## 17          none -0.1988493 0.4373555 0.1912799 -0.4546628 6.494630e-01
+## 18       cluster -0.1988493 0.7869829 0.6193421 -0.2526729 8.005794e-01
+## 19          none -0.8409263 0.5382376 0.2896997 -1.5623702 1.185520e-01
+## 20       cluster -0.8409263 0.6207929 0.3853838 -1.3546005 1.758845e-01
+## 21          none -1.5946407 0.4774564 0.2279646 -3.3398663 8.731114e-04
+## 22       cluster -1.5946407 0.7961847 0.6339101 -2.0028526 4.549667e-02
+## 23          none -0.9751975 0.5552056 0.3082533 -1.7564617 7.934930e-02
+## 24       cluster -0.9751975 0.3288959 0.1081725 -2.9650646 3.105981e-03
+## 25          none  0.3743562 0.5261067 0.2767882  0.7115594 4.769245e-01
+## 26       cluster  0.3743562 1.2620612 1.5927984  0.2966228 7.668238e-01
+## 27          none -0.5277724 0.5388207 0.2903277 -0.9794954 3.275982e-01
+## 28       cluster -0.5277724 0.3942629 0.1554432 -1.3386307 1.810286e-01
+## 29          none  0.3834333 0.4568160 0.2086809  0.8393606 4.014929e-01
+## 30       cluster  0.3834333 1.0870238 1.1816207  0.3527368 7.243695e-01
+## 31          none -1.5427302 0.5180328 0.2683580 -2.9780547 2.978564e-03
+## 32       cluster -1.5427302 0.4848192 0.2350497 -3.1820730 1.512329e-03
+## 33          none  1.2185962 0.4979573 0.2479615  2.4471899 1.459031e-02
+## 34       cluster  1.2185962 1.0771538 1.1602603  1.1313113 2.582295e-01
+## 35          none -1.2718581 0.5263909 0.2770874 -2.4161856 1.588198e-02
+## 36       cluster -1.2718581 0.5174483 0.2677527 -2.4579425 1.416087e-02
+## 37          none -0.1586127 0.4993642 0.2493646 -0.3176293 7.508408e-01
+## 38       cluster -0.1586127 0.9379878 0.8798211 -0.1690989 8.657574e-01
+## 39          none -0.6455376 0.5075520 0.2576090 -1.2718650 2.037493e-01
+## 40       cluster -0.6455376 0.4548768 0.2069129 -1.4191483 1.562016e-01
+##     estimate2       se2 variance2 test_stat2    p_value2    joint.eff
+## 1  -1.5868861 0.4952836 0.2453059 -3.2039946 0.001403677 -2.115374257
+## 2  -1.5868861 0.9875252 0.9752060 -1.6069322 0.108424731 -2.115374257
+## 3  -0.6288669 0.5286585 0.2794798 -1.1895522 0.234535806 -1.425709889
+## 4  -0.6288669 0.4118368 0.1696095 -1.5269810 0.127116682 -1.425709889
+## 5  -0.2086868 0.4513788 0.2037428 -0.4623319 0.643956549 -1.885753453
+## 6  -0.2086868 0.9451285 0.8932678 -0.2208026 0.825296872 -1.885753453
+## 7   0.2580458 0.4733736 0.2240825  0.5451209 0.585805280 -1.107807947
+## 8   0.2580458 0.3343978 0.1118219  0.7716731 0.440510374 -1.107807947
+## 9  -1.2954681 0.4860496 0.2362442 -2.6653002 0.007831612 -2.864073855
+## 10 -1.2954681 1.1315082 1.2803109 -1.1449038 0.252557495 -2.864073855
+## 11 -0.2769933 0.5084081 0.2584788 -0.5448248 0.586008837 -2.322642960
+## 12 -0.2769933 0.4648019 0.2160408 -0.5959385 0.551365975 -2.322642960
+## 13  0.3918881 0.5019246 0.2519283  0.7807709 0.435145361  0.314021425
+## 14  0.3918881 1.1789175 1.3898466  0.3324135 0.739655484  0.314021425
+## 15  0.5444345 0.5228050 0.2733251  1.0413721 0.297982249 -0.007566572
+## 16  0.5444345 0.6245263 0.3900331  0.8717560 0.383573753 -0.007566572
+## 17  1.3826116 0.4572191 0.2090493  3.0239586 0.002566672  1.183762300
+## 18  1.3826116 1.3004305 1.6911196  1.0631953 0.287982451  1.183762300
+## 19  0.2107385 0.5198578 0.2702521  0.4053772 0.685296525 -0.630187839
+## 20  0.2107385 0.4933892 0.2434329  0.4271242 0.669390881 -0.630187839
+## 21 -0.5149335 0.4721134 0.2228911 -1.0906988 0.275701318 -2.109574145
+## 22 -0.5149335 1.0490546 1.1005155 -0.4908548 0.623650408 -2.109574145
+## 23 -0.1359064 0.5231716 0.2737086 -0.2597739 0.795097509 -1.111103814
+## 24 -0.1359064 0.3726493 0.1388675 -0.3647031 0.715418662 -1.111103814
+## 25  0.4128306 0.5143359 0.2645414  0.8026479 0.422393032  0.787186767
+## 26  0.4128306 0.9488907 0.9003936  0.4350666 0.663619831  0.787186767
+## 27 -0.1678054 0.5295391 0.2804117 -0.3168895 0.751400890 -0.695577733
+## 28 -0.1678054 0.4559902 0.2079271 -0.3680021 0.712958117 -0.695577733
+## 29 -0.2969194 0.4544868 0.2065583 -0.6533069 0.513727579  0.086513945
+## 30 -0.2969194 0.9971843 0.9943765 -0.2977578 0.765957684  0.086513945
+## 31  0.2324844 0.4909753 0.2410567  0.4735156 0.635960106 -1.310245729
+## 32  0.2324844 0.4059524 0.1647973  0.5726889 0.566998230 -1.310245729
+## 33 -0.7009986 0.4839160 0.2341747 -1.4485958 0.147803489  0.517597545
+## 34 -0.7009986 0.8042857 0.6468755 -0.8715792 0.383673581  0.517597545
+## 35 -0.2185031 0.4904747 0.2405654 -0.4454931 0.656070488 -1.490361144
+## 36 -0.2185031 0.4424023 0.1957198 -0.4939013 0.621496255 -1.490361144
+## 37  1.0676790 0.5025064 0.2525126  2.1247074 0.033886692  0.909066295
+## 38  1.0676790 0.9323194 0.8692195  1.1451858 0.252440725  0.909066295
+## 39  0.5724982 0.5226519 0.2731651  1.0953718 0.273646495 -0.073039410
+## 40  0.5724982 0.4174055 0.1742273  1.3715637 0.170540749 -0.073039410
+##    joint.eff.se   variancej   test_statj joint.eff.pvalue effect_direction
+## 1    0.64265053 0.412999698  -3.29164013     9.960498e-04              neg
+## 2    1.35704567 1.841572942  -1.55880845     1.190417e-01              neg
+## 3    0.04063359 0.001651089 -35.08697723    1.064997e-269              neg
+## 4    0.58432233 0.341432580  -2.43993739     1.468981e-02              neg
+## 5    0.64417530 0.414961822  -2.92739172     3.418181e-03              neg
+## 6    1.28619617 1.654300591  -1.46614762     1.426081e-01              neg
+## 7    0.04059444 0.001647908 -27.28965033    5.628317e-164              neg
+## 8    0.51202824 0.262172913  -2.16356808     3.049751e-02              neg
+## 9    0.63585355 0.404309737  -4.50429797     6.659272e-06              neg
+## 10   1.47096001 2.163723342  -1.94707799     5.152539e-02              neg
+## 11   0.04073465 0.001659312 -57.01884566     0.000000e+00              neg
+## 12   0.63873053 0.407976696  -3.63634245     2.765366e-04              neg
+## 13   0.64769544 0.419509379   0.48482884     6.277978e-01              neg
+## 14   1.54047618 2.373066863   0.20384698     8.384731e-01              neg
+## 15   0.04067232 0.001654237  -0.18603740     8.524154e-01              neg
+## 16   0.70388386 0.495452486  -0.01074975     9.914231e-01              neg
+## 17   0.64373506 0.414394829   1.83889673     6.593038e-02              neg
+## 18   1.53005847 2.341078933   0.77367128     4.391252e-01              neg
+## 19   0.04069409 0.001656009 -15.48597910     4.314438e-54              neg
+## 20   0.79271247 0.628393067  -0.79497656     4.266271e-01              neg
+## 21   0.64390924 0.414619107  -3.27619798     1.052148e-03              neg
+## 22   1.30509770 1.703279999  -1.61641090     1.060055e-01              neg
+## 23   0.04077274 0.001662417 -27.25114185    1.610871e-163              neg
+## 24   0.49656790 0.246579680  -2.23756673     2.524932e-02              neg
+## 25   0.64698374 0.418587954   1.21670256     2.237174e-01              neg
+## 26   1.56974026 2.464084480   0.50147581     6.160363e-01              neg
+## 27   0.04071637 0.001657823 -17.08349067     1.969742e-65              neg
+## 28   0.60242540 0.362916362  -1.15462883     2.482425e-01              neg
+## 29   0.64763906 0.419436351   0.13358358     8.937319e-01              neg
+## 30   1.47345386 2.171066271   0.05871507     9.531791e-01              neg
+## 31   0.04055448 0.001644665 -32.30828932    5.350211e-229              neg
+## 32   0.63195764 0.399370453  -2.07331260     3.814320e-02              neg
+## 33   0.64396299 0.414688331   0.80376909     4.215303e-01              neg
+## 34   1.33017668 1.769370007   0.38911939     6.971878e-01              neg
+## 35   0.04062474 0.001650370 -36.68604752    1.219019e-294              neg
+## 36   0.68041520 0.462964850  -2.19037014     2.849740e-02              neg
+## 37   0.64591992 0.417212544   1.40739783     1.593095e-01              neg
+## 38   1.31294107 1.723814254   0.69238926     4.886929e-01              neg
+## 39   0.04069425 0.001656022  -1.79483346     7.268024e-02              neg
+## 40   0.61700051 0.380689635  -0.11837820     9.057680e-01              neg
+##    effect_magnitude1 effect_magnitude2 policy_speed rho years_apart ordered
+## 1          0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 2          0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 3          0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 4          0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 5          0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 6          0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 7          0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 8          0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 9          0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 10         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 11         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 12         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 13         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 14         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 15         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 16         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 17         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 18         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 19         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 20         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 21         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 22         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 23         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 24         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 25         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 26         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 27         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 28         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 29         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 30         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 31         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 32         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 33         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 34         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 35         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 36         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 37         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 38         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 39         0.6325365        -0.2530146      instant 0.5           2    TRUE
+## 40         0.6325365        -0.2530146      instant 0.5           2    TRUE
+##    n_units mean_distance min_distance max_distance n_implementation_periods
+## 1       30      771.3000          306         1645                        3
+## 2       30      771.3000          306         1645                        3
+## 3       30      771.3000          306         1645                        3
+## 4       30      771.3000          306         1645                        3
+## 5       30      824.8000          120         1553                        3
+## 6       30      824.8000          120         1553                        3
+## 7       30      824.8000          120         1553                        3
+## 8       30      824.8000          120         1553                        3
+## 9       30      798.7667          122         1371                        3
+## 10      30      798.7667          122         1371                        3
+## 11      30      798.7667          122         1371                        3
+## 12      30      798.7667          122         1371                        3
+## 13      30      850.9000          334         1611                        3
+## 14      30      850.9000          334         1611                        3
+## 15      30      850.9000          334         1611                        3
+## 16      30      850.9000          334         1611                        3
+## 17      30      868.4000           31         1338                        3
+## 18      30      868.4000           31         1338                        3
+## 19      30      868.4000           31         1338                        3
+## 20      30      868.4000           31         1338                        3
+## 21      30      941.7000          182         1826                        3
+## 22      30      941.7000          182         1826                        3
+## 23      30      941.7000          182         1826                        3
+## 24      30      941.7000          182         1826                        3
+## 25      30      891.6333          153         1703                        3
+## 26      30      891.6333          153         1703                        3
+## 27      30      891.6333          153         1703                        3
+## 28      30      891.6333          153         1703                        3
+## 29      30      859.1667          334         1308                        3
+## 30      30      859.1667          334         1308                        3
+## 31      30      859.1667          334         1308                        3
+## 32      30      859.1667          334         1308                        3
+## 33      30      906.0333          181         1492                        3
+## 34      30      906.0333          181         1492                        3
+## 35      30      906.0333          181         1492                        3
+## 36      30      906.0333          181         1492                        3
+## 37      30      890.8333          243         1581                        3
+## 38      30      890.8333          243         1581                        3
+## 39      30      890.8333          243         1581                        3
+## 40      30      890.8333          243         1581                        3
+##                model_name model_type model_call
+## 1     fixed_effect_linear        reg         lm
+## 2     fixed_effect_linear        reg         lm
+## 3  Auto-regressive linear    autoreg         lm
+## 4  Auto-regressive linear    autoreg         lm
+## 5     fixed_effect_linear        reg         lm
+## 6     fixed_effect_linear        reg         lm
+## 7  Auto-regressive linear    autoreg         lm
+## 8  Auto-regressive linear    autoreg         lm
+## 9     fixed_effect_linear        reg         lm
+## 10    fixed_effect_linear        reg         lm
+## 11 Auto-regressive linear    autoreg         lm
+## 12 Auto-regressive linear    autoreg         lm
+## 13    fixed_effect_linear        reg         lm
+## 14    fixed_effect_linear        reg         lm
+## 15 Auto-regressive linear    autoreg         lm
+## 16 Auto-regressive linear    autoreg         lm
+## 17    fixed_effect_linear        reg         lm
+## 18    fixed_effect_linear        reg         lm
+## 19 Auto-regressive linear    autoreg         lm
+## 20 Auto-regressive linear    autoreg         lm
+## 21    fixed_effect_linear        reg         lm
+## 22    fixed_effect_linear        reg         lm
+## 23 Auto-regressive linear    autoreg         lm
+## 24 Auto-regressive linear    autoreg         lm
+## 25    fixed_effect_linear        reg         lm
+## 26    fixed_effect_linear        reg         lm
+## 27 Auto-regressive linear    autoreg         lm
+## 28 Auto-regressive linear    autoreg         lm
+## 29    fixed_effect_linear        reg         lm
+## 30    fixed_effect_linear        reg         lm
+## 31 Auto-regressive linear    autoreg         lm
+## 32 Auto-regressive linear    autoreg         lm
+## 33    fixed_effect_linear        reg         lm
+## 34    fixed_effect_linear        reg         lm
+## 35 Auto-regressive linear    autoreg         lm
+## 36 Auto-regressive linear    autoreg         lm
+## 37    fixed_effect_linear        reg         lm
+## 38    fixed_effect_linear        reg         lm
+## 39 Auto-regressive linear    autoreg         lm
+## 40 Auto-regressive linear    autoreg         lm
+##                                                                                               model_formula
+## 1  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 2  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 3             crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 4             crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 5  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 6  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 7             crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 8             crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 9  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 10 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 11            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 12            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 13 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 14 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 15            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 16            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 17 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 18 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 19            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 20            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 21 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 22 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 23            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 24            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 25 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 26 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 27            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 28            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 29 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 30 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 31            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 32            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 33 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 34 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 35            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 36            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 37 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 38 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 39            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 40            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+##    iter seed
+## 1     1 9782
+## 2     1 9782
+## 3     1 9782
+## 4     1 9782
+## 5     2 9782
+## 6     2 9782
+## 7     2 9782
+## 8     2 9782
+## 9     3 9782
+## 10    3 9782
+## 11    3 9782
+## 12    3 9782
+## 13    4 9782
+## 14    4 9782
+## 15    4 9782
+## 16    4 9782
+## 17    5 9782
+## 18    5 9782
+## 19    5 9782
+## 20    5 9782
+## 21    6 9782
+## 22    6 9782
+## 23    6 9782
+## 24    6 9782
+## 25    7 9782
+## 26    7 9782
+## 27    7 9782
+## 28    7 9782
+## 29    8 9782
+## 30    8 9782
+## 31    8 9782
+## 32    8 9782
+## 33    9 9782
+## 34    9 9782
+## 35    9 9782
+## 36    9 9782
+## 37   10 9782
+## 38   10 9782
+## 39   10 9782
+## 40   10 9782
+## 
+## [[2]]
+##    se_adjustment  estimate1       se1 variance1 test_stat1     p_value1
+## 1           none -1.1610247 0.4878267 0.2379748 -2.3799943 1.752313e-02
+## 2        cluster -1.1610247 0.9381647 0.8801530 -1.2375489 2.162105e-01
+## 3           none -1.4316473 0.5266861 0.2773983 -2.7182173 6.689532e-03
+## 4        cluster -1.4316473 0.4153429 0.1725098 -3.4469042 5.932775e-04
+## 5           none -2.3096031 0.4677220 0.2187639 -4.9379822 9.428710e-07
+## 6        cluster -2.3096031 0.8911761 0.7941948 -2.5916349 9.708944e-03
+## 7           none -2.0010407 0.5224642 0.2729689 -3.8300052 1.370150e-04
+## 8        cluster -2.0010407 0.3882854 0.1507656 -5.1535300 3.141886e-07
+## 9           none -2.2011422 0.4989707 0.2489718 -4.4113654 1.153232e-05
+## 10       cluster -2.2011422 0.9214082 0.8489931 -2.3888894 1.710730e-02
+## 11          none -2.6822684 0.5386590 0.2901535 -4.9795296 7.637773e-07
+## 12       cluster -2.6822684 0.4389253 0.1926554 -6.1109913 1.472197e-09
+## 13          none -0.7104032 0.4875813 0.2377355 -1.4569944 1.454714e-01
+## 14       cluster -0.7104032 0.9926710 0.9853956 -0.7156482 4.743968e-01
+## 15          none -1.1885289 0.4845142 0.2347540 -2.4530322 1.435432e-02
+## 16       cluster -1.1885289 0.3252205 0.1057684 -3.6545326 2.725444e-04
+## 17          none -0.8313857 0.4373555 0.1912799 -1.9009379 5.763368e-02
+## 18       cluster -0.8313857 0.7869829 0.6193421 -1.0564216 2.910629e-01
+## 19          none -1.4737363 0.5384986 0.2899807 -2.7367504 6.327072e-03
+## 20       cluster -1.4737363 0.6193515 0.3835963 -2.3794829 1.754426e-02
+## 21          none -2.2271771 0.4774564 0.2279646 -4.6646709 3.566507e-06
+## 22       cluster -2.2271771 0.7961847 0.6339101 -2.7973120 5.264397e-03
+## 23          none -1.6103381 0.5553168 0.3083767 -2.8998550 3.824072e-03
+## 24       cluster -1.6103381 0.3287549 0.1080798 -4.8982943 1.145729e-06
+## 25          none -0.2581803 0.5261067 0.2767882 -0.4907376 6.237333e-01
+## 26       cluster -0.2581803 1.2620612 1.5927984 -0.2045704 8.379547e-01
+## 27          none -1.1661909 0.5388955 0.2904084 -2.1640390 3.072350e-02
+## 28       cluster -1.1661909 0.3939156 0.1551695 -2.9605094 3.151828e-03
+## 29          none -0.2491031 0.4568160 0.2086809 -0.5453030 5.856821e-01
+## 30       cluster -0.2491031 1.0870238 1.1816207 -0.2291607 8.187968e-01
+## 31          none -2.1792791 0.5180243 0.2683492 -4.2069047 2.847855e-05
+## 32       cluster -2.1792791 0.4840009 0.2342569 -4.5026343 7.592298e-06
+## 33          none  0.5860597 0.4979573 0.2479615  1.1769276 2.395398e-01
+## 34       cluster  0.5860597 1.0771538 1.1602603  0.5440818 5.865218e-01
+## 35          none -1.9073383 0.5265437 0.2772483 -3.6223743 3.082234e-04
+## 36       cluster -1.9073383 0.5174440 0.2677483 -3.6860771 2.413432e-04
+## 37          none -0.7911492 0.4993642 0.2493646 -1.5843130 1.134785e-01
+## 38       cluster -0.7911492 0.9379878 0.8798211 -0.8434536 3.992020e-01
+## 39          none -1.2824596 0.5075179 0.2575744 -2.5269250 1.167675e-02
+## 40       cluster -1.2824596 0.4555134 0.2074925 -2.8154156 4.977690e-03
+##     estimate2       se2 variance2 test_stat2    p_value2  joint.eff
+## 1  -1.5868861 0.4952836 0.2453059 -3.2039946 0.001403677 -2.7479107
+## 2  -1.5868861 0.9875252 0.9752060 -1.6069322 0.108424731 -2.7479107
+## 3  -0.6197695 0.5286626 0.2794841 -1.1723346 0.241372608 -2.0514168
+## 4  -0.6197695 0.4121875 0.1698986 -1.5036104 0.133032144 -2.0514168
+## 5  -0.2086868 0.4513788 0.2037428 -0.4623319 0.643956549 -2.5182899
+## 6  -0.2086868 0.9451285 0.8932678 -0.2208026 0.825296872 -2.5182899
+## 7   0.2684166 0.4734464 0.2241515  0.5669419 0.570894864 -1.7326241
+## 8   0.2684166 0.3340923 0.1116177  0.8034205 0.421943624 -1.7326241
+## 9  -1.2954681 0.4860496 0.2362442 -2.6653002 0.007831612 -3.4966103
+## 10 -1.2954681 1.1315082 1.2803109 -1.1449038 0.252557495 -3.4966103
+## 11 -0.2660083 0.5086373 0.2587119 -0.5229822 0.601115202 -2.9482767
+## 12 -0.2660083 0.4641325 0.2154190 -0.5731300 0.566699654 -2.9482767
+## 13  0.3918881 0.5019246 0.2519283  0.7807709 0.435145361 -0.3185150
+## 14  0.3918881 1.1789175 1.3898466  0.3324135 0.739655484 -0.3185150
+## 15  0.5546069 0.5229240 0.2734495  1.0605879 0.289161457 -0.6339221
+## 16  0.5546069 0.6278240 0.3941629  0.8833795 0.377266885 -0.6339221
+## 17  1.3826116 0.4572191 0.2090493  3.0239586 0.002566672  0.5512258
+## 18  1.3826116 1.3004305 1.6911196  1.0631953 0.287982451  0.5512258
+## 19  0.2177402 0.5199365 0.2703339  0.4187824 0.675474981 -1.2559960
+## 20  0.2177402 0.4941598 0.2441939  0.4406272 0.659588615 -1.2559960
+## 21 -0.5149335 0.4721134 0.2228911 -1.0906988 0.275701318 -2.7421106
+## 22 -0.5149335 1.0490546 1.1005155 -0.4908548 0.623650408 -2.7421106
+## 23 -0.1299206 0.5232217 0.2737609 -0.2483090 0.803951939 -1.7402587
+## 24 -0.1299206 0.3727967 0.1389774 -0.3485026 0.727544145 -1.7402587
+## 25  0.4128306 0.5143359 0.2645414  0.8026479 0.422393032  0.1546503
+## 26  0.4128306 0.9488907 0.9003936  0.4350666 0.663619831  0.1546503
+## 27 -0.1617082 0.5293636 0.2802258 -0.3054766 0.760073727 -1.3278992
+## 28 -0.1617082 0.4546487 0.2067054 -0.3556773 0.722165516 -1.3278992
+## 29 -0.2969194 0.4544868 0.2065583 -0.6533069 0.513727579 -0.5460225
+## 30 -0.2969194 0.9971843 0.9943765 -0.2977578 0.765957684 -0.5460225
+## 31  0.2389769 0.4910473 0.2411275  0.4866678 0.626612120 -1.9403021
+## 32  0.2389769 0.4072458 0.1658491  0.5868125 0.557476663 -1.9403021
+## 33 -0.7009986 0.4839160 0.2341747 -1.4485958 0.147803489 -0.1149389
+## 34 -0.7009986 0.8042857 0.6468755 -0.8715792 0.383673581 -0.1149389
+## 35 -0.2134129 0.4904849 0.2405754 -0.4351060 0.663589706 -2.1207512
+## 36 -0.2134129 0.4435734 0.1967573 -0.4811220 0.630546616 -2.1207512
+## 37  1.0676790 0.5025064 0.2525126  2.1247074 0.033886692  0.2765298
+## 38  1.0676790 0.9323194 0.8692195  1.1451858 0.252440725  0.2765298
+## 39  0.5781283 0.5226275 0.2731396  1.1061956 0.268937119 -0.7043313
+## 40  0.5781283 0.4174640 0.1742762  1.3848580 0.166438711 -0.7043313
+##    joint.eff.se   variancej   test_statj joint.eff.pvalue effect_direction
+## 1    0.64265053 0.412999698  -4.27590208     1.903649e-05              neg
+## 2    1.35704567 1.841572942  -2.02492133     4.287544e-02              neg
+## 3    0.04054519 0.001643913 -50.59580812     0.000000e+00              neg
+## 4    0.58472748 0.341906231  -3.50832970     4.509298e-04              neg
+## 5    0.64417530 0.414961822  -3.90932390     9.255480e-05              neg
+## 6    1.28619617 1.654300591  -1.95793610     5.023751e-02              neg
+## 7    0.04038257 0.001630752 -42.90524506     0.000000e+00              neg
+## 8    0.51178650 0.261925420  -3.38544318     7.106342e-04              neg
+## 9    0.63585355 0.404309737  -5.49908121     3.817753e-08              neg
+## 10   1.47096001 2.163723342  -2.37709407     1.744964e-02              neg
+## 11   0.04060771 0.001648987 -72.60385556     0.000000e+00              neg
+## 12   0.63842093 0.407581284  -4.61807646     3.873135e-06              neg
+## 13   0.64769544 0.419509379  -0.49176668     6.228843e-01              neg
+## 14   1.54047618 2.373066863  -0.20676401     8.361942e-01              neg
+## 15   0.04058958 0.001647514 -15.61785052     5.502971e-55              neg
+## 16   0.70672192 0.499455866  -0.89698938     3.697246e-01              neg
+## 17   0.64373506 0.414394829   0.85629302     3.918357e-01              neg
+## 18   1.53005847 2.341078933   0.36026456     7.186493e-01              neg
+## 19   0.04057987 0.001646726 -30.95120510    2.447523e-210              neg
+## 20   0.79206061 0.627360016  -1.58573221     1.128001e-01              neg
+## 21   0.64390924 0.414619107  -4.25853589     2.057702e-05              neg
+## 22   1.30509770 1.703279999  -2.10107688     3.563422e-02              neg
+## 23   0.04058826 0.001647407 -42.87591215     0.000000e+00              neg
+## 24   0.49656448 0.246576288  -3.50459761     4.572979e-04              neg
+## 25   0.64698374 0.418587954   0.23903276     8.110802e-01              neg
+## 26   1.56974026 2.464084480   0.09851968     9.215196e-01              neg
+## 27   0.04067975 0.001654842 -32.64275667    1.015311e-233              neg
+## 28   0.60117836 0.361415421  -2.20882728     2.718666e-02              neg
+## 29   0.64763906 0.419436351  -0.84309695     3.991742e-01              neg
+## 30   1.47345386 2.171066271  -0.37057320     7.109554e-01              neg
+## 31   0.04041615 0.001633465 -48.00809517     0.000000e+00              neg
+## 32   0.63215530 0.399620319  -3.06934411     2.145293e-03              neg
+## 33   0.64396299 0.414688331  -0.17848683     8.583407e-01              neg
+## 34   1.33017668 1.769370007  -0.08640876     9.311415e-01              neg
+## 35   0.04049071 0.001639498 -52.37623793     0.000000e+00              neg
+## 36   0.68115803 0.463976259  -3.11344964     1.849141e-03              neg
+## 37   0.64591992 0.417212544   0.42811783     6.685653e-01              neg
+## 38   1.31294107 1.723814254   0.21061862     8.331849e-01              neg
+## 39   0.04056893 0.001645838 -17.36135047     1.618707e-67              neg
+## 40   0.61751085 0.381319655  -1.14059750     2.540375e-01              neg
+##    effect_magnitude1 effect_magnitude2 policy_speed rho years_apart ordered
+## 1           1.265073        -0.2530146      instant 0.5           2    TRUE
+## 2           1.265073        -0.2530146      instant 0.5           2    TRUE
+## 3           1.265073        -0.2530146      instant 0.5           2    TRUE
+## 4           1.265073        -0.2530146      instant 0.5           2    TRUE
+## 5           1.265073        -0.2530146      instant 0.5           2    TRUE
+## 6           1.265073        -0.2530146      instant 0.5           2    TRUE
+## 7           1.265073        -0.2530146      instant 0.5           2    TRUE
+## 8           1.265073        -0.2530146      instant 0.5           2    TRUE
+## 9           1.265073        -0.2530146      instant 0.5           2    TRUE
+## 10          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 11          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 12          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 13          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 14          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 15          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 16          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 17          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 18          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 19          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 20          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 21          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 22          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 23          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 24          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 25          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 26          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 27          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 28          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 29          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 30          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 31          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 32          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 33          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 34          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 35          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 36          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 37          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 38          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 39          1.265073        -0.2530146      instant 0.5           2    TRUE
+## 40          1.265073        -0.2530146      instant 0.5           2    TRUE
+##    n_units mean_distance min_distance max_distance n_implementation_periods
+## 1       30      771.3000          306         1645                        3
+## 2       30      771.3000          306         1645                        3
+## 3       30      771.3000          306         1645                        3
+## 4       30      771.3000          306         1645                        3
+## 5       30      824.8000          120         1553                        3
+## 6       30      824.8000          120         1553                        3
+## 7       30      824.8000          120         1553                        3
+## 8       30      824.8000          120         1553                        3
+## 9       30      798.7667          122         1371                        3
+## 10      30      798.7667          122         1371                        3
+## 11      30      798.7667          122         1371                        3
+## 12      30      798.7667          122         1371                        3
+## 13      30      850.9000          334         1611                        3
+## 14      30      850.9000          334         1611                        3
+## 15      30      850.9000          334         1611                        3
+## 16      30      850.9000          334         1611                        3
+## 17      30      868.4000           31         1338                        3
+## 18      30      868.4000           31         1338                        3
+## 19      30      868.4000           31         1338                        3
+## 20      30      868.4000           31         1338                        3
+## 21      30      941.7000          182         1826                        3
+## 22      30      941.7000          182         1826                        3
+## 23      30      941.7000          182         1826                        3
+## 24      30      941.7000          182         1826                        3
+## 25      30      891.6333          153         1703                        3
+## 26      30      891.6333          153         1703                        3
+## 27      30      891.6333          153         1703                        3
+## 28      30      891.6333          153         1703                        3
+## 29      30      859.1667          334         1308                        3
+## 30      30      859.1667          334         1308                        3
+## 31      30      859.1667          334         1308                        3
+## 32      30      859.1667          334         1308                        3
+## 33      30      906.0333          181         1492                        3
+## 34      30      906.0333          181         1492                        3
+## 35      30      906.0333          181         1492                        3
+## 36      30      906.0333          181         1492                        3
+## 37      30      890.8333          243         1581                        3
+## 38      30      890.8333          243         1581                        3
+## 39      30      890.8333          243         1581                        3
+## 40      30      890.8333          243         1581                        3
+##                model_name model_type model_call
+## 1     fixed_effect_linear        reg         lm
+## 2     fixed_effect_linear        reg         lm
+## 3  Auto-regressive linear    autoreg         lm
+## 4  Auto-regressive linear    autoreg         lm
+## 5     fixed_effect_linear        reg         lm
+## 6     fixed_effect_linear        reg         lm
+## 7  Auto-regressive linear    autoreg         lm
+## 8  Auto-regressive linear    autoreg         lm
+## 9     fixed_effect_linear        reg         lm
+## 10    fixed_effect_linear        reg         lm
+## 11 Auto-regressive linear    autoreg         lm
+## 12 Auto-regressive linear    autoreg         lm
+## 13    fixed_effect_linear        reg         lm
+## 14    fixed_effect_linear        reg         lm
+## 15 Auto-regressive linear    autoreg         lm
+## 16 Auto-regressive linear    autoreg         lm
+## 17    fixed_effect_linear        reg         lm
+## 18    fixed_effect_linear        reg         lm
+## 19 Auto-regressive linear    autoreg         lm
+## 20 Auto-regressive linear    autoreg         lm
+## 21    fixed_effect_linear        reg         lm
+## 22    fixed_effect_linear        reg         lm
+## 23 Auto-regressive linear    autoreg         lm
+## 24 Auto-regressive linear    autoreg         lm
+## 25    fixed_effect_linear        reg         lm
+## 26    fixed_effect_linear        reg         lm
+## 27 Auto-regressive linear    autoreg         lm
+## 28 Auto-regressive linear    autoreg         lm
+## 29    fixed_effect_linear        reg         lm
+## 30    fixed_effect_linear        reg         lm
+## 31 Auto-regressive linear    autoreg         lm
+## 32 Auto-regressive linear    autoreg         lm
+## 33    fixed_effect_linear        reg         lm
+## 34    fixed_effect_linear        reg         lm
+## 35 Auto-regressive linear    autoreg         lm
+## 36 Auto-regressive linear    autoreg         lm
+## 37    fixed_effect_linear        reg         lm
+## 38    fixed_effect_linear        reg         lm
+## 39 Auto-regressive linear    autoreg         lm
+## 40 Auto-regressive linear    autoreg         lm
+##                                                                                               model_formula
+## 1  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 2  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 3             crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 4             crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 5  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 6  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 7             crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 8             crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 9  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 10 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 11            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 12            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 13 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 14 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 15            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 16            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 17 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 18 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 19            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 20            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 21 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 22 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 23            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 24            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 25 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 26 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 27            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 28            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 29 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 30 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 31            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 32            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 33 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 34 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 35            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 36            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 37 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 38 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 39            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 40            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+##    iter seed
+## 1     1 9782
+## 2     1 9782
+## 3     1 9782
+## 4     1 9782
+## 5     2 9782
+## 6     2 9782
+## 7     2 9782
+## 8     2 9782
+## 9     3 9782
+## 10    3 9782
+## 11    3 9782
+## 12    3 9782
+## 13    4 9782
+## 14    4 9782
+## 15    4 9782
+## 16    4 9782
+## 17    5 9782
+## 18    5 9782
+## 19    5 9782
+## 20    5 9782
+## 21    6 9782
+## 22    6 9782
+## 23    6 9782
+## 24    6 9782
+## 25    7 9782
+## 26    7 9782
+## 27    7 9782
+## 28    7 9782
+## 29    8 9782
+## 30    8 9782
+## 31    8 9782
+## 32    8 9782
+## 33    9 9782
+## 34    9 9782
+## 35    9 9782
+## 36    9 9782
+## 37   10 9782
+## 38   10 9782
+## 39   10 9782
+## 40   10 9782
+## 
+## [[3]]
+##    se_adjustment  estimate1       se1 variance1 test_stat1     p_value1
+## 1           none -0.4060459 0.5732784 0.3286481 -0.7082875 4.789526e-01
+## 2        cluster -0.4060459 1.4707725 2.1631717 -0.2760767 7.825534e-01
+## 3           none -2.0969258 0.8731753 0.7624351 -2.4014946 1.652992e-02
+## 4        cluster -2.0969258 0.5506105 0.3031719 -3.8083652 1.493665e-04
+## 5           none -2.0204370 0.5636177 0.3176650 -3.5847648 3.557674e-04
+## 6        cluster -2.0204370 1.1850375 1.4043138 -1.7049562 8.855236e-02
+## 7           none -1.4691510 0.8535801 0.7285990 -1.7211636 8.556441e-02
+## 8        cluster -1.4691510 0.6514152 0.4243417 -2.2553221 2.435235e-02
+## 9           none  0.6379129 0.6115429 0.3739847  1.0431205 2.971764e-01
+## 10       cluster  0.6379129 1.9799785 3.9203147  0.3221817 7.473908e-01
+## 11          none -1.4655979 0.8998816 0.8097868 -1.6286564 1.037353e-01
+## 12       cluster -1.4655979 0.5667862 0.3212466 -2.5858038 9.871165e-03
+## 13          none  2.0897647 0.6236294 0.3889137  3.3509719 8.392601e-04
+## 14       cluster  2.0897647 1.6437520 2.7019207  1.2713382 2.039413e-01
+## 15          none -1.2053283 0.8529275 0.7274852 -1.4131662 1.579522e-01
+## 16       cluster -1.2053283 0.7244484 0.5248255 -1.6637875 9.650263e-02
+## 17          none -1.6448740 0.5468501 0.2990450 -3.0079067 2.704735e-03
+## 18       cluster -1.6448740 1.7790507 3.1650213 -0.9245796 3.554358e-01
+## 19          none -1.2048159 0.8765185 0.7682847 -1.3745471 1.696137e-01
+## 20       cluster -1.2048159 0.5883395 0.3461433 -2.0478244 4.086666e-02
+## 21          none -1.5316954 0.5894004 0.3473929 -2.5987348 9.511943e-03
+## 22       cluster -1.5316954 0.8830759 0.7798231 -1.7345002 8.317637e-02
+## 23          none -2.7416232 0.8479425 0.7190065 -3.2332654 1.268327e-03
+## 24       cluster -2.7416232 0.6190958 0.3832796 -4.4284315 1.065701e-05
+## 25          none  0.4908411 0.6460144 0.4173346  0.7597990 4.475764e-01
+## 26       cluster  0.4908411 1.3860887 1.9212418  0.3541195 7.233334e-01
+## 27          none -0.7535119 0.8494656 0.7215918 -0.8870422 3.752929e-01
+## 28       cluster -0.7535119 0.5324397 0.2834920 -1.4152060 1.573536e-01
+## 29          none  0.9808891 0.5692914 0.3240927  1.7230001 8.523664e-02
+## 30       cluster  0.9808891 1.5779459 2.4899133  0.6216240 5.343487e-01
+## 31          none  0.6573895 0.8634493 0.7455446  0.7613528 4.466456e-01
+## 32       cluster  0.6573895 0.7113799 0.5060614  0.9241047 3.556792e-01
+## 33          none  2.1713124 0.6025690 0.3630895  3.6034251 3.315082e-04
+## 34       cluster  2.1713124 1.4368269 2.0644716  1.5111858 1.310969e-01
+## 35          none -0.8055919 0.8809491 0.7760712 -0.9144591 3.607203e-01
+## 36       cluster -0.8055919 0.5495605 0.3020167 -1.4658839 1.430288e-01
+## 37          none -0.3675013 0.6057856 0.3669762 -0.6066524 5.442367e-01
+## 38       cluster -0.3675013 1.2611758 1.5905645 -0.2913957 7.708167e-01
+## 39          none -0.8421014 0.8401332 0.7058238 -1.0023427 3.164472e-01
+## 40       cluster -0.8421014 0.8293183 0.6877688 -1.0154140 3.101811e-01
+##      estimate2       se2 variance2  test_stat2     p_value2  joint.eff
+## 1  -1.48779454 0.6055876 0.3667364 -2.45677826 1.420928e-02 -1.8938405
+## 2  -1.48779454 1.4840459 2.2023923 -1.00252594 3.163627e-01 -1.8938405
+## 3  -0.04258823 0.8895313 0.7912659 -0.04787716 9.618248e-01 -2.1395140
+## 4  -0.04258823 0.7495419 0.5618131 -0.05681901 9.547020e-01 -2.1395140
+## 5  -0.10957554 0.5595108 0.3130524 -0.19584168 8.447789e-01 -2.1300126
+## 6  -0.10957554 1.4440346 2.0852360 -0.07588152 9.395305e-01 -2.1300126
+## 7  -0.08913266 0.8618016 0.7427021 -0.10342596 9.176479e-01 -1.5582837
+## 8  -0.08913266 0.4633666 0.2147086 -0.19235884 8.475045e-01 -1.5582837
+## 9  -3.29642148 0.6042220 0.3650843 -5.45564585 6.329878e-08 -2.6585086
+## 10 -3.29642148 2.0691212 4.2812624 -1.59315052 1.114823e-01 -2.6585086
+## 11 -1.22730933 0.8806331 0.7755146 -1.39366712 1.637618e-01 -2.6929072
+## 12 -1.22730933 0.6344166 0.4024844 -1.93454799 5.335856e-02 -2.6929072
+## 13 -1.90054468 0.6338680 0.4017886 -2.99832901 2.790318e-03  0.1892200
+## 14 -1.90054468 1.7704002 3.1343168 -1.07351134 2.833334e-01  0.1892200
+## 15  0.22131849 0.8521830 0.7262159  0.25970769 7.951486e-01 -0.9840098
+## 16  0.22131849 0.9071642 0.8229469  0.24396740 8.073116e-01 -0.9840098
+## 17  2.32035254 0.5897632 0.3478207  3.93437987 8.992094e-05  0.6754786
+## 18  2.32035254 2.3486724 5.5162620  0.98794219 3.234501e-01  0.6754786
+## 19  1.06369620 0.8747690 0.7652207  1.21597389 2.243133e-01 -0.1411197
+## 20  1.06369620 0.7881385 0.6211623  1.34963107 1.774733e-01 -0.1411197
+## 21 -0.24901835 0.5641781 0.3182969 -0.44138251 6.590435e-01 -1.7807138
+## 22 -0.24901835 1.2942078 1.6749739 -0.19240986 8.474652e-01 -1.7807138
+## 23 -0.21201049 0.8497868 0.7221377 -0.24948667 8.030412e-01 -2.9536337
+## 24 -0.21201049 0.5623501 0.3162376 -0.37700803 7.062564e-01 -2.9536337
+## 25  0.91900835 0.6228260 0.3879122  1.47554599 1.404203e-01  1.4098494
+## 26  0.91900835 1.3403888 1.7966421  0.68562821 4.931265e-01  1.4098494
+## 27 -0.51235295 0.8399303 0.7054830 -0.60999458 5.420192e-01 -1.2658648
+## 28 -0.51235295 0.6919228 0.4787571 -0.74047706 4.592035e-01 -1.2658648
+## 29 -1.48620568 0.5696392 0.3244888 -2.60902973 9.232630e-03 -0.5053166
+## 30 -1.48620568 1.1365540 1.2917550 -1.30764196 1.913332e-01 -0.5053166
+## 31 -0.38649114 0.8501758 0.7227989 -0.45460144 6.495055e-01  0.2708984
+## 32 -0.38649114 0.7791130 0.6070170 -0.49606560 6.199691e-01  0.2708984
+## 33 -1.81999138 0.5873878 0.3450244 -3.09844945 2.006594e-03  0.3513210
+## 34 -1.81999138 0.9787704 0.9579915 -1.85946709 6.329151e-02  0.3513210
+## 35 -0.26050248 0.8341782 0.6958532 -0.31228638 7.548951e-01 -1.0660943
+## 36 -0.26050248 0.6535910 0.4271812 -0.39857109 6.903037e-01 -1.0660943
+## 37  0.83795401 0.5992870 0.3591449  1.39825165 1.623866e-01  0.4704527
+## 38  0.83795401 1.2639428 1.5975515  0.66296828 5.075229e-01  0.4704527
+## 39  1.15562153 0.8557505 0.7323089  1.35041875 1.772208e-01  0.3135201
+## 40  1.15562153 0.8826729 0.7791115  1.30922959 1.907904e-01  0.3135201
+##    joint.eff.se   variancej   test_statj joint.eff.pvalue effect_direction
+## 1    0.64472200 0.415666456  -2.93745286     3.309205e-03              neg
+## 2    2.08982298 4.367360079  -0.90622053     3.648191e-01              neg
+## 3    0.04062221 0.001650164 -52.66857695     0.000000e+00              neg
+## 4    0.92979130 0.864511867  -2.30106905     2.138773e-02              neg
+## 5    0.64243566 0.412723577  -3.31552666     9.147062e-04              neg
+## 6    1.85638172 3.446153098  -1.14740009     2.512163e-01              neg
+## 7    0.04101199 0.001681983 -37.99580991     0.000000e+00              neg
+## 8    0.79914355 0.638630415  -1.94994212     5.118302e-02              neg
+## 9    0.63309408 0.400808111  -4.19923147     2.678224e-05              neg
+## 10   2.87145407 8.245248449  -0.92584054     3.545289e-01              neg
+## 11   0.04089501 0.001672402 -65.84928840     0.000000e+00              neg
+## 12   0.85044585 0.723258145  -3.16646523     1.543038e-03              neg
+## 13   0.64230468 0.412555296   0.29459543     7.683030e-01              neg
+## 14   2.40937011 5.805064342   0.07853506     9.374024e-01              neg
+## 15   0.04077245 0.001662393 -24.13418108    1.094627e-128              neg
+## 16   1.16074430 1.347327319  -0.84774034     3.965826e-01              neg
+## 17   0.64448729 0.415363868   1.04808672     2.945987e-01              neg
+## 18   2.94784749 8.689804835   0.22914298     8.187578e-01              neg
+## 19   0.04085397 0.001669047  -3.45424710     5.518315e-04              neg
+## 20   0.98329839 0.966875724  -0.14351668     8.858821e-01              neg
+## 21   0.64525113 0.416349020  -2.75972204     5.785056e-03              neg
+## 22   1.56445999 2.447535054  -1.13822902     2.550249e-01              neg
+## 23   0.04094844 0.001676775 -72.13055931     0.000000e+00              neg
+## 24   0.83609432 0.699053712  -3.53265610     4.114073e-04              neg
+## 25   0.64368428 0.414329448   2.19028098     2.850387e-02              neg
+## 26   1.92018363 3.687105154   0.73422636     4.628108e-01              neg
+## 27   0.04069969 0.001656464 -31.10256897    2.223380e-212              neg
+## 28   0.87280869 0.761795013  -1.45033478     1.469652e-01              neg
+## 29   0.64524412 0.416339972  -0.78314017     4.335448e-01              neg
+## 30   1.93891071 3.759374747  -0.26061880     7.943865e-01              neg
+## 31   0.04062368 0.001650283   6.66848525     2.584570e-11              neg
+## 32   1.05480676 1.112617310   0.25682278     7.973156e-01              neg
+## 33   0.64148981 0.411509180   0.54766427     5.839225e-01              neg
+## 34   1.72740863 2.983940589   0.20338039     8.388377e-01              neg
+## 35   0.04064003 0.001651612 -26.23261622    1.128658e-151              neg
+## 36   0.85363268 0.728688751  -1.24889119     2.117049e-01              neg
+## 37   0.64829272 0.420283445   0.72567951     4.680353e-01              neg
+## 38   1.77662506 3.156396617   0.26480136     7.911625e-01              neg
+## 39   0.04069475 0.001656062   7.70419131     1.316745e-14              neg
+## 40   1.21095705 1.466416969   0.25890276     7.957103e-01              neg
+##    effect_magnitude1 effect_magnitude2 policy_speed rho years_apart ordered
+## 1          0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 2          0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 3          0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 4          0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 5          0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 6          0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 7          0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 8          0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 9          0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 10         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 11         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 12         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 13         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 14         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 15         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 16         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 17         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 18         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 19         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 20         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 21         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 22         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 23         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 24         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 25         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 26         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 27         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 28         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 29         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 30         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 31         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 32         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 33         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 34         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 35         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 36         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 37         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 38         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 39         0.6325365        -0.2530146         slow 0.5           2    TRUE
+## 40         0.6325365        -0.2530146         slow 0.5           2    TRUE
+##    n_units mean_distance min_distance max_distance n_implementation_periods
+## 1       30      771.3000          306         1645                        3
+## 2       30      771.3000          306         1645                        3
+## 3       30      771.3000          306         1645                        3
+## 4       30      771.3000          306         1645                        3
+## 5       30      824.8000          120         1553                        3
+## 6       30      824.8000          120         1553                        3
+## 7       30      824.8000          120         1553                        3
+## 8       30      824.8000          120         1553                        3
+## 9       30      798.7667          122         1371                        3
+## 10      30      798.7667          122         1371                        3
+## 11      30      798.7667          122         1371                        3
+## 12      30      798.7667          122         1371                        3
+## 13      30      850.9000          334         1611                        3
+## 14      30      850.9000          334         1611                        3
+## 15      30      850.9000          334         1611                        3
+## 16      30      850.9000          334         1611                        3
+## 17      30      868.4000           31         1338                        3
+## 18      30      868.4000           31         1338                        3
+## 19      30      868.4000           31         1338                        3
+## 20      30      868.4000           31         1338                        3
+## 21      30      941.7000          182         1826                        3
+## 22      30      941.7000          182         1826                        3
+## 23      30      941.7000          182         1826                        3
+## 24      30      941.7000          182         1826                        3
+## 25      30      891.6333          153         1703                        3
+## 26      30      891.6333          153         1703                        3
+## 27      30      891.6333          153         1703                        3
+## 28      30      891.6333          153         1703                        3
+## 29      30      859.1667          334         1308                        3
+## 30      30      859.1667          334         1308                        3
+## 31      30      859.1667          334         1308                        3
+## 32      30      859.1667          334         1308                        3
+## 33      30      906.0333          181         1492                        3
+## 34      30      906.0333          181         1492                        3
+## 35      30      906.0333          181         1492                        3
+## 36      30      906.0333          181         1492                        3
+## 37      30      890.8333          243         1581                        3
+## 38      30      890.8333          243         1581                        3
+## 39      30      890.8333          243         1581                        3
+## 40      30      890.8333          243         1581                        3
+##                model_name model_type model_call
+## 1     fixed_effect_linear        reg         lm
+## 2     fixed_effect_linear        reg         lm
+## 3  Auto-regressive linear    autoreg         lm
+## 4  Auto-regressive linear    autoreg         lm
+## 5     fixed_effect_linear        reg         lm
+## 6     fixed_effect_linear        reg         lm
+## 7  Auto-regressive linear    autoreg         lm
+## 8  Auto-regressive linear    autoreg         lm
+## 9     fixed_effect_linear        reg         lm
+## 10    fixed_effect_linear        reg         lm
+## 11 Auto-regressive linear    autoreg         lm
+## 12 Auto-regressive linear    autoreg         lm
+## 13    fixed_effect_linear        reg         lm
+## 14    fixed_effect_linear        reg         lm
+## 15 Auto-regressive linear    autoreg         lm
+## 16 Auto-regressive linear    autoreg         lm
+## 17    fixed_effect_linear        reg         lm
+## 18    fixed_effect_linear        reg         lm
+## 19 Auto-regressive linear    autoreg         lm
+## 20 Auto-regressive linear    autoreg         lm
+## 21    fixed_effect_linear        reg         lm
+## 22    fixed_effect_linear        reg         lm
+## 23 Auto-regressive linear    autoreg         lm
+## 24 Auto-regressive linear    autoreg         lm
+## 25    fixed_effect_linear        reg         lm
+## 26    fixed_effect_linear        reg         lm
+## 27 Auto-regressive linear    autoreg         lm
+## 28 Auto-regressive linear    autoreg         lm
+## 29    fixed_effect_linear        reg         lm
+## 30    fixed_effect_linear        reg         lm
+## 31 Auto-regressive linear    autoreg         lm
+## 32 Auto-regressive linear    autoreg         lm
+## 33    fixed_effect_linear        reg         lm
+## 34    fixed_effect_linear        reg         lm
+## 35 Auto-regressive linear    autoreg         lm
+## 36 Auto-regressive linear    autoreg         lm
+## 37    fixed_effect_linear        reg         lm
+## 38    fixed_effect_linear        reg         lm
+## 39 Auto-regressive linear    autoreg         lm
+## 40 Auto-regressive linear    autoreg         lm
+##                                                                                               model_formula
+## 1  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 2  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 3             crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 4             crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 5  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 6  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 7             crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 8             crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 9  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 10 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 11            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 12            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 13 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 14 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 15            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 16            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 17 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 18 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 19            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 20            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 21 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 22 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 23            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 24            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 25 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 26 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 27            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 28            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 29 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 30 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 31            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 32            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 33 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 34 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 35            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 36            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 37 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 38 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 39            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 40            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+##    iter seed
+## 1     1 9782
+## 2     1 9782
+## 3     1 9782
+## 4     1 9782
+## 5     2 9782
+## 6     2 9782
+## 7     2 9782
+## 8     2 9782
+## 9     3 9782
+## 10    3 9782
+## 11    3 9782
+## 12    3 9782
+## 13    4 9782
+## 14    4 9782
+## 15    4 9782
+## 16    4 9782
+## 17    5 9782
+## 18    5 9782
+## 19    5 9782
+## 20    5 9782
+## 21    6 9782
+## 22    6 9782
+## 23    6 9782
+## 24    6 9782
+## 25    7 9782
+## 26    7 9782
+## 27    7 9782
+## 28    7 9782
+## 29    8 9782
+## 30    8 9782
+## 31    8 9782
+## 32    8 9782
+## 33    9 9782
+## 34    9 9782
+## 35    9 9782
+## 36    9 9782
+## 37   10 9782
+## 38   10 9782
+## 39   10 9782
+## 40   10 9782
+## 
+## [[4]]
+##    se_adjustment    estimate1       se1 variance1   test_stat1     p_value1
+## 1           none -1.038582400 0.5732784 0.3286481 -1.811654488 7.037732e-02
+## 2        cluster -1.038582400 1.4707725 2.1631717 -0.706147561 4.802816e-01
+## 3           none -2.723924453 0.8733222 0.7626916 -3.119037303 1.872111e-03
+## 4        cluster -2.723924453 0.5498564 0.3023420 -4.953883680 8.686424e-07
+## 5           none -2.652973476 0.5636177 0.3176650 -4.707043987 2.914444e-06
+## 6        cluster -2.652973476 1.1850375 1.4043138 -2.238725361 2.542082e-02
+## 7           none -2.097312148 0.8533705 0.7282412 -2.457680679 1.417112e-02
+## 8        cluster -2.097312148 0.6515806 0.4245573 -3.218806692 1.333268e-03
+## 9           none  0.005376451 0.6115429 0.3739847  0.008791617 9.929874e-01
+## 10       cluster  0.005376451 1.9799785 3.9203147  0.002715409 9.978340e-01
+## 11          none -2.097061719 0.8999069 0.8098324 -2.330309742 2.000976e-02
+## 12       cluster -2.097061719 0.5672159 0.3217338 -3.697113940 2.312429e-04
+## 13          none  1.457228247 0.6236294 0.3889137  2.336689353 1.967688e-02
+## 14       cluster  1.457228247 1.6437520 2.7019207  0.886525595 3.755744e-01
+## 15          none -1.836455221 0.8531048 0.7277878 -2.152672403 3.160936e-02
+## 16       cluster -1.836455221 0.7254008 0.5262064 -2.531642030 1.152197e-02
+## 17          none -2.277410424 0.5468501 0.2990450 -4.164597508 3.423287e-05
+## 18       cluster -2.277410424 1.7790507 3.1650213 -1.280126784 2.008349e-01
+## 19          none -1.832017871 0.8767460 0.7686836 -2.089565115 3.693685e-02
+## 20       cluster -1.832017871 0.5896079 0.3476375 -3.107179842 1.948017e-03
+## 21          none -2.164231870 0.5894004 0.3473929 -3.671921084 2.551168e-04
+## 22       cluster -2.164231870 0.8830759 0.7798231 -2.450787979 1.444628e-02
+## 23          none -3.368332122 0.8480870 0.7192515 -3.971682460 7.705932e-05
+## 24       cluster -3.368332122 0.6195784 0.3838774 -5.436490764 6.999239e-08
+## 25          none -0.141695384 0.6460144 0.4173346 -0.219337820 8.264373e-01
+## 26       cluster -0.141695384 1.3860887 1.9212418 -0.102226782 9.185997e-01
+## 27          none -1.383683143 0.8493022 0.7213141 -1.629200091 1.036202e-01
+## 28       cluster -1.383683143 0.5319816 0.2830044 -2.600998127 9.447659e-03
+## 29          none  0.348352627 0.5692914 0.3240927  0.611905693 5.407568e-01
+## 30       cluster  0.348352627 1.5779459 2.4899133  0.220763353 8.253274e-01
+## 31          none  0.029587556 0.8634810 0.7455994  0.034265441 9.726731e-01
+## 32       cluster  0.029587556 0.7119935 0.5069348  0.041555934 9.668619e-01
+## 33          none  1.538775974 0.6025690 0.3630895  2.553692375 1.082477e-02
+## 34       cluster  1.538775974 1.4368269 2.0644716  1.070954296 2.844810e-01
+## 35          none -1.434250306 0.8810889 0.7763177 -1.627815608 1.039136e-01
+## 36       cluster -1.434250306 0.5490060 0.3014075 -2.612449423 9.139287e-03
+## 37          none -1.000037725 0.6057856 0.3669762 -1.650811410 9.913068e-02
+## 38       cluster -1.000037725 1.2611758 1.5905645 -0.792940762 4.280241e-01
+## 39          none -1.470190652 0.8400696 0.7057170 -1.750081921 8.044457e-02
+## 40       cluster -1.470190652 0.8293681 0.6878515 -1.772663559 7.662231e-02
+##      estimate2       se2 variance2  test_stat2     p_value2   joint.eff
+## 1  -1.48779454 0.6055876 0.3667364 -2.45677826 1.420928e-02 -2.52637694
+## 2  -1.48779454 1.4840459 2.2023923 -1.00252594 3.163627e-01 -2.52637694
+## 3  -0.02811487 0.8898001 0.7917443 -0.03159684 9.748006e-01 -2.75203932
+## 4  -0.02811487 0.7510892 0.5641349 -0.03743213 9.701487e-01 -2.75203932
+## 5  -0.10957554 0.5595108 0.3130524 -0.19584168 8.447789e-01 -2.76254902
+## 6  -0.10957554 1.4440346 2.0852360 -0.07588152 9.395305e-01 -2.76254902
+## 7  -0.06350281 0.8624622 0.7438411 -0.07362968 9.413214e-01 -2.16081496
+## 8  -0.06350281 0.4645214 0.2157801 -0.13670590 8.912938e-01 -2.16081496
+## 9  -3.29642148 0.6042220 0.3650843 -5.45564585 6.329878e-08 -3.29104503
+## 10 -3.29642148 2.0691212 4.2812624 -1.59315052 1.114823e-01 -3.29104503
+## 11 -1.20628637 0.8817804 0.7775367 -1.36801221 1.716493e-01 -3.30334809
+## 12 -1.20628637 0.6352705 0.4035686 -1.89885481 5.790280e-02 -3.30334809
+## 13 -1.90054468 0.6338680 0.4017886 -2.99832901 2.790318e-03 -0.44331644
+## 14 -1.90054468 1.7704002 3.1343168 -1.07351134 2.833334e-01 -0.44331644
+## 15  0.23633098 0.8524053 0.7265948  0.27725189 7.816503e-01 -1.60012424
+## 16  0.23633098 0.9119560 0.8316637  0.25914736 7.955807e-01 -1.60012424
+## 17  2.32035254 0.5897632 0.3478207  3.93437987 8.992094e-05  0.04294211
+## 18  2.32035254 2.3486724 5.5162620  0.98794219 3.234501e-01  0.04294211
+## 19  1.07732675 0.8748486 0.7653601  1.23144361 2.184783e-01 -0.75469112
+## 20  1.07732675 0.7887675 0.6221542  1.36583562 1.723314e-01 -0.75469112
+## 21 -0.24901835 0.5641781 0.3182969 -0.44138251 6.590435e-01 -2.41325022
+## 22 -0.24901835 1.2942078 1.6749739 -0.19240986 8.474652e-01 -2.41325022
+## 23 -0.20287437 0.8500848 0.7226442 -0.23865191 8.114298e-01 -3.57120649
+## 24 -0.20287437 0.5624986 0.3164047 -0.36066643 7.184334e-01 -3.57120649
+## 25  0.91900835 0.6228260 0.3879122  1.47554599 1.404203e-01  0.77731297
+## 26  0.91900835 1.3403888 1.7966421  0.68562821 4.931265e-01  0.77731297
+## 27 -0.50086835 0.8395448 0.7048355 -0.59659513 5.509276e-01 -1.88455149
+## 28 -0.50086835 0.6881556 0.4735581 -0.72784171 4.668996e-01 -1.88455149
+## 29 -1.48620568 0.5696392 0.3244888 -2.60902973 9.232630e-03 -1.13785305
+## 30 -1.48620568 1.1365540 1.2917550 -1.30764196 1.913332e-01 -1.13785305
+## 31 -0.37326794 0.8501249 0.7227124 -0.43907423 6.607130e-01 -0.34368039
+## 32 -0.37326794 0.7819616 0.6114640 -0.47734815 6.332300e-01 -0.34368039
+## 33 -1.81999138 0.5873878 0.3450244 -3.09844945 2.006594e-03 -0.28121541
+## 34 -1.81999138 0.9787704 0.9579915 -1.85946709 6.329151e-02 -0.28121541
+## 35 -0.25128787 0.8341553 0.6958151 -0.30124830 7.632947e-01 -1.68553818
+## 36 -0.25128787 0.6547928 0.4287536 -0.38376700 7.012417e-01 -1.68553818
+## 37  0.83795401 0.5992870 0.3591449  1.39825165 1.623866e-01 -0.16208372
+## 38  0.83795401 1.2639428 1.5975515  0.66296828 5.075229e-01 -0.16208372
+## 39  1.16584590 0.8557346 0.7322817  1.36239188 1.734147e-01 -0.30434476
+## 40  1.16584590 0.8831540 0.7799609  1.32009360 1.871390e-01 -0.30434476
+##    joint.eff.se   variancej   test_statj joint.eff.pvalue effect_direction
+## 1    0.64472200 0.415666456  -3.91855240     8.908236e-05              neg
+## 2    2.08982298 4.367360079  -1.20889519     2.267031e-01              neg
+## 3    0.04053769 0.001643304 -67.88840851     0.000000e+00              neg
+## 4    0.93058276 0.865984267  -2.95732894     3.103169e-03              neg
+## 5    0.64243566 0.412723577  -4.30011780     1.707073e-05              neg
+## 6    1.85638172 3.446153098  -1.48813629     1.367150e-01              neg
+## 7    0.04083908 0.001667830 -52.91047519     0.000000e+00              neg
+## 8    0.79994194 0.639907103  -2.70121475     6.908671e-03              neg
+## 9    0.63309408 0.400808111  -5.19835069     2.010645e-07              neg
+## 10   2.87145407 8.245248449  -1.14612491     2.517435e-01              neg
+## 11   0.04081170 0.001665594 -80.94121263     0.000000e+00              neg
+## 12   0.85136711 0.724825956  -3.88005134     1.044344e-04              neg
+## 13   0.64230468 0.412555296  -0.69019650     4.900706e-01              neg
+## 14   2.40937011 5.805064342  -0.18399682     8.540160e-01              neg
+## 15   0.04072213 0.001658292 -39.29372462     0.000000e+00              neg
+## 16   1.16508076 1.357413171  -1.37340200     1.696274e-01              neg
+## 17   0.64448729 0.415363868   0.06662988     9.468764e-01              neg
+## 18   2.94784749 8.689804835   0.01456728     9.883774e-01              neg
+## 19   0.04077425 0.001662540 -18.50901123     1.746776e-76              neg
+## 20   0.98455988 0.969358160  -0.76652638     4.433632e-01              neg
+## 21   0.64525113 0.416349020  -3.74001704     1.840078e-04              neg
+## 22   1.56445999 2.447535054  -1.54254518     1.229412e-01              neg
+## 23   0.04078861 0.001663711 -87.55401165     0.000000e+00              neg
+## 24   0.83653756 0.699795089  -4.26903305     1.963222e-05              neg
+## 25   0.64368428 0.414329448   1.20759975     2.272013e-01              neg
+## 26   1.92018363 3.687105154   0.40481179     6.856159e-01              neg
+## 27   0.04066583 0.001653710 -46.34238646     0.000000e+00              neg
+## 28   0.86954048 0.756100652  -2.16729586     3.021230e-02              neg
+## 29   0.64524412 0.416339972  -1.76344583     7.782533e-02              neg
+## 30   1.93891071 3.759374747  -0.58685170     5.573033e-01              neg
+## 31   0.04049241 0.001639635  -8.48752566     2.110831e-17              neg
+## 32   1.05732368 1.117933360  -0.32504747     7.451451e-01              neg
+## 33   0.64148981 0.411509180  -0.43837861     6.611119e-01              neg
+## 34   1.72740863 2.983940589  -0.16279611     8.706790e-01              neg
+## 35   0.04050651 0.001640777 -41.61153967     0.000000e+00              neg
+## 36   0.85418284 0.729628324  -1.97327562     4.846417e-02              neg
+## 37   0.64829272 0.420283445  -0.25001626     8.025748e-01              neg
+## 38   1.77662506 3.156396617  -0.09123125     9.273088e-01              neg
+## 39   0.04059384 0.001647860  -7.49731368     6.513897e-14              neg
+## 40   1.21134205 1.467349570  -0.25124593     8.016240e-01              neg
+##    effect_magnitude1 effect_magnitude2 policy_speed rho years_apart ordered
+## 1           1.265073        -0.2530146         slow 0.5           2    TRUE
+## 2           1.265073        -0.2530146         slow 0.5           2    TRUE
+## 3           1.265073        -0.2530146         slow 0.5           2    TRUE
+## 4           1.265073        -0.2530146         slow 0.5           2    TRUE
+## 5           1.265073        -0.2530146         slow 0.5           2    TRUE
+## 6           1.265073        -0.2530146         slow 0.5           2    TRUE
+## 7           1.265073        -0.2530146         slow 0.5           2    TRUE
+## 8           1.265073        -0.2530146         slow 0.5           2    TRUE
+## 9           1.265073        -0.2530146         slow 0.5           2    TRUE
+## 10          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 11          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 12          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 13          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 14          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 15          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 16          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 17          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 18          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 19          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 20          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 21          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 22          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 23          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 24          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 25          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 26          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 27          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 28          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 29          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 30          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 31          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 32          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 33          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 34          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 35          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 36          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 37          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 38          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 39          1.265073        -0.2530146         slow 0.5           2    TRUE
+## 40          1.265073        -0.2530146         slow 0.5           2    TRUE
+##    n_units mean_distance min_distance max_distance n_implementation_periods
+## 1       30      771.3000          306         1645                        3
+## 2       30      771.3000          306         1645                        3
+## 3       30      771.3000          306         1645                        3
+## 4       30      771.3000          306         1645                        3
+## 5       30      824.8000          120         1553                        3
+## 6       30      824.8000          120         1553                        3
+## 7       30      824.8000          120         1553                        3
+## 8       30      824.8000          120         1553                        3
+## 9       30      798.7667          122         1371                        3
+## 10      30      798.7667          122         1371                        3
+## 11      30      798.7667          122         1371                        3
+## 12      30      798.7667          122         1371                        3
+## 13      30      850.9000          334         1611                        3
+## 14      30      850.9000          334         1611                        3
+## 15      30      850.9000          334         1611                        3
+## 16      30      850.9000          334         1611                        3
+## 17      30      868.4000           31         1338                        3
+## 18      30      868.4000           31         1338                        3
+## 19      30      868.4000           31         1338                        3
+## 20      30      868.4000           31         1338                        3
+## 21      30      941.7000          182         1826                        3
+## 22      30      941.7000          182         1826                        3
+## 23      30      941.7000          182         1826                        3
+## 24      30      941.7000          182         1826                        3
+## 25      30      891.6333          153         1703                        3
+## 26      30      891.6333          153         1703                        3
+## 27      30      891.6333          153         1703                        3
+## 28      30      891.6333          153         1703                        3
+## 29      30      859.1667          334         1308                        3
+## 30      30      859.1667          334         1308                        3
+## 31      30      859.1667          334         1308                        3
+## 32      30      859.1667          334         1308                        3
+## 33      30      906.0333          181         1492                        3
+## 34      30      906.0333          181         1492                        3
+## 35      30      906.0333          181         1492                        3
+## 36      30      906.0333          181         1492                        3
+## 37      30      890.8333          243         1581                        3
+## 38      30      890.8333          243         1581                        3
+## 39      30      890.8333          243         1581                        3
+## 40      30      890.8333          243         1581                        3
+##                model_name model_type model_call
+## 1     fixed_effect_linear        reg         lm
+## 2     fixed_effect_linear        reg         lm
+## 3  Auto-regressive linear    autoreg         lm
+## 4  Auto-regressive linear    autoreg         lm
+## 5     fixed_effect_linear        reg         lm
+## 6     fixed_effect_linear        reg         lm
+## 7  Auto-regressive linear    autoreg         lm
+## 8  Auto-regressive linear    autoreg         lm
+## 9     fixed_effect_linear        reg         lm
+## 10    fixed_effect_linear        reg         lm
+## 11 Auto-regressive linear    autoreg         lm
+## 12 Auto-regressive linear    autoreg         lm
+## 13    fixed_effect_linear        reg         lm
+## 14    fixed_effect_linear        reg         lm
+## 15 Auto-regressive linear    autoreg         lm
+## 16 Auto-regressive linear    autoreg         lm
+## 17    fixed_effect_linear        reg         lm
+## 18    fixed_effect_linear        reg         lm
+## 19 Auto-regressive linear    autoreg         lm
+## 20 Auto-regressive linear    autoreg         lm
+## 21    fixed_effect_linear        reg         lm
+## 22    fixed_effect_linear        reg         lm
+## 23 Auto-regressive linear    autoreg         lm
+## 24 Auto-regressive linear    autoreg         lm
+## 25    fixed_effect_linear        reg         lm
+## 26    fixed_effect_linear        reg         lm
+## 27 Auto-regressive linear    autoreg         lm
+## 28 Auto-regressive linear    autoreg         lm
+## 29    fixed_effect_linear        reg         lm
+## 30    fixed_effect_linear        reg         lm
+## 31 Auto-regressive linear    autoreg         lm
+## 32 Auto-regressive linear    autoreg         lm
+## 33    fixed_effect_linear        reg         lm
+## 34    fixed_effect_linear        reg         lm
+## 35 Auto-regressive linear    autoreg         lm
+## 36 Auto-regressive linear    autoreg         lm
+## 37    fixed_effect_linear        reg         lm
+## 38    fixed_effect_linear        reg         lm
+## 39 Auto-regressive linear    autoreg         lm
+## 40 Auto-regressive linear    autoreg         lm
+##                                                                                               model_formula
+## 1  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 2  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 3             crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 4             crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 5  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 6  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 7             crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 8             crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 9  crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 10 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 11            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 12            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 13 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 14 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 15            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 16            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 17 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 18 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 19            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 20            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 21 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 22 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 23            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 24            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 25 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 26 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 27            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 28            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 29 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 30 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 31            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 32            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 33 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 34 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 35            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 36            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 37 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 38 crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level
+## 39            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+## 40            crude.rate ~ unemploymentrate + year + treatment1_change + treatment2_change + lag_crude.rate
+##    iter seed
+## 1     1 9782
+## 2     1 9782
+## 3     1 9782
+## 4     1 9782
+## 5     2 9782
+## 6     2 9782
+## 7     2 9782
+## 8     2 9782
+## 9     3 9782
+## 10    3 9782
+## 11    3 9782
+## 12    3 9782
+## 13    4 9782
+## 14    4 9782
+## 15    4 9782
+## 16    4 9782
+## 17    5 9782
+## 18    5 9782
+## 19    5 9782
+## 20    5 9782
+## 21    6 9782
+## 22    6 9782
+## 23    6 9782
+## 24    6 9782
+## 25    7 9782
+## 26    7 9782
+## 27    7 9782
+## 28    7 9782
+## 29    8 9782
+## 30    8 9782
+## 31    8 9782
+## 32    8 9782
+## 33    9 9782
+## 34    9 9782
+## 35    9 9782
+## 36    9 9782
+## 37   10 9782
+## 38   10 9782
+## 39   10 9782
+## 40   10 9782
+\end{verbatim}
+
+We can use the results table to analyze the relative performance of
+models across data scenarios or create test statistics as needed for an
+analysis. For example, we might be interested in comparing relative bias
+across the policy-1 point estimate, for the linear fixed-effect model
+against the autoregressive linear model, in the scenario where the
+effect of policy implementation is immediate and decreases the
+crude.rate by 5\%:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Compare point estimates across models for the 5\% change}
+\CommentTok{\# scenario, with instantaneous policy adoption:}
+\NormalTok{df\_compare \textless{}{-}}\StringTok{ }\NormalTok{results[[}\DecValTok{1}\NormalTok{]][results[[}\DecValTok{1}\NormalTok{]]}\OperatorTok{$}\NormalTok{se\_adjustment }\OperatorTok{==}\StringTok{ "cluster"}\NormalTok{,}
+\NormalTok{    ]}
+
+\NormalTok{true\_est \textless{}{-}}\StringTok{ }\OperatorTok{{-}}\NormalTok{five\_percent\_effect}
+
+\NormalTok{mod1\_pred \textless{}{-}}\StringTok{ }\KeywordTok{mean}\NormalTok{(df\_compare[df\_compare}\OperatorTok{$}\NormalTok{model\_name }\OperatorTok{==}\StringTok{ "fixed\_effect\_linear"}\NormalTok{,}
+\NormalTok{    ]}\OperatorTok{$}\NormalTok{estimate1)}
+\NormalTok{mod2\_pred \textless{}{-}}\StringTok{ }\KeywordTok{mean}\NormalTok{(df\_compare[df\_compare}\OperatorTok{$}\NormalTok{model\_name }\OperatorTok{==}\StringTok{ "Auto{-}regressive linear"}\NormalTok{,}
+\NormalTok{    ]}\OperatorTok{$}\NormalTok{estimate1)}
+
+\KeywordTok{print}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"True effect size: "}\NormalTok{, }\KeywordTok{round}\NormalTok{(true\_est, }\DecValTok{2}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "True effect size: -0.63"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{print}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"FE LM effect: "}\NormalTok{, }\KeywordTok{round}\NormalTok{(mod1\_pred, }\DecValTok{2}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "FE LM effect: -0.38"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{print}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"AR LM effect: "}\NormalTok{, }\KeywordTok{round}\NormalTok{(mod2\_pred, }\DecValTok{2}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "AR LM effect: -1.06"
+\end{verbatim}
+
+From the above output, we can see the fixed effect model is
+underestimating the true effect size for this scenario while the
+auto-regressive model is overestimating the effect size.
+
+\hypertarget{bibliography}{%
+\paragraph*{Bibliography}\label{bibliography}}
+\addcontentsline{toc}{paragraph}{Bibliography}
+
+\hypertarget{refs}{}
+\begin{cslreferences}
+\leavevmode\hypertarget{ref-http:ux2fux2fzotero.orgux2fusersux2f3390799ux2fitemsux2fZNCVTPJF}{}%
+1 Griffin BA, Schuler MS, Stuart EA \emph{et al.} Moving beyond the
+classic difference-in-differences model: a simulation study comparing
+statistical methods for estimating effectiveness of state-level
+policies. \emph{BMC Medical Research Methodology} 2021; \textbf{21}:
+279.
+
+\leavevmode\hypertarget{ref-http:ux2fux2fzotero.orgux2fusersux2f3390799ux2fitemsux2fV3Q6ARUA}{}%
+2 Griffin BA, Schuler MS, Pane J \emph{et al.} Methodological
+considerations for estimating policy effects in the context of
+co-occurring policies. \emph{Health Serv Outcomes Res Method} 2022;
+published online July 9.
+DOI:\href{https://doi.org/10.1007/s10742-022-00284-w}{10.1007/s10742-022-00284-w}.
+\end{cslreferences}
+
+\end{document}
