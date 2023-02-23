@@ -14,6 +14,8 @@ optic_simulation(
   n_units,
   effect_direction,
   policy_speed,
+  prior_control,
+  treat_var,
   n_implementation_periods,
   rhos,
   years_apart,
@@ -47,6 +49,10 @@ The elements must be created using the `optic_model` function.}
 \item{effect_direction}{character vector containing the effects direction to consider. can include "null", "pos" and/or "neg"}
 
 \item{policy_speed}{document. either "instant" or "slow"}
+
+\item{prior_control}{character(n) document. apparently only used for no_confounding}
+
+\item{treat_var}{character(1). document. apparently only used for no_confounding.}
 
 \item{n_implementation_periods}{document}
 

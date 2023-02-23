@@ -6,7 +6,7 @@
 # See README.md for information on usage and licensing
 #------------------------------------------------------------------------------#
 
-# Testing the base case of the package:
+# Testing an example of the concurrent method.
 
 data(overdoses)
 x <- overdoses
@@ -79,10 +79,10 @@ concurrent_results_list <- dispatch_simulations(
 
 concurrent_results <- do.call(rbind, concurrent_results_list) %>% as.data.frame()
 
-test_that("simulation results seem sensible", {
+test_that("concurrent simulations work", {
   
   expect_type(concurrent_results_list, "list")
-
+  
   expect_false(any(is.na(concurrent_results)))
   
 })
