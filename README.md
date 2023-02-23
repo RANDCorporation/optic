@@ -13,7 +13,6 @@ Coverage](https://github.com/optic-tools/optic/workflows/test-coverage/badge.svg
 [![codecov](https://codecov.io/gh/optic-tools/optic/branch/develop/graph/badge.svg?token=5XYDOFFJMH)](https://codecov.io/gh/optic-tools/optic)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-[![R-CMD-check](https://github.com/optic-tools/optic/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/optic-tools/optic/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The `optic` package helps you scrutinize candidate causal inference
