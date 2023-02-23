@@ -17,7 +17,7 @@
 #'     be run in parallel.
 #' @param failure It is uncleear what this does. Max or Beth, do you happen to know the story behind this parameter?
 #' @param verbose Default TRUE. IF TRUE, provides details on what's currently running.
-#' @param ... additional parameters to be passed to future_apply.
+#' @param ... additional parameters to be passed to future_apply. User can pass future.globals and future.packages if your code relies on additrional packages
 #' 
 #' @importFrom future.apply future_lapply
 #' @importFrom stats simulate
