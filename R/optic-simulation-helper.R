@@ -54,12 +54,13 @@
 #' 
 optic_simulation <- function(x, models, iters,
                              unit_var, time_var, 
-                             effect_magnitude, n_units, 
+                             effect_magnitude, 
+                             n_units, 
                              effect_direction, 
                              policy_speed, 
-                             n_implementation_periods,
                              prior_control,
                              treat_var,
+                             n_implementation_periods,
                              rhos, years_apart, ordered,
                              method,
                              method_sample, method_model, method_results,     
@@ -178,7 +179,7 @@ optic_simulation <- function(x, models, iters,
   stopifnot(is.numeric(n_units))
   stopifnot(all(effect_direction %in% c("null", "neg", "pos")))
   stopifnot(all(policy_speed %in% c("instant", "slow")))
-  #stopifnot(is.numeric(n_implementation_periods))
+  stopifnot(is.numeric(n_implementation_periods))
   
   # Crete list with mandatory parameters
   params <- list(unit_var = unit_var,
@@ -209,6 +210,8 @@ optic_simulation <- function(x, models, iters,
   if(!missing(treat_var)) {
     params$treat_var <- treat_var
   }
+  
+  dput(params)
   
   ###
   # create a OpticSim object

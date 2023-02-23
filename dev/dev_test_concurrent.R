@@ -1,5 +1,5 @@
 
-#devtools::document()
+devtools::document()
 #devtools::build_manual()
 devtools::load_all()
 
