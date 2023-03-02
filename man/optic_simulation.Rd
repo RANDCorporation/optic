@@ -14,7 +14,9 @@ optic_simulation(
   n_units,
   effect_direction,
   policy_speed,
-  prior_control,
+  prior_control = "mva3",
+  bias_size,
+  bias_type,
   treat_var,
   n_implementation_periods,
   rhos,
@@ -51,6 +53,10 @@ The elements must be created using the `optic_model` function.}
 \item{policy_speed}{document. either "instant" or "slow"}
 
 \item{prior_control}{character(n) document. apparently only used for no_confounding}
+
+\item{bias_size}{document. Either "small" "medium" or "large".}
+
+\item{bias_type}{document. Either linear" or "nonlinear".}
 
 \item{treat_var}{character(1). document. apparently only used for no_confounding.}
 
