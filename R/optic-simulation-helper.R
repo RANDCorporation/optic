@@ -70,6 +70,7 @@ optic_simulation <- function(x, models, iters,
                              method_sample, method_model, method_results,     
                              method_pre_model, method_post_model, 
                              globals=NULL, verbose=TRUE) {
+
   ###
   # VALIDATION
   ###
@@ -220,10 +221,20 @@ optic_simulation <- function(x, models, iters,
     params$treat_var <- treat_var
   }
   
+  # Compute prior_control variables:
+  first_model_outcome <- get_model_outcome(models[[1]])
+  
+  x <- compute_prior_controls(data = x,
+                              unit_var = params$unit_var,
+                              time_var = params$time_var,
+                              outcome_var = first_model_outcome)
+  
   ###
   # create a OpticSim object
   # It is difficult to 
   ###
+  
+  
   conf <- OpticSim$new(
     data=x,
     models=models,

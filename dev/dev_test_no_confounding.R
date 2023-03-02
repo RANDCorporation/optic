@@ -1,32 +1,14 @@
 
-
 devtools::load_all()
 # library(optic)
+library(tictoc)
 
 data(overdoses)
 
-# Test Based on an old README file left by Adam
-# Not sure this is the best example but it works
-
-modified_data <- overdoses %>%
-                    arrange(state, year) %>%
-                      group_by(state) %>%
-                      mutate(lag1 = lag(opioid_rx, n=1L),
-                             lag2 = lag(opioid_rx, n=2L),
-                             lag3 = lag(opioid_rx, n=3L)) %>%
-                      ungroup() %>%
-                      rowwise() %>%
-                      # code in moving average and trend versions of prior control
-                      mutate(prior_control_mva3_OLD = mean(c(lag1, lag2, lag3)),
-                             prior_control_trend_OLD = lag1 - lag3) %>%
-                      ungroup() %>%
-                      dplyr::select(-lag1, -lag2, -lag3) %>%
-                      mutate(state = factor(as.character(state)))
-
 linear0 <- 0
-linear5 <- .05*mean(modified_data$opioid_rx, na.rm=T)
-linear15 <- .15*mean(modified_data$opioid_rx, na.rm=T)
-linear25 <- .25*mean(modified_data$opioid_rx, na.rm=T)
+linear5 <- .05*mean(overdoses$opioid_rx, na.rm=T)
+linear15 <- .15*mean(overdoses$opioid_rx, na.rm=T)
+linear25 <- .25*mean(overdoses$opioid_rx, na.rm=T)
 
 
 fixedeff_linear <- optic_model(
@@ -41,7 +23,7 @@ fixedeff_linear <- optic_model(
 
 no_confounding_fe_config <- optic_simulation(
   # data and models required
-  x=modified_data,
+  x=overdoses,
   models=list(fixedeff_linear),
   # iterations
   iters=50, # 5000
@@ -60,14 +42,16 @@ no_confounding_fe_config <- optic_simulation(
 )
 
 
+tic()
 no_confounding_results <- dispatch_simulations(
   no_confounding_fe_config,
-  use_future=F,
+  use_future=T,
   seed=9782,
   verbose=2,
   future.globals=c("cluster_adjust_se"),
   future.packages=c("MASS", "dplyr", "optic")
 )
+toc()
 
 no_confounding_results_df <- do.call(rbind, no_confounding_results) %>% as.data.frame()
 
