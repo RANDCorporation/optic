@@ -26,6 +26,8 @@
 #' @param effect_direction character vector containing the effects direction to consider. can include "null", "pos" and/or "neg"
 #' @param policy_speed document. either "instant" or "slow"
 #' @param prior_control character(n) document. apparently only used for no_confounding
+#' @param bias_type document. Either linear" or "nonlinear".
+#' @param bias_size document. Either "small" "medium" or "large".
 #' @param treat_var character(1). document. apparently only used for no_confounding.
 #' @param n_implementation_periods document
 #' @param rhos document
@@ -58,7 +60,9 @@ optic_simulation <- function(x, models, iters,
                              n_units, 
                              effect_direction, 
                              policy_speed, 
-                             prior_control,
+                             prior_control = "mva3", # mva3 should be levels
+                             bias_size,
+                             bias_type,
                              treat_var,
                              n_implementation_periods,
                              rhos, years_apart, ordered,
@@ -113,6 +117,10 @@ optic_simulation <- function(x, models, iters,
     d_method_post_model = noconf_postmodel
     d_method_results = noconf_results
   } else if (method == "confounding") {
+    stopifnot(prior_control %in% c("mva3", "trend"))
+    # Note: Add these new parameters when incorporating the confounding runs.
+    stopifnot(bias_type %in% c("linear","nonlinear"))
+    stopifnot(bias_size %in% c("small","medium","large"))
     #stop("Confounding is currently not implemented.")
     # Here, assign confounding methods once they are implemented
     # Uncomment once we bring the confounding code to the package.
