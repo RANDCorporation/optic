@@ -221,6 +221,14 @@ optic_simulation <- function(x, models, iters,
     params$treat_var <- treat_var
   }
   
+  if(!missing(bias_size)) {
+    params$bias_size <- bias_size
+  }
+  
+  if(!missing(bias_type)) {
+    params$bias_type <- bias_type
+  }
+  
   # Compute prior_control variables:
   first_model_outcome <- get_model_outcome(models[[1]])
   
