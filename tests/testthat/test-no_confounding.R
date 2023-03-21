@@ -22,8 +22,8 @@ fixedeff_linear <- optic_model(
   type="reg",
   call="lm",
   formula=opioid_rx ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state),
-  weights=as.name("population"),
-  se_adjust=c("none", "cluster")
+  weights= as.name("population"),
+  se_adjust=c("none", "cluster-unit", "cluster-treat", "huber", "arellano")
 )
 
 
@@ -39,8 +39,8 @@ linear_fe_config <- optic_simulation(
   effect_magnitude=list(linear0, linear5),
   n_units= c(5),
   effect_direction=c("neg"),
-  policy_speed=list("instant"),
-  n_implementation_periods=c(0), 
+  policy_speed=list("instant", "slow"),
+  n_implementation_periods=c(3, 10), 
   prior_control=c("mva3", "trend")
 )
 

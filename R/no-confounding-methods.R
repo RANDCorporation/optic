@@ -109,7 +109,7 @@ noconf_sample <- function(single_simulation) {
       treated[[current_unit]] <- list(
         policy_years = yr:max(x$year, na.rm=TRUE),
         policy_month = mo,
-        exposure = optic::calculate_exposure(mo, number_implementation_years),
+        exposure = optic::calculate_exposure(mo, n_implementation_periods),
         policy_date = as.Date(paste0(yr, '-', mo, '-01'))
       )
       
@@ -429,6 +429,7 @@ noconf_postmodel <- function(model_simulation) {
       stringsAsFactors=FALSE
     )
   }
+  
   if(model_simulation$models$model_call=="feols"){
     model <- model_simulation$models
     x <- model_simulation$data

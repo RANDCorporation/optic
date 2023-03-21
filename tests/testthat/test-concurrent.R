@@ -58,7 +58,7 @@ concurrent_optic_sim <- optic_simulation(
   time_var="year",
   effect_magnitude=list(scenario1, scenario2),
   n_units=c(10),
-  effect_direction=c("null", "neg", "pos"),
+  effect_direction=c("neg", "pos"),
   policy_speed=c("instant", "slow"),
   n_implementation_periods=c(3),
   rhos=c(0, 0.5, 0.9),

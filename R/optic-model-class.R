@@ -23,8 +23,7 @@
 #'
 optic_model <- function(name, type,call, formula, se_adjust, ...) {
   
-  # TODO: perform any needed type conversion here
-  validate_optic_model(new_optic_model(name, type, call, formula, se_adjust, ...))
+  validate_optic_model(new_optic_model(name = name, type = type, call = call, formula = formula, se_adjust = se_adjust, ...))
 
 }
 
