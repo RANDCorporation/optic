@@ -199,28 +199,14 @@ Below provides an example of a model list using the `example_data`:
 
 ```{r}
 
-# Specify three different estimators: Linear fixed-effect w/ and without 
-# covariates, along with a linear model using ar-terms and no fixed-effects.
-
-lm_fe_unadj <- optic_model(
-    name = "fixed_effect_linear_unadjusted",
-    type = "reg",
-    call = "lm",
-    formula = crude.rate ~ as.factor(year) + as.factor(state) + treatment1_level + treatment2_level,
-    args=list(weights = as.name('population')),
-    se_adjust = "cluster"
-)
-
-
-lm_fe_adj <- optic_model(
-    name = "fixed_effect_linear_unadjusted",
+lm_fe <- optic_model(
+    name = "fixed_effect_linear",
     type = "reg",
     call = "lm",
     formula = crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level,
     args=list(weights = as.name('population')),
     se_adjust = "cluster"
 )
-
   
 lm_ar <- optic_model(
     name = "Auto-regressive linear",
@@ -231,7 +217,7 @@ lm_ar <- optic_model(
     se_adjust = "cluster"
 )
 
-sim_models <- list(lm_fe_unadj, lm_fe_adj, lm_ar)
+sim_models <- list(lm_fe, lm_ar)
 
 ```
 
@@ -302,19 +288,23 @@ of `configure_simulation` is displayed below:
 
 ```{r}
 
-sim_config_noconfound <- optic_simulation(
+sim_config <- optic_simulation(
   
   x      = overdoses,
   models = sim_models,
   iters  = 10,
-  method = "no_confounding",
+  method = "concurrent",
 
   unit_var                 = "state",
   time_var                 = "year",
-  effect_magnitude         = scenarios_no_confounding,
+  effect_magnitude         = scenarios_co_occur,
   n_units                  = c(30),
   effect_direction         = c("neg"),
-  policy_speed             = c("instant", "slow")
+  policy_speed             = c("instant", "slow"),
+  n_implementation_periods = c(3),
+  rhos                     = c(0.5),
+  years_apart              = 2,
+  ordered                  = TRUE
 
 )
 

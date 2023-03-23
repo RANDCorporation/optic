@@ -18,36 +18,22 @@
 #' @param x Empirical data used to simulate synthetic datasets with specified treatment effect.
 #' @param models List of `optic_model` objects that should be run for each iteration and simulation scenario.
 #'     The elements must be created using the `optic_model` function.
-#' @param iters Number of iterations for each simulation scenario.
-#' @param unit_var char(1) variable specifying the unit to be simulate (i.e., "state")
-#' @param time_var char(1) variable specifying the time variable (i.e., "year")
-#' @param effect_magnitude document. list of scenarios to consider
-#' @param n_units integer. document.
-#' @param effect_direction character vector containing the effects direction to consider. can include "null", "pos" and/or "neg"
-#' @param policy_speed document. either "instant" or "slow"
-#' @param prior_control character(n) document. apparently only used for no_confounding
-#' @param bias_type document. Either linear" or "nonlinear".
-#' @param bias_size document. Either "small" "medium" or "large".
-#' @param treat_var character(1). document. apparently only used for no_confounding.
-#' @param n_implementation_periods document
-#' @param rhos document
-#' @param years_apart document
-#' @param ordered boolean. document
-#' @param method character. either no_confounding, confounding or concurrent
-#' @param method_sample function for sampling treated units, should modify the
-#'     single_simulation$data object
-#' @param method_pre_model optional function that will be applied single_simulation
-#'     object prior to modeling
-#' @param method_model function to run model, default performs a do.call on the 
-#'     model_call, passing model_formula and model_args if provided. Resulting 
-#'     model object is added to single_simulation list under named element
-#'     "model_result"
-#' @param method_post_model optional function for any post-processing on 
-#'     single_simulation object
-#' @param method_results function that takes the single_simulation object and
-#'     the return value is what it returned from run_iteration
-#' @param verbose Default True. If TRUE, provides summary details on simulation runs across iterations
-#' @param globals Additional globals to pass to the simulate function, such as parallelization packages or additional R packages used by method calls.
+#' @param iters A numeric, specifying number of iterations for each simulation scenario.
+#' @param unit_var A string variable, specifying the unit-of-analysis within the dataset. Used to determine clusters for clustered standard errors.
+#' @param time_var A string variable, specifying time units (e.g. "year", "time to treat", etc)
+#' @param effect_magnitude A vector of numerics, specifying 'true' effect sizes for treatment scenarios. See vignette for more details. Synthetic datasets will be generated for each entry in the vector.
+#' @param n_units  A numeric, determining number of units to simulate treatment effects. Synthetic datasets will be generated for each entry in the vector.
+#' @param effect_direction A vector containing either 'neg', 'null', or 'pos'. Determines the direction of the simulated effect. Synthetic datasets will be generated for each entry in the vector. 
+#' @param policy_speed A vector of strings, containing either 'instant' or 'slow' entries, determining how quickly treated units obtain the simulated effect. Synthetic datasets will be generated for each entry in the vector. Can either be 'instant" (so treatment effect applies fully in the first treated time period) or 'slow' (treatment effect ramps up linearly to the desired effect size, based on `n_implementation_periods`.
+#' @param bias_type A string, either linear" or "nonlinear". Specifies type of bias for 'selection-bias' method 
+#' @param bias_size A string, either "small" "medium" or "large". Specifies relative size of bias for 'selection-bias' method. 
+#' @param n_implementation_periods A vector of numerics, determing number of periods after implementation until treated units reach the desired simulated treatment effect. Synthetic datasets will be generated for each entry in the vector.
+#' @param rhos A vector of values between 0-1, indicating the correlation betweenthe primary policy and a confounding policy. Only applies when 'method' == 'confounding'. Synthetic datasets will be generated for each entry in the vector.
+#' @param years_apart A numeric, for number of years between the primary policy being implemented and the confounding policy. Only applies when 'method' == 'confounding'.
+#' @param ordered A boolean, determines if the primary policy always occurs before the confounding policy (`TRUE`) or if the policies are randomly ordered (`FALSE`).
+#' @param method A string, determing the simulation method. Can be either 'no_confounding', 'confounding' or 'concurrent'
+#' @param verbose Boolean, default True. If TRUE, provides summary details on simulation runs across iterations
+#' @param globals Additional globals to pass to the simulate function, such as parallelization packages or additional R packages used by method calls (e.g. modeling packages, like "FEOLS").
 #' 
 #' @export
 #' 
