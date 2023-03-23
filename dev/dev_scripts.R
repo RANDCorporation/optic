@@ -10,6 +10,8 @@ devtools::test()
 
 devtools::build_manual()
 
+devtools::build_vignettes()
+
 # ascciicast 
 
 library(asciicast)
