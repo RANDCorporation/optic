@@ -23,6 +23,8 @@ editor_options:
     wrap: 72
 ---
 
+
+
 ```{r setup, include=FALSE}
 
 library(data.table)
@@ -351,4 +353,4 @@ print(paste0("AR LM effect: ", round(mod2_pred, 2)))
 
 From the above output, we can see the fixed effect model is underestimating the true effect size for this scenario while the auto-regressive model is overestimating the effect size. 
 
-
+#### Bibliography
