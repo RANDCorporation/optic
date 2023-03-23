@@ -49,7 +49,7 @@ optic_simulation <- function(x, models, iters,
                              prior_control = "mva3", # mva3 should be levels
                              bias_size = NULL,
                              bias_type = NULL,
-                             treat_var,
+                             treat_var = NULL,
                              n_implementation_periods,
                              rhos = NULL, years_apart = NULL, ordered = NULL,
                              method,
@@ -97,7 +97,7 @@ optic_simulation <- function(x, models, iters,
     
   } else if (method == "no_confounding") {
     stopifnot(prior_control %in% c("mva3", "trend"))
-    stopifnot(is.character(treat_var))
+    #stopifnot(is.character(treat_var))
     d_method_sample = noconf_sample
     d_method_pre_model = noconf_premodel
     d_method_model = noconf_model
