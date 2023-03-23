@@ -25,12 +25,12 @@
 #' @param n_units  A numeric, determining number of units to simulate treatment effects. Synthetic datasets will be generated for each entry in the vector.
 #' @param effect_direction A vector containing either 'neg', 'null', or 'pos'. Determines the direction of the simulated effect. Synthetic datasets will be generated for each entry in the vector. 
 #' @param policy_speed A vector of strings, containing either 'instant' or 'slow' entries, determining how quickly treated units obtain the simulated effect. Synthetic datasets will be generated for each entry in the vector. Can either be 'instant" (so treatment effect applies fully in the first treated time period) or 'slow' (treatment effect ramps up linearly to the desired effect size, based on `n_implementation_periods`.
-#' @param bias_type A string, either linear" or "nonlinear". Specifies type of bias for 'selection-bias' method 
-#' @param bias_size A string, either "small" "medium" or "large". Specifies relative size of bias for 'selection-bias' method. 
+#' @param bias_type A string, either linear" or "nonlinear". Specifies type of bias for 'confounding' method 
+#' @param bias_size A string, either "small" "medium" or "large". Specifies relative size of bias for 'confounding' method. 
 #' @param n_implementation_periods A vector of numerics, determing number of periods after implementation until treated units reach the desired simulated treatment effect. Synthetic datasets will be generated for each entry in the vector.
-#' @param rhos A vector of values between 0-1, indicating the correlation betweenthe primary policy and a confounding policy. Only applies when 'method' == 'confounding'. Synthetic datasets will be generated for each entry in the vector.
-#' @param years_apart A numeric, for number of years between the primary policy being implemented and the confounding policy. Only applies when 'method' == 'confounding'.
-#' @param ordered A boolean, determines if the primary policy always occurs before the confounding policy (`TRUE`) or if the policies are randomly ordered (`FALSE`).
+#' @param rhos A vector of values between 0-1, indicating the correlation between the primary policy and a concurrent policy. Only applies when 'method' == 'concurrent'. Synthetic datasets will be generated for each entry in the vector.
+#' @param years_apart A numeric, for number of years between the primary policy being implemented and the concurrent policy. Only applies when 'method' == 'concurrent'.
+#' @param ordered A boolean, determines if the primary policy always occurs before the concurrent policy (`TRUE`) or if the policies are randomly ordered (`FALSE`).
 #' @param method A string, determing the simulation method. Can be either 'no_confounding', 'confounding' or 'concurrent'
 #' @param verbose Boolean, default True. If TRUE, provides summary details on simulation runs across iterations
 #' @param globals Additional globals to pass to the simulate function, such as parallelization packages or additional R packages used by method calls (e.g. modeling packages, like "FEOLS").
@@ -47,11 +47,11 @@ optic_simulation <- function(x, models, iters,
                              effect_direction, 
                              policy_speed, 
                              prior_control = "mva3", # mva3 should be levels
-                             bias_size,
-                             bias_type,
+                             bias_size = NULL,
+                             bias_type = NULL,
                              treat_var,
                              n_implementation_periods,
-                             rhos, years_apart, ordered,
+                             rhos = NULL, years_apart = NULL, ordered = NULL,
                              method,
                              method_sample, method_model, method_results,     
                              method_pre_model, method_post_model, 

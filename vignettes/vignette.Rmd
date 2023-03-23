@@ -314,7 +314,9 @@ sim_config_noconfound <- optic_simulation(
   effect_magnitude         = scenarios_no_confounding,
   n_units                  = c(30),
   effect_direction         = c("neg"),
-  policy_speed             = c("instant", "slow")
+  policy_speed             = c("instant", "slow"),
+  
+  n_implementation_periods =  1
 
 )
 
