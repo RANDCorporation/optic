@@ -40,8 +40,7 @@ linear_fe_config <- optic_simulation(
   n_units= c(5),
   effect_direction=c("neg"),
   policy_speed=list("instant", "slow"),
-  n_implementation_periods=c(3, 10), 
-  prior_control=c("mva3", "trend")
+  n_implementation_periods=c(3, 10)
 )
 
 linear_results <- dispatch_simulations(

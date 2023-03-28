@@ -96,7 +96,6 @@ optic_simulation <- function(x, models, iters,
     stopifnot(is.logical(ordered))
     
   } else if (method == "no_confounding") {
-    stopifnot(prior_control %in% c("mva3", "trend"))
     #stopifnot(is.character(treat_var))
     d_method_sample = noconf_sample
     d_method_pre_model = noconf_premodel
@@ -104,7 +103,6 @@ optic_simulation <- function(x, models, iters,
     d_method_post_model = noconf_postmodel
     d_method_results = noconf_results
   } else if (method == "confounding") {
-    stopifnot(prior_control %in% c("mva3", "trend"))
     # Note: Add these new parameters when incorporating the confounding runs.
     stopifnot(bias_type %in% c("linear","nonlinear"))
     stopifnot(bias_size %in% c("small","medium","large"))
@@ -168,6 +166,7 @@ optic_simulation <- function(x, models, iters,
   # check parameters
   # these checks are likely very stringent and could be relaxed for some
   # combinations of inputs
+  stopifnot(prior_control %in% c("mva3", "trend"))
   stopifnot(is.character(unit_var), length(unit_var) == 1)
   stopifnot(is.character(time_var), length(time_var) == 1)
   stopifnot(is.list(effect_magnitude))
@@ -183,7 +182,8 @@ optic_simulation <- function(x, models, iters,
                  n_units = n_units,
                  effect_direction = effect_direction,
                  policy_speed = policy_speed,
-                 n_implementation_periods = n_implementation_periods)
+                 n_implementation_periods = n_implementation_periods,
+                 prior_control = prior_control)
   
   # Add method-specific parameters if they are provided:
   
@@ -197,10 +197,6 @@ optic_simulation <- function(x, models, iters,
   
   if(!missing(ordered)) {
     params$ordered <- ordered
-  }
-  
-  if(!missing(prior_control)) {
-    params$prior_control <- prior_control
   }
   
   if(!missing(treat_var)) {
