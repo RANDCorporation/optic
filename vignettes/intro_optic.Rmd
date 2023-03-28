@@ -19,10 +19,7 @@ knitr::opts_chunk$set(
 
 ```{r setup, include=FALSE}
 
-library(data.table)
 library(optic)
-library(ggplot2)
-library(formatR)
 
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
