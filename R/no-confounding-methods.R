@@ -44,7 +44,8 @@ noconf_sample <- function(single_simulation) {
   effect_direction <- single_simulation$effect_direction
   model_type = names(single_simulation$models)
   
-  if(model_type != "drdid"){
+  # If there is at least one did model
+  if(!any(model_type == "drdid")){
     outcomes <- unique(sapply(single_simulation$models, function(x) { optic::model_terms(x[["model_formula"]])[["lhs"]] }))
   }else{
     outcomes <- as.character(single_simulation$models$drdid$model_args$yname)

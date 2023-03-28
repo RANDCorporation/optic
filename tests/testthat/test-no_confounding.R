@@ -26,10 +26,18 @@ fixedeff_linear <- optic_model(
   se_adjust=c("none", "cluster-unit", "cluster-treat", "huber", "arellano")
 )
 
+fixedeff_linear_two <- optic_model(
+  name="fixedeff_linear_two",
+  type="reg",
+  call="lm",
+  formula=opioid_rx ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state),
+  weights= as.name("population"),
+  se_adjust=c("none", "cluster-unit", "cluster-treat", "huber", "arellano")
+)
 
 linear_fe_config <- optic_simulation(
   x=overdoses,
-  models=list(fixedeff_linear),
+  models=list(fixedeff_linear, fixedeff_linear_two),
   iters=5,
   method = "no_confounding",
   globals=NULL,
@@ -45,7 +53,7 @@ linear_fe_config <- optic_simulation(
 
 linear_results <- dispatch_simulations(
   linear_fe_config,
-  use_future=T,
+  use_future=F,
   seed=9782,
   verbose=2,
   future.globals=c("cluster_adjust_se"),
