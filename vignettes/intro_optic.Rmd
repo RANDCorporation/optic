@@ -31,31 +31,18 @@ knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
 
 # OPTIC Introduction {.unnumbered}
 
-This vignette covers use of the OPTIC package (Opioid Policy Tools and Information Center), which contains tools to
-simulate the performance of commonly-used statistical models for panel data or repeated measures data. Briefly,
-OPTIC uses Monte Carlo simulations to estimate the performance of models
-typically used for state-level policy evaluation (for example,
-differences-in-differences estimators). Package users provide the
-simulation procedure with a policy evaluation scenario, a hypothetical
-treatment effect, an estimator and model specification, and simulation
-parameters. The OPTIC package then constructs simulations for all chosen simulation
-parameters and estimators, returning summary statistics on each
-simulation's performance.
+This vignette covers use of the OPTIC package (Opioid Policy Tools and Information Center), which contains tools to simulate the performance of commonly-used statistical models for panel data or repeated measures data. Briefly, OPTIC uses Monte Carlo simulations to estimate the performance of models typically used for state-level policy evaluation (for example, differences-in-differences estimators). Package users provide the simulation procedure with a policy evaluation scenario, a hypothetical treatment effect, an estimator and model specification, and simulation parameters. The OPTIC package then constructs simulations for all chosen simulation parameters and estimators, returning summary statistics on each simulation's performance.
 
 Currently, OPTIC has been developed for policy evaluation scenarios with
 the following assumptions:
 
-1.  No confounding : There are no confounding variables which determine
+1.  **No confounding** : There are no confounding variables which determine
     a observation's selection into treatment. Additionally, treatment
     effects are assumed to be constant rather than time-varying.
-2.  Concurrent policies: There is one additional policy which co-occurs with the the policy of-interest. 
+2.  **Concurrent policies**: There is one additional policy which co-occurs with the the policy of-interest. 
 
 Additional details on the simulation procedures within OPTIC are
-available in Griffin et al., 2021
-[@http://zotero.org/users/3390799/items/ZNCVTPJF] and Griffin et al.,
-2022 [@http://zotero.org/users/3390799/items/V3Q6ARUA]. Forthcoming
-updates to OPTIC will provides simulations which test the effect of
-confounding bias on model performance.
+available in Griffin et al., 2021 [@http://zotero.org/users/3390799/items/ZNCVTPJF] and Griffin et al., 2022 [@http://zotero.org/users/3390799/items/V3Q6ARUA]. Forthcoming updates to OPTIC will provides simulations which test the effect of confounding bias on model performance.
 
 This README covers the use of OPTIC in R and provides examples of the
 package's features. Section one covers package installation, section two
@@ -64,16 +51,26 @@ provides two examples of the package under the different policy scenarios descri
 
 # Installation
 
-Clone the repository to your machine. Once you have the project on your
-local machine, the first thing you will want to do is build and install
-the package. Open the project in RStudio - it's easiest to open the
-optic.Rproj file to do so. Make sure you have `devtools` installed.
+From an R session, install the package from CRAN with:
+
+```r
+install.packages("optic")
+```
+Or from github:
+
+```r
+# Install remotes if necessary
+# install.packages("remotes")
+remotes::install_github("RANDCorporation/optic")
+```
 
 # Overview of the OPTIC Package
 
 OPTIC contains two core functions for performing simulations, which
 require four user-provided inputs. Figure 1 below displays a flowchart
 of OPTIC's required steps to produce simulation results.
+
+<!-- PNL Note: Max, replace this figure with a high-quality png or svg figure -->
 
 ![](optic_flowchart.pdf)
 
@@ -85,7 +82,7 @@ The following sections describe OPTIC inputs and steps in detail.
 
 Analysts will need to shape their data to work properly with OPTIC. The
 package contains an example dataset which demonstrates the format
-required by the function "configure_simulation".
+required by the function `optic_simulation`.
 
 ```{r, echo = FALSE}
 knitr::kable(overdoses[c(1:3, 20:22),], format = "markdown")
@@ -100,14 +97,14 @@ Statistics and the Centers for Disease Control and Prevention.
 ### Policy evaluation scenarios
 
 Policy evaluation scenarios are single string inputs into the
-"configure_simulation" function, representing either the no confounding
+`optic_simulation` function, representing either the no confounding
 scenario ("noconf") or the confounding due to co-occurring policies
 scenario ("concurrent"). For the "concurrent" scenario, there are
-additional parameters required within "configure_simulation", which are
+additional parameters required by `optic_simulation`, which are
 discussed in the "parameter" section below. Additional details on policy
 evaluation scenarios are provided in Griffin et al.,
-2021[\@<http://zotero.org/users/3390799/items/ZNCVTPJF>] and Griffin et
-al., 2022[\@<http://zotero.org/users/3390799/items/V3Q6ARUA>].
+2021[@http://zotero.org/users/3390799/items/ZNCVTPJF] and Griffin et
+al., 2022[@http://zotero.org/users/3390799/items/V3Q6ARUA].
 
 ### Treatment scenarios
 
@@ -141,11 +138,11 @@ scenarios_co_occur <- list(c(five_percent_effect, confound_effect),
 
 ## OPTIC functions
 
-### `optic_model` and `configure_simulation`
+### `optic_model` and `optic_simulation`
 
 For each treatment scenario, OPTIC will simulate a treatment effect and
 then attempt to estimate this effect based on user-provided models. The
-`configure_simulation` function takes a list of `optic_model`. Model lists should contain
+`optic_simulation` function takes a list of `optic_model`. Model lists should contain
 `optic_model` with the following arguments :
 
 -   `name`: A name for the model to identify the model type in results.
@@ -183,7 +180,7 @@ then attempt to estimate this effect based on user-provided models. The
 
 -   `se_adjust`: Any adjustments to standard errors after estimation.
     OPTIC recognizes either "none" for no adjustment or "cluster" for
-    clustered standard errors (OPTIC will use the `configure_simulation`
+    clustered standard errors (OPTIC will use the `optic_simulation`
     parameter "unit_var" to determine clusters for clustered standard
     errors).
 
@@ -294,6 +291,9 @@ The function returns a configuration object that's used as an input to
 possible simulations that will be run for each model (. An example call
 of `optic_simulation` is displayed below:
 
+<!-- PNL Note: Do we want to write down the equations for the effects that OPTIC will simulate? Or is it too trivial for the reader? -->
+
+
 ```{r}
 
 sim_config <- optic_simulation(
@@ -318,7 +318,7 @@ sim_config <- optic_simulation(
 
 With the configuration object built, we can now simulate models with the configuration scenarios using the `simulate` function. This function accepts arguments to parallelize code through the use of the "future" package. If this setting is turned on, the function will try to parallelize simulation iterations on the analyst's machine. Any additional packages required by the user for model calls (e.g. a specific modeling package) must also be passed to dispatch_simulations using future.globals and future.packages arguments.
 
-Note this next step will only take a few minutes to run; with large numbers of permutations or iterations, it can require  several hours for this function to finish. We suggest using the parallelization options, which can help a great deal for large analyses on your data of interest. We recommend using anywhere between 300-1000 iterations when analyzing your final sets of output.
+Note this next step will only take a few minutes to run; with large numbers of permutations or iterations, it can require  several hours for this function to finish. We suggest using the parallelization options (`use_future = T`), which can help a great deal for large analyses on your data of interest. We recommend using anywhere between 300-1000 iterations when analyzing your final sets of output.
 
 
 ```{r}
