@@ -72,7 +72,7 @@ of OPTIC's required steps to produce simulation results.
 
 <!-- PNL Note: Max, replace this figure with a high-quality png or svg figure -->
 
-![](optic_flowchart.pdf)
+![](optic_flowchart.svg)
 
 The following sections describe OPTIC inputs and steps in detail.
 
