@@ -21,28 +21,36 @@ models using **your own** longitudinal data.
 The recent Diff-in-Diff literature revealed issues with the traditional
 Diff-in-Diff model, but we found it very difficult to evaluate the
 relative performance of different causal inference methods using *our
-own data*. Thus, we designed a series of simulations to study the
-performance of various methods under different scenarios. Our
+own data*.
+
+Thus, we designed a series of simulations ([Griffin et al.
+2021](#ref-http://zotero.org/users/3390799/items/ZNCVTPJF); [Griffin et
+al. 2022](#ref-http://zotero.org/users/3390799/items/V3Q6ARUA)) to study
+the performance of various methods under different scenarios. Our
 publications to date include:
 
-1.  Using real-world data on opioid mortality rates, [we found notable
-    limitations of commonly used statistical models for
-    Difference-In-Differences (DID) designs, which are widely used in
-    state policy evaluations. In contrast, the optimal model we
-    identified–the autoregressive model (AR) model- showed a lot of
-    promise.](https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/s12874-021-01471-y),
-    but don’t just take our word for it - try it our with your own data
-    and see how various approaches do relative to each other.
+1.  In Griffin et al.
+    ([2021](#ref-http://zotero.org/users/3390799/items/ZNCVTPJF)), we
+    use real-world data on opioid mortality rates to assess commonly
+    used statistical models for Difference-In-Differences (DID) designs,
+    which are widely used in state policy evaluations. These experiments
+    demonstrated notable limitations of those methods. In contrast, the
+    optimal model we identified–the autoregressive model (AR) model-
+    showed a lot of promise. That said, don’t just take our word for
+    it - try it our with your own data and see how various approaches do
+    relative to each other. See for details.
 
-2.  [It is also critical to be able to control for effects of
+2.  In Griffin et al.
+    ([2022](#ref-http://zotero.org/users/3390799/items/V3Q6ARUA)) we
+    also demonstrate it is critical to be able to control for effects of
     co-occurring policies, and understand the potential bias that might
-    arise from not controlling for those
-    policies.](https://link.springer.com/article/10.1007/s10742-022-00284-w)
-    Our package can also help you assess the impact of co-occurring
-    policies on the performance of commonly-used statistical models in
-    state policy evaluations.
+    arise from not controlling for those policies. Our package can also
+    help you assess the impact of co-occurring policies on the
+    performance of commonly-used statistical models in state policy
+    evaluations.
 
-You can now use our `optic` R package to simulate policy effects and
+Assessing those methods in a systematic way might be challenging, but
+now you can now use our `optic` R package to simulate policy effects and
 compare causal inference models using your own data.
 
 The package supports the traditional two-way fixed effects DID model and
@@ -59,100 +67,22 @@ control and the Callaway-Santa’Anna approach to DID.
 You can install `optic` like so:
 
 ``` r
-# install optic from cran (in the future)
-install.packages("optic")
-
 # install from github:
-remotes::install_github("optic-tools/optic")
+remotes::install_github("RANDCorporation/optic")
 ```
 
 ## Usage
 
-`optic` provides two main workhorse functions: `optic_model` and
-`optic_simulation`. Use `optic_model` to define model specifications for
-each causal model to be tested in the simulation experiment. Then, pass
-your models, your data, and parameters to the `optic_simulation`
-function, that specifies a set of simulations to be performed for each
-`optic_model` specified.
+`optic` provides three main functions: `optic_model`,
+`optic_simulation`, and `dispatch_simulations`. Use `optic_model` to
+define model specifications for each causal model to be tested in the
+simulation experiment. Then, pass your models, your data, and parameters
+to the `optic_simulation` function, that specifies a set of simulations
+to be performed for each `optic_model` specified. Finally, use
+`dispatch_simulations` to run your simulations in parallel.
 
-``` r
-library(optic)
-## basic example code
-
-# overdose example data provided with the package:
-data(overdoses)
-x <- overdoses
-
-#testing a scenario with two co-occuring policies
-
-model_1 <- optic_model(
-         name="fixedeff_linear",
-         type="reg",
-         call="lm",
-         formula=crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment1_level + treatment2_level,
-         args=list(weights=as.name('population')),
-         se_adjust=c("none", "cluster"))
-
-model_2 <- optic_model(name="autoreg_linear",
-              type="autoreg",
-              call="lm",
-              formula=deaths ~ unemploymentrate + as.factor(year) + treatment1_change + treatment2_change,
-              args=list(weights=as.name('population')),
-              se_adjust=c("none", "cluster"))
-
-
-# we will define two scenarios for different effect magnitudes for
-# the policies using 5, 10, and 15 percent changes in the outcome
-linear5 <- 690 / ((sum(x$population) / length(unique(x$year))) / 100000)
-linear10 <- 1380 / ((sum(x$population) / length(unique(x$year))) / 100000)
-linear15 <- 2070 / ((sum(x$population) / length(unique(x$year))) / 100000)
-
-scenario1 <- c(linear10, linear10)
-scenario2 <- c(linear5, linear15)
-
-optic_sim <- optic_simulation(
-  x=overdoses,
-  models=list(model_1, model_2),
-  iters=10,
-  # method_type = c("concurrent", "confounding", "standard?")
-  # By choosing this method, all the parameters below would be set.
-  method_sample=concurrent_sample,
-  method_pre_model=concurrent_premodel,
-  method_model=concurrent_model,
-  method_post_model=concurrent_postmodel,
-  method_results=concurrent_results,
-  
-  # Look into de-nest this and construct it back within the optic_simulation function.
-  params=list(
-    unit_var="state",
-    time_var="year",
-    effect_magnitude=list(scenario1, scenario2),
-    n_units=c(30),
-    effect_direction=c("null", "neg"),
-    policy_speed=c("instant", "slow"),
-    n_implementation_periods=c(3),
-    rhos=c(0, 0.25, 0.5, 0.75, 0.9),
-    years_apart=2,
-    ordered=TRUE
-  )
-)
-```
-
-After those steps, run `simulate()` on your `optic_simulation` object.
-Doing so will run your simulations in parallel.
-
-``` r
-results <- simulate(
-  optic_sim,
-  use_future=TRUE,
-  seed=9782,
-  verbose=2,
-  future.globals=c("cluster_adjust_se"),
-  future.packages=c("dplyr", "optic")
-)
-```
-
-Max: Explain what the user can do with this result.
+The code below provides a minimal example. See the package vignette for
+more context around using the package.
 
 ## Contact
 
@@ -160,12 +90,39 @@ Reach out to [Beth Ann
 Griffin](https://www.rand.org/about/people/g/griffin_beth_ann.html) for
 questions related to this repository.
 
-# Automated Tests
-
-This package contains `thestthat` tests in the tests package.
-
 ## License
 
 Copyright (C) 2023 by The [RAND Corporation](https://www.rand.org). This
 repository is released as open-source software under a GPL-3.0 license.
 See the LICENSE file.
+
+## References
+
+<div id="refs" class="references csl-bib-body hanging-indent">
+
+<div id="ref-http://zotero.org/users/3390799/items/V3Q6ARUA"
+class="csl-entry">
+
+Griffin, Beth Ann, Megan S. Schuler, Joseph Pane, Stephen W. Patrick,
+Rosanna Smart, Bradley D. Stein, Geoffrey Grimm, and Elizabeth A.
+Stuart. 2022. “Methodological Considerations for Estimating Policy
+Effects in the Context of Co-Occurring Policies.” *Health Services and
+Outcomes Research Methodology*, July.
+<https://doi.org/10.1007/s10742-022-00284-w>.
+
+</div>
+
+<div id="ref-http://zotero.org/users/3390799/items/ZNCVTPJF"
+class="csl-entry">
+
+Griffin, Beth Ann, Megan S. Schuler, Elizabeth A. Stuart, Stephen
+Patrick, Elizabeth McNeer, Rosanna Smart, David Powell, Bradley D.
+Stein, Terry L. Schell, and Rosalie Liccardo Pacula. 2021. “Moving
+Beyond the Classic Difference-in-Differences Model: A Simulation Study
+Comparing Statistical Methods for Estimating Effectiveness of
+State-Level Policies.” *BMC Medical Research Methodology* 21 (1): 279.
+<https://doi.org/10.1186/s12874-021-01471-y>.
+
+</div>
+
+</div>
