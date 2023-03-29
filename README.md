@@ -5,14 +5,14 @@
 
 **Simulation test-bed for Longitudinal Causal Inference models**
 
-<!-- badges: start -->
+<!-- 
+[![R-CMD-check](https://github.com/RANDCorporation/optic/workflows/R-CMD-check/badge.svg)](https://github.com/RANDCorporation/optic/actions)
+[![Test Coverage](https://github.com/RANDCorporation/optic/workflows/test-coverage/badge.svg)](https://github.com/RANDCorporation/optic/actions)
+[![codecov](https://codecov.io/gh/RANDCorporation/optic/branch/develop/graph/badge.svg?token=5XYDOFFJMH)](https://codecov.io/gh/RANDCorporation/optic)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 
-[![R-CMD-check](https://github.com/optic-tools/optic/workflows/R-CMD-check/badge.svg)](https://github.com/optic-tools/optic/actions)
-[![Test
-Coverage](https://github.com/optic-tools/optic/workflows/test-coverage/badge.svg)](https://github.com/optic-tools/optic/actions)
-[![codecov](https://codecov.io/gh/optic-tools/optic/branch/develop/graph/badge.svg?token=5XYDOFFJMH)](https://codecov.io/gh/optic-tools/optic)
-[![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+# add badges once package is in RAND's github
+badges: start -->
 <!-- badges: end -->
 
 The `optic` package helps you scrutinize candidate causal inference
@@ -73,16 +73,17 @@ remotes::install_github("RANDCorporation/optic")
 
 ## Usage
 
-`optic` provides three main functions: `optic_model`,
+Please see the introductory vignette by running
+`vignette("intro_optic")` after installing the package. The vignette
+provides a working example using a sample `overdoses` dataset provided
+with the package. `optic` provides three main functions: `optic_model`,
 `optic_simulation`, and `dispatch_simulations`. Use `optic_model` to
 define model specifications for each causal model to be tested in the
 simulation experiment. Then, pass your models, your data, and parameters
 to the `optic_simulation` function, that specifies a set of simulations
-to be performed for each `optic_model` specified. Finally, use
-`dispatch_simulations` to run your simulations in parallel.
-
-The code below provides a minimal example. See the package vignette for
-more context around using the package.
+to be performed for each `optic_model` included in your `list` of
+models. Finally, use `dispatch_simulations` to run your simulations in
+parallel.
 
 ## Contact
 
