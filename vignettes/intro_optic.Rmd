@@ -68,8 +68,9 @@ require four user-provided inputs. Figure 1 below displays a flowchart
 of OPTIC's required steps to produce simulation results.
 
 <!-- PNL Note: Max, replace this figure with a high-quality png or svg figure -->
-
-![](optic_flowchart.svg)
+<center>
+![](optic_flowchart.png){width=90%}
+</center>
 
 The following sections describe OPTIC inputs and steps in detail.
 
@@ -335,8 +336,9 @@ OPTIC will provide a short summary on the models being run if verbose is set to 
 The results table includes the simulation run parameters, along with estimates of the simulated treatment effect. The below displays a few select estimates from the large results table:  
 
 ```{r}
-results[[1]][1:3, #c("model_name", "se_adjustment", "iter", "estimate", "se", "test_stat", "p_value")
-             ]
+
+knitr::kable(results[[1]][1:3, 1:8], format = "markdown")
+
 ```
 
 We can use the results table to analyze the relative performance of models across data scenarios or create test statistics as needed for an analysis. For example, we might be interested in comparing  relative bias across the policy-1 point estimate, for the linear fixed-effect model against the autoregressive linear model, in the scenario where the effect of policy implementation is immediate and decreases the crude.rate by 5%:
