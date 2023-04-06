@@ -596,3 +596,243 @@ selbias_results <- function(r) {
 }
 
 
+#' @title summary.MP
+#'
+#' @description prints a summary of a \code{MP} object.
+#' This modifies the version in the `did` library to return
+#' output as a data frame.
+#' Code copied from https://github.com/bcallaway11/did/blob/master/R/MP.R.
+#'
+#' @param object an \code{MP} object
+#' @param ... extra arguments
+#'
+#' @export
+summary.MP <- function(object, ..., returnOutput = FALSE, verbose = TRUE) {
+  mpobj <- object
+  
+  # call
+  if (verbose) {
+    cat("\n")
+    cat("Call:\n")
+    print(mpobj$DIDparams$call)
+    cat("\n")
+    
+    # citation
+    citation()
+    cat("\n")
+    
+    # group time average treatment effects
+    cat("Group-Time Average Treatment Effects:\n")
+  }
+  
+  cband_text1a <- paste0(100*(1-mpobj$alp),"% ")
+  cband_text1b <- ifelse(mpobj$DIDparams$bstrap,
+                         ifelse(mpobj$DIDparams$cband, "Simult. ", "Pointwise "),
+                         "Pointwise ")
+  cband_text1 <- paste0("[", cband_text1a, cband_text1b)
+  
+  cband_lower <- mpobj$att - mpobj$c*mpobj$se
+  cband_upper <- mpobj$att + mpobj$c*mpobj$se
+  
+  sig <- (cband_upper < 0) | (cband_lower > 0)
+  sig[is.na(sig)] <- FALSE
+  sig_text <- ifelse(sig, "*", "")
+  
+  out <- cbind.data.frame(mpobj$group, mpobj$t, mpobj$att, mpobj$se, cband_lower, cband_upper)
+  out <- round(out,4)
+  out <- cbind.data.frame(out, sig_text)
+  
+  
+  colnames(out) <- c("Group", "Time", "ATT(g,t)","Std. Error", cband_text1, "Conf. Band]", "")
+  
+  if (verbose) {
+    print(out, row.names=FALSE)
+    cat("---\n")
+    cat("Signif. codes: `*' confidence band does not cover 0")
+    cat("\n\n")
+  }
+  
+  # report pre-test
+  if (!is.null(mpobj$Wpval) & verbose) {
+    cat("P-value for pre-test of parallel trends assumption:  ")
+    cat(as.character(mpobj$Wpval))
+    cat("\n")
+  }
+  
+  
+  
+  # set control group text
+  control_group <- mpobj$DIDparams$control_group
+  control_group_text <- NULL
+  if (control_group == "nevertreated") {
+    control_group_text <- "Never Treated"
+  } else if (control_group == "notyettreated") {
+    control_group_text <- "Not Yet Treated"
+  }
+  
+  if (!is.null(control_group) & verbose) {
+    cat("Control Group:  ")
+    cat(control_group_text)
+    cat(",  ")
+  }
+  
+  if (verbose) {
+    # anticipation periods
+    cat("Anticipation Periods:  ")
+    cat(mpobj$DIDparams$anticipation)
+    cat("\n")
+  }
+  
+  # estimation method text
+  est_method <- mpobj$DIDparams$est_method
+  if (class(est_method)=="character") {
+    est_method_text <- est_method
+    if (est_method == "dr") {
+      est_method_text <- "Doubly Robust"
+    } else if (est_method == "ipw") {
+      est_method_text <- "Inverse Probability Weighting"
+    } else if (est_method == "reg") {
+      est_method_text <- "Outcome Regression"
+    }
+    
+    if (verbose) {
+      cat("Estimation Method:  ")
+      cat(est_method_text)
+      cat("\n")
+    }
+    
+  }
+  
+  if (returnOutput) return(out)
+}
+
+
+#' @title Summary Aggregate Treatment Effect Parameter Objects
+#'
+#' @description A function to summarize aggregated treatment effect parameters.
+#' This modifies the version in the `did` library to return
+#' output as a data frame.
+#' Code copied from https://github.com/bcallaway11/did/blob/master/R/AGGTEobj.R.
+#'
+#' @param object an \code{AGGTEobj} object
+#' @param ... other arguments
+#'
+#' @export
+summary.AGGTEobj <- function(object, ..., returnOutput = FALSE, verbose = TRUE) {
+  
+  if (verbose) {
+    # call
+    cat("\n")
+    cat("Call:\n")
+    print(object$call)
+    cat("\n")
+    
+    #citation
+    citation()
+    cat("\n")
+  }
+  
+  # overall estimates
+  alp <- object$DIDparams$alp
+  pointwise_cval <- qnorm(1-alp/2)
+  overall_cband_upper <- object$overall.att + pointwise_cval*object$overall.se
+  overall_cband_lower <- object$overall.att - pointwise_cval*object$overall.se
+  out1 <- cbind.data.frame(object$overall.att, object$overall.se, overall_cband_lower, overall_cband_upper)
+  out1 <- round(out1, 4)
+  overall_sig <- (overall_cband_upper < 0) | (overall_cband_lower > 0)
+  overall_sig[is.na(overall_sig)] <- FALSE
+  overall_sig_text <- ifelse(overall_sig, "*", "")
+  out1 <- cbind.data.frame(out1, overall_sig_text)
+  colnames(out1) <- c("ATT","   Std. Error", paste0("    [ ",100*(1-object$DIDparams$alp),"% "), "Conf. Int.]","")
+  
+  if (verbose) {
+    cat("\n")
+    #cat("Overall ATT:  \n")
+    if (object$type=="dynamic") cat("Overall summary of ATT\'s based on event-study/dynamic aggregation:  \n")
+    if (object$type=="group") cat("Overall summary of ATT\'s based on group/cohort aggregation:  \n")
+    if (object$type=="calendar") cat("Overall summary of ATT\'s based on calendar time aggregation:  \n")
+    print(out1, row.names=FALSE)
+    cat("\n\n")
+  }
+  
+  
+  # handle cases depending on type
+  if (object$type %in% c("group","dynamic","calendar")) {
+    
+    # header
+    if (object$type=="dynamic") { c1name <- "Event time"; if (verbose) cat("Dynamic Effects:") }
+    if (object$type=="group") { c1name <- "Group"; if (verbose) cat("Group Effects:") }
+    if (object$type=="calendar") { c1name <- "Time"; if (verbose) cat("Time Effects:") }
+    
+    if (verbose) cat("\n")
+    cband_text1a <- paste0(100*(1-object$DIDparams$alp),"% ")
+    cband_text1b <- ifelse(object$DIDparams$bstrap,
+                           ifelse(object$DIDparams$cband, "Simult. ", "Pointwise "),
+                           "Pointwise ")
+    cband_text1 <- paste0("[", cband_text1a, cband_text1b)
+    
+    cband_lower <- object$att.egt - object$crit.val.egt*object$se.egt
+    cband_upper <- object$att.egt + object$crit.val.egt*object$se.egt
+    
+    sig <- (cband_upper < 0) | (cband_lower > 0)
+    sig[is.na(sig)] <- FALSE
+    sig_text <- ifelse(sig, "*", "")
+    
+    out2 <- cbind.data.frame(object$egt, object$att.egt, object$se.egt, cband_lower, cband_upper)
+    out2 <- round(out2, 4)
+    out2 <- cbind.data.frame(out2, sig_text)
+    
+    colnames(out2) <- c(c1name, "Estimate","Std. Error", cband_text1, "Conf. Band]", "")
+    if (verbose) print(out2, row.names=FALSE, justify = "centre")
+  }
+  
+  if (verbose) {
+    cat("---\n")
+    cat("Signif. codes: `*' confidence band does not cover 0")
+    cat("\n\n")
+  }
+  
+  # set control group text
+  control_group <- object$DIDparams$control_group
+  control_group_text <- NULL
+  if (control_group == "nevertreated") {
+    control_group_text <- "Never Treated"
+  } else if (control_group == "notyettreated") {
+    control_group_text <- "Not Yet Treated"
+  }
+  
+  if (!is.null(control_group) & verbose) {
+    cat("Control Group:  ")
+    cat(control_group_text)
+    cat(",  ")
+  }
+  
+  if (verbose) {
+    # anticipation periods
+    cat("Anticipation Periods:  ")
+    cat(object$DIDparams$anticipation)
+    cat("\n")
+  }
+  
+  # estimation method text
+  est_method <- object$DIDparams$est_method
+  if (class(est_method)=="character") {
+    est_method_text <- est_method
+    if (est_method == "dr") {
+      est_method_text <- "Doubly Robust"
+    } else if (est_method == "ipw") {
+      est_method_text <- "Inverse Probability Weighting"
+    } else if (est_method == "reg") {
+      est_method_text <- "Outcome Regression"
+    }
+    
+    if (verbose) {
+      cat("Estimation Method:  ")
+      cat(est_method_text)
+      cat("\n")
+    }
+    
+  }
+  
+  if (returnOutput) return(list(out1, out2))
+}
