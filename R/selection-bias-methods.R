@@ -83,6 +83,8 @@ selbias_sample <- function(single_simulation) {
     
     x_t <- x[x[[time_var]]==time,]
     
+    # This is where the model is breaking.
+    
     # generate treatment assignments
     logits <- b0 +
       (b1 * x_t$prior_control) +
@@ -103,7 +105,7 @@ selbias_sample <- function(single_simulation) {
   
   # For the first three time periods, treatment indicator will be missing. 
   # Set to 0.
-  x$trt_ind[x[[time_var]]==sort(unique(x[[time_var]]))[1:3]] <- 0
+  x$trt_ind[x[[time_var]] %in% sort(unique(x[[time_var]]))[1:3]] <- 0
   
   # For treated units, set the treatment indicator to 1 from the 
   # earliest treatment date onwards
@@ -112,8 +114,13 @@ selbias_sample <- function(single_simulation) {
   
   # get the time of first treatment for each unit
   # min() automatically returns Inf for untreated units
-  time_periods <- unlist(tapply(x[[time_var]] * x$trt_ind, x[[unit_var]],
-                                function(x) min(x[x > 0])))
+  # Here we suppress warnings because that's the behavior we want.
+  
+  # Minimum time period for treated units
+  suppressWarnings({
+    time_periods <- unlist(tapply(x[[time_var]] * x$trt_ind, x[[unit_var]],
+                                  function(x) min(x[x > 0])))  
+  })
   
   # calculate the number of treatment periods for each unit
   n_treated <- unlist(tapply(x$trt_ind, x[[unit_var]], sum))
@@ -607,6 +614,7 @@ selbias_results <- function(r) {
 #' @param ... extra arguments
 #'
 #' @export
+#' @importFrom utils citation
 summary.MP <- function(object, ..., returnOutput = FALSE, verbose = TRUE) {
   mpobj <- object
   
@@ -685,7 +693,8 @@ summary.MP <- function(object, ..., returnOutput = FALSE, verbose = TRUE) {
   
   # estimation method text
   est_method <- mpobj$DIDparams$est_method
-  if (class(est_method)=="character") {
+  cl_est_method <- as.character(class(est_method))
+  if (cl_est_method=="character") {
     est_method_text <- est_method
     if (est_method == "dr") {
       est_method_text <- "Doubly Robust"
@@ -718,6 +727,7 @@ summary.MP <- function(object, ..., returnOutput = FALSE, verbose = TRUE) {
 #' @param ... other arguments
 #'
 #' @export
+#' @importFrom stats qnorm
 summary.AGGTEobj <- function(object, ..., returnOutput = FALSE, verbose = TRUE) {
   
   if (verbose) {
@@ -816,7 +826,8 @@ summary.AGGTEobj <- function(object, ..., returnOutput = FALSE, verbose = TRUE) 
   
   # estimation method text
   est_method <- object$DIDparams$est_method
-  if (class(est_method)=="character") {
+  cl_est_method <- as.character(class(est_method))
+  if (cl_est_method=="character") {
     est_method_text <- est_method
     if (est_method == "dr") {
       est_method_text <- "Doubly Robust"

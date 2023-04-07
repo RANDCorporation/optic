@@ -106,14 +106,15 @@ optic_simulation <- function(x, models, iters,
     # Note: Add these new parameters when incorporating the confounding runs.
     stopifnot(bias_type %in% c("linear","nonlinear"))
     stopifnot(bias_size %in% c("small","medium","large"))
+  
     #stop("Confounding is currently not implemented.")
     # Here, assign confounding methods once they are implemented
     # Uncomment once we bring the confounding code to the package.
-    #d_method_sample = conf_sample
-    #d_method_pre_model = conf_premodel
-    #d_method_model = conf_model
-    #d_method_post_model = conf_postmodel
-    #d_method_results = conf_results
+    d_method_sample = selbias_sample
+    d_method_pre_model = selbias_premodel
+    d_method_model = selbias_model
+    d_method_post_model = selbias_postmodel
+    d_method_results = selbias_results
   } else {
     stop("method argument must be either no_confounding, confounding, or concurrent")
   }
