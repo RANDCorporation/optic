@@ -17,7 +17,7 @@ Description: Implements a simulation study to assess the strengths and
     using panel data.
 License: GPL-3 | file LICENSE
 Depends: 
-    R (>= 3.6.0)
+    R (>= 4.1.0)
 Imports:
     did,
     dplyr,
