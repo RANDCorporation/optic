@@ -8,7 +8,6 @@
 
 #' apply specified treatment effect (percent change) to outcome
 #' 
-#' @description TODO
 #' 
 #' @param x data
 #' @param model_formula formula for sim run used to identify outcome

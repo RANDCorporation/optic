@@ -145,7 +145,7 @@ selbias_sample <- function(single_simulation) {
         treated[[current_unit]] <- list(
           policy_years = yr:max(x$year, na.rm=TRUE),
           policy_month = mo,
-          exposure = optic:::calculate_exposure(mo, number_implementation_years),
+          exposure = optic::calculate_exposure(mo, number_implementation_years),
           policy_date = as.Date(paste0(yr, '-', mo, '-01'))
         )
         
@@ -276,7 +276,7 @@ selbias_premodel <- function(model_simulation) {
   model <- model_simulation$models
   
   if (model$type != "did") {
-    outcome <- optic:::model_terms(model$model_formula)[["lhs"]]
+    outcome <- optic::model_terms(model$model_formula)[["lhs"]]
     oo <- dplyr::sym(outcome)
   } else if (model$type=='did') {
     outcome <- as.character(model_simulation$models$model_args$yname)
@@ -315,7 +315,7 @@ selbias_premodel <- function(model_simulation) {
     x$treatment[x$treatment > 0] <- 1
     x$treatment_level[x$treatment_level > 0] <- 1
     x <- x %>% 
-      group_by(state) %>%
+      group_by(!!unit_sym) %>%
       mutate(treatment_year = 1 + max(year ^ (1-treatment))) %>% 
       ungroup()
   }
@@ -613,7 +613,7 @@ selbias_results <- function(r) {
 #' @param object an \code{MP} object
 #' @param ... extra arguments
 #'
-#' @export
+#' @noRd
 #' @importFrom utils citation
 summary.MP <- function(object, ..., returnOutput = FALSE, verbose = TRUE) {
   mpobj <- object
@@ -726,7 +726,7 @@ summary.MP <- function(object, ..., returnOutput = FALSE, verbose = TRUE) {
 #' @param object an \code{AGGTEobj} object
 #' @param ... other arguments
 #'
-#' @export
+#' @noRd
 #' @importFrom stats qnorm
 summary.AGGTEobj <- function(object, ..., returnOutput = FALSE, verbose = TRUE) {
   

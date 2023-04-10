@@ -53,7 +53,7 @@ linear_fe_config <- optic_simulation(
 
 linear_results <- dispatch_simulations(
   linear_fe_config,
-  use_future=F,
+  use_future=T,
   seed=9782,
   verbose=2,
   future.globals=c("cluster_adjust_se"),

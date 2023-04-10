@@ -52,9 +52,13 @@ The elements must be created using the `optic_model` function.}
 
 \item{policy_speed}{A vector of strings, containing either 'instant' or 'slow' entries, determining how quickly treated units obtain the simulated effect. Synthetic datasets will be generated for each entry in the vector. Can either be 'instant" (so treatment effect applies fully in the first treated time period) or 'slow' (treatment effect ramps up linearly to the desired effect size, based on `n_implementation_periods`.}
 
+\item{prior_control}{MAX to document.}
+
 \item{bias_size}{A string, either "small" "medium" or "large". Specifies relative size of bias for 'confounding' method.}
 
 \item{bias_type}{A string, either linear" or "nonlinear". Specifies type of bias for 'confounding' method}
+
+\item{treat_var}{MAX to document.}
 
 \item{n_implementation_periods}{A vector of numerics, determing number of periods after implementation until treated units reach the desired simulated treatment effect. Synthetic datasets will be generated for each entry in the vector.}
 
@@ -65,6 +69,16 @@ The elements must be created using the `optic_model` function.}
 \item{ordered}{A boolean, determines if the primary policy always occurs before the concurrent policy (`TRUE`) or if the policies are randomly ordered (`FALSE`).}
 
 \item{method}{A string, determing the simulation method. Can be either 'no_confounding', 'confounding' or 'concurrent'}
+
+\item{method_sample}{MAX, please document}
+
+\item{method_model}{MAX, please document}
+
+\item{method_results}{MAX, please document}
+
+\item{method_pre_model}{MAX, please document}
+
+\item{method_post_model}{MAX, please document}
 
 \item{globals}{Additional globals to pass to the simulate function, such as parallelization packages or additional R packages used by method calls (e.g. modeling packages, like "FEOLS").}
 
