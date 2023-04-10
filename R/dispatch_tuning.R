@@ -6,6 +6,9 @@
 # See README.md for information on usage and licensing
 #------------------------------------------------------------------------------#
 
+# This function is currently a work in progress. It is not intended for use
+# by package users at this time, but may be exported in a future release.
+
 #' Execute simulations defined in a OpticSim object
 #' 
 #' @param sim_config OpticSim object created using 'create_config'

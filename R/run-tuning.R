@@ -6,7 +6,9 @@
 # See README.md for information on usage and licensing
 #------------------------------------------------------------------------------#
 
-#' TODO: docstring
+# This function is currently a work in progress. It is not intended for use
+# by package users at this time, but may be exported in a future release.
+
 #' @param single_simulation OpticSim object created using 'create_config'
 
 #' @noRd

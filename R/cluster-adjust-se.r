@@ -8,6 +8,7 @@
 
 #' Adjust standard errors for clusters
 #' TODO: need to cite source for this code/method
+#' Max or BAG, can you investigate?
 #' 
 #' @param model model object from regression fit
 #' @param clsuter vector of cluster assignments; length should equal length of residuals in model object
