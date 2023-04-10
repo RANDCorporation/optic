@@ -21,6 +21,8 @@
 #' @param iters A numeric, specifying number of iterations for each simulation scenario.
 #' @param unit_var A string variable, specifying the unit-of-analysis within the dataset. Used to determine clusters for clustered standard errors.
 #' @param time_var A string variable, specifying time units (e.g. "year", "time to treat", etc)
+#' @param treat_var MAX to document. 
+#' @param prior_control MAX to document. 
 #' @param effect_magnitude A vector of numerics, specifying 'true' effect sizes for treatment scenarios. See vignette for more details. Synthetic datasets will be generated for each entry in the vector.
 #' @param n_units  A numeric, determining number of units to simulate treatment effects. Synthetic datasets will be generated for each entry in the vector.
 #' @param effect_direction A vector containing either 'neg', 'null', or 'pos'. Determines the direction of the simulated effect. Synthetic datasets will be generated for each entry in the vector. 
@@ -32,6 +34,11 @@
 #' @param years_apart A numeric, for number of years between the primary policy being implemented and the concurrent policy. Only applies when 'method' == 'concurrent'.
 #' @param ordered A boolean, determines if the primary policy always occurs before the concurrent policy (`TRUE`) or if the policies are randomly ordered (`FALSE`).
 #' @param method A string, determing the simulation method. Can be either 'no_confounding', 'confounding' or 'concurrent'
+#' @param method_sample MAX, please document
+#' @param method_pre_model MAX, please document
+#' @param method_model MAX, please document
+#' @param method_post_model MAX, please document
+#' @param method_results MAX, please document
 #' @param verbose Boolean, default True. If TRUE, provides summary details on simulation runs across iterations
 #' @param globals Additional globals to pass to the simulate function, such as parallelization packages or additional R packages used by method calls (e.g. modeling packages, like "FEOLS").
 #' 
@@ -106,14 +113,15 @@ optic_simulation <- function(x, models, iters,
     # Note: Add these new parameters when incorporating the confounding runs.
     stopifnot(bias_type %in% c("linear","nonlinear"))
     stopifnot(bias_size %in% c("small","medium","large"))
+  
     #stop("Confounding is currently not implemented.")
     # Here, assign confounding methods once they are implemented
     # Uncomment once we bring the confounding code to the package.
-    #d_method_sample = conf_sample
-    #d_method_pre_model = conf_premodel
-    #d_method_model = conf_model
-    #d_method_post_model = conf_postmodel
-    #d_method_results = conf_results
+    d_method_sample = selbias_sample
+    d_method_pre_model = selbias_premodel
+    d_method_model = selbias_model
+    d_method_post_model = selbias_postmodel
+    d_method_results = selbias_results
   } else {
     stop("method argument must be either no_confounding, confounding, or concurrent")
   }

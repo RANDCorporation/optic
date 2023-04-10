@@ -123,6 +123,7 @@ dispatch_simulations <- function(object, seed=NULL, use_future=FALSE, failure=NU
         failed_attempts <- 0
         complete <- 0
         while (complete < 1 & failed_attempts < 0.10 * single_simulation$iters) {
+          
           r <- tryCatch({
             run_iteration(single_simulation)
           },
@@ -142,6 +143,7 @@ dispatch_simulations <- function(object, seed=NULL, use_future=FALSE, failure=NU
                      paste(r, collapse=" ")))
           
         }
+        
         if (is.data.frame(r)) {
           r$iter <- j
         } else if (is.list(r)) {

@@ -2,20 +2,24 @@ Package: optic
 Title: OPTIC
 Version: 1.0.0
 Authors@R: c(
-    person("Beth Ann", "Griffin", email = "bethg@rand.org", role = "aut", comment = c(ORCID = "0000-0002-2391-4601")),
-    person("Pedro", "Nascimento de Lima", email = "plima@rand.org", role = c("cre", "aut"),comment = c(ORCID = "0000-0001-9057-198X")),
-    person("Max", "Grizwold", role = "aut", comment = c(ORCID = "0000-0002-6387-128X")),
+    person("Beth Ann", "Griffin", , "bethg@rand.org", role = "aut",
+           comment = c(ORCID = "0000-0002-2391-4601")),
+    person("Pedro", "Nascimento de Lima", , "plima@rand.org", role = c("cre", "aut"),
+           comment = c(ORCID = "0000-0001-9057-198X")),
+    person("Max", "Grizwold", role = "aut",
+           comment = c(ORCID = "0000-0002-6387-128X")),
     person("Adam", "Scherling", role = "aut"),
     person("Joseph", "Pane", role = "aut"),
     person("Geoffrey", "Grimm", role = "aut")
   )
 Description: Implements a simulation study to assess the strengths and
-    weaknesses of causal inference methods for estimating
-    policy effects using panel data.
+    weaknesses of causal inference methods for estimating policy effects
+    using panel data.
 License: GPL-3 | file LICENSE
 Depends: 
-    R (>= 3.6.0)
+    R (>= 4.1.0)
 Imports:
+    did,
     dplyr,
     future.apply,
     lmtest,

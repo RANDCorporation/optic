@@ -15,13 +15,13 @@ optic_simulation(
   effect_direction,
   policy_speed,
   prior_control = "mva3",
-  bias_size,
-  bias_type,
-  treat_var,
+  bias_size = NULL,
+  bias_type = NULL,
+  treat_var = NULL,
   n_implementation_periods,
-  rhos,
-  years_apart,
-  ordered,
+  rhos = NULL,
+  years_apart = NULL,
+  ordered = NULL,
   method,
   method_sample,
   method_model,
@@ -38,58 +38,51 @@ optic_simulation(
 \item{models}{List of `optic_model` objects that should be run for each iteration and simulation scenario.
 The elements must be created using the `optic_model` function.}
 
-\item{iters}{Number of iterations for each simulation scenario.}
+\item{iters}{A numeric, specifying number of iterations for each simulation scenario.}
 
-\item{unit_var}{char(1) variable specifying the unit to be simulate (i.e., "state")}
+\item{unit_var}{A string variable, specifying the unit-of-analysis within the dataset. Used to determine clusters for clustered standard errors.}
 
-\item{time_var}{char(1) variable specifying the time variable (i.e., "year")}
+\item{time_var}{A string variable, specifying time units (e.g. "year", "time to treat", etc)}
 
-\item{effect_magnitude}{document. list of scenarios to consider}
+\item{effect_magnitude}{A vector of numerics, specifying 'true' effect sizes for treatment scenarios. See vignette for more details. Synthetic datasets will be generated for each entry in the vector.}
 
-\item{n_units}{integer. document.}
+\item{n_units}{A numeric, determining number of units to simulate treatment effects. Synthetic datasets will be generated for each entry in the vector.}
 
-\item{effect_direction}{character vector containing the effects direction to consider. can include "null", "pos" and/or "neg"}
+\item{effect_direction}{A vector containing either 'neg', 'null', or 'pos'. Determines the direction of the simulated effect. Synthetic datasets will be generated for each entry in the vector.}
 
-\item{policy_speed}{document. either "instant" or "slow"}
+\item{policy_speed}{A vector of strings, containing either 'instant' or 'slow' entries, determining how quickly treated units obtain the simulated effect. Synthetic datasets will be generated for each entry in the vector. Can either be 'instant" (so treatment effect applies fully in the first treated time period) or 'slow' (treatment effect ramps up linearly to the desired effect size, based on `n_implementation_periods`.}
 
-\item{prior_control}{character(n) document. apparently only used for no_confounding}
+\item{prior_control}{MAX to document.}
 
-\item{bias_size}{document. Either "small" "medium" or "large".}
+\item{bias_size}{A string, either "small" "medium" or "large". Specifies relative size of bias for 'confounding' method.}
 
-\item{bias_type}{document. Either linear" or "nonlinear".}
+\item{bias_type}{A string, either linear" or "nonlinear". Specifies type of bias for 'confounding' method}
 
-\item{treat_var}{character(1). document. apparently only used for no_confounding.}
+\item{treat_var}{MAX to document.}
 
-\item{n_implementation_periods}{document}
+\item{n_implementation_periods}{A vector of numerics, determing number of periods after implementation until treated units reach the desired simulated treatment effect. Synthetic datasets will be generated for each entry in the vector.}
 
-\item{rhos}{document}
+\item{rhos}{A vector of values between 0-1, indicating the correlation between the primary policy and a concurrent policy. Only applies when 'method' == 'concurrent'. Synthetic datasets will be generated for each entry in the vector.}
 
-\item{years_apart}{document}
+\item{years_apart}{A numeric, for number of years between the primary policy being implemented and the concurrent policy. Only applies when 'method' == 'concurrent'.}
 
-\item{ordered}{boolean. document}
+\item{ordered}{A boolean, determines if the primary policy always occurs before the concurrent policy (`TRUE`) or if the policies are randomly ordered (`FALSE`).}
 
-\item{method}{character. either no_confounding, confounding or concurrent}
+\item{method}{A string, determing the simulation method. Can be either 'no_confounding', 'confounding' or 'concurrent'}
 
-\item{method_sample}{function for sampling treated units, should modify the
-single_simulation$data object}
+\item{method_sample}{MAX, please document}
 
-\item{method_model}{function to run model, default performs a do.call on the 
-model_call, passing model_formula and model_args if provided. Resulting 
-model object is added to single_simulation list under named element
-"model_result"}
+\item{method_model}{MAX, please document}
 
-\item{method_results}{function that takes the single_simulation object and
-the return value is what it returned from run_iteration}
+\item{method_results}{MAX, please document}
 
-\item{method_pre_model}{optional function that will be applied single_simulation
-object prior to modeling}
+\item{method_pre_model}{MAX, please document}
 
-\item{method_post_model}{optional function for any post-processing on 
-single_simulation object}
+\item{method_post_model}{MAX, please document}
 
-\item{globals}{Additional globals to pass to the simulate function, such as parallelization packages or additional R packages used by method calls.}
+\item{globals}{Additional globals to pass to the simulate function, such as parallelization packages or additional R packages used by method calls (e.g. modeling packages, like "FEOLS").}
 
-\item{verbose}{Default True. If TRUE, provides summary details on simulation runs across iterations}
+\item{verbose}{Boolean, default True. If TRUE, provides summary details on simulation runs across iterations}
 }
 \description{
 Performs validation on inputs and produces a configuration object
