@@ -172,8 +172,3 @@ dispatch_simulations <- function(object, seed=NULL, use_future=FALSE, failure=NU
   
   return(return_list)
 }
-
-# #' @export
-# dispatch_simulations <- function(object, ...) {
-#  UseMethod("dispatch_simulations")
-#}

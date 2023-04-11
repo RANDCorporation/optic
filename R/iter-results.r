@@ -30,7 +30,7 @@ mse_resid <- function(x) {
   return(mean(x^2, na.rm=T))
 }
 
-#' TODO: write documentation for this function if the user needs to see this.
+#' Computes summary statistics for the iteration for linear models.
 #'
 #' @param model_simulation 
 #'
@@ -125,6 +125,11 @@ iter_results.lm <- function(model_simulation) {
   return(r)
 }
 
+#' Computes summary statistics for the iteration for negative binomial models.
+#'
+#' @param model_simulation 
+#'
+#' @noRd
 iter_results.negbin.glm <- function(model_simulation) {
   m <- model_simulation$model_result
   

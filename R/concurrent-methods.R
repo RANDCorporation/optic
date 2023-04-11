@@ -47,7 +47,7 @@ concurrent_sample <- function(single_simulation) {
       available_periods <- unique(x[[time_var]])
     }
     
-    #      sample on months; perhaps look into abstracting for any units of time
+    # sample on months
     available_periods1 = min(available_periods):(max(available_periods)-(years_apart))
     sampled_time_period <- sample(available_periods1, 1) #this becomes the mean
     
