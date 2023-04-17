@@ -13,7 +13,7 @@
 #' perform sampling and coding of treatment for selection bias simulations
 #' 
 #' @description uses values of b0, b1, b2 to sample treated units based on
-#'     values of two covariates (here moving average and unemployment rate) to induce confounding (selection) bias.
+#'     values of two covariates (here moving average and the variable passed under the "var_conf" parameter) to induce confounding (selection) bias.
 #'     Once treated units are identified, codes level and change version of
 #'     treatment that are used in various modeling approaches later on.
 #'
