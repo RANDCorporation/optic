@@ -26,6 +26,7 @@ fixedeff_linear <- optic_model(
   se_adjust=c("none", "cluster")
 )
 
+
 # Creating bias vals object
 bias_vals <- list(
   linear = list(

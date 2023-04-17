@@ -171,7 +171,8 @@ concurrent_premodel <- function(model_simulation) {
   x <- model_simulation$data
   model <- model_simulation$models
   outcome <- model_terms(model$model_formula)[["lhs"]]
-  
+  oo <- dplyr::sym(outcome)
+
   ##############################
   ### APPLY TREATMENT EFFECT ###
   ##############################
@@ -188,10 +189,6 @@ concurrent_premodel <- function(model_simulation) {
   # if autoregressive, need to add lag for crude rate
   # when outcome is deaths, derive new crude rate from modified outcome
   if (model$type == "autoreg") {
-    if (outcome == "deaths") {
-      #TODO: As Max noted, we need to coherently pass an option to do that.
-      x$crude.rate <- (x$deaths * 100000)/ x$population
-    }
     
     # get lag of crude rate and add it to the model
     unit_sym <- dplyr::sym(model_simulation$unit_var)
@@ -200,10 +197,10 @@ concurrent_premodel <- function(model_simulation) {
     x <- x %>%
       dplyr::arrange(!!unit_sym, !!time_sym) %>%
       dplyr::group_by(!!unit_sym) %>%
-      dplyr::mutate(lag_crude.rate = dplyr::lag(crude.rate, n=1L)) %>%
+      dplyr::mutate(lag_outcome = dplyr::lag(!!oo, n=1L)) %>%
       dplyr::ungroup()
     
-    model_simulation$models$model_formula <- update.formula(model_simulation$models$model_formula, ~ . + lag_crude.rate)
+    model_simulation$models$model_formula <- update.formula(model_simulation$models$model_formula, ~ . + lag_outcome)
   }
   
   # modified data back into object

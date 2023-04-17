@@ -70,5 +70,3 @@ get_treated_units <- function(
   
   return(treated)
 }
-
-
