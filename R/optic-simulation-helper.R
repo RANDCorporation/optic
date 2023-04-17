@@ -115,6 +115,9 @@ optic_simulation <- function(x, models, iters,
   } else if (method == "confounding") {
     # Note: Add these new parameters when incorporating the confounding runs.
     stopifnot(bias_type %in% c("linear","nonlinear"))
+    stopifnot(is.character(conf_var))
+    stopifnot(length(conf_var) == 1)
+    stopifnot(conf_var %in% names(x))
     stopifnot(bias_size %in% c("small","medium","large"))
   
     #stop("Confounding is currently not implemented.")
@@ -212,6 +215,10 @@ optic_simulation <- function(x, models, iters,
   
   if(!missing(treat_var)) {
     params$treat_var <- treat_var
+  }
+  
+  if(!missing(conf_var)) {
+    params$conf_var <- conf_var
   }
   
   if(!missing(bias_size)) {

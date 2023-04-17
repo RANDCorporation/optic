@@ -85,6 +85,7 @@ linear_fe_config <- optic_simulation(
   unit_var="state",
   treat_var="state",
   time_var="year",
+  conf_var = "unemploymentrate",
   effect_magnitude=list(linear0),
   n_units= c(5),
   effect_direction=c("null"),
