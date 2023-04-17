@@ -26,6 +26,14 @@ fixedeff_linear <- optic_model(
   se_adjust=c("none", "cluster")
 )
 
+lm_ar <- optic_model(
+  name = "auto_regressive_linear",
+  type = "autoreg",
+  call = "lm",
+  formula = crude.rate ~ unemploymentrate + year + treatment_change,
+  se_adjust = "cluster-unit"
+)
+
 
 # Creating bias vals object
 bias_vals <- list(
@@ -78,7 +86,7 @@ data <- overdoses %>%
 
 linear_fe_config <- optic_simulation(
   x=data,
-  models=list(fixedeff_linear),
+  models=list(fixedeff_linear, lm_ar),
   iters=5,
   method = "confounding",
   globals=list(bias_vals=bias_vals),
