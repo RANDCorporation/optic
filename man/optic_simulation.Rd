@@ -10,6 +10,8 @@ optic_simulation(
   iters,
   unit_var,
   time_var,
+  conf_var,
+  pop_denominator_var,
   effect_magnitude,
   n_units,
   effect_direction,
@@ -42,7 +44,9 @@ The elements must be created using the `optic_model` function.}
 
 \item{unit_var}{A string variable, specifying the unit-of-analysis within the dataset. Used to determine clusters for clustered standard errors.}
 
-\item{time_var}{A string variable, specifying time units (e.g. "year", "time to treat", etc)}
+\item{time_var}{A string variable, specifying time units (e.g. "year", "time to treat", etc). Must be specified in terms of years (fractional years are accepted).}
+
+\item{conf_var}{MAX to document. Confounder variable (previously, unemployment was assumed as the confounder variable).}
 
 \item{effect_magnitude}{A vector of numerics, specifying 'true' effect sizes for treatment scenarios. See vignette for more details. Synthetic datasets will be generated for each entry in the vector.}
 

@@ -190,9 +190,6 @@ Below provides an example of a model list using the `example_data`:
 # with and without covariate adjusters, and a linear model using ar-terms
 # and no fixed-effects
 
-# PNL notes:
-# Models with the same name might be a problem
-
 lm_fe_unadj <- optic_model(
     name = "fixed_effect_linear",
     type = "reg",

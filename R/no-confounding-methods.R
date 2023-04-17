@@ -230,9 +230,6 @@ noconf_premodel <- function(model_simulation) {
   # if autoregressive, need to add lag for crude rate
   # when outcome is deaths, derive new crude rate from modified outcome
   if (model_type == "autoreg") {
-    if (outcome == "deaths") {
-      x$crude.rate <- (x$deaths * 100000)/ x$population
-    }
     
     # get lag of crude rate and add it to the model
     unit_sym <- dplyr::sym(model_simulation$unit_var)
