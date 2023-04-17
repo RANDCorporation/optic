@@ -51,7 +51,6 @@
 optic_simulation <- function(x, models, iters,
                              unit_var, time_var,
                              conf_var,
-                             pop_denominator_var,
                              effect_magnitude, 
                              n_units, 
                              effect_direction, 
