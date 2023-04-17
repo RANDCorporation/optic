@@ -7,8 +7,8 @@
 #------------------------------------------------------------------------------#
 
 #' Adjust standard errors for clusters
-#' TODO: need to cite source for this code/method
-#' Max or BAG, can you investigate?
+#' We verified that this function correctly computes clustered standard errors.
+#' the output of this function matches STATA and R's clustered standard errors.
 #' 
 #' @param model model object from regression fit
 #' @param clsuter vector of cluster assignments; length should equal length of residuals in model object

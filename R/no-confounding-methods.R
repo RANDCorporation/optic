@@ -203,6 +203,7 @@ noconf_premodel <- function(model_simulation) {
   ##########################################
   ### PULL DATA AND PARAMETERS/VARIABLES ###
   ##########################################
+  
   x <- model_simulation$data
   model <- model_simulation$models
   outcome <- optic::model_terms(model$model_formula)[["lhs"]]
@@ -223,6 +224,9 @@ noconf_premodel <- function(model_simulation) {
     concurrent=FALSE
   )
   
+  # PNL note
+  # this implementation does not seem to use the lagged crude rate
+
   # if autoregressive, need to add lag for crude rate
   # when outcome is deaths, derive new crude rate from modified outcome
   if (model_type == "autoreg") {

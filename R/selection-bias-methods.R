@@ -285,12 +285,14 @@ selbias_premodel <- function(model_simulation) {
   model_type <- model$type
   balance_statistics <- NULL
   
+  # PNL note
+  # this implementation does not seem to use 
+  # the lagged crude rate
+  # It uses the lagged outcome.
+
   # if autoregressive, need to add lag for crude rate
   # when outcome is deaths, derive new crude rate from modified outcome
   if (model_type == "autoreg") {
-    if (outcome == "deaths") {
-      x$crude.rate <- (x$deaths * 100000)/ x$population
-    }
     
     # get lag of crude rate and add it to the model
     unit_sym <- dplyr::sym(model_simulation$unit_var)

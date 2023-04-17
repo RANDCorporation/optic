@@ -28,7 +28,6 @@ compute_prior_controls <- function(data, unit_var, time_var, outcome_var) {
   outcome_sym <- dplyr::sym(outcome_var)
   
   # This uses a three-time window moving average by default.
-  # This is not generalized for more or fewer time periods.
   new_data <- data %>%
     arrange(!!unit_sym, !!time_sym) %>%
     group_by(!!unit_sym) %>%

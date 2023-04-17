@@ -20,8 +20,9 @@
 #'     The elements must be created using the `optic_model` function.
 #' @param iters A numeric, specifying number of iterations for each simulation scenario.
 #' @param unit_var A string variable, specifying the unit-of-analysis within the dataset. Used to determine clusters for clustered standard errors.
-#' @param time_var A string variable, specifying time units (e.g. "year", "time to treat", etc)
+#' @param time_var A string variable, specifying time units (e.g. "year", "time to treat", etc). Must be specified in terms of years (fractional years are accepted).
 #' @param treat_var MAX to document. 
+#' @param conf_var MAX to document. Confounder variable (previously, unemployment was assumed as the confounder variable).
 #' @param prior_control MAX to document. 
 #' @param effect_magnitude A vector of numerics, specifying 'true' effect sizes for treatment scenarios. See vignette for more details. Synthetic datasets will be generated for each entry in the vector.
 #' @param n_units  A numeric, determining number of units to simulate treatment effects. Synthetic datasets will be generated for each entry in the vector.
@@ -48,7 +49,9 @@
 #' @importFrom purrr transpose
 #' 
 optic_simulation <- function(x, models, iters,
-                             unit_var, time_var, 
+                             unit_var, time_var,
+                             conf_var,
+                             pop_denominator_var,
                              effect_magnitude, 
                              n_units, 
                              effect_direction, 

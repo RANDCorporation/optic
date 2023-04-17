@@ -26,21 +26,16 @@ get_treated_units <- function(
       available_periods <- unique(x[[time_var]])
     }
     
-    #TODO: this is currently specific to time_var being year and wanting to
-    #      sample on months; need to abstract this functionality so it's not
-    #      hardocded
+    # This assumes time_var is at the year level.
     if (concurrent) {
       sampled_time_period <- sample(available_periods, 1) #this becomes the mean
       data = MASS::mvrnorm(n=200, mu=c(sampled_time_period, sampled_time_period), Sigma=matrix(c(1, rho, rho, 1), nrow=2), empirical=TRUE) #odd - can't set n = 1 so have to sample two
-      sampled_time_period1 = data[1, 1]  # standard normal (mu=yr, sd=1)
-      sampled_time_period2 = data[1, 2]  # standard normal (mu=yr, sd=1)
+      # standard normal (mu=yr, sd=1)
+      sampled_time_period1 = data[1, 1]
+      sampled_time_period2 = data[1, 2]
       #cor(yr1,yr2) #if increasen n to 200; can confirm that correlation = rho with large samples
       
-      #TODO:
-      #now we have continuous enactment dates - would be nice if we could just work with these in our slow and instant coding
-      #ask Geoff if he could work on that code
-      
-      #for now - I will just group to nearest month - very blunt approach
+      # months are grouped to nearest month
       mo1<-sampled_time_period1-floor(sampled_time_period1)
       mo2<-sampled_time_period2-floor(sampled_time_period2)
       mo1=round(12*mo1)
@@ -75,5 +70,3 @@ get_treated_units <- function(
   
   return(treated)
 }
-
-
