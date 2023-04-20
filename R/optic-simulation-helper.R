@@ -19,11 +19,11 @@
 #' @param models List of `optic_model` objects that should be run for each iteration and simulation scenario.
 #'     The elements must be created using the `optic_model` function.
 #' @param iters A numeric, specifying number of iterations for each simulation scenario.
-#' @param unit_var A string variable, specifying the unit-of-analysis within the dataset. Used to determine clusters for clustered standard errors.
+#' @param unit_var A string variable, used to determine clusters for clustered standard errors.
 #' @param time_var A string variable, specifying time units (e.g. "year", "time to treat", etc). Must be specified in terms of years (fractional years are accepted).
-#' @param treat_var MAX to document. 
-#' @param conf_var MAX to document. Confounder variable (previously, unemployment was assumed as the confounder variable).
-#' @param prior_control MAX to document. 
+#' @param treat_var A string variable, refering to the unit-of-analysis for treatment (which may not be the same as the unit var argument, e.g. treated classrooms within clustered schools)
+#' @param conf_var An unobserved confounding variable. Only used for the 'confound-method'.
+#' @param prior_control Only used for confounding method. Adds an additional set of variables which control for the outcome in previous periods (either a moving average of previous time periods or an autoregressive term)
 #' @param effect_magnitude A vector of numerics, specifying 'true' effect sizes for treatment scenarios. See vignette for more details. Synthetic datasets will be generated for each entry in the vector.
 #' @param n_units  A numeric, determining number of units to simulate treatment effects. Synthetic datasets will be generated for each entry in the vector.
 #' @param effect_direction A vector containing either 'neg', 'null', or 'pos'. Determines the direction of the simulated effect. Synthetic datasets will be generated for each entry in the vector. 
@@ -35,11 +35,11 @@
 #' @param years_apart A numeric, for number of years between the primary policy being implemented and the concurrent policy. Only applies when 'method' == 'concurrent'.
 #' @param ordered A boolean, determines if the primary policy always occurs before the concurrent policy (`TRUE`) or if the policies are randomly ordered (`FALSE`).
 #' @param method A string, determing the simulation method. Can be either 'no_confounding', 'confounding' or 'concurrent'
-#' @param method_sample MAX, please document
-#' @param method_pre_model MAX, please document
-#' @param method_model MAX, please document
-#' @param method_post_model MAX, please document
-#' @param method_results MAX, please document
+#' @param method_sample Underlying function for the sampling method to determine treatment status. Provided here for convenience so that the user does not need to modify the actual underlying function's script.
+#' @param method_pre_model Similar to method_sample argument, this variable is provided as a convenience for the user. This function transforms the treatment effect, after it's simulated within the synthetic data.
+#' @param method_model Another convenience function, which can be modified to control the model call.
+#' @param method_post_model Another convenience function, which can be modified to control transformations to the simulated effect, after modeling.
+#' @param method_results Another convenience function, which can be modified to control the simulation results that are returned.
 #' @param verbose Boolean, default True. If TRUE, provides summary details on simulation runs across iterations
 #' @param globals Additional globals to pass to the simulate function, such as parallelization packages or additional R packages used by method calls (e.g. modeling packages, like "FEOLS").
 #' 
