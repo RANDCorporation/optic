@@ -344,7 +344,7 @@ We can use the results table to analyze the relative performance of models acros
 # Compare point estimates across models for the 5% change scenario, with instantaneous policy adoption:
 df_compare <- results[[1]][results[[1]]$se_adjustment == "cluster-unit",]
 
-true_est <- round(five_percent_effect, 3)
+true_est <- -round(five_percent_effect, 3)
 
 grab_mean_and_se <- function(model_name){
   
