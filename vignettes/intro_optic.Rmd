@@ -26,7 +26,7 @@ knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
 
 ```
 
-# OPTIC Introduction {.unnumbered}
+# Introduction {.unnumbered}
 
 This vignette covers use of the OPTIC package (Opioid Policy Tools and Information Center), which contains tools to simulate the performance of commonly-used statistical models for panel data or repeated measures data. Briefly, OPTIC uses Monte Carlo simulations to estimate the performance of models typically used for state-level policy evaluation (for example, differences-in-differences estimators). Package users provide the simulation procedure with a policy evaluation scenario, a hypothetical treatment effect, an estimator and model specification, and simulation parameters. The OPTIC package then constructs simulations for all chosen simulation parameters and estimators, returning summary statistics on each simulation's performance.
 
@@ -37,6 +37,7 @@ the following assumptions:
     a observation's selection into treatment. Additionally, treatment
     effects are assumed to be constant rather than time-varying.
 2.  **Concurrent policies**: There is one additional policy which co-occurs with the the policy of-interest. 
+
 
 Additional details on the simulation procedures within OPTIC are
 available in Griffin et al., 2021 [@http://zotero.org/users/3390799/items/ZNCVTPJF] and Griffin et al., 2022 [@http://zotero.org/users/3390799/items/V3Q6ARUA]. Forthcoming updates to OPTIC will provides simulations which test the effect of confounding bias on model performance.
