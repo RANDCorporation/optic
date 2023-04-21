@@ -20,7 +20,7 @@
 #' @param verbose default TRUE, have the dispatcher tell you what's currently running
 #' 
 #' @noRd
-dispatch_tuning <- function(sim_config, use_future=FALSE, seed=NULL, failure=NULL, verbose=0, ...) {
+dispatch_tuning <- function(sim_config, use_future=FALSE, seed=NULL, verbose=0, ...) {
 
   if (!"optic_simulation" %in% class(sim_config)) {
     stop("`sim_config` must be an optic_simulation object")

@@ -10,6 +10,7 @@ optic_simulation(
   iters,
   unit_var,
   time_var,
+  conf_var,
   effect_magnitude,
   n_units,
   effect_direction,
@@ -40,9 +41,11 @@ The elements must be created using the `optic_model` function.}
 
 \item{iters}{A numeric, specifying number of iterations for each simulation scenario.}
 
-\item{unit_var}{A string variable, specifying the unit-of-analysis within the dataset. Used to determine clusters for clustered standard errors.}
+\item{unit_var}{A string variable, used to determine clusters for clustered standard errors.}
 
-\item{time_var}{A string variable, specifying time units (e.g. "year", "time to treat", etc)}
+\item{time_var}{A string variable, specifying time units (e.g. "year", "time to treat", etc). Must be specified in terms of years (fractional years are accepted).}
+
+\item{conf_var}{An unobserved confounding variable. Only used for the 'confound-method'.}
 
 \item{effect_magnitude}{A vector of numerics, specifying 'true' effect sizes for treatment scenarios. See vignette for more details. Synthetic datasets will be generated for each entry in the vector.}
 
@@ -52,13 +55,13 @@ The elements must be created using the `optic_model` function.}
 
 \item{policy_speed}{A vector of strings, containing either 'instant' or 'slow' entries, determining how quickly treated units obtain the simulated effect. Synthetic datasets will be generated for each entry in the vector. Can either be 'instant" (so treatment effect applies fully in the first treated time period) or 'slow' (treatment effect ramps up linearly to the desired effect size, based on `n_implementation_periods`.}
 
-\item{prior_control}{MAX to document.}
+\item{prior_control}{Only used for confounding method. Adds an additional set of variables which control for the outcome in previous periods (either a moving average of previous time periods or an autoregressive term)}
 
 \item{bias_size}{A string, either "small" "medium" or "large". Specifies relative size of bias for 'confounding' method.}
 
 \item{bias_type}{A string, either linear" or "nonlinear". Specifies type of bias for 'confounding' method}
 
-\item{treat_var}{MAX to document.}
+\item{treat_var}{A string variable, refering to the unit-of-analysis for treatment (which may not be the same as the unit var argument, e.g. treated classrooms within clustered schools)}
 
 \item{n_implementation_periods}{A vector of numerics, determing number of periods after implementation until treated units reach the desired simulated treatment effect. Synthetic datasets will be generated for each entry in the vector.}
 
@@ -70,15 +73,15 @@ The elements must be created using the `optic_model` function.}
 
 \item{method}{A string, determing the simulation method. Can be either 'no_confounding', 'confounding' or 'concurrent'}
 
-\item{method_sample}{MAX, please document}
+\item{method_sample}{Underlying function for the sampling method to determine treatment status. Provided here for convenience so that the user does not need to modify the actual underlying function's script.}
 
-\item{method_model}{MAX, please document}
+\item{method_model}{Another convenience function, which can be modified to control the model call.}
 
-\item{method_results}{MAX, please document}
+\item{method_results}{Another convenience function, which can be modified to control the simulation results that are returned.}
 
-\item{method_pre_model}{MAX, please document}
+\item{method_pre_model}{Similar to method_sample argument, this variable is provided as a convenience for the user. This function transforms the treatment effect, after it's simulated within the synthetic data.}
 
-\item{method_post_model}{MAX, please document}
+\item{method_post_model}{Another convenience function, which can be modified to control transformations to the simulated effect, after modeling.}
 
 \item{globals}{Additional globals to pass to the simulate function, such as parallelization packages or additional R packages used by method calls (e.g. modeling packages, like "FEOLS").}
 

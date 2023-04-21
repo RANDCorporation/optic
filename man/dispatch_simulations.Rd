@@ -4,14 +4,7 @@
 \alias{dispatch_simulations}
 \title{Execute simulations defined in a optic_simulation object}
 \usage{
-dispatch_simulations(
-  object,
-  seed = NULL,
-  use_future = FALSE,
-  failure = NULL,
-  verbose = 0,
-  ...
-)
+dispatch_simulations(object, seed = NULL, use_future = FALSE, verbose = 0, ...)
 }
 \arguments{
 \item{object}{Simulation scenarios object created using optic_simulation}
@@ -22,8 +15,6 @@ each indepdendent set of simulations in optic_simulation.}
 \item{use_future}{Runs simulation scenarios in parallel. Default FALSE, set to TRUE if you have already setup a future
 plan (e.g., multiprocess, cluster, etc) and would like for the iterations to
 be run in parallel.}
-
-\item{failure}{It is uncleear what this does. Max or Beth, do you happen to know the story behind this parameter?}
 
 \item{verbose}{Default TRUE. IF TRUE, provides details on what's currently running.}
 

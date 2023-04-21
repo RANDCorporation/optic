@@ -13,7 +13,7 @@
 #' perform sampling and coding of treatment for selection bias simulations
 #' 
 #' @description uses values of b0, b1, b2 to sample treated units based on
-#'     values of two covariates (here moving average and unemployment rate) to induce confounding (selection) bias.
+#'     values of two covariates (here moving average and the variable passed under the "var_conf" parameter) to induce confounding (selection) bias.
 #'     Once treated units are identified, codes level and change version of
 #'     treatment that are used in various modeling approaches later on.
 #'
@@ -27,6 +27,7 @@ selbias_sample <- function(single_simulation) {
   pc <- single_simulation$prior_control
   unit_var <- single_simulation$unit_var
   time_var <- single_simulation$time_var
+  conf_var <- single_simulation$conf_var
   effect_magnitude <- single_simulation$effect_magnitude
   effect_direction <- single_simulation$effect_direction
   policy_speed <- single_simulation$policy_speed
@@ -83,15 +84,13 @@ selbias_sample <- function(single_simulation) {
     
     x_t <- x[x[[time_var]]==time,]
     
-    # This is where the model is breaking.
-    
     # generate treatment assignments
     logits <- b0 +
       (b1 * x_t$prior_control) +
-      (b2 * x_t$unemploymentrate) +
-      (b3 * (x_t$prior_control * x_t$unemploymentrate)) +
+      (b2 * x_t[[conf_var]]) +
+      (b3 * (x_t$prior_control * x_t[[conf_var]])) +
       (b4 * (x_t$prior_control ^ 2)) +
-      (b5 * (x_t$unemploymentrate ^ 2))
+      (b5 * (x_t[[conf_var]] ^ 2))
     
     trt_pr <- exp(logits) / (1 + exp(logits))
     
@@ -210,10 +209,10 @@ selbias_sample <- function(single_simulation) {
     # augment outcomes
     x_t[[outcomes]] <- x_t[[outcomes]] +
       (a1 * x_t$prior_control) +
-      (a2 * x_t$unemploymentrate) +
-      (a3 * (x_t$prior_control * x_t$unemploymentrate)) +
+      (a2 * x_t[[conf_var]]) +
+      (a3 * (x_t$prior_control * x_t[[conf_var]])) +
       (a4 * (x_t$prior_control ^ 2)) +
-      (a5 * (x_t$unemploymentrate ^ 2)) +
+      (a5 * (x_t[[conf_var]] ^ 2)) +
       (-1)^(effect_direction=='neg') * effect_magnitude * x_t$treatment
     
     # add the modified data for this time period to the full dataset
@@ -274,6 +273,7 @@ selbias_sample <- function(single_simulation) {
 selbias_premodel <- function(model_simulation) {
   x <- model_simulation$data
   model <- model_simulation$models
+  conf <- dplyr::sym(model_simulation$conf_var)
   
   if (model$type != "did") {
     outcome <- optic::model_terms(model$model_formula)[["lhs"]]
@@ -330,9 +330,9 @@ selbias_premodel <- function(model_simulation) {
       mu1_prior = mean(prior_control[treatment > 0]),
       mu0_prior = mean(prior_control[treatment == 0]),
       sd_prior = sd(prior_control),
-      mu1_unempl = mean(unemploymentrate[treatment > 0]),
-      mu0_unempl = mean(unemploymentrate[treatment == 0]),
-      sd_unempl = sd(unemploymentrate),
+      mu1_conf = mean((!!conf)[treatment > 0]),
+      mu0_conf = mean((!!conf)[treatment == 0]),
+      sd_conf = sd(!!conf),
       mu1 = mean((!!oo)[treatment > 0]),
       mu0 = mean((!!oo)[treatment == 0]),
       sd = sd(!!oo),
@@ -340,15 +340,15 @@ selbias_premodel <- function(model_simulation) {
     ) %>%
     mutate(
       es_prior = (mu1_prior - mu0_prior) / sd_prior,
-      es_unempl = (mu1_unempl - mu0_unempl) / sd_unempl,
+      es_conf = (mu1_conf - mu0_conf) / sd_conf,
       es = (mu1 - mu0) / sd
     ) %>%
     ungroup() %>%
     summarize(n = max(n_trt, na.rm=TRUE),
               mean_es_prior = mean(es_prior, na.rm=TRUE),
               max_es_prior = max(abs(es_prior), na.rm=TRUE),
-              mean_es_unempl = mean(es_unempl, na.rm=TRUE),
-              max_es_unempl = max(abs(es_unempl), na.rm=TRUE),
+              mean_es_conf = mean(es_conf, na.rm=TRUE),
+              max_es_conf = max(abs(es_conf), na.rm=TRUE),
               mean_es_outcome = mean(es, na.rm=TRUE),
               max_es_outcome = max(abs(es), na.rm=TRUE),
               .groups="drop"

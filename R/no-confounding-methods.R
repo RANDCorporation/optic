@@ -230,9 +230,6 @@ noconf_premodel <- function(model_simulation) {
   # if autoregressive, need to add lag for crude rate
   # when outcome is deaths, derive new crude rate from modified outcome
   if (model_type == "autoreg") {
-    if (outcome == "deaths") {
-      x$crude.rate <- (x$deaths * 100000)/ x$population
-    }
     
     # get lag of crude rate and add it to the model
     unit_sym <- dplyr::sym(model_simulation$unit_var)
@@ -277,9 +274,6 @@ noconf_premodel <- function(model_simulation) {
       mu1_prior = mean(prior_control[treatment > 0]),
       mu0_prior = mean(prior_control[treatment == 0]),
       sd_prior = sd(prior_control),
-      mu1_unempl = mean(unemploymentrate[treatment > 0]),
-      mu0_unempl = mean(unemploymentrate[treatment == 0]),
-      sd_unempl = sd(unemploymentrate),
       mu1 = mean((!!oo)[treatment > 0]),
       mu0 = mean((!!oo)[treatment == 0]),
       sd = sd(!!oo),
@@ -287,15 +281,12 @@ noconf_premodel <- function(model_simulation) {
     ) %>%
     mutate(
       es_prior = (mu1_prior - mu0_prior) / sd_prior,
-      es_unempl = (mu1_unempl - mu0_unempl) / sd_unempl,
       es = (mu1 - mu0) / sd
     ) %>%
     ungroup() %>%
     summarize(n = max(n_trt, na.rm=TRUE),
               mean_es_prior = mean(es_prior, na.rm=TRUE),
               max_es_prior = max(abs(es_prior), na.rm=TRUE),
-              mean_es_unempl = mean(es_unempl, na.rm=TRUE),
-              max_es_unempl = max(abs(es_unempl), na.rm=TRUE),
               mean_es_outcome = mean(es, na.rm=TRUE),
               max_es_outcome = max(abs(es), na.rm=TRUE),
               .groups="drop"

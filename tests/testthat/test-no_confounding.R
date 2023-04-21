@@ -35,9 +35,18 @@ fixedeff_linear_two <- optic_model(
   se_adjust=c("none", "cluster-unit", "cluster-treat", "huber", "arellano")
 )
 
+lm_ar <- optic_model(
+  name = "auto_regressive_linear",
+  type = "autoreg",
+  call = "lm",
+  formula = opioid_rx ~ unemploymentrate + year + treatment_change,
+  se_adjust = "cluster-unit"
+)
+
+
 linear_fe_config <- optic_simulation(
   x=overdoses,
-  models=list(fixedeff_linear, fixedeff_linear_two),
+  models=list(fixedeff_linear, fixedeff_linear_two, lm_ar),
   iters=5,
   method = "no_confounding",
   globals=NULL,

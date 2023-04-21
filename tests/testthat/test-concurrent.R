@@ -34,7 +34,7 @@ model_1 <- optic_model(
 model_2 <- optic_model(name="autoreg_linear",
                        type="autoreg",
                        call="lm",
-                       formula=deaths ~ unemploymentrate + as.factor(year) + treatment1_change + treatment2_change,
+                       formula=crude.rate ~ unemploymentrate + as.factor(year) + treatment1_change + treatment2_change,
                        weights= "population",
                        se_adjust=c("none", "cluster"))
 

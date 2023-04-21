@@ -15,14 +15,13 @@
 #' @param use_future Runs simulation scenarios in parallel. Default FALSE, set to TRUE if you have already setup a future
 #'     plan (e.g., multiprocess, cluster, etc) and would like for the iterations to
 #'     be run in parallel.
-#' @param failure It is uncleear what this does. Max or Beth, do you happen to know the story behind this parameter?
 #' @param verbose Default TRUE. IF TRUE, provides details on what's currently running.
 #' @param ... additional parameters to be passed to future_apply. User can pass future.globals and future.packages if your code relies on additrional packages
 #' 
 #' @importFrom future.apply future_lapply
 #' @importFrom stats simulate
 #' @export
-dispatch_simulations <- function(object, seed=NULL, use_future=FALSE, failure=NULL, verbose=0, ...) {
+dispatch_simulations <- function(object, seed=NULL, use_future=FALSE, verbose=0, ...) {
   
   # only use this with optic sim objects.
   # This is purposefully not written as a generic
