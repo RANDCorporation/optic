@@ -15,3 +15,6 @@ devtools::test()
 devtools::build_manual()
 
 devtools::build_vignettes()
+
+# install with vignettes:
+devtools::install(build_vignettes = TRUE)
