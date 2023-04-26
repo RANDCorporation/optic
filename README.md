@@ -5,15 +5,13 @@
 
 **Simulation test-bed for Longitudinal Causal Inference models**
 
-<!-- 
 [![R-CMD-check](https://github.com/RANDCorporation/optic/workflows/R-CMD-check/badge.svg)](https://github.com/RANDCorporation/optic/actions)
-[![Test Coverage](https://github.com/RANDCorporation/optic/workflows/test-coverage/badge.svg)](https://github.com/RANDCorporation/optic/actions)
-[![codecov](https://codecov.io/gh/RANDCorporation/optic/branch/develop/graph/badge.svg?token=5XYDOFFJMH)](https://codecov.io/gh/RANDCorporation/optic)
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![Test
+Coverage](https://github.com/RANDCorporation/optic/workflows/test-coverage/badge.svg)](https://github.com/RANDCorporation/optic/actions)
 
-# add badges once package is in RAND's github
-badges: start -->
-<!-- badges: end -->
+<!-- badges: end
+[![codecov](https://codecov.io/gh/RANDCorporation/optic/branch/develop/graph/badge.svg?token=5XYDOFFJMH)](https://codecov.io/gh/RANDCorporation/optic)
+-->
 
 The `optic` package helps you scrutinize candidate causal inference
 models using **your own** longitudinal data.
