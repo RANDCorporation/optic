@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# optic <a href='https://optic-tools.github.io/optic/'><img src='man/figures/optic.png' align="right" height="139"  style="height:139px !important;" /></a>
+# optic <a href='https://github.com/RANDCorporation/optic'><img src='man/figures/optic.png' align="right" height="139"  style="height:139px !important;" /></a>
 **Simulation Tool for Causal Inference Using Longitudinal Data**
 
 [![R-CMD-check](https://github.com/RANDCorporation/optic/workflows/R-CMD-check/badge.svg)](https://github.com/RANDCorporation/optic/actions)
@@ -27,7 +27,7 @@ knitr::opts_chunk$set(
 [![codecov](https://codecov.io/gh/RANDCorporation/optic/branch/develop/graph/badge.svg?token=5XYDOFFJMH)](https://codecov.io/gh/RANDCorporation/optic)
 -->
 
-The `optic` package helps you scrutinize candidate causal inference models using **your own** longitudinal data.
+The `optic` R package helps you scrutinize candidate causal inference models using **your own** longitudinal data.
 
 The recent Diff-in-Diff literature revealed issues with the traditional Diff-in-Diff model, but we found it very difficult to evaluate the relative performance of different causal inference methods using *our own data*. 
 
@@ -47,11 +47,16 @@ The package supports the traditional two-way fixed effects DID model and the AR 
 
 ## Installation
 
-You can install `optic` like so:
+You will need [R (>= 4.1.0)](https://www.r-project.org) to use this package. You can install the `optic` R package from the `R` console:
 
 ``` r
-# install from github:
-remotes::install_github("RANDCorporation/optic")
+# in the near future, you will be able to install from CRAN with
+install.packages("optic")
+
+# or install the development version from github:
+# install remotes if needed
+install.packages("remotes")
+remotes::install_github("RANDCorporation/optic", build_vignettes = T)
 ```
 
 ## Usage

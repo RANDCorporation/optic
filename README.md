@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# optic <a href='https://optic-tools.github.io/optic/'><img src='man/figures/optic.png' align="right" height="139"  style="height:139px !important;" /></a>
+# optic <a href='https://github.com/RANDCorporation/optic'><img src='man/figures/optic.png' align="right" height="139"  style="height:139px !important;" /></a>
 
 **Simulation Tool for Causal Inference Using Longitudinal Data**
 
@@ -13,7 +13,7 @@ Coverage](https://github.com/RANDCorporation/optic/workflows/test-coverage/badge
 [![codecov](https://codecov.io/gh/RANDCorporation/optic/branch/develop/graph/badge.svg?token=5XYDOFFJMH)](https://codecov.io/gh/RANDCorporation/optic)
 -->
 
-The `optic` package helps you scrutinize candidate causal inference
+The `optic` R package helps you scrutinize candidate causal inference
 models using **your own** longitudinal data.
 
 The recent Diff-in-Diff literature revealed issues with the traditional
@@ -64,11 +64,17 @@ Stein).
 
 ## Installation
 
-You can install `optic` like so:
+You will need [R (\>= 4.1.0)](https://www.r-project.org) to use this
+package. You can install the `optic` R package from the `R` console:
 
 ``` r
-# install from github:
-remotes::install_github("RANDCorporation/optic")
+# in the near future, you will be able to install from CRAN with
+install.packages("optic")
+
+# or install the development version from github:
+# install remotes if needed
+install.packages("remotes")
+remotes::install_github("RANDCorporation/optic", build_vignettes = T)
 ```
 
 ## Usage
