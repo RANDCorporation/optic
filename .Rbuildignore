@@ -12,3 +12,4 @@ dev
 ^doc$
 ^Meta$
 ^.github$
+^\.github$
