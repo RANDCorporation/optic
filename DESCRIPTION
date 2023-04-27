@@ -1,6 +1,6 @@
 Package: optic
-Title: OPTIC
-Version: 1.0.0
+Title: optic: Simulation Tool for Causal Inference Using Longitudinal Data
+Version: 0.1.0
 Authors@R: c(
     person("Beth Ann", "Griffin", , "bethg@rand.org", role = "aut",
            comment = c(ORCID = "0000-0002-2391-4601")),

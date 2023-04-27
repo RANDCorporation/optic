@@ -3,7 +3,7 @@
 
 # optic <a href='https://optic-tools.github.io/optic/'><img src='man/figures/optic.png' align="right" height="139"  style="height:139px !important;" /></a>
 
-**Simulation test-bed for Longitudinal Causal Inference models**
+**Simulation Tool for Causal Inference Using Longitudinal Data**
 
 [![R-CMD-check](https://github.com/RANDCorporation/optic/workflows/R-CMD-check/badge.svg)](https://github.com/RANDCorporation/optic/actions)
 [![Test
@@ -35,11 +35,11 @@ publications to date include:
     demonstrated notable limitations of those methods. In contrast, the
     optimal model we identified–the autoregressive model (AR) model-
     showed a lot of promise. That said, don’t just take our word for
-    it - try it our with your own data and see how various approaches do
-    relative to each other. See for details.
+    it - try it out with your own data and see how various approaches do
+    relative to each other. See below for details.
 
 2.  In Griffin et al.
-    ([2022](#ref-http://zotero.org/users/3390799/items/V3Q6ARUA)) we
+    ([2022](#ref-http://zotero.org/users/3390799/items/V3Q6ARUA)), we
     also demonstrate it is critical to be able to control for effects of
     co-occurring policies, and understand the potential bias that might
     arise from not controlling for those policies. Our package can also
@@ -58,7 +58,9 @@ control and the Callaway-Santa’Anna approach to DID.
 ### Why `optic`?
 
 `optic` is named after the **Opioid Policy Tools and Information Center
-(OPTIC)** project which provide funding for this effort.
+(OPTIC)** project. The research was financially supported through a
+National Institutes of Health (NIH) grant (P50DA046351) to RAND (PI:
+Stein).
 
 ## Installation
 
