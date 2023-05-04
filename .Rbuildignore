@@ -13,3 +13,4 @@ dev
 ^Meta$
 ^.github$
 ^\.github$
+^cran-comments\.md$
