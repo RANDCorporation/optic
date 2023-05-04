@@ -60,14 +60,14 @@ selbias_sample <- function(single_simulation) {
   b5 <- bias_vals["b5"]
   
   # save values of prior control variable prior to augmenting the outcome
-  if (pc == "mva3") {
-    x$prior_control <- x$prior_control_mva3_OLD
-    x$prior_control_old <- x$prior_control_mva3_OLD
+  if (pc == "level") {
+    x$prior_control <- x$prior_control_level_OLD
+    x$prior_control_old <- x$prior_control_level_OLD
   } else if (pc == "trend") {
     x$prior_control <- x$prior_control_trend_OLD
     x$prior_control_old <- x$prior_control_trend_OLD
   } else {
-    stop("invalid prior control option, must be either 'mva3' or 'trend'")
+    stop("invalid prior control option, must be either 'level' or 'trend'")
   }
   
   # unique study units
@@ -224,12 +224,12 @@ selbias_sample <- function(single_simulation) {
     x$lag2 <- unlist(tapply(x[[outcomes]], x[[unit_var]], function(x) dplyr::lag(x, n=2)), use.names = F)
     x$lag3 <- unlist(tapply(x[[outcomes]], x[[unit_var]], function(x) dplyr::lag(x, n=3)), use.names = F)
     
-    if(pc == 'mva3'){
+    if(pc == 'level'){
       x$prior_control = (x$lag1 + x$lag2 + x$lag3) / 3
     } else if(pc == 'trend'){
       x$prior_control = x$lag1 - x$lag3
     } else{
-      stop("invalid prior control option, must be either 'mva3' or 'trend'")
+      stop("invalid prior control option, must be either 'level' or 'trend'")
     } 
     
   }

@@ -24,14 +24,14 @@ noconf_sample <- function(single_simulation) {
   x <- single_simulation$data
   pc <- single_simulation$prior_control
   
-  if (single_simulation$prior_control == "mva3") {
-    x$prior_control <- x$prior_control_mva3_OLD
-    x$prior_control_old <- x$prior_control_mva3_OLD
+  if (single_simulation$prior_control == "level") {
+    x$prior_control <- x$prior_control_level_OLD
+    x$prior_control_old <- x$prior_control_level_OLD
   } else if (single_simulation$prior_control == "trend") {
     x$prior_control <- x$prior_control_trend_OLD
     x$prior_control_old <- x$prior_control_trend_OLD
   } else {
-    stop("invalid prior control option, must be either 'mva3' or 'trend'")
+    stop("invalid prior control option, must be either 'level' or 'trend'")
   }
   
   n <- single_simulation$n_units
