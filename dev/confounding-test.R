@@ -25,7 +25,7 @@ fixedeff_linear <- optic_model(
 # Creating bias vals object
 bias_vals <- list(
   linear = list(
-    mva3 = list(
+    level = list(
       small=c(b0=-3.9, b1=0.06, b2=0.06, b3=0, b4=0, b5=0,
               a1=0.2, a2=0.05, a3=0, a4=0, a5=0),
       medium=c(b0=-4.3, b1=0.11, b2=0.07, b3=0, b4=0, b5=0,
@@ -44,7 +44,7 @@ bias_vals <- list(
       none = c(b0=-5, b1=0, b2=0, b3=0, b4=0, b5=0,
                a1=0, a2=0, a3=0, a4=0, a5=0))),
   nonlinear = list(
-    mva3 = list(
+    level = list(
       small=c(b0=-3.8, b1=0.05, b2=0.05, b3=0.0003, b4=0.0003, b5=0.000003,
               a1=0.01, a2=0.01, a3=0.01, a4=0.01, a5=0.001),
       medium=c(b0=-4, b1=0.05, b2=0.05, b3=0.003, b4=0.003, b5=0.00003,
@@ -85,7 +85,7 @@ linear_fe_config <- optic_simulation(
   effect_direction=c("null"),
   policy_speed=list("instant"),
   n_implementation_periods=c(0), 
-  prior_control=c("trend", "mva3"),
+  prior_control=c("trend", "level"),
   bias_type=c("linear","nonlinear"),
   bias_size=c("small","medium","large")
 )

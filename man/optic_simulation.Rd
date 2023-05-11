@@ -15,7 +15,7 @@ optic_simulation(
   n_units,
   effect_direction,
   policy_speed,
-  prior_control = "mva3",
+  prior_control = "level",
   bias_size = NULL,
   bias_type = NULL,
   treat_var = NULL,

@@ -12,6 +12,8 @@
 #' @name globalvariables definitions
 #' @noRd
 #' @importFrom utils globalVariables
+#' @importFrom magrittr %>%
+#' @import dplyr
 utils::globalVariables(c("treatment1", 
                          "treatment2", 
                          "temp_lag1", 

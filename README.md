@@ -1,21 +1,19 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# optic <a href='https://optic-tools.github.io/optic/'><img src='man/figures/optic.png' align="right" height="139"  style="height:139px !important;" /></a>
+# optic <a href='https://github.com/RANDCorporation/optic'><img src='man/figures/optic.png' align="right" height="139"  style="height:139px !important;" /></a>
 
-**Simulation test-bed for Longitudinal Causal Inference models**
+**Simulation Tool for Causal Inference Using Longitudinal Data**
 
-<!-- 
 [![R-CMD-check](https://github.com/RANDCorporation/optic/workflows/R-CMD-check/badge.svg)](https://github.com/RANDCorporation/optic/actions)
-[![Test Coverage](https://github.com/RANDCorporation/optic/workflows/test-coverage/badge.svg)](https://github.com/RANDCorporation/optic/actions)
+[![Test
+Coverage](https://github.com/RANDCorporation/optic/workflows/test-coverage/badge.svg)](https://github.com/RANDCorporation/optic/actions)
+
+<!-- badges: end
 [![codecov](https://codecov.io/gh/RANDCorporation/optic/branch/develop/graph/badge.svg?token=5XYDOFFJMH)](https://codecov.io/gh/RANDCorporation/optic)
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+-->
 
-# add badges once package is in RAND's github
-badges: start -->
-<!-- badges: end -->
-
-The `optic` package helps you scrutinize candidate causal inference
+The `optic` R package helps you scrutinize candidate causal inference
 models using **your own** longitudinal data.
 
 The recent Diff-in-Diff literature revealed issues with the traditional
@@ -37,11 +35,11 @@ publications to date include:
     demonstrated notable limitations of those methods. In contrast, the
     optimal model we identified–the autoregressive model (AR) model-
     showed a lot of promise. That said, don’t just take our word for
-    it - try it our with your own data and see how various approaches do
-    relative to each other. See for details.
+    it - try it out with your own data and see how various approaches do
+    relative to each other. See below for details.
 
 2.  In Griffin et al.
-    ([2022](#ref-http://zotero.org/users/3390799/items/V3Q6ARUA)) we
+    ([2022](#ref-http://zotero.org/users/3390799/items/V3Q6ARUA)), we
     also demonstrate it is critical to be able to control for effects of
     co-occurring policies, and understand the potential bias that might
     arise from not controlling for those policies. Our package can also
@@ -60,15 +58,23 @@ control and the Callaway-Santa’Anna approach to DID.
 ### Why `optic`?
 
 `optic` is named after the **Opioid Policy Tools and Information Center
-(OPTIC)** project which provide funding for this effort.
+(OPTIC)** project. The research was financially supported through a
+National Institutes of Health (NIH) grant (P50DA046351) to RAND (PI:
+Stein).
 
 ## Installation
 
-You can install `optic` like so:
+You will need [R (\>= 4.1.0)](https://www.r-project.org) to use this
+package. You can install the `optic` R package from the `R` console:
 
 ``` r
-# install from github:
-remotes::install_github("RANDCorporation/optic")
+# in the near future, you will be able to install from CRAN with
+install.packages("optic")
+
+# or install the development version from github:
+# install remotes if needed
+install.packages("remotes")
+remotes::install_github("RANDCorporation/optic", build_vignettes = T)
 ```
 
 ## Usage

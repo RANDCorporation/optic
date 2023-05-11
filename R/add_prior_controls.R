@@ -9,14 +9,14 @@
 
 #' Compute prior control variables
 #' 
-#' Adds a three-period moving average (mva3) and a trend (computed as the difference between y_t-1 and y_t-3) to the data set.
+#' Adds a three-period moving average (level) and a trend (computed as the difference between y_t-1 and y_t-3) to the data set.
 #'
 #' @param data a data.frame set provided by the user
 #' @param unit_var char(1) The unit variable (i.e., state)
 #' @param time_var char(1) The time variable (i.e., year)
 #' @param outcome_var char(1) The outcome variable
 #'
-#' @return the same data.frame, with to additional variables called prior_control_mva3_OLD, and prior_control_trend_OLD
+#' @return the same data.frame, with to additional variables called prior_control_level_OLD, and prior_control_trend_OLD
 #' @noRd
 compute_prior_controls <- function(data, unit_var, time_var, outcome_var) {
   
@@ -37,7 +37,7 @@ compute_prior_controls <- function(data, unit_var, time_var, outcome_var) {
     ungroup() %>%
     rowwise() %>%
     # code in moving average and trend versions of prior control
-    mutate(prior_control_mva3_OLD = mean(c(lag1, lag2, lag3)),
+    mutate(prior_control_level_OLD = mean(c(lag1, lag2, lag3)),
            prior_control_trend_OLD = lag1 - lag3) %>%
     ungroup() %>%
     dplyr::select(-lag1, -lag2, -lag3) %>%

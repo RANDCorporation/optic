@@ -12,3 +12,5 @@ dev
 ^doc$
 ^Meta$
 ^.github$
+^\.github$
+^cran-comments\.md$

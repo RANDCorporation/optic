@@ -16,5 +16,7 @@ devtools::build_manual()
 
 devtools::build_vignettes()
 
+pkgdown::build_site()
+
 # install with vignettes:
 devtools::install(build_vignettes = TRUE)

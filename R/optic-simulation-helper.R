@@ -55,7 +55,7 @@ optic_simulation <- function(x, models, iters,
                              n_units, 
                              effect_direction, 
                              policy_speed, 
-                             prior_control = "mva3", # mva3 should be levels
+                             prior_control = "level", # level should be levels
                              bias_size = NULL,
                              bias_type = NULL,
                              treat_var = NULL,
@@ -179,7 +179,7 @@ optic_simulation <- function(x, models, iters,
   # check parameters
   # these checks are likely very stringent and could be relaxed for some
   # combinations of inputs
-  stopifnot(prior_control %in% c("mva3", "trend"))
+  stopifnot(prior_control %in% c("level", "trend"))
   stopifnot(is.character(unit_var), length(unit_var) == 1)
   stopifnot(is.character(time_var), length(time_var) == 1)
   stopifnot(is.list(effect_magnitude))
