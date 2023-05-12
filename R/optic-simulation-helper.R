@@ -21,7 +21,7 @@
 #' @param iters A numeric, specifying number of iterations for each simulation scenario.
 #' @param unit_var A string variable, used to determine clusters for clustered standard errors.
 #' @param time_var A string variable, specifying time units (e.g. "year", "time to treat", etc). Must be specified in terms of years (fractional years are accepted).
-#' @param treat_var A string variable, refering to the unit-of-analysis for treatment (which may not be the same as the unit var argument, e.g. treated classrooms within clustered schools)
+#' @param treat_var A string variable, referring to the unit-of-analysis for treatment (which may not be the same as the unit var argument, e.g. treated classrooms within clustered schools)
 #' @param conf_var An unobserved confounding variable. Only used for the 'confound-method'.
 #' @param prior_control Only used for confounding method. Adds an additional set of variables which control for the outcome in previous periods (either a moving average of previous time periods or an autoregressive term)
 #' @param effect_magnitude A vector of numerics, specifying 'true' effect sizes for treatment scenarios. See vignette for more details. Synthetic datasets will be generated for each entry in the vector.
@@ -30,7 +30,7 @@
 #' @param policy_speed A vector of strings, containing either 'instant' or 'slow' entries, determining how quickly treated units obtain the simulated effect. Synthetic datasets will be generated for each entry in the vector. Can either be 'instant" (so treatment effect applies fully in the first treated time period) or 'slow' (treatment effect ramps up linearly to the desired effect size, based on `n_implementation_periods`.
 #' @param bias_type A string, either linear" or "nonlinear". Specifies type of bias for 'confounding' method 
 #' @param bias_size A string, either "small" "medium" or "large". Specifies relative size of bias for 'confounding' method. 
-#' @param n_implementation_periods A vector of numerics, determing number of periods after implementation until treated units reach the desired simulated treatment effect. Synthetic datasets will be generated for each entry in the vector.
+#' @param n_implementation_periods A vector of numerics, determining number of periods after implementation until treated units reach the desired simulated treatment effect. Synthetic datasets will be generated for each entry in the vector.
 #' @param rhos A vector of values between 0-1, indicating the correlation between the primary policy and a concurrent policy. Only applies when 'method' == 'concurrent'. Synthetic datasets will be generated for each entry in the vector.
 #' @param years_apart A numeric, for number of years between the primary policy being implemented and the concurrent policy. Only applies when 'method' == 'concurrent'.
 #' @param ordered A boolean, determines if the primary policy always occurs before the concurrent policy (`TRUE`) or if the policies are randomly ordered (`FALSE`).
@@ -42,6 +42,21 @@
 #' @param method_results Another convenience function, which can be modified to control the simulation results that are returned.
 #' @param verbose Boolean, default True. If TRUE, provides summary details on simulation runs across iterations
 #' @param globals Additional globals to pass to the simulate function, such as parallelization packages or additional R packages used by method calls (e.g. modeling packages, like "FEOLS").
+#' @returns An OpticSim object, which contains simulation and model parameters for simulation runs, which is used as an input for dispatch_simulations.
+#' @examples 
+#' 
+#' # Load data for simulation and set up a hypothetical policy effect to simulate:
+#' data(overdoses)
+#' eff <- 0.1*mean(overdoses$crude.rate, na.rm = T)
+#' 
+#' # Set up a simple linear model
+#' form <- formula(crude.rate ~ state + year + population + treatment_level)
+#' mod <- optic_model(name = 'lin', type = 'reg', call = 'lm', formula = form, se_adjust = 'none')
+#' 
+#' # Create simulation object, with desired parameters for simulations:
+#' sim <- optic_simulation(x = overdoses, models = list(mod), method = 'no_confounding', unit_var = 'state', treat_var = 'state',
+#' time_var = 'year', effect_magnitude = list(eff), n_units = 10, effect_direction = 'pos', iters = 10,
+#' policy_speed = 'instant', n_implementation_periods = 1)
 #' 
 #' @export
 #' 

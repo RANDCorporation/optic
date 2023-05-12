@@ -21,7 +21,7 @@ apply_treatment_effect <- function(x, model_formula, model_call, te, effect_dire
   outcome <- model_terms(model_formula)[["lhs"]]
   
   # identify additive or multiplicative modification of outcome required
-  if (model_call == "lm" | model_call == "feols" | model_call == "multisynth") {
+  if (model_call == "lm" | model_call == "feols" | model_call == "multisynth" | model_call == 'lmer') {
     modifier <- "additive"
   } else if (model_call == "glm.nb") {
     modifier <- "multiplicative"
