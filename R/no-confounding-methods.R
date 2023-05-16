@@ -391,6 +391,16 @@ noconf_postmodel <- function(model_simulation) {
     cf <- cf[cf$variable == treatment, ]
     estimate <- cf[["Estimate"]]
     
+    if(model_simulation$models$model_call == 'lmer'){
+      # For ME model, below should use Satterthwaite approximation or 
+      # Kenward-Roger approximation (which would produce more conservative
+      # p-values than assuming t dist is, more or less, converging normal
+      # given sample size (See ex. Barr et al., 2013))
+      pval <- 1.96*(1 - pnorm(abs(cf[["t value"]])))
+    }else{
+      pval <- c(cf[["Pr(>|t|)"]], cf[["Pr(>|z|)"]])
+    }
+    
     results <- data.frame(
       outcome=outcome,
       se_adjustment="none",
@@ -398,8 +408,8 @@ noconf_postmodel <- function(model_simulation) {
       se=cf[["Std. Error"]],
       variance=cf[["Std. Error"]] ^ 2,
       t_stat=c(cf[["t value"]], cf[["z value"]]),
-      p_value=c(cf[["Pr(>|t|)"]], cf[["Pr(>|z|)"]]),
-      mse=mean(m[["residuals"]]^2, na.rm=T),
+      p_value=pval,
+      mse=mean(resid(m)^2, na.rm=T),
       stringsAsFactors=FALSE
     )
   } else {
@@ -491,7 +501,7 @@ noconf_postmodel <- function(model_simulation) {
         variance=h_se ^ 2,
         t_stat=estimate / h_se,
         p_value=2 * pnorm(abs(estimate / h_se), lower.tail=FALSE),
-        mse=mean(m[["residuals"]]^2, na.rm=T),
+        mse=mean(resid(m)^2, na.rm=T),
         stringsAsFactors=FALSE
       )
       results <- rbind(results, h_r)
@@ -518,7 +528,7 @@ noconf_postmodel <- function(model_simulation) {
         variance=clust_coeffs[["Std. Error"]] ^ 2,
         t_stat=c(clust_coeffs[["z value"]], clust_coeffs[["t value"]]),
         p_value=c(clust_coeffs[["Pr(>|z|)"]], clust_coeffs[["Pr(>|t|)"]]),
-        mse=mean(m[["residuals"]]^2, na.rm=T),
+        mse=mean(resid(m)^2, na.rm=T),
         stringsAsFactors=FALSE
       )
       
@@ -531,7 +541,7 @@ noconf_postmodel <- function(model_simulation) {
       clust_var <- as.character(model_simulation$data[[model_simulation$unit_var]][clust_indices])
       cluster_adjust_se_res <- cluster_adjust_se(m, clust_var)
       clust_coeffs <- cluster_adjust_se_res[[2]]
-      clust_vcov <- cluster_adjust_se_res[[1]][2,3] #not 100% alginment with SEs from model so worried this is off
+      clust_vcov <- cluster_adjust_se_res[[1]][2,3] #not 100% alignment with SEs from model so worried this is off
       class(clust_coeffs) <- c("coeftest", "matrix")
       clust_coeffs <- as.data.frame(clust_coeffs)
       clust_coeffs$variable <- row.names(clust_coeffs)
@@ -546,7 +556,7 @@ noconf_postmodel <- function(model_simulation) {
         variance=clust_coeffs[["Std. Error"]] ^ 2,
         t_stat=c(clust_coeffs[["z value"]], clust_coeffs[["t value"]]),
         p_value=c(clust_coeffs[["Pr(>|z|)"]], clust_coeffs[["Pr(>|t|)"]]),
-        mse=mean(m[["residuals"]]^2, na.rm=T),
+        mse=mean(resid(m)^2, na.rm=T),
         stringsAsFactors=FALSE
       )
       
@@ -568,7 +578,7 @@ noconf_postmodel <- function(model_simulation) {
         variance=hc_se ^ 2,
         t_stat=estimate / hc_se,
         p_value=2 * pnorm(abs(estimate / hc_se), lower.tail=FALSE),
-        mse=mean(m[["residuals"]]^2, na.rm=T),
+        mse=mean(resid(m)^2, na.rm=T),
         stringsAsFactors=FALSE
       )
       results <- rbind(results, hc_r)
