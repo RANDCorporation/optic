@@ -61,9 +61,9 @@ The elements must be created using the `optic_model` function.}
 
 \item{bias_type}{A string, either linear" or "nonlinear". Specifies type of bias for 'confounding' method}
 
-\item{treat_var}{A string variable, refering to the unit-of-analysis for treatment (which may not be the same as the unit var argument, e.g. treated classrooms within clustered schools)}
+\item{treat_var}{A string variable, referring to the unit-of-analysis for treatment (which may not be the same as the unit var argument, e.g. treated classrooms within clustered schools)}
 
-\item{n_implementation_periods}{A vector of numerics, determing number of periods after implementation until treated units reach the desired simulated treatment effect. Synthetic datasets will be generated for each entry in the vector.}
+\item{n_implementation_periods}{A vector of numerics, determining number of periods after implementation until treated units reach the desired simulated treatment effect. Synthetic datasets will be generated for each entry in the vector.}
 
 \item{rhos}{A vector of values between 0-1, indicating the correlation between the primary policy and a concurrent policy. Only applies when 'method' == 'concurrent'. Synthetic datasets will be generated for each entry in the vector.}
 
@@ -87,6 +87,9 @@ The elements must be created using the `optic_model` function.}
 
 \item{verbose}{Boolean, default True. If TRUE, provides summary details on simulation runs across iterations}
 }
+\value{
+An OpticSim object, which contains simulation and model parameters for simulation runs, which is used as an input for dispatch_simulations.
+}
 \description{
 Performs validation on inputs and produces a configuration object
     that contains all required parameters to dispatch simulation runs for the empirical data
@@ -95,4 +98,20 @@ Performs validation on inputs and produces a configuration object
 \details{
 The resulting configuration object is used to pass simulation scenarios to the 'simulate' function. Provided as a convenience function to the user
          so they can investigate simulation arguments prior to running models.
+}
+\examples{
+
+# Load data for simulation and set up a hypothetical policy effect to simulate:
+data(overdoses)
+eff <- 0.1*mean(overdoses$crude.rate, na.rm = T)
+
+# Set up a simple linear model
+form <- formula(crude.rate ~ state + year + population + treatment_level)
+mod <- optic_model(name = 'lin', type = 'reg', call = 'lm', formula = form, se_adjust = 'none')
+
+# Create simulation object, with desired parameters for simulations:
+sim <- optic_simulation(x = overdoses, models = list(mod), method = 'no_confounding', unit_var = 'state', treat_var = 'state',
+time_var = 'year', effect_magnitude = list(eff), n_units = 10, effect_direction = 'pos', iters = 10,
+policy_speed = 'instant', n_implementation_periods = 1)
+
 }

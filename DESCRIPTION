@@ -19,7 +19,8 @@ Description: Implements a simulation study to assess the strengths and
     <doi:10.1007/s10742-022-00284-w> and Griffin et al. (2022)
     <doi:10.1186/s12874-021-01471-y> for a description of our methods.
 License: GPL-3 | file LICENSE
-URL: https://randcorporation.github.io/optic/, https://github.com/randcorporation/optic
+URL: https://randcorporation.github.io/optic/,
+    https://github.com/randcorporation/optic
 BugReports: https://github.com/randcorporation/optic/issues
 Depends: 
     R (>= 4.1.0)
