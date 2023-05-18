@@ -358,6 +358,7 @@ noconf_model <- function(model_simulation) {
 #' @description Summarizes the statistical performance of a model by computing summary information on the model fit, estimated effects and standard errors 
 #' 
 #' @param model_simulation An object created from OpticModel, which specifies simulation settings such as model formulas, model call, etc
+#' @importFrom stats resid
 #' @noRd
 noconf_postmodel <- function(model_simulation) {
   outcome <- optic::model_terms(model_simulation$models[["model_formula"]])[["lhs"]]

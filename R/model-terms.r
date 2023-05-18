@@ -12,16 +12,17 @@
 #' 
 #' @return list with named elements "lhs" and "rhs", containing variables on each respective side of the equation
 #' @examples 
-#' # Set up a hypothetical function, then decompose into left-hand and right-hand sides
+#' # Set up a hypothetical function, then decompose into left-hand and 
+#' # right-hand sides
 #' form <- formula(outcome ~ treatment + confounder + unit + time)
 #' model_terms(form)
 #' @export
-model_terms <- function(f) {
+model_terms <- function(x) {
   
-  stopifnot(class(f) == "formula")
+  stopifnot(class(x) == "formula")
   
-  lhs <- all.vars(f)[1]
-  rhs <- all.vars(f)[-1]
+  lhs <- all.vars(x)[1]
+  rhs <- all.vars(x)[-1]
   
   return(list(lhs=lhs, rhs=rhs))
   

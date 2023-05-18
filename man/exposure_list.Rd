@@ -33,9 +33,10 @@ Simulates a time-varying treatment effect that starts at zero in time period zer
 analyst-provided choices concerning time until full treatment effect and 'speed'
 }
 \examples{
-# Set up a policy that starts in first-year of data, in July and takes 2 years for full implementation:
+# Set up a policy that starts in first-year of data, in July and takes 
+# 2 years for full implementation:
 exposure_list(1, 7, 3, policy_speed = 'slow', n_implementation_periods = 2)
 
-Same scenario but effect happens instantaneously:
+# Same scenario but effect happens instantaneously:
 exposure_list(1, 7, 3, policy_speed = 'instant')
 }

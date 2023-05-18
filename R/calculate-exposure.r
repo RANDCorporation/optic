@@ -16,13 +16,13 @@
 #' @returns A vector of percentages, indicating change in exposure by year (relative to start month)
 #' @examples 
 #' 
-#' # Calculate uniform increase in a policy effect which ramps up across ten years
+#' # Calculate uniform increase in policy effect which ramps up across 10 years
 #' 
-#' # Assume policy starts in July of the first year, then continues for ten years
+#' # Assume policy starts in July of the first year, then continues for 10 years
 #' starting_month <- 7
 #' implementation_years <- 10
 #' 
-#' # Assume some policy effect (which would be the target effect for simulations)
+#' # Assume some policy effect (which is the target effect for simulations)
 #' policy_effect <- 2
 #' 
 #' exposure_by_year <- calculate_exposure(starting_month, implementation_years)

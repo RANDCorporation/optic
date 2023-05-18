@@ -29,17 +29,36 @@ Generates model object to apply to each simulated dataset
 
 # Set up a simple linear model
 form <- formula(crude.rate ~ state + year + population + treatment_level)
-mod <- optic_model(name = 'lin', type = 'reg', call = 'lm', formula = form, se_adjust = 'none')
+mod <- optic_model(name = 'lin', 
+                   type = 'reg', 
+                   call = 'lm', 
+                   formula = form, 
+                   se_adjust = 'none')
 
-# Deploy an auto-regressive model (type autoreg will make AR term automatically when the model is deployed; also note
-# in formula the use of "treatment_change" as the treament variable rather than "treatment_level" like in the previous
-# example:
+# Deploy an auto-regressive model.
+# type = "autoreg" will make AR term 
+# automatically when the model is deployed; also note
+# in formula the use of "treatment_change" as the treatment variable 
+# rather than "treatment_level" like in the previous example:
+
 form_ar <- formula(crude.rate ~ state + year + population + treatment_change)
-mod_ar <- optic_model(name = "auto_regressive_linear", type = "autoreg", call = "lm", formula = form_ar,se_adjust = "none")
+mod_ar <- optic_model(name = "auto_regressive_linear", 
+                      type = "autoreg", 
+                      call = "lm", 
+                      formula = form_ar,
+                      se_adjust = "none")
 
-# One could also use a different call, assuming the right packages are installed and the model uses a familiar 
-# formula framework. Example with random intercept  for states, using lme4 package.
-form_me <- formula(crude.rate ~ population + year + treatment_level + (1|state))
-mod_me <- optic_model(name = "mixed_effect", type = "reg", call = "lmer", formula = form_me, se_adjust = "none")
+# One could also use a different call, assuming the right packages 
+# are installed and the model uses a familiar formula framework. 
+# Example with random intercept for states, using lme4 package.
+
+form_me <- formula(crude.rate ~ 
+                   population + year + treatment_level + (1|state))
+                   
+mod_me <- optic_model(name = "mixed_effect", 
+                      type = "reg", 
+                      call = "lmer", 
+                      formula = form_me, 
+                      se_adjust = "none")
 
 }

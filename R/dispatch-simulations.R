@@ -27,11 +27,24 @@
 #' 
 #' eff <- 0.1*mean(overdoses$crude.rate, na.rm = T)
 #' form <- formula(crude.rate ~ state + year + population + treatment_level)
-#' mod <- optic_model(name = 'lin', type = 'reg', call = 'lm', formula = form, se_adjust = 'none')
+#' mod <- optic_model(name = 'lin', 
+#'                    type = 'reg', 
+#'                    call = 'lm', 
+#'                    formula = form, 
+#'                    se_adjust = 'none')
 #' 
-#' sim <- optic_simulation(x = overdoses, models = list(mod), method = 'no_confounding', unit_var = 'state', treat_var = 'state',
-#' time_var = 'year', effect_magnitude = list(eff), n_units = 10, effect_direction = 'pos', iters = 10,
-#' policy_speed = 'instant', n_implementation_periods = 1)
+#' sim <- optic_simulation(x = overdoses, 
+#'                         models = list(mod), 
+#'                         method = 'no_confounding', 
+#'                         unit_var = 'state', 
+#'                         treat_var = 'state',
+#'                         time_var = 'year', 
+#'                         effect_magnitude = list(eff), 
+#'                         n_units = 10, 
+#'                         effect_direction = 'pos', 
+#'                         iters = 10,
+#'                         policy_speed = 'instant', 
+#'                         n_implementation_periods = 1)
 #' 
 #' # Finally, dispatch the simulation:
 #' dispatch_simulations(sim)

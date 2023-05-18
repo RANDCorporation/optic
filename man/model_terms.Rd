@@ -4,7 +4,7 @@
 \alias{model_terms}
 \title{Parse a formula object into its left-hand-side and right-hand-side components}
 \usage{
-model_terms(f)
+model_terms(x)
 }
 \arguments{
 \item{x}{Formula to parse}
@@ -16,7 +16,8 @@ list with named elements "lhs" and "rhs", containing variables on each respectiv
 Parse a formula object into its left-hand-side and right-hand-side components
 }
 \examples{
-# Set up a hypothetical function, then decompose into left-hand and right-hand sides
+# Set up a hypothetical function, then decompose into left-hand and 
+# right-hand sides
 form <- formula(outcome ~ treatment + confounder + unit + time)
 model_terms(form)
 }

@@ -20,10 +20,11 @@
 #' @returns A list, containing a vector of policy years of implementation, an integer of the starting policy implementation month,
 #'          and the effect of treatment within a given implementation year (as a fraction of the total policy effect)
 #' @examples
-#' # Set up a policy that starts in first-year of data, in July and takes 2 years for full implementation:
+#' # Set up a policy that starts in first-year of data, in July and takes 
+#' # 2 years for full implementation:
 #' exposure_list(1, 7, 3, policy_speed = 'slow', n_implementation_periods = 2)
 #' 
-#' Same scenario but effect happens instantaneously:
+#' # Same scenario but effect happens instantaneously:
 #' exposure_list(1, 7, 3, policy_speed = 'instant')
 #' @export
 exposure_list <- function(sampled_time_period, mo, available_periods, policy_speed, n_implementation_periods) {
