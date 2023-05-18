@@ -17,11 +17,11 @@ A data frame with 969 rows and 7 variables:
 }
 }
 \source{
-US Bureau of Labor Statistics. Local Area Unemployment Statistics April 2019 release. Accessed at \url{https://www.bls.gov/lau/}.
+US Bureau of Labor Statistics. Local Area Unemployment Statistics April 2019 release. Accessed at https://www.bls.gov/lau/.
 
 Centers for Disease Control and Prevention, National Center for Health Statistics. Multiple Cause of Death 1999-2019 on CDC WONDER Online Database, released in 2020. Data are from the Multiple Cause of Death Files, 1999-2019, as compiled from data provided by the 57 vital statistics jurisdictions through the Vital Statistics Cooperative Program. Accessed at \url{http://wonder.cdc.gov/mcd-icd10.html}.
 
-Centers for Disease Control and Prevention, IQVIA Xponent 2006–2019. U.S. Opioid Dispensing Rate Maps. Accessed at \url{https://www.cdc.gov/drugoverdose/rxrate-maps/index.html}.
+Centers for Disease Control and Prevention, IQVIA Xponent 2006–2019. U.S. Opioid Dispensing Rate Maps. Accessed at https://www.cdc.gov/drugoverdose/rxrate-maps/index.html.
 }
 \usage{
 overdoses

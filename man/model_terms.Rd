@@ -2,16 +2,22 @@
 % Please edit documentation in R/model-terms.r
 \name{model_terms}
 \alias{model_terms}
-\title{parse a formula object into its left-hand-side and right-hand-side components}
+\title{Parse a formula object into its left-hand-side and right-hand-side components}
 \usage{
 model_terms(x)
 }
 \arguments{
-\item{x}{formula to parse}
+\item{x}{Formula to parse}
 }
 \value{
-list with named elements "lhs" and "rhs"
+list with named elements "lhs" and "rhs", containing variables on each respective side of the equation
 }
 \description{
-parse a formula object into its left-hand-side and right-hand-side components
+Parse a formula object into its left-hand-side and right-hand-side components
+}
+\examples{
+# Set up a hypothetical function, then decompose into left-hand and 
+# right-hand sides
+form <- formula(outcome ~ treatment + confounder + unit + time)
+model_terms(form)
 }
