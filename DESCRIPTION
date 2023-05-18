@@ -13,9 +13,8 @@ Authors@R: c(
     person("Joseph", "Pane", role = "aut"),
     person("Geoffrey", "Grimm", role = "aut")
   )
-Description: Implements a simulation study to assess the strengths and
-    weaknesses of causal inference methods for estimating policy effects
-    using panel data. See Griffin et al. (2021)
+Description: Provides a simulation framework for evaluation of causal inference 
+    methods using real panel data. See Griffin et al. (2021)
     <doi:10.1007/s10742-022-00284-w> and Griffin et al. (2022)
     <doi:10.1186/s12874-021-01471-y> for a description of our methods.
 License: GPL-3 | file LICENSE
