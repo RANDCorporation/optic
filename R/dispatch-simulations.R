@@ -25,7 +25,7 @@
 #' # Set up a basic model and simulation scenario:
 #' data(overdoses)
 #' 
-#' eff <- 0.1*mean(overdoses$crude.rate, na.rm = T)
+#' eff <- 0.1*mean(overdoses$crude.rate, na.rm = TRUE)
 #' form <- formula(crude.rate ~ state + year + population + treatment_level)
 #' mod <- optic_model(name = 'lin', 
 #'                    type = 'reg', 

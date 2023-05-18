@@ -104,7 +104,7 @@ The resulting configuration object is used to pass simulation scenarios to the '
 # Load data for simulation and set up a hypothetical policy effect: 
 
 data(overdoses)
-eff <- 0.1*mean(overdoses$crude.rate, na.rm = T)
+eff <- 0.1*mean(overdoses$crude.rate, na.rm = TRUE)
 
 # Set up a simple linear model
 form <- formula(crude.rate ~ state + year + population + treatment_level)
