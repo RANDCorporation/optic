@@ -37,7 +37,13 @@
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
 
-      <ul class="navbar-nav"></ul></div>
+      <ul class="navbar-nav"><li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/randcorporation/optic/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul></div>
 
     
   </div>
@@ -45,7 +51,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Create a configuration object used to run simulations</h1>
-      
+      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/HEAD/R/optic-simulation-helper.R" class="external-link"><code>R/optic-simulation-helper.R</code></a></small>
       <div class="d-none name"><code>optic_simulation.Rd</code></div>
     </div>
 
@@ -143,11 +149,11 @@ The elements must be created using the `optic_model` function.</p></dd>
 
 
 <dt>treat_var</dt>
-<dd><p>A string variable, refering to the unit-of-analysis for treatment (which may not be the same as the unit var argument, e.g. treated classrooms within clustered schools)</p></dd>
+<dd><p>A string variable, referring to the unit-of-analysis for treatment (which may not be the same as the unit var argument, e.g. treated classrooms within clustered schools)</p></dd>
 
 
 <dt>n_implementation_periods</dt>
-<dd><p>A vector of numerics, determing number of periods after implementation until treated units reach the desired simulated treatment effect. Synthetic datasets will be generated for each entry in the vector.</p></dd>
+<dd><p>A vector of numerics, determining number of periods after implementation until treated units reach the desired simulated treatment effect. Synthetic datasets will be generated for each entry in the vector.</p></dd>
 
 
 <dt>rhos</dt>
@@ -195,11 +201,53 @@ The elements must be created using the `optic_model` function.</p></dd>
 
 </dl></div>
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
+
+<p>An OpticSim object, which contains simulation and model parameters for simulation runs, which is used as an input for dispatch_simulations.</p>
+    </div>
+    <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The resulting configuration object is used to pass simulation scenarios to the 'simulate' function. Provided as a convenience function to the user
          so they can investigate simulation arguments prior to running models.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Load data for simulation and set up a hypothetical policy effect: </span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">overdoses</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">eff</span> <span class="op">&lt;-</span> <span class="fl">0.1</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">overdoses</span><span class="op">$</span><span class="va">crude.rate</span>, na.rm <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Set up a simple linear model</span></span></span>
+<span class="r-in"><span><span class="va">form</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">crude.rate</span> <span class="op">~</span> <span class="va">state</span> <span class="op">+</span> <span class="va">year</span> <span class="op">+</span> <span class="va">population</span> <span class="op">+</span> <span class="va">treatment_level</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="optic_model.html">optic_model</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">'lin'</span>, </span></span>
+<span class="r-in"><span>                   type <span class="op">=</span> <span class="st">'reg'</span>, </span></span>
+<span class="r-in"><span>                   call <span class="op">=</span> <span class="st">'lm'</span>, </span></span>
+<span class="r-in"><span>                   formula <span class="op">=</span> <span class="va">form</span>, </span></span>
+<span class="r-in"><span>                   se_adjust <span class="op">=</span> <span class="st">'none'</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Create simulation object, with desired parameters for simulations:</span></span></span>
+<span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu">optic_simulation</span><span class="op">(</span>x <span class="op">=</span> <span class="va">overdoses</span>, </span></span>
+<span class="r-in"><span>                        models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>                        method <span class="op">=</span> <span class="st">'no_confounding'</span>, </span></span>
+<span class="r-in"><span>                        unit_var <span class="op">=</span> <span class="st">'state'</span>, </span></span>
+<span class="r-in"><span>                        treat_var <span class="op">=</span> <span class="st">'state'</span>,</span></span>
+<span class="r-in"><span>                        time_var <span class="op">=</span> <span class="st">'year'</span>, </span></span>
+<span class="r-in"><span>                        effect_magnitude <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">eff</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>                        n_units <span class="op">=</span> <span class="fl">10</span>, </span></span>
+<span class="r-in"><span>                        effect_direction <span class="op">=</span> <span class="st">'pos'</span>, </span></span>
+<span class="r-in"><span>                        iters <span class="op">=</span> <span class="fl">10</span>,</span></span>
+<span class="r-in"><span>                        policy_speed <span class="op">=</span> <span class="st">'instant'</span>, </span></span>
+<span class="r-in"><span>                        n_implementation_periods <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of Simulations: 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of Models: 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration per Simulation : 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total number of Iterations to Run: 10</span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 

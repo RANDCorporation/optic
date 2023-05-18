@@ -33,7 +33,13 @@
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
 
-      <ul class="navbar-nav"></ul></div>
+      <ul class="navbar-nav"><li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/randcorporation/optic/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul></div>
 
     
   </div>
@@ -41,7 +47,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Execute simulations defined in a optic_simulation object</h1>
-      
+      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/HEAD/R/dispatch-simulations.R" class="external-link"><code>R/dispatch-simulations.R</code></a></small>
       <div class="d-none name"><code>dispatch_simulations.Rd</code></div>
     </div>
 
@@ -62,7 +68,7 @@
 
 <dt>seed</dt>
 <dd><p>Specified as either NULL or a numeric. Sets a seed, which is becomes an index in results, for
-each indepdendent set of simulations in optic_simulation.</p></dd>
+each independent set of simulations in optic_simulation.</p></dd>
 
 
 <dt>use_future</dt>
@@ -76,10 +82,129 @@ be run in parallel.</p></dd>
 
 
 <dt>...</dt>
-<dd><p>additional parameters to be passed to future_apply. User can pass future.globals and future.packages if your code relies on additrional packages</p></dd>
+<dd><p>additional parameters to be passed to future_apply. User can pass future.globals and future.packages if your code relies on additional packages</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
 
+<p>A list of dataframes, where each list entry contains results for a set of simulation parameters, with dataframes containing estimated treatment effects and summary statistics by model and  draw.</p>
+    </div>
+
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Set up a basic model and simulation scenario:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">overdoses</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">eff</span> <span class="op">&lt;-</span> <span class="fl">0.1</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">overdoses</span><span class="op">$</span><span class="va">crude.rate</span>, na.rm <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">form</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">crude.rate</span> <span class="op">~</span> <span class="va">state</span> <span class="op">+</span> <span class="va">year</span> <span class="op">+</span> <span class="va">population</span> <span class="op">+</span> <span class="va">treatment_level</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="optic_model.html">optic_model</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">'lin'</span>, </span></span>
+<span class="r-in"><span>                   type <span class="op">=</span> <span class="st">'reg'</span>, </span></span>
+<span class="r-in"><span>                   call <span class="op">=</span> <span class="st">'lm'</span>, </span></span>
+<span class="r-in"><span>                   formula <span class="op">=</span> <span class="va">form</span>, </span></span>
+<span class="r-in"><span>                   se_adjust <span class="op">=</span> <span class="st">'none'</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="optic_simulation.html">optic_simulation</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">overdoses</span>, </span></span>
+<span class="r-in"><span>                        models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>                        method <span class="op">=</span> <span class="st">'no_confounding'</span>, </span></span>
+<span class="r-in"><span>                        unit_var <span class="op">=</span> <span class="st">'state'</span>, </span></span>
+<span class="r-in"><span>                        treat_var <span class="op">=</span> <span class="st">'state'</span>,</span></span>
+<span class="r-in"><span>                        time_var <span class="op">=</span> <span class="st">'year'</span>, </span></span>
+<span class="r-in"><span>                        effect_magnitude <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">eff</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>                        n_units <span class="op">=</span> <span class="fl">10</span>, </span></span>
+<span class="r-in"><span>                        effect_direction <span class="op">=</span> <span class="st">'pos'</span>, </span></span>
+<span class="r-in"><span>                        iters <span class="op">=</span> <span class="fl">10</span>,</span></span>
+<span class="r-in"><span>                        policy_speed <span class="op">=</span> <span class="st">'instant'</span>, </span></span>
+<span class="r-in"><span>                        n_implementation_periods <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of Simulations: 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of Models: 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration per Simulation : 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total number of Iterations to Run: 10</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Finally, dispatch the simulation:</span></span></span>
+<span class="r-in"><span><span class="fu">dispatch_simulations</span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       outcome se_adjustment   estimate        se  variance     t_stat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  crude.rate          none  2.2230143 0.6290334 0.3956830  3.5340163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  crude.rate          none  2.6394772 0.5909810 0.3492586  4.4662640</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  crude.rate          none  0.6129511 0.6009056 0.3610876  1.0200454</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  crude.rate          none -0.5662105 0.6342965 0.4023320 -0.8926591</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  crude.rate          none  1.5222472 0.6116178 0.3740763  2.4888864</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  crude.rate          none -0.8285078 0.6259276 0.3917853 -1.3236481</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  crude.rate          none  4.2845626 0.6035313 0.3642500  7.0991560</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  crude.rate          none  2.0591920 0.6248139 0.3903924  3.2956887</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  crude.rate          none -0.3222015 0.6265473 0.3925616 -0.5142493</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 crude.rate          none  3.6770233 0.5841235 0.3412003  6.2949417</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         p_value      mse model_name model_call</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  4.299929e-04 11.00617        lin         lm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  8.964756e-06 10.96886        lin         lm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3.079792e-01 11.02002        lin         lm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  3.722768e-01 10.93375        lin         lm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  1.299294e-02 11.03219        lin         lm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  1.859538e-01 10.89975        lin         lm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  2.534639e-12 10.73769        lin         lm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  1.019936e-03 11.01471        lin         lm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  6.072031e-01 10.95673        lin         lm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 4.785480e-10 10.83052        lin         lm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                               model_formula policy_speed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  crude.rate ~ state + year + population + treatment_level      instant</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  crude.rate ~ state + year + population + treatment_level      instant</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  crude.rate ~ state + year + population + treatment_level      instant</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  crude.rate ~ state + year + population + treatment_level      instant</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  crude.rate ~ state + year + population + treatment_level      instant</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  crude.rate ~ state + year + population + treatment_level      instant</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  crude.rate ~ state + year + population + treatment_level      instant</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  crude.rate ~ state + year + population + treatment_level      instant</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  crude.rate ~ state + year + population + treatment_level      instant</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 crude.rate ~ state + year + population + treatment_level      instant</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    n_implementation_periods prior_control effect_magnitude n_units</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                         1         level         1.265073      10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                         1         level         1.265073      10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                         1         level         1.265073      10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                         1         level         1.265073      10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                         1         level         1.265073      10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                         1         level         1.265073      10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7                         1         level         1.265073      10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8                         1         level         1.265073      10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9                         1         level         1.265073      10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10                        1         level         1.265073      10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    effect_direction  n mean_es_prior max_es_prior mean_es_outcome</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               pos 10   -0.62202040    0.9252669      -0.3696761</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2               pos 10    0.49183037    0.7409951       0.5726075</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3               pos 10    0.23933609    0.3442886       0.7006378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4               pos 10   -0.48115781    0.5391861      -0.2567397</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5               pos 10    0.29544392    0.3848879       0.5602086</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6               pos 10    0.46832529    0.8857470       0.6061811</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7               pos 10    0.95142132    1.0192945       1.0762423</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8               pos 10    0.59287722    1.1974957       0.9066567</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9               pos 10   -0.08768851    0.3515408      -0.1214716</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10              pos 10    0.32551729    0.4359520       0.4183461</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    max_es_outcome n_unique_enact_years mu1_prior mu0_prior sd_prior</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       0.8231403                    9  11.22509  12.14383 5.098109</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       0.9682922                    6  14.35789  11.65420 5.098109</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       1.7288473                    8  15.14690  11.66513 5.098109</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       0.7625312                    6  11.90702  12.05505 5.098109</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5       1.0601872                    8  15.08235  11.67761 5.098109</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6       1.2945110                    7  15.86296  11.66129 5.098109</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7       1.3064672                    7  15.84848  11.36242 5.098109</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8       1.8188744                    9  15.95766  11.64018 5.098109</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9       1.3508565                    7  13.73750  11.82863 5.098109</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10      0.8655672                    7  14.57619  11.71356 5.098109</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    mu1_prior_old mu0_prior_old sd_prior_old      mu1      mu0       sd iter</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       11.22509      12.14383     5.098109 14.51851 12.57866 6.668072    1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       14.35789      11.65420     5.098109 18.09935 12.08026 6.753155    2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       15.14690      11.66513     5.098109 18.69366 12.17300 6.737871    3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       11.90702      12.05505     5.098109 14.45080 12.58009 6.669050    4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5       15.08235      11.67761     5.098109 18.65530 12.18297 6.734333    5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6       15.86296      11.66129     5.098109 18.41833 12.27984 6.715858    6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7       15.84848      11.36242     5.098109 20.07735 11.75483 6.806116    7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8       15.95766      11.64018     5.098109 19.63716 12.16704 6.738448    8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9       13.73750      11.82863     5.098109 16.32560 12.38616 6.700500    9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10      14.57619      11.71356     5.098109 18.34347 12.18113 6.735275   10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 

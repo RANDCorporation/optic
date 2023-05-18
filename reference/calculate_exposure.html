@@ -37,7 +37,13 @@ of policy implementation and number of years to full implementation"><!-- mathja
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
 
-      <ul class="navbar-nav"></ul></div>
+      <ul class="navbar-nav"><li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/randcorporation/optic/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul></div>
 
     
   </div>
@@ -46,7 +52,7 @@ of policy implementation and number of years to full implementation"><!-- mathja
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Calculates the exposure rate applied to each year provided month
 of policy implementation and number of years to full implementation</h1>
-      
+      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/HEAD/R/calculate-exposure.r" class="external-link"><code>R/calculate-exposure.r</code></a></small>
       <div class="d-none name"><code>calculate_exposure.Rd</code></div>
     </div>
 
@@ -75,7 +81,33 @@ of policy implementation and number of years to full implementation</p>
 ((1/n_years) / 12) (constant over the period)</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
 
+<p>A vector of percentages, indicating change in exposure by year (relative to start month)</p>
+    </div>
+
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Calculate uniform increase in policy effect which ramps up across 10 years</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Assume policy starts in July of the first year, then continues for 10 years</span></span></span>
+<span class="r-in"><span><span class="va">starting_month</span> <span class="op">&lt;-</span> <span class="fl">7</span></span></span>
+<span class="r-in"><span><span class="va">implementation_years</span> <span class="op">&lt;-</span> <span class="fl">10</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Assume some policy effect (which is the target effect for simulations)</span></span></span>
+<span class="r-in"><span><span class="va">policy_effect</span> <span class="op">&lt;-</span> <span class="fl">2</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">exposure_by_year</span> <span class="op">&lt;-</span> <span class="fu">calculate_exposure</span><span class="op">(</span><span class="va">starting_month</span>, <span class="va">implementation_years</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Based on exposure by year, calculate policy effect by year:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">policy_effect</span><span class="op">*</span><span class="va">exposure_by_year</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="calculate_exposure-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 
