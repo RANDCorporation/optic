@@ -2,7 +2,7 @@
 title: "Introduction to OPTIC"
 output: rmarkdown::html_vignette
 bibliography: optic_refs.json
-csl: https://www.zotero.org/styles/lancet
+#csl: https://www.zotero.org/styles/lancet
 vignette: >
   %\VignetteIndexEntry{Introduction to OPTIC}
   %\VignetteEngine{knitr::rmarkdown}
@@ -23,8 +23,7 @@ library(optic)
 
 knitr::opts_chunk$set(echo = TRUE)
 
-# this tidy option might be an issue.
-knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60))
 
 ```
 
