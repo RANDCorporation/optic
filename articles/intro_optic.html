@@ -83,34 +83,37 @@
 <div class="section level2">
 <h2 class="unnumbered" id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>This vignette covers use of the OPTIC package (Opioid Policy Tools
-and Information Center), which contains tools to simulate the
-performance of commonly-used statistical models for panel data or
-repeated measures data. Briefly, OPTIC uses Monte Carlo simulations to
-estimate the performance of models typically used for state-level policy
-evaluation (for example, differences-in-differences estimators). Package
-users provide the simulation procedure with a policy evaluation
-scenario, a hypothetical treatment effect, an estimator and model
-specification, and simulation parameters. The OPTIC package then
-constructs simulations for all chosen simulation parameters and
-estimators, returning summary statistics on each simulation’s
-performance.</p>
+<p>This vignette covers the use of the Opioid Policy Tools and
+Information Center (OPTIC) simulation package, which contains tools to
+simulate treatment effects into panel data or repeated measures data and
+examine the performance of commonly-used statistical models. Briefly,
+OPTIC uses Monte Carlo simulations to estimate the performance of models
+typically used for state-level policy evaluation (for example,
+differences-in-differences estimators). Package users provide the
+simulation procedure with a policy evaluation scenario, a hypothetical
+treatment effect, an estimation approach, and simulation parameters. The
+OPTIC package then constructs simulations for all chosen simulation
+parameters and estimators, returning summary statistics on each
+simulation’s performance.</p>
 <p>Currently, OPTIC has been developed for policy evaluation scenarios
 with the following assumptions:</p>
 <ol style="list-style-type: decimal">
 <li>
 <strong>No confounding</strong> : There are no confounding variables
-which determine a observation’s selection into treatment. Additionally,
-treatment effects are assumed to be constant rather than
-time-varying.</li>
+which determine an observations’s selection into treatment. Treatment
+effects are assumed to be constant rather than time-varying.</li>
 <li>
 <strong>Concurrent policies</strong>: There is one additional policy
-which co-occurs with the the policy of-interest.</li>
+which co-occurs with the policy of-interest.</li>
+<li>
+<strong>Confounding</strong>: There is a confounding variable
+associated with both policy adoption and outcome <em>trends</em>.</li>
 </ol>
-<p>Additional details on the simulation procedures within OPTIC are
-available in Griffin et al., 2021<span class="citation"><sup>1</sup></span> and Griffin et al., 2022<span class="citation"><sup>2</sup></span>. Forthcoming updates to OPTIC will
-provides simulations which test the effect of confounding bias on model
-performance.</p>
+<p>Additional details on the simulation procedures within the OPTIC
+package are available in Griffin et al., 2021 <span class="citation">(Griffin et al. 2021)</span> and Griffin et al., 2022
+<span class="citation">(Griffin et al. 2022)</span>. Forthcoming updates
+to OPTIC will provides simulations which test the effect of confounding
+bias on model performance.</p>
 <p>This README covers the use of OPTIC in R and provides examples of the
 package’s features. Section one covers package installation, section two
 provides a general overview of the package’s usage, and section three
@@ -236,23 +239,26 @@ Prevention.</p>
 </h4>
 <p>Policy evaluation scenarios are single string inputs into the
 <code>optic_simulation</code> function, representing either the no
-confounding scenario (“noconf”) or the confounding due to co-occurring
-policies scenario (“concurrent”). For the “concurrent” scenario, there
-are additional parameters required by <code>optic_simulation</code>,
-which are discussed in the “parameter” section below. Additional details
-on policy evaluation scenarios are provided in Griffin et al., 2021<span class="citation"><sup>1</sup></span> and Griffin et al., 2022<span class="citation"><sup>2</sup></span>.</p>
+confounding scenario (“noconf”) or co-occurring policies scenario
+(“concurrent”). For the “concurrent” scenario, there are additional
+parameters required by <code>optic_simulation</code>, which are
+discussed in the “parameter” section below. Additional details on policy
+evaluation scenarios are provided in Griffin et al., 2021<span class="citation">(Griffin et al. 2021)</span> and Griffin et al.,
+2022<span class="citation">(Griffin et al. 2022)</span>.</p>
 </div>
 <div class="section level4">
 <h4 id="treatment-scenarios">Treatment scenarios<a class="anchor" aria-label="anchor" href="#treatment-scenarios"></a>
 </h4>
 <p>This input represents the “true treatment effects” that OPTIC will
-simulate across model iterations. OPTIC is currently designed to work on
-static treatment effects (rather than dynamic treatment effects, such as
-time-varying treatment effects). Users should structure their treatment
-scenarios in a list, corresponding to a change in the outcome variable.
-The list will contain two effects within a vector, if the user is
-simulating models for the “concurrent” policy evaluation scenario. Using
-the example_data:</p>
+simulate across each iteration of the simulations. OPTIC is currently
+designed to work by generating static treatment effects (rather than
+dynamic treatment effects, such as time-varying treatment effects).
+Users should structure their treatment scenarios in a list,
+corresponding to the different types of treatment effects they would
+like to see examined. If the user is simulating models for the
+‘concurrent’ policy evaluation scenario, the list will contain two
+effects within a vector for each potential treatment scenario that the
+user wants to examine. Using the example_data:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">overdoses</span><span class="op">)</span></span>
@@ -261,15 +267,15 @@ the example_data:</p>
 <span><span class="va">five_percent_effect</span> <span class="op">&lt;-</span> <span class="fl">0.05</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">overdoses</span><span class="op">$</span><span class="va">crude.rate</span>, na.rm <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
 <span><span class="va">ten_percent_effect</span>  <span class="op">&lt;-</span> <span class="fl">0.10</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">overdoses</span><span class="op">$</span><span class="va">crude.rate</span>, na.rm <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Calculate a confounding policy effect</span></span>
-<span><span class="va">confound_effect</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">0.02</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">overdoses</span><span class="op">$</span><span class="va">crude.rate</span>, na.rm <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
+<span><span class="co"># Calculate a co-occuring policy effect</span></span>
+<span><span class="va">cooccur_effect</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">0.02</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">overdoses</span><span class="op">$</span><span class="va">crude.rate</span>, na.rm <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Scenario object for "no confounding" evaluation scenario:</span></span>
 <span><span class="va">scenarios_no_confounding</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">five_percent_effect</span>, <span class="va">ten_percent_effect</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Scenario object for "co-occuring policy" evaluation scenario:</span></span>
-<span><span class="va">scenarios_co_occur</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">five_percent_effect</span>, <span class="va">confound_effect</span><span class="op">)</span>,</span>
-<span>                           <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ten_percent_effect</span>, <span class="va">confound_effect</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">scenarios_co_occur</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">five_percent_effect</span>, <span class="va">cooccur_effect</span><span class="op">)</span>,</span>
+<span>                           <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ten_percent_effect</span>, <span class="va">cooccur_effect</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
@@ -279,9 +285,10 @@ the example_data:</p>
 <h4 id="optic_model-and-optic_simulation">
 <code>optic_model</code> and <code>optic_simulation</code><a class="anchor" aria-label="anchor" href="#optic_model-and-optic_simulation"></a>
 </h4>
-<p>For each treatment scenario, OPTIC will simulate a treatment effect
-and then attempt to estimate this effect based on user-provided models.
-The <code>optic_simulation</code> function takes a list of
+<p>For each treatment scenario, OPTIC will simulate the specified
+treatment effect onto the users repeated measures data and then attempt
+to estimate this effect based on user-provided models. The
+<code>optic_simulation</code> function takes a list of
 <code>optic_model</code>. Model lists should contain
 <code>optic_model</code> with the following arguments :</p>
 <ul>
@@ -297,8 +304,9 @@ procedure chosen in <code>model_call</code>.</p></li>
 <li><p>“drdid” estimates a treatment effect using a doubly-robust
 difference-in-difference estimator, with covariates in the
 <code>model_formula</code> argument used within both the propensity
-score stage and (for more details on doubly robust
-difference-in-differences, see Sant’Anna \&amp; Zhao, 2020)</p></li>
+score stage and outcome modeling stage (for more details on doubly
+robust difference-in-differences, see Sant’Anna \&amp; Zhao,
+2020)</p></li>
 <li><p>“multisynth” estimates a treatment effect using augmented
 synthetic controls (for additional details on augmented synthetic
 controls, see Ben-Michael, Feller, \&amp; Rothstein, 2021).</p></li>
@@ -309,9 +317,9 @@ etc).</p></li>
 <li><p><code>formula</code>: The model specification, in an R formula.
 Needs to include a variable labeled “treament_level” for treatment
 status or labeled “treatment_change” for coding a change in treatment
-status (e.g.  used in autoregressive models). For “concurrent”
-scenarios, treatment variables should labeled “treatment1”,
-“treatment2”, . . ., “treatment{n}” for each policy included.</p></li>
+status (when using autoregressive models). For “concurrent” scenarios,
+treatment variables should labeled “treatment1” and “treatment2” for
+each policy included.</p></li>
 <li><p><code>args</code>: Any additional arguments passed to the
 model_call (e.g. “weights”, “family”, “control” etc.).</p></li>
 <li><p><code>se_adjust</code>: Any adjustments to standard errors after
@@ -348,8 +356,8 @@ for clustered standard errors).</p></li>
 <span>    name <span class="op">=</span> <span class="st">"auto_regressive_linear"</span>,</span>
 <span>    type <span class="op">=</span> <span class="st">"autoreg"</span>,</span>
 <span>    call <span class="op">=</span> <span class="st">"lm"</span>,</span>
-<span>    formula <span class="op">=</span> <span class="va">crude.rate</span> <span class="op">~</span> <span class="va">unemploymentrate</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">+</span> <span class="va">treatment_change</span>,</span>
-<span>    se_adjust <span class="op">=</span> <span class="st">"cluster-unit"</span></span>
+<span>    formula <span class="op">=</span> <span class="va">crude.rate</span> <span class="op">~</span> <span class="va">unemploymentrate</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span> <span class="op">+</span> <span class="va">treatment_change</span>,</span>
+<span>    se_adjust <span class="op">=</span> <span class="st">"none"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">sim_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">lm_fe_unadj</span>, <span class="va">lm_fe_adj</span>, <span class="va">lm_ar</span><span class="op">)</span></span></code></pre></div>
@@ -372,14 +380,14 @@ details.</p></li>
 <li><p><code>unit_var</code>: Variable for groups within the dataset.
 Used to determine clusters for clustered standard errors</p></li>
 <li><p><code>time_var</code>: The variable used for time units. Variable
-should corresponding to years. To use alternative time units, express
-them as fractional years (e.g. July = 7/12).</p></li>
+should correspond to years. To use alternative time units, express them
+as fractional years (e.g. July = 7/12).</p></li>
 <li><p><code>effect_magnitude</code>: A vector of treatment scenarios.
 See section above for more details. Synthetic datasets will be generated
 for each entry in the vector.</p></li>
-<li><p><code>n_units</code>: A vector with the number of units to
-simulate treatment. Synthetic datasets will be generated for each entry
-in the vector.</p></li>
+<li><p><code>n_units</code>: A vector with the number of units that
+should be in the treatment group. Synthetic datasets will be generated
+for each entry in the vector.</p></li>
 <li><p><code>effect_direction</code>: A vector containing either ‘neg’,
 ‘null’, or ‘pos’. Synthetic datasets will be generated for each entry in
 the vector. Determines the direction of the simulated effect.</p></li>
@@ -395,22 +403,49 @@ number of periods after implementation until treated units reach the
 desired simulated treatment effect. Synthetic datasets will be generated
 for each entry in the vector.</p></li>
 </ul>
-<p>Three arguments to <code>optic_simulation</code> only apply within
-the “concurrent” policy scenario:</p>
+<p>Three additional arguments to <code>optic_simulation</code> only
+apply within the “concurrent” policy scenario:</p>
 <ul>
 <li><p><code>rhos</code>: A vector of 0-1 values indicating the
-correlation between the primary policy and a confounding policy.
+correlation between the primary policy and a cooccuring policy.
 Synthetic datasets will be generated for each entry in the
 vector.</p></li>
 <li><p><code>years_apart</code>: Number of years between the primary
-policy being implemented and the confounding policy.</p></li>
+policy being implemented and the cooccuring policy.</p></li>
 <li><p><code>ordered</code>: Determines if the primary policy always
 occurs before the confounding policy (<code>TRUE</code>) or if the
 policies are randomly ordered (<code>FALSE</code>).</p></li>
 </ul>
+<p>and four other arguments apply only to the “confounding” policy
+scenario:</p>
+<ul>
+<li><p><code>conf_var</code>: A string variable, defining a (unobserved)
+confounding variable in the dataset that will be used to simulate the
+effect of confounding in the outcome variable.</p></li>
+<li><p><code>prior_control</code>: A string variable that is either
+“level” or “trend”. Specifies confounding for <span class="math inline">\(C_ij\)</span> term, which is confounding due to
+either prior outcome levels or prior outcome trends. For trends, OPTIC
+simulates confounding as an average of outcome levels in the previous
+three years.</p></li>
+<li><p><code>bias_type</code>: String determining type of confounding
+effect, either ‘linear’ or ‘nonlinear’. If linear is chosen, then
+confounding in the outcome is simulated as additive (unobserved confound
+variable + prior outcome trend/level). If non-linear, then confounding
+is simulated as additive, along with squared confounding terms and an
+interaction term between the two confounders (unobserved variable and
+prior outcome level/trends).</p></li>
+<li><p><code>bias_size</code>: A string that is either ‘small’,
+‘medium’, or ‘large’. Used to determine the level of confounding (see
+paper for more details; this parameter sets values for <span class="math inline">\(a_i\)</span> and <span class="math inline">\(b_i\)</span> terms). The terms are determined such
+that the standardized mean difference between simulated outcomes between
+treated units in policy-enacted years and simulated outcomes for
+non-treated units/treated units in non-policy enacted years is 0.15,
+0.30, and 0.45 (for ‘small’, ‘medium’, and ‘large’,
+respectively).</p></li>
+</ul>
 <p>The function returns a configuration object that’s used as an input
 to <code>dispatch_simulations</code>. This object contains a dataset
-listing all possible simulations that will be run for each model (. An
+listing all possible simulations that will be run for each model. An
 example call of <code>optic_simulation</code> is displayed below:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -582,7 +617,7 @@ few select estimates from the large results table:</p>
 <col width="8%">
 <col width="9%">
 <col width="8%">
-<col width="8%">
+<col width="7%">
 <col width="21%">
 </colgroup>
 <thead><tr class="header">
@@ -607,7 +642,7 @@ few select estimates from the large results table:</p>
 <td align="right">0.6102983</td>
 <td align="right">-1.0685109</td>
 <td align="right">0.2855798</td>
-<td align="right">10.199926</td>
+<td align="right">10.19993</td>
 <td align="left">fixed_effect_linear</td>
 </tr>
 <tr class="even">
@@ -619,23 +654,26 @@ few select estimates from the large results table:</p>
 <td align="right">0.5884476</td>
 <td align="right">-0.9921284</td>
 <td align="right">0.3214048</td>
-<td align="right">10.164138</td>
+<td align="right">10.16414</td>
 <td align="left">fixed_effect_linear_adj</td>
 </tr>
 <tr class="odd">
 <td align="left">6</td>
 <td align="left">crude.rate</td>
-<td align="left">cluster-unit</td>
-<td align="right">-0.2578759</td>
-<td align="right">0.4850419</td>
-<td align="right">0.2352657</td>
-<td align="right">-0.5316569</td>
-<td align="right">0.5951049</td>
-<td align="right">4.006579</td>
-<td align="left">auto_regressive_linear</td>
+<td align="left">none</td>
+<td align="right">-0.8240759</td>
+<td align="right">0.4038133</td>
+<td align="right">0.1630652</td>
+<td align="right">-2.0407349</td>
+<td align="right">0.0415718</td>
+<td align="right">10.20003</td>
+<td align="left">fixed_effect_linear</td>
 </tr>
 </tbody>
 </table>
+<p>There is also detailed information on Type I error rates when the
+estimated treatment effect is null, Type S error rates, and
+coverage.</p>
 <p>We can use the results table to analyze the relative performance of
 models across data scenarios or create test statistics as needed for an
 analysis. For example, we might be interested in comparingrelative bias
@@ -644,7 +682,7 @@ implementation is immediate and decreases the crude.rate by 5%:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Compare point estimates across models for the 5% change scenario, with instantaneous policy adoption:</span></span>
-<span><span class="va">df_compare</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">results</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">se_adjustment</span> <span class="op">==</span> <span class="st">"cluster-unit"</span>,<span class="op">]</span></span>
+<span><span class="va">df_compare</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="op">(</span><span class="va">results</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">se_adjustment</span> <span class="op">==</span> <span class="st">"cluster-unit"</span><span class="op">)</span><span class="op">|</span><span class="op">(</span><span class="va">results</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">model_name</span> <span class="op">==</span> <span class="st">"auto_regressive_linear"</span><span class="op">)</span>,<span class="op">]</span></span>
 <span></span>
 <span><span class="va">true_est</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">five_percent_effect</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span></span>
@@ -665,15 +703,15 @@ implementation is immediate and decreases the crude.rate by 5%:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"FE LM adjusted effect: "</span>, <span class="fu">grab_mean_and_se</span><span class="op">(</span><span class="st">'fixed_effect_linear_adj'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "FE LM adjusted effect: -0.685 (0.975)"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"AR LM effect: "</span>, <span class="fu">grab_mean_and_se</span><span class="op">(</span><span class="st">'auto_regressive_linear'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "AR LM effect: -0.621 (0.44)"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "AR LM effect: -0.64 (0.428)"</span></span></code></pre></div>
 <p>From the above output, we can see all models are producing similar
 estimates, across simulated point estimate draws. While all of these
 models are biased slightly downwards compared to the true effect, the
 autoregressive linear model seems to outperform both the unadjusted and
-adjusted fixed effect model, producing an estimate slightly closer to
-truth, with greater precision. Based on this simulation, if these were
-the only models under consideration, these results could justify using
-an autoregressive linear model for analyzing the real policy effect.</p>
+adjusted fixed effect model, producing an estimate closer to truth, with
+improved precision. Based on this simulation, if these were the only
+models under consideration, these results could justify using an
+autoregressive linear model for analyzing the real policy effect.</p>
 </div>
 <div class="section level4">
 <h4 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
@@ -685,22 +723,22 @@ of Health (NIH) grant (P50DA046351) to RAND (PI: Stein).</p>
 <div class="section level3">
 <h3 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h3>
-<div id="refs" class="references csl-bib-body">
-<div id="ref-http://zotero.org/users/3390799/items/ZNCVTPJF" class="csl-entry">
-<div class="csl-left-margin">1 </div>
-<div class="csl-right-inline">Griffin BA, Schuler MS, Stuart EA, <em>et
-al.</em> <a href="https://doi.org/10.1186/s12874-021-01471-y" class="external-link">Moving
-beyond the classic difference-in-differences model: a simulation study
-comparing statistical methods for estimating effectiveness of
-state-level policies</a>. <em>BMC Medical Research Methodology</em>
-2021; <strong>21</strong>: 279.</div>
-</div>
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-http://zotero.org/users/3390799/items/V3Q6ARUA" class="csl-entry">
-<div class="csl-left-margin">2 </div>
-<div class="csl-right-inline">Griffin BA, Schuler MS, Pane J, <em>et al.</em>
-Methodological considerations for estimating policy effects in the
-context of co-occurring policies. <em>Health Serv Outcomes Res
-Method</em> 2022; published online July 9. DOI:<a href="https://doi.org/10.1007/s10742-022-00284-w" class="external-link">10.1007/s10742-022-00284-w</a>.</div>
+Griffin, Beth Ann, Megan S. Schuler, Joseph Pane, Stephen W. Patrick,
+Rosanna Smart, Bradley D. Stein, Geoffrey Grimm, and Elizabeth A.
+Stuart. 2022. <span>“Methodological Considerations for Estimating Policy
+Effects in the Context of Co-Occurring Policies.”</span> <em>Health
+Services and Outcomes Research Methodology</em>, July. <a href="https://doi.org/10.1007/s10742-022-00284-w" class="external-link">https://doi.org/10.1007/s10742-022-00284-w</a>.
+</div>
+<div id="ref-http://zotero.org/users/3390799/items/ZNCVTPJF" class="csl-entry">
+Griffin, Beth Ann, Megan S. Schuler, Elizabeth A. Stuart, Stephen
+Patrick, Elizabeth McNeer, Rosanna Smart, David Powell, Bradley D.
+Stein, Terry L. Schell, and Rosalie Liccardo Pacula. 2021. <span>“Moving
+Beyond the Classic Difference-in-Differences Model: A Simulation Study
+Comparing Statistical Methods for Estimating Effectiveness of
+State-Level Policies.”</span> <em>BMC Medical Research Methodology</em>
+21 (1): 279. <a href="https://doi.org/10.1186/s12874-021-01471-y" class="external-link">https://doi.org/10.1186/s12874-021-01471-y</a>.
 </div>
 </div>
 </div>
