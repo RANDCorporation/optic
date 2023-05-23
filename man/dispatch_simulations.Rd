@@ -45,9 +45,9 @@ sim <- optic_simulation(x = overdoses,
                         treat_var = 'state',
                         time_var = 'year', 
                         effect_magnitude = list(eff), 
-                        n_units = 10, 
+                        n_units = 2, 
                         effect_direction = 'pos', 
-                        iters = 10,
+                        iters = 2,
                         policy_speed = 'instant', 
                         n_implementation_periods = 1)
 
