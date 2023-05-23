@@ -2,7 +2,7 @@
 title: "Introduction to OPTIC"
 output: rmarkdown::html_vignette
 bibliography: optic_refs.json
-#csl: https://www.zotero.org/styles/lancet
+csl: https://www.zotero.org/styles/lancet
 vignette: >
   %\VignetteIndexEntry{Introduction to OPTIC}
   %\VignetteEngine{knitr::rmarkdown}
@@ -23,24 +23,25 @@ library(optic)
 
 knitr::opts_chunk$set(echo = TRUE)
 
-knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60))
+# this tidy option might be an issue.
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
 
 ```
 
 # Introduction {.unnumbered}
 
-This vignette covers use of the OPTIC package (Opioid Policy Tools and Information Center), which contains tools to simulate the performance of commonly-used statistical models for panel data or repeated measures data. Briefly, OPTIC uses Monte Carlo simulations to estimate the performance of models typically used for state-level policy evaluation (for example, differences-in-differences estimators). Package users provide the simulation procedure with a policy evaluation scenario, a hypothetical treatment effect, an estimator and model specification, and simulation parameters. The OPTIC package then constructs simulations for all chosen simulation parameters and estimators, returning summary statistics on each simulation's performance.
+This vignette covers the use of the Opioid Policy Tools and Information Center (OPTIC) simulation package, which contains tools to simulate treatment effects into panel data or repeated measures data and examine the performance of commonly-used statistical models. Briefly, OPTIC uses Monte Carlo simulations to estimate the performance of models typically used for state-level policy evaluation (for example, differences-in-differences estimators). Package users provide the simulation procedure with a policy evaluation scenario, a hypothetical treatment effect, an estimation approach, and simulation parameters. The OPTIC package then constructs simulations for all chosen simulation parameters and estimators, returning summary statistics on each simulation's performance.
 
 Currently, OPTIC has been developed for policy evaluation scenarios with
 the following assumptions:
 
 1.  **No confounding** : There are no confounding variables which determine
-    a observation's selection into treatment. Additionally, treatment
-    effects are assumed to be constant rather than time-varying.
-2.  **Concurrent policies**: There is one additional policy which co-occurs with the the policy of-interest. 
+    an observations's selection into treatment. Treatment effects are assumed to be constant rather than time-varying.
+2.  **Concurrent policies**: There is one additional policy which co-occurs with the policy of-interest. 
+3.  **Confounding**: There is a confounding variable associated with both policy adoption and outcome *trends*.
 
 
-Additional details on the simulation procedures within OPTIC are
+Additional details on the simulation procedures within the OPTIC package are
 available in Griffin et al., 2021 [@http://zotero.org/users/3390799/items/ZNCVTPJF] and Griffin et al., 2022 [@http://zotero.org/users/3390799/items/V3Q6ARUA]. Forthcoming updates to OPTIC will provides simulations which test the effect of confounding bias on model performance.
 
 This README covers the use of OPTIC in R and provides examples of the
@@ -97,7 +98,7 @@ Statistics and the Centers for Disease Control and Prevention.
 
 Policy evaluation scenarios are single string inputs into the
 `optic_simulation` function, representing either the no confounding
-scenario ("noconf") or the confounding due to co-occurring policies
+scenario ("noconf") or co-occurring policies
 scenario ("concurrent"). For the "concurrent" scenario, there are
 additional parameters required by `optic_simulation`, which are
 discussed in the "parameter" section below. Additional details on policy
@@ -108,12 +109,11 @@ al., 2022[@http://zotero.org/users/3390799/items/V3Q6ARUA].
 ### Treatment scenarios
 
 This input represents the "true treatment effects" that OPTIC will
-simulate across model iterations. OPTIC is currently designed to work on
+simulate across each iteration of the simulations. OPTIC is currently designed to work by generating
 static treatment effects (rather than dynamic treatment effects, such as
 time-varying treatment effects). Users should structure their treatment
-scenarios in a list, corresponding to a change in the outcome variable.
-The list will contain two effects within a vector, if the user is
-simulating models for the "concurrent" policy evaluation scenario. Using
+scenarios in a list, corresponding to the different types of treatment effects they would like to see examined.
+If the user is simulating models for the 'concurrent' policy evaluation scenario, the list will contain two effects within a vector for each potential treatment scenario that the user wants to examine. Using
 the example_data:
 
 ```{r}
@@ -124,22 +124,22 @@ data(overdoses)
 five_percent_effect <- 0.05*mean(overdoses$crude.rate, na.rm = T)
 ten_percent_effect  <- 0.10*mean(overdoses$crude.rate, na.rm = T)
 
-# Calculate a confounding policy effect
-confound_effect <- -0.02*mean(overdoses$crude.rate, na.rm = T)
+# Calculate a co-occuring policy effect
+cooccur_effect <- -0.02*mean(overdoses$crude.rate, na.rm = T)
 
 # Scenario object for "no confounding" evaluation scenario:
 scenarios_no_confounding <- list(five_percent_effect, ten_percent_effect)
 
 # Scenario object for "co-occuring policy" evaluation scenario:
-scenarios_co_occur <- list(c(five_percent_effect, confound_effect),
-                           c(ten_percent_effect, confound_effect))
+scenarios_co_occur <- list(c(five_percent_effect, cooccur_effect),
+                           c(ten_percent_effect, cooccur_effect))
 ```
 
 ## OPTIC functions
 
 ### `optic_model` and `optic_simulation`
 
-For each treatment scenario, OPTIC will simulate a treatment effect and
+For each treatment scenario, OPTIC will simulate the specified treatment effect onto the users repeated measures data and
 then attempt to estimate this effect based on user-provided models. The
 `optic_simulation` function takes a list of `optic_model`. Model lists should contain
 `optic_model` with the following arguments :
@@ -157,7 +157,7 @@ then attempt to estimate this effect based on user-provided models. The
     -   "drdid" estimates a treatment effect using a doubly-robust
         difference-in-difference estimator, with covariates in the
         `model_formula` argument used within both the propensity score
-        stage and (for more details on doubly robust
+        stage and  outcome modeling stage (for more details on doubly robust
         difference-in-differences, see Sant'Anna \\& Zhao, 2020)
 
     -   "multisynth" estimates a treatment effect using augmented
@@ -169,10 +169,8 @@ then attempt to estimate this effect based on user-provided models. The
 
 -   `formula`: The model specification, in an R formula. Needs to
     include a variable labeled "treament_level" for treatment status
-    or labeled "treatment_change" for coding a change in treatment status (e.g. 
-    used in autoregressive models). For "concurrent" scenarios,
-    treatment variables should labeled "treatment1", "treatment2", . . .,
-    "treatment{n}" for each policy included.
+    or labeled "treatment_change" for coding a change in treatment status (when using autoregressive models). For "concurrent" scenarios,
+    treatment variables should labeled "treatment1" and "treatment2" for each policy included.
 
 -   `args`: Any additional arguments passed to the model_call
     (e.g. "weights", "family", "control" etc.).
@@ -211,8 +209,8 @@ lm_ar <- optic_model(
     name = "auto_regressive_linear",
     type = "autoreg",
     call = "lm",
-    formula = crude.rate ~ unemploymentrate + as.factor(year) + as.factor(state) + treatment_change,
-    se_adjust = "cluster-unit"
+    formula = crude.rate ~ unemploymentrate + as.factor(year) + treatment_change,
+    se_adjust = "none"
 )
 
 sim_models <- list(lm_fe_unadj, lm_fe_adj, lm_ar)
@@ -238,14 +236,14 @@ arguments:
     determine clusters for clustered standard errors
 
 -   `time_var`: The variable used for time units. Variable should
-    corresponding to years. To use alternative time units, express them
+    correspond to years. To use alternative time units, express them
     as fractional years (e.g. July = 7/12).
 
 -   `effect_magnitude`: A vector of treatment scenarios. See section
     above for more details. Synthetic datasets will be generated for
     each entry in the vector.
 
--   `n_units`: A vector with the number of units to simulate treatment.
+-   `n_units`: A vector with the number of units that should be in the treatment group.
     Synthetic datasets will be generated for each entry in the vector.
 
 -   `effect_direction`: A vector containing either 'neg', 'null', or
@@ -265,23 +263,34 @@ arguments:
     treatment effect. Synthetic datasets will be generated for each
     entry in the vector.
 
-Three arguments to `optic_simulation` only apply within the
+Three additional arguments to `optic_simulation` only apply within the
 "concurrent" policy scenario:
 
 -   `rhos`: A vector of 0-1 values indicating the correlation between
-    the primary policy and a confounding policy. Synthetic datasets will
+    the primary policy and a cooccuring policy. Synthetic datasets will
     be generated for each entry in the vector.
 
 -   `years_apart`: Number of years between the primary policy being
-    implemented and the confounding policy.
+    implemented and the cooccuring policy.
 
 -   `ordered`: Determines if the primary policy always occurs before the
     confounding policy (`TRUE`) or if the policies are randomly ordered
     (`FALSE`).
+    
+and four other arguments apply only to the "confounding" policy scenario:
+
+-   `conf_var`: A string variable, defining a (unobserved) confounding variable in the dataset that will be used to simulate the effect of confounding in the outcome variable.
+
+-   `prior_control`: A string variable that is either "level" or "trend". Specifies confounding for $C_ij$ term, which is confounding due to either  prior outcome levels or prior outcome trends. For trends, OPTIC simulates confounding as an average of outcome levels in the previous three years.
+
+-   `bias_type`: String determining type of confounding effect, either 'linear' or 'nonlinear'. If linear is chosen, then confounding in the outcome is simulated as additive (unobserved confound variable + prior outcome trend/level). If non-linear, then confounding is simulated as additive, along with squared confounding terms and an interaction term between the two confounders (unobserved variable and prior outcome level/trends).
+
+-   `bias_size`: A string that is either 'small', 'medium', or 'large'. Used to determine the level of confounding (see paper for more details; this parameter sets values for $a_i$ and $b_i$ terms). The terms are determined such that the standardized mean difference between simulated outcomes between treated units in policy-enacted years and simulated outcomes for non-treated units/treated units in non-policy enacted years is 0.15, 0.30, and 0.45 (for 'small', 'medium', and 'large', respectively). 
+
 
 The function returns a configuration object that's used as an input to
 `dispatch_simulations`. This object contains a dataset listing all
-possible simulations that will be run for each model (. An example call
+possible simulations that will be run for each model. An example call
 of `optic_simulation` is displayed below:
 
 
@@ -339,12 +348,14 @@ knitr::kable(results[[1]][c(2, 4, 6), 1:9], format = "markdown")
 
 ```
 
+There is also detailed information on Type I error rates when the estimated treatment effect is null, Type S error rates, and coverage. 
+
 We can use the results table to analyze the relative performance of models across data scenarios or create test statistics as needed for an analysis. For example, we might be interested in comparingrelative bias across the point estimates, in the scenario where the effect of policy implementation is immediate and decreases the crude.rate by 5%:
 
 ```{r}
 
 # Compare point estimates across models for the 5% change scenario, with instantaneous policy adoption:
-df_compare <- results[[1]][results[[1]]$se_adjustment == "cluster-unit",]
+df_compare <- results[[1]][(results[[1]]$se_adjustment == "cluster-unit")|(results[[1]]$model_name == "auto_regressive_linear"),]
 
 true_est <- -round(five_percent_effect, 3)
 
@@ -365,7 +376,7 @@ print(paste0("AR LM effect: ", grab_mean_and_se('auto_regressive_linear')))
 
 ```
 
-From the above output, we can see all models are producing similar estimates, across simulated point estimate draws. While all of these models are biased slightly downwards compared to the true effect, the autoregressive linear model seems to outperform both the unadjusted and adjusted fixed effect model, producing an estimate slightly closer to truth, with greater precision. Based on this simulation, if these were the only models under consideration, these results could justify using an autoregressive linear model for analyzing the real policy effect.  
+From the above output, we can see all models are producing similar estimates, across simulated point estimate draws. While all of these models are biased slightly downwards compared to the true effect, the autoregressive linear model seems to outperform both the unadjusted and adjusted fixed effect model, producing an estimate  closer to truth, with improved precision. Based on this simulation, if these were the only models under consideration, these results could justify using an autoregressive linear model for analyzing the real policy effect.  
 
 ### Acknowledgements
 
