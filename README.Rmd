@@ -4,6 +4,7 @@ bibliography: ./vignettes/optic_refs.json
 #csl: https://www.zotero.org/styles/lancet
 link-citations: yes
 linkcolor: blue
+nocite: '@*'
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->

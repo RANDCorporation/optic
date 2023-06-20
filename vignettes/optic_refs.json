@@ -209,5 +209,139 @@
 				]
 			]
 		}
+	},
+	{
+		"id": "opticIntroductionOPTIC",
+		"type": "webpage",
+		"title": "Introduction to OPTIC",
+		"URL": "https://randcorporation.github.io/optic/articles/intro_optic.html",
+		"author": [
+			{
+				"family": "optic",
+				"given": ""
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2023",
+					6,
+					16
+				]
+			]
+		}
+	},
+	{
+		"id": "rProjectStatisticalComputing",
+		"type": "webpage",
+		"title": "The R Project for Statistical Computing",
+		"URL": "https://www.r-project.org/",
+		"author": [
+			{
+				"family": "R",
+				"given": ""
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2023",
+					6,
+					16
+				]
+			]
+		}
+	},
+	{
+		"id": "randcorporationHomepage",
+		"type": "webpage",
+		"abstract": "The RAND Corporation is a nonprofit institution that helps improve policy and decisionmaking through research and analysis. RAND focuses on the issues that matter most such as health, education, national security, international affairs, law and business, the environment, and more. With a research staff consisting of some of the world's preeminent minds, RAND has been expanding the boundaries of human knowledge for more than 70 years.",
+		"language": "en",
+		"title": "Homepage",
+		"URL": "https://www.rand.org",
+		"author": [
+			{
+				"family": "RAND Corporation",
+				"given": ""
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2023",
+					6,
+					20
+				]
+			]
+		}
+	},
+	{
+		"id": "randcorporationBethAnnGriffin",
+		"type": "webpage",
+		"abstract": "Staff profile for Beth Ann Griffin, Senior Statistician at the RAND Corporation.",
+		"language": "en",
+		"title": "Beth Ann Griffin - Profile",
+		"URL": "https://www.rand.org/about/people/g/griffin_beth_ann.html",
+		"author": [
+			{
+				"family": "RAND Corporation",
+				"given": ""
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2023",
+					6,
+					20
+				]
+			]
+		}
+	},
+	{
+		"id": "randcorporationRANDUSCSchaefferOpioid",
+		"type": "webpage",
+		"abstract": "The RAND-USC Schaeffer Opioid Policy Tools and Information Center (OPTIC) fosters innovative research to develop more powerful tools and methods for tackling the opioid epidemic.",
+		"language": "en",
+		"title": "RAND-USC Schaeffer Opioid Policy Tools and Information Center (OPTIC)",
+		"URL": "https://www.rand.org/health-care/centers/optic.html",
+		"author": [
+			{
+				"family": "RAND Corporation",
+				"given": ""
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2023",
+					6,
+					20
+				]
+			]
+		}
+	},
+	{
+		"id": "rdrr.ioInstallPackagesInstall",
+		"type": "webpage",
+		"language": "en",
+		"title": "install.packages: Install Packages from Repositories or Local Files",
+		"title-short": "install.packages",
+		"URL": "https://rdrr.io/r/utils/install.packages.html",
+		"author": [
+			{
+				"family": "rdrr.io",
+				"given": ""
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2023",
+					6,
+					20
+				]
+			]
+		}
 	}
 ]

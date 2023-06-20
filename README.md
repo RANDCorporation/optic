@@ -177,4 +177,47 @@ State-Level Policies.” *BMC Medical Research Methodology* 21 (1): 279.
 
 </div>
 
+<div id="ref-opticIntroductionOPTIC" class="csl-entry">
+
+optic. n.d. “Introduction to OPTIC.” Accessed June 16, 2023.
+<https://randcorporation.github.io/optic/articles/intro_optic.html>.
+
+</div>
+
+<div id="ref-rProjectStatisticalComputing" class="csl-entry">
+
+R. n.d. “The R Project for Statistical Computing.” Accessed June 16,
+2023. <https://www.r-project.org/>.
+
+</div>
+
+<div id="ref-randcorporationBethAnnGriffin" class="csl-entry">
+
+RAND Corporation. n.d.a. “Beth Ann Griffin - Profile.” Accessed June 20,
+2023. <https://www.rand.org/about/people/g/griffin_beth_ann.html>.
+
+</div>
+
+<div id="ref-randcorporationHomepage" class="csl-entry">
+
+———. n.d.b. “Homepage.” Accessed June 20, 2023. <https://www.rand.org>.
+
+</div>
+
+<div id="ref-randcorporationRANDUSCSchaefferOpioid" class="csl-entry">
+
+———. n.d.c. “RAND-USC Schaeffer Opioid Policy Tools and Information
+Center (OPTIC).” Accessed June 20, 2023.
+<https://www.rand.org/health-care/centers/optic.html>.
+
+</div>
+
+<div id="ref-rdrr.ioInstallPackagesInstall" class="csl-entry">
+
+rdrr.io. n.d. “Install.packages: Install Packages from Repositories or
+Local Files.” Accessed June 20, 2023.
+<https://rdrr.io/r/utils/install.packages.html>.
+
+</div>
+
 </div>
