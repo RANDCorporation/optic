@@ -61,7 +61,7 @@ remotes::install_github("RANDCorporation/optic")
 
 ## Usage
 
-Please see the introductory vignette by running `vignette("intro_optic")` after installing the package. The vignette provides a working example using a sample `overdoses` dataset provided with the package. `optic` provides three main functions: `optic_model`, `optic_simulation`, and `dispatch_simulations`. Use `optic_model` to define model specifications for each causal model to be tested in the simulation experiment. Then, pass your models, your data, and parameters to the `optic_simulation` function, that specifies a set of simulations to be performed for each `optic_model` included in your `list` of models. Finally, use `dispatch_simulations` to run your simulations in parallel.
+The [introductory vignette](https://randcorporation.github.io/optic/articles/intro_optic.html) vignette provides a working example using a sample `overdoses` dataset provided with the package. `optic` provides three main functions: `optic_model`, `optic_simulation`, and `dispatch_simulations`. Use `optic_model` to define model specifications for each causal model to be tested in the simulation experiment. Then, pass your models, your data, and parameters to the `optic_simulation` function, that specifies a set of simulations to be performed for each `optic_model` included in your `list` of models. Finally, use `dispatch_simulations` to run your simulations in parallel.
 
 ## Contact
 
