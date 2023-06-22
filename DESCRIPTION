@@ -18,7 +18,7 @@ Description: Implements a simulation study to assess the strengths and
     using panel data. See Griffin et al. (2021)
     <doi:10.1007/s10742-022-00284-w> and Griffin et al. (2022)
     <doi:10.1186/s12874-021-01471-y> for a description of our methods.
-License: GPL-3 | file LICENSE
+License: GPL-3
 URL: https://randcorporation.github.io/optic/,
     https://github.com/randcorporation/optic
 BugReports: https://github.com/randcorporation/optic/issues

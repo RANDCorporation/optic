@@ -41,7 +41,7 @@ the following assumptions:
 
 
 Additional details on the simulation procedures within the OPTIC package are
-available in Griffin et al., 2021 [@http://zotero.org/users/3390799/items/ZNCVTPJF] and Griffin et al., 2022 [@http://zotero.org/users/3390799/items/V3Q6ARUA]. Forthcoming updates to OPTIC will provides simulations which test the effect of confounding bias on model performance.
+available in Griffin et al., 2021 [@griffinMovingClassicDifferenceindifferences2021] and Griffin et al., 2022 [@griffinMethodologicalConsiderationsEstimating2022]. Forthcoming updates to OPTIC will provides simulations which test the effect of confounding bias on model performance.
 
 This README covers the use of OPTIC in R and provides examples of the
 package's features. Section one covers package installation, section two
@@ -102,8 +102,8 @@ scenario ("concurrent"). For the "concurrent" scenario, there are
 additional parameters required by `optic_simulation`, which are
 discussed in the "parameter" section below. Additional details on policy
 evaluation scenarios are provided in Griffin et al.,
-2021[@http://zotero.org/users/3390799/items/ZNCVTPJF] and Griffin et
-al., 2022[@http://zotero.org/users/3390799/items/V3Q6ARUA].
+2021[@griffinMovingClassicDifferenceindifferences2021] and Griffin et
+al., 2022[@griffinMethodologicalConsiderationsEstimating2022].
 
 ### Treatment scenarios
 

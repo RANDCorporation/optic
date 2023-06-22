@@ -14,3 +14,5 @@ dev
 ^.github$
 ^\.github$
 ^cran-comments\.md$
+^CRAN-SUBMISSION$
+^LICENSE$

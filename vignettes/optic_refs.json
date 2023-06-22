@@ -1,6 +1,6 @@
 [
 	{
-		"id": "http://zotero.org/users/3390799/items/ZNCVTPJF",
+		"id": "griffinMovingClassicDifferenceindifferences2021",
 		"type": "article-journal",
 		"abstract": "Reliable evaluations of state-level policies are essential for identifying effective policies and informing policymakers’ decisions. State-level policy evaluations commonly use a difference-in-differences (DID) study design; yet within this framework, statistical model specification varies notably across studies. More guidance is needed about which set of statistical models perform best when estimating how state-level policies affect outcomes.",
 		"container-title": "BMC Medical Research Methodology",
@@ -76,7 +76,7 @@
 		}
 	},
 	{
-		"id": "http://zotero.org/users/3390799/items/V3Q6ARUA",
+		"id": "griffinMethodologicalConsiderationsEstimating2022",
 		"type": "article-journal",
 		"abstract": "Understanding how best to estimate state-level policy effects is important, and several unanswered questions remain, particularly about the ability of statistical models to disentangle the effects of concurrently enacted policies. In practice, many policy evaluation studies do not attempt to control for effects of co-occurring policies, and this issue has not received extensive attention in the methodological literature to date. In this study, we utilized Monte Carlo simulations to assess the impact of co-occurring policies on the performance of commonly-used statistical models in state policy evaluations. Simulation conditions varied effect sizes of the co-occurring policies and length of time between policy enactment dates, among other factors. Outcome data (annual state-specific opioid mortality rate per 100,000) were obtained from 1999 to 2016 National Vital Statistics System (NVSS) Multiple Cause of Death mortality files, thus yielding longitudinal annual state-level data over 18 years from 50 states. When co-occurring policies are ignored (i.e., omitted from the analytic model), our results demonstrated that high relative bias (> 82%) arises, particularly when policies are enacted in rapid succession. Moreover, as expected, controlling for all co-occurring policies will effectively mitigate the threat of confounding bias; however, effect estimates may be relatively imprecise (i.e., larger variance) when policies are enacted in near succession. Our findings highlight several key methodological issues regarding co-occurring policies in the context of opioid-policy research yet also generalize more broadly to evaluation of other state-level policies, such as policies related to firearms or COVID-19, showcasing the need to think critically about co-occurring policies that are likely to influence the outcome when specifying analytic models.",
 		"container-title": "Health Services and Outcomes Research Methodology",
@@ -136,6 +136,210 @@
 					"2022",
 					7,
 					9
+				]
+			]
+		}
+	},
+	{
+		"id": "ben-michaelAugmentedSyntheticControl2021",
+		"type": "article-journal",
+		"container-title": "Journal of the American Statistical Association",
+		"DOI": "10.1080/01621459.2021.1929245",
+		"ISSN": "0162-1459",
+		"issue": "536",
+		"journalAbbreviation": "Journal of the American Statistical Association",
+		"note": "publisher: Taylor & Francis",
+		"page": "1789-1803",
+		"title": "The Augmented Synthetic Control Method",
+		"URL": "https://doi.org/10.1080/01621459.2021.1929245",
+		"volume": "116",
+		"author": [
+			{
+				"family": "Ben-Michael",
+				"given": "Eli"
+			},
+			{
+				"family": "Feller",
+				"given": "Avi"
+			},
+			{
+				"family": "Rothstein",
+				"given": "Jesse"
+			}
+		],
+		"issued": {
+			"date-parts": [
+				[
+					"2021",
+					10,
+					2
+				]
+			]
+		}
+	},
+	{
+		"id": "callawayDifferenceinDifferencesMultipleTime2021",
+		"type": "article-journal",
+		"abstract": "In this article, we consider identification, estimation, and inference procedures for treatment effect parameters using Difference-in-Differences (DiD) with (i) multiple time periods, (ii) variation in treatment timing, and (iii) when the “parallel trends assumption” holds potentially only after conditioning on observed covariates. We show that a family of causal effect parameters are identified in staggered DiD setups, even if differences in observed characteristics create non-parallel outcome dynamics between groups. Our identification results allow one to use outcome regression, inverse probability weighting, or doubly-robust estimands. We also propose different aggregation schemes that can be used to highlight treatment effect heterogeneity across different dimensions as well as to summarize the overall effect of participating in the treatment. We establish the asymptotic properties of the proposed estimators and prove the validity of a computationally convenient bootstrap procedure to conduct asymptotically valid simultaneous (instead of pointwise) inference. Finally, we illustrate the relevance of our proposed tools by analyzing the effect of the minimum wage on teen employment from 2001–2007. Open-source software is available for implementing the proposed methods.",
+		"container-title": "Journal of Econometrics",
+		"DOI": "10.1016/j.jeconom.2020.12.001",
+		"ISSN": "0304-4076",
+		"issue": "2",
+		"journalAbbreviation": "Journal of Econometrics",
+		"page": "200-230",
+		"title": "Difference-in-Differences with multiple time periods",
+		"URL": "https://www.sciencedirect.com/science/article/pii/S0304407620303948",
+		"volume": "225",
+		"author": [
+			{
+				"family": "Callaway",
+				"given": "Brantly"
+			},
+			{
+				"family": "Sant’Anna",
+				"given": "Pedro H.C."
+			}
+		],
+		"issued": {
+			"date-parts": [
+				[
+					"2021",
+					12,
+					1
+				]
+			]
+		}
+	},
+	{
+		"id": "opticIntroductionOPTIC",
+		"type": "webpage",
+		"title": "Introduction to OPTIC",
+		"URL": "https://randcorporation.github.io/optic/articles/intro_optic.html",
+		"author": [
+			{
+				"family": "optic",
+				"given": ""
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2023",
+					6,
+					16
+				]
+			]
+		}
+	},
+	{
+		"id": "rProjectStatisticalComputing",
+		"type": "webpage",
+		"title": "The R Project for Statistical Computing",
+		"URL": "https://www.r-project.org/",
+		"author": [
+			{
+				"family": "R",
+				"given": ""
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2023",
+					6,
+					16
+				]
+			]
+		}
+	},
+	{
+		"id": "randcorporationHomepage",
+		"type": "webpage",
+		"abstract": "The RAND Corporation is a nonprofit institution that helps improve policy and decisionmaking through research and analysis. RAND focuses on the issues that matter most such as health, education, national security, international affairs, law and business, the environment, and more. With a research staff consisting of some of the world's preeminent minds, RAND has been expanding the boundaries of human knowledge for more than 70 years.",
+		"language": "en",
+		"title": "Homepage",
+		"URL": "https://www.rand.org",
+		"author": [
+			{
+				"family": "RAND Corporation",
+				"given": ""
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2023",
+					6,
+					20
+				]
+			]
+		}
+	},
+	{
+		"id": "randcorporationBethAnnGriffin",
+		"type": "webpage",
+		"abstract": "Staff profile for Beth Ann Griffin, Senior Statistician at the RAND Corporation.",
+		"language": "en",
+		"title": "Beth Ann Griffin - Profile",
+		"URL": "https://www.rand.org/about/people/g/griffin_beth_ann.html",
+		"author": [
+			{
+				"family": "RAND Corporation",
+				"given": ""
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2023",
+					6,
+					20
+				]
+			]
+		}
+	},
+	{
+		"id": "randcorporationRANDUSCSchaefferOpioid",
+		"type": "webpage",
+		"abstract": "The RAND-USC Schaeffer Opioid Policy Tools and Information Center (OPTIC) fosters innovative research to develop more powerful tools and methods for tackling the opioid epidemic.",
+		"language": "en",
+		"title": "RAND-USC Schaeffer Opioid Policy Tools and Information Center (OPTIC)",
+		"URL": "https://www.rand.org/health-care/centers/optic.html",
+		"author": [
+			{
+				"family": "RAND Corporation",
+				"given": ""
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2023",
+					6,
+					20
+				]
+			]
+		}
+	},
+	{
+		"id": "rdrr.ioInstallPackagesInstall",
+		"type": "webpage",
+		"language": "en",
+		"title": "install.packages: Install Packages from Repositories or Local Files",
+		"title-short": "install.packages",
+		"URL": "https://rdrr.io/r/utils/install.packages.html",
+		"author": [
+			{
+				"family": "rdrr.io",
+				"given": ""
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2023",
+					6,
+					20
 				]
 			]
 		}
