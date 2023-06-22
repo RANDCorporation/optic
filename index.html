@@ -83,37 +83,40 @@
 <!-- badges: end
 [![codecov](https://codecov.io/gh/RANDCorporation/optic/branch/develop/graph/badge.svg?token=5XYDOFFJMH)](https://codecov.io/gh/RANDCorporation/optic)
 -->
-<p>The <code>optic</code> R package helps you scrutinize candidate causal inference models using <strong>your own</strong> longitudinal data.</p>
-<p>The recent Diff-in-Diff literature revealed issues with the traditional Diff-in-Diff model, but we found it very difficult to evaluate the relative performance of different causal inference methods using <em>our own data</em>.</p>
-<p>Thus, we designed a series of simulations (<a href="#ref-http://zotero.org/users/3390799/items/ZNCVTPJF" class="external-link">Griffin et al. 2021</a>; <a href="#ref-http://zotero.org/users/3390799/items/V3Q6ARUA" class="external-link">Griffin et al. 2022</a>) to study the performance of various methods under different scenarios. Our publications to date include:</p>
+<p>The <code>optic</code> R package helps you scrutinize candidate causal inference models using <strong>your own</strong> longitudinal data. Researchers from the Opioid Policy Tools and Information Center (OPTIC) initially created the tool to examine longitudinal data related to opioids, but its framework can be used with longitudinal data on topics other than opioids.</p>
+<div class="section level2">
+<h2 id="background-and-rationale">Background and Rationale<a class="anchor" aria-label="anchor" href="#background-and-rationale"></a>
+</h2>
+<p>Recent difference-in-differences (DID) literature revealed issues with the traditional DID model, but we found it very difficult to evaluate the relative performance of different causal inference methods using our own data. Thus, we designed a series of simulations (<a href="#ref-griffinMovingClassicDifferenceindifferences2021">Griffin et al. 2021</a>; <a href="#ref-griffinMethodologicalConsiderationsEstimating2022">Griffin et al. 2022</a>) to study the performance of various methods under different scenarios. Our publications to date are as follows:</p>
 <ol style="list-style-type: decimal">
-<li><p>In Griffin et al. (<a href="#ref-http://zotero.org/users/3390799/items/ZNCVTPJF" class="external-link">2021</a>), we use real-world data on opioid mortality rates to assess commonly used statistical models for Difference-In-Differences (DID) designs, which are widely used in state policy evaluations. These experiments demonstrated notable limitations of those methods. In contrast, the optimal model we identified–the autoregressive model (AR) model- showed a lot of promise. That said, don’t just take our word for it - try it out with your own data and see how various approaches do relative to each other. See below for details.</p></li>
-<li><p>In Griffin et al. (<a href="#ref-http://zotero.org/users/3390799/items/V3Q6ARUA" class="external-link">2022</a>), we also demonstrate it is critical to be able to control for effects of co-occurring policies, and understand the potential bias that might arise from not controlling for those policies. Our package can also help you assess the impact of co-occurring policies on the performance of commonly-used statistical models in state policy evaluations.</p></li>
+<li><p>In Griffin et al. (<a href="#ref-griffinMovingClassicDifferenceindifferences2021">2021</a>), we use real-world data on opioid mortality rates to assess commonly used statistical models for DID designs, which are widely used in state policy evaluations. These experiments demonstrated notable limitations of those methods. In contrast, the optimal model we identified—the autoregressive (AR) model—showed a lot of promise. That said, do not just take our word for it; try it out with your own data and see how various approaches perform relative to each other. See the “Usage” section for details.</p></li>
+<li><p>In Griffin et al. (<a href="#ref-griffinMethodologicalConsiderationsEstimating2022">2022</a>), we demonstrate that it is critical to be able to control for effects of co-occurring policies and understand the potential bias that might arise from not controlling for those policies. Our package can help you assess the impact of co-occurring policies on the performance of commonly used statistical models in state policy evaluations.</p></li>
 </ol>
-<p>Assessing those methods in a systematic way might be challenging, but now you can now use our <code>optic</code> R package to simulate policy effects and compare causal inference models using your own data.</p>
-<p>The package supports the traditional two-way fixed effects DID model and the AR model as well as other leading methods like augment synthetic control and the Callaway-Santa’Anna approach to DID.</p>
+<p>Assessing those methods in a systematic way might be challenging, but you can now use our <code>optic</code> R package to simulate policy effects and compare causal inference models using your own data.</p>
+<p>The package supports the traditional two-way fixed effects DID model and the AR model, as well as other leading methods, such as augmented synthetic control and the Callaway-Sant’Anna approach to DID (<a href="#ref-ben-michaelAugmentedSyntheticControl2021">Ben-Michael, Feller, and Rothstein 2021</a>; <a href="#ref-callawayDifferenceinDifferencesMultipleTime2021">Callaway and Sant’Anna 2021</a>).</p>
 <div class="section level3">
 <h3 id="why-optic">Why <code>optic</code>?<a class="anchor" aria-label="anchor" href="#why-optic"></a>
 </h3>
-<p><code>optic</code> is named after the <strong>Opioid Policy Tools and Information Center (OPTIC)</strong> project. The research was financially supported through a National Institutes of Health (NIH) grant (P50DA046351) to RAND (PI: Stein).</p>
+<p><code>optic</code> is named after the <strong>Opioid Policy Tools and Information Center (OPTIC)</strong> project.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You will need <a href="https://www.r-project.org" class="external-link">R (&gt;= 4.1.0)</a> to use this package. You can install the <code>optic</code> R package from the <code>R</code> console:</p>
+<p>You will need <a href="https://www.r-project.org" class="external-link">R (version 4.1.0 or above)</a> to use this package. You can install the <code>optic</code> R package from the <code>R</code> console:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># in the near future, you will be able to install from CRAN with</span></span>
+<code class="sourceCode R"><span><span class="co"># install from CRAN:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"optic"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># or install the development version from github:</span></span>
 <span><span class="co"># install remotes if needed</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"RANDCorporation/optic"</span>, build_vignettes <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"RANDCorporation/optic"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>Please see the introductory vignette by running <code><a href="articles/intro_optic.html">vignette("intro_optic")</a></code> after installing the package. The vignette provides a working example using a sample <code>overdoses</code> dataset provided with the package. <code>optic</code> provides three main functions: <code>optic_model</code>, <code>optic_simulation</code>, and <code>dispatch_simulations</code>. Use <code>optic_model</code> to define model specifications for each causal model to be tested in the simulation experiment. Then, pass your models, your data, and parameters to the <code>optic_simulation</code> function, that specifies a set of simulations to be performed for each <code>optic_model</code> included in your <code>list</code> of models. Finally, use <code>dispatch_simulations</code> to run your simulations in parallel.</p>
+<p>The <a href="https://randcorporation.github.io/optic/articles/intro_optic.html">introductory vignette</a> vignette provides a working example using a sample <code>overdoses</code> dataset provided with the package. <code>optic</code> provides three main functions: <code>optic_model</code>, <code>optic_simulation</code>, and <code>dispatch_simulations</code>. Use <code>optic_model</code> to define model specifications for each causal model to be tested in the simulation experiment. Then, pass your models, your data, and parameters to the <code>optic_simulation</code> function, that specifies a set of simulations to be performed for each <code>optic_model</code> included in your <code>list</code> of models. Finally, use <code>dispatch_simulations</code> to run your simulations in parallel.</p>
 </div>
 <div class="section level2">
 <h2 id="contact">Contact<a class="anchor" aria-label="anchor" href="#contact"></a>
@@ -126,14 +129,49 @@
 <p>Copyright (C) 2023 by The <a href="https://www.rand.org" class="external-link">RAND Corporation</a>. This repository is released as open-source software under a GPL-3.0 license. See the LICENSE file.</p>
 </div>
 <div class="section level2">
+<h2 id="about-this-tool">About this Tool<a class="anchor" aria-label="anchor" href="#about-this-tool"></a>
+</h2>
+<p>This research was financially supported through a National Institute on Drug Abuse grant (P50DA046351) to the RAND Corporation and carried out within the Access and Delivery Program in RAND Health Care.</p>
+<p>RAND Health Care, a division of the RAND Corporation, promotes healthier societies by improving health care systems in the United States and other countries. We do this by providing health care decisionmakers, practitioners, and consumers with actionable, rigorous, objective evidence to support their most complex decisions. For more information, see <a href="https://www.rand.org/health-care" class="external-link">www.rand.org/health-care</a>, or contact</p>
+<p><strong>RAND Health Care Communications</strong><br>
+1776 Main Street<br>
+P.O. Box 2138<br>
+Santa Monica, CA 90407-2138<br>
+(310) 393-0411, ext. 7775<br><a href="mailto:RAND_Health-Care@rand.org" class="email">RAND_Health-Care@rand.org</a></p>
+</div>
+<div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
-<div id="ref-http://zotero.org/users/3390799/items/V3Q6ARUA" class="csl-entry">
+<div id="ref-ben-michaelAugmentedSyntheticControl2021" class="csl-entry">
+Ben-Michael, Eli, Avi Feller, and Jesse Rothstein. 2021. “The Augmented Synthetic Control Method.” <em>Journal of the American Statistical Association</em> 116 (536): 1789–1803. <a href="https://doi.org/10.1080/01621459.2021.1929245" class="external-link uri">https://doi.org/10.1080/01621459.2021.1929245</a>.
+</div>
+<div id="ref-callawayDifferenceinDifferencesMultipleTime2021" class="csl-entry">
+Callaway, Brantly, and Pedro H.C. Sant’Anna. 2021. “Difference-in-Differences with Multiple Time Periods.” <em>Journal of Econometrics</em> 225 (2): 200–230. <a href="https://doi.org/10.1016/j.jeconom.2020.12.001" class="external-link uri">https://doi.org/10.1016/j.jeconom.2020.12.001</a>.
+</div>
+<div id="ref-griffinMethodologicalConsiderationsEstimating2022" class="csl-entry">
 Griffin, Beth Ann, Megan S. Schuler, Joseph Pane, Stephen W. Patrick, Rosanna Smart, Bradley D. Stein, Geoffrey Grimm, and Elizabeth A. Stuart. 2022. “Methodological Considerations for Estimating Policy Effects in the Context of Co-Occurring Policies.” <em>Health Services and Outcomes Research Methodology</em>, July. <a href="https://doi.org/10.1007/s10742-022-00284-w" class="external-link uri">https://doi.org/10.1007/s10742-022-00284-w</a>.
 </div>
-<div id="ref-http://zotero.org/users/3390799/items/ZNCVTPJF" class="csl-entry">
+<div id="ref-griffinMovingClassicDifferenceindifferences2021" class="csl-entry">
 Griffin, Beth Ann, Megan S. Schuler, Elizabeth A. Stuart, Stephen Patrick, Elizabeth McNeer, Rosanna Smart, David Powell, Bradley D. Stein, Terry L. Schell, and Rosalie Liccardo Pacula. 2021. “Moving Beyond the Classic Difference-in-Differences Model: A Simulation Study Comparing Statistical Methods for Estimating Effectiveness of State-Level Policies.” <em>BMC Medical Research Methodology</em> 21 (1): 279. <a href="https://doi.org/10.1186/s12874-021-01471-y" class="external-link uri">https://doi.org/10.1186/s12874-021-01471-y</a>.
+</div>
+<div id="ref-opticIntroductionOPTIC" class="csl-entry">
+optic. n.d. “Introduction to OPTIC.” Accessed June 16, 2023. <a href="https://randcorporation.github.io/optic/articles/intro_optic.html" class="uri">https://randcorporation.github.io/optic/articles/intro_optic.html</a>.
+</div>
+<div id="ref-rProjectStatisticalComputing" class="csl-entry">
+R. n.d. “The R Project for Statistical Computing.” Accessed June 16, 2023. <a href="https://www.r-project.org/" class="external-link uri">https://www.r-project.org/</a>.
+</div>
+<div id="ref-randcorporationBethAnnGriffin" class="csl-entry">
+RAND Corporation. n.d.a. “Beth Ann Griffin - Profile.” Accessed June 20, 2023. <a href="https://www.rand.org/about/people/g/griffin_beth_ann.html" class="external-link uri">https://www.rand.org/about/people/g/griffin_beth_ann.html</a>.
+</div>
+<div id="ref-randcorporationHomepage" class="csl-entry">
+———. n.d.b. “Homepage.” Accessed June 20, 2023. <a href="https://www.rand.org" class="external-link uri">https://www.rand.org</a>.
+</div>
+<div id="ref-randcorporationRANDUSCSchaefferOpioid" class="csl-entry">
+———. n.d.c. “RAND-USC Schaeffer Opioid Policy Tools and Information Center (OPTIC).” Accessed June 20, 2023. <a href="https://www.rand.org/health-care/centers/optic.html" class="external-link uri">https://www.rand.org/health-care/centers/optic.html</a>.
+</div>
+<div id="ref-rdrr.ioInstallPackagesInstall" class="csl-entry">
+rdrr.io. n.d. “Install.packages: Install Packages from Repositories or Local Files.” Accessed June 20, 2023. <a href="https://rdrr.io/r/utils/install.packages.html" class="external-link uri">https://rdrr.io/r/utils/install.packages.html</a>.
 </div>
 </div>
 </div>
@@ -141,6 +179,7 @@ Griffin, Beth Ann, Megan S. Schuler, Elizabeth A. Stuart, Stephen Patrick, Eliza
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
+<li><a href="https://cloud.r-project.org/package=optic" class="external-link">View on CRAN</a></li>
 <li><a href="https://github.com/randcorporation/optic/" class="external-link">Browse source code</a></li>
 <li><a href="https://github.com/randcorporation/optic/issues" class="external-link">Report a bug</a></li>
 </ul>
@@ -149,9 +188,7 @@ Griffin, Beth Ann, Megan S. Schuler, Elizabeth A. Stuart, Stephen Patrick, Eliza
 <div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li>
-<a href="https://www.r-project.org/Licenses/GPL-3" class="external-link">GPL-3</a> | file <a href="LICENSE-text.html">LICENSE</a>
-</li>
+<li><a href="https://www.r-project.org/Licenses/GPL-3" class="external-link">GPL-3</a></li>
 </ul>
 </div>
 
