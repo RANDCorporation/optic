@@ -27,6 +27,12 @@ run_iteration <- function(single_simulation) {
     }
     
     if (!is.null(single_simulation$method_post_model)) {
+
+      #Make sure to cast id to numeric for DID
+      if (mname == "did"){
+        model_simulation$data$state <- as.numeric(factor(model_simulation$data$state))
+      }
+
       model_simulation <- single_simulation$method_model(model_simulation)
       
       r <- single_simulation$method_post_model(model_simulation)

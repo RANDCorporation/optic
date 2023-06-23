@@ -290,13 +290,15 @@ selbias_premodel <- function(model_simulation) {
   # the lagged crude rate
   # It uses the lagged outcome.
 
+  unit_sym <- dplyr::sym(model_simulation$unit_var)
+  time_sym <- dplyr::sym(model_simulation$time_var)
+
   # if autoregressive, need to add lag for crude rate
   # when outcome is deaths, derive new crude rate from modified outcome
   if (model_type == "autoreg") {
     
     # get lag of crude rate and add it to the model
-    unit_sym <- dplyr::sym(model_simulation$unit_var)
-    time_sym <- dplyr::sym(model_simulation$time_var)
+
     
     x <- x %>%
       dplyr::arrange(!!unit_sym, !!time_sym) %>%
@@ -384,6 +386,8 @@ selbias_premodel <- function(model_simulation) {
 selbias_model <- function(model_simulation) {
   model <- model_simulation$models
   x <- model_simulation$data
+  
+  # 
   
   if (model_simulation$models$type %in% c("did", "multisynth")) {
     args = c(list(data=x), model[["model_args"]])

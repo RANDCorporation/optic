@@ -168,12 +168,19 @@ dispatch_simulations <- function(object, seed=NULL, use_future=FALSE, verbose=0,
           stop(paste("attempted 10 percent of total iterations in single thread;",
                      "something is not right, here's the most recent error:",
                      paste(r, collapse=" ")))
-          
         }
         
         if (is.data.frame(r)) {
           r$iter <- j
-        } else if (is.list(r)) {
+        } else {
+          # check that it is a list of data.frames:
+          stopifnot(is.list(r))
+          
+          if(!all(sapply(r, is.data.frame))) {
+            print(r$message)
+            stop(paste0("Error in simulate.sim_config. Results are not data.frames. Error: \n", r$message))
+          }
+          # stopifnot(all(sapply(r, is.data.frame)))
           r <- lapply(r, function(x){ x$iter <- j})
         }
         
