@@ -76,7 +76,7 @@
 		}
 	},
 	{
-		"id": "griffinMethodologicalConsiderationsEstimating2022",
+		"id": "griffinMethodologicalConsiderationsEstimating2023",
 		"type": "article-journal",
 		"abstract": "Understanding how best to estimate state-level policy effects is important, and several unanswered questions remain, particularly about the ability of statistical models to disentangle the effects of concurrently enacted policies. In practice, many policy evaluation studies do not attempt to control for effects of co-occurring policies, and this issue has not received extensive attention in the methodological literature to date. In this study, we utilized Monte Carlo simulations to assess the impact of co-occurring policies on the performance of commonly-used statistical models in state policy evaluations. Simulation conditions varied effect sizes of the co-occurring policies and length of time between policy enactment dates, among other factors. Outcome data (annual state-specific opioid mortality rate per 100,000) were obtained from 1999 to 2016 National Vital Statistics System (NVSS) Multiple Cause of Death mortality files, thus yielding longitudinal annual state-level data over 18 years from 50 states. When co-occurring policies are ignored (i.e., omitted from the analytic model), our results demonstrated that high relative bias (> 82%) arises, particularly when policies are enacted in rapid succession. Moreover, as expected, controlling for all co-occurring policies will effectively mitigate the threat of confounding bias; however, effect estimates may be relatively imprecise (i.e., larger variance) when policies are enacted in near succession. Our findings highlight several key methodological issues regarding co-occurring policies in the context of opioid-policy research yet also generalize more broadly to evaluation of other state-level policies, such as policies related to firearms or COVID-19, showcasing the need to think critically about co-occurring policies that are likely to influence the outcome when specifying analytic models.",
 		"container-title": "Health Services and Outcomes Research Methodology",
@@ -133,9 +133,8 @@
 		"issued": {
 			"date-parts": [
 				[
-					"2022",
-					7,
-					9
+					"2023",
+					6
 				]
 			]
 		}
@@ -257,7 +256,7 @@
 		"type": "webpage",
 		"abstract": "The RAND Corporation is a nonprofit institution that helps improve policy and decisionmaking through research and analysis. RAND focuses on the issues that matter most such as health, education, national security, international affairs, law and business, the environment, and more. With a research staff consisting of some of the world's preeminent minds, RAND has been expanding the boundaries of human knowledge for more than 70 years.",
 		"language": "en",
-		"title": "Homepage",
+		"title": "homepage",
 		"URL": "https://www.rand.org",
 		"author": [
 			{
@@ -280,7 +279,7 @@
 		"type": "webpage",
 		"abstract": "Staff profile for Beth Ann Griffin, Senior Statistician at the RAND Corporation.",
 		"language": "en",
-		"title": "Beth Ann Griffin - Profile",
+		"title": "Beth Ann Griffin",
 		"URL": "https://www.rand.org/about/people/g/griffin_beth_ann.html",
 		"author": [
 			{
