@@ -1,5 +1,5 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- README.md is generated from README.Rmd. Please edit that file. -->
 
 # optic <a href='https://github.com/RANDCorporation/optic'><img src='man/figures/optic.png' align="right" height="139"  style="height:139px !important;" /></a>
 
@@ -145,7 +145,7 @@ Association* 116 (536): 1789–1803.
 <div id="ref-callawayDifferenceinDifferencesMultipleTime2021"
 class="csl-entry">
 
-Callaway, Brantly, and Pedro H.C. Sant’Anna. 2021.
+Callaway, Brantly, and Pedro H. C. Sant’Anna. 2021.
 “Difference-in-Differences with Multiple Time Periods.” *Journal of
 Econometrics* 225 (2): 200–230.
 <https://doi.org/10.1016/j.jeconom.2020.12.001>.
