@@ -26,7 +26,7 @@ the traditional DID model, but we found it very difficult to evaluate
 the relative performance of different causal inference methods using our
 own data. Thus, we designed a series of simulations ([Griffin et al.
 2021](#ref-griffinMovingClassicDifferenceindifferences2021); [Griffin et
-al. 2022](#ref-griffinMethodologicalConsiderationsEstimating2022)) to
+al. 2023](#ref-griffinMethodologicalConsiderationsEstimating2023)) to
 study the performance of various methods under different scenarios. Our
 publications to date are as follows:
 
@@ -38,11 +38,11 @@ publications to date are as follows:
     limitations of those methods. In contrast, the optimal model we
     identified—the autoregressive (AR) model—showed a lot of promise.
     That said, do not just take our word for it; try it out with your
-    own data and see how various approaches perform relative to each
-    other. See the “Usage” section for details.
+    own data and see how various approaches perform relative to another.
+    See the “Usage” section for details.
 
 2.  In Griffin et al.
-    ([2022](#ref-griffinMethodologicalConsiderationsEstimating2022)), we
+    ([2023](#ref-griffinMethodologicalConsiderationsEstimating2023)), we
     demonstrate that it is critical to be able to control for effects of
     co-occurring policies and understand the potential bias that might
     arise from not controlling for those policies. Our package can help
@@ -85,13 +85,13 @@ remotes::install_github("RANDCorporation/optic")
 
 The [introductory
 vignette](https://randcorporation.github.io/optic/articles/intro_optic.html)
-vignette provides a working example using a sample `overdoses` dataset
-provided with the package. `optic` provides three main functions:
-`optic_model`, `optic_simulation`, and `dispatch_simulations`. Use
-`optic_model` to define model specifications for each causal model to be
-tested in the simulation experiment. Then, pass your models, your data,
-and parameters to the `optic_simulation` function, that specifies a set
-of simulations to be performed for each `optic_model` included in your
+provides a working example using a sample `overdoses` dataset provided
+with the package. `optic` provides three main functions: `optic_model`,
+`optic_simulation`, and `dispatch_simulations`. Use `optic_model` to
+define model specifications for each causal model to be tested in the
+simulation experiment. Then, pass your models, your data, and your
+parameters to the `optic_simulation` function, which specifies a set of
+simulations to be performed for each `optic_model` included in your
 `list` of models. Finally, use `dispatch_simulations` to run your
 simulations in parallel.
 
@@ -152,14 +152,14 @@ Econometrics* 225 (2): 200–230.
 
 </div>
 
-<div id="ref-griffinMethodologicalConsiderationsEstimating2022"
+<div id="ref-griffinMethodologicalConsiderationsEstimating2023"
 class="csl-entry">
 
 Griffin, Beth Ann, Megan S. Schuler, Joseph Pane, Stephen W. Patrick,
 Rosanna Smart, Bradley D. Stein, Geoffrey Grimm, and Elizabeth A.
-Stuart. 2022. “Methodological Considerations for Estimating Policy
+Stuart. 2023. “Methodological Considerations for Estimating Policy
 Effects in the Context of Co-Occurring Policies.” *Health Services and
-Outcomes Research Methodology*, July.
+Outcomes Research Methodology*, June.
 <https://doi.org/10.1007/s10742-022-00284-w>.
 
 </div>
@@ -193,8 +193,8 @@ R. n.d. “The R Project for Statistical Computing.” Accessed June 16,
 
 <div id="ref-randcorporationBethAnnGriffin" class="csl-entry">
 
-RAND Corporation. n.d.a. “Beth Ann Griffin - Profile.” Accessed June 20,
-2023. <https://www.rand.org/about/people/g/griffin_beth_ann.html>.
+RAND Corporation. n.d.a. “Beth Ann Griffin.” Accessed June 20, 2023.
+<https://www.rand.org/about/people/g/griffin_beth_ann.html>.
 
 </div>
 

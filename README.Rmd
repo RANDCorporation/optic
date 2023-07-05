@@ -32,11 +32,11 @@ The `optic` R package helps you scrutinize candidate causal inference models usi
 
 ## Background and Rationale
 
-Recent difference-in-differences (DID) literature revealed issues with the traditional DID model, but we found it very difficult to evaluate the relative performance of different causal inference methods using our own data. Thus, we designed a series of simulations [@griffinMovingClassicDifferenceindifferences2021;   @griffinMethodologicalConsiderationsEstimating2022] to study the performance of various methods under different scenarios. Our publications to date are as follows:
+Recent difference-in-differences (DID) literature revealed issues with the traditional DID model, but we found it very difficult to evaluate the relative performance of different causal inference methods using our own data. Thus, we designed a series of simulations [@griffinMovingClassicDifferenceindifferences2021;   @griffinMethodologicalConsiderationsEstimating2023] to study the performance of various methods under different scenarios. Our publications to date are as follows:
 
-1. In @griffinMovingClassicDifferenceindifferences2021, we use real-world data on opioid mortality rates to assess commonly used statistical models for DID designs, which are widely used in state policy evaluations. These experiments demonstrated notable limitations of those methods. In contrast, the optimal model we identified—the autoregressive (AR) model—showed a lot of promise. That said, do not just take our word for it; try it out with your own data and see how various approaches perform relative to each other. See the “Usage” section for details.
+1. In @griffinMovingClassicDifferenceindifferences2021, we use real-world data on opioid mortality rates to assess commonly used statistical models for DID designs, which are widely used in state policy evaluations. These experiments demonstrated notable limitations of those methods. In contrast, the optimal model we identified—the autoregressive (AR) model—showed a lot of promise. That said, do not just take our word for it; try it out with your own data and see how various approaches perform relative to another. See the “Usage” section for details.
 
-2. In @griffinMethodologicalConsiderationsEstimating2022, we demonstrate that it is critical to be able to control for effects of co-occurring policies and understand the potential bias that might arise from not controlling for those policies. Our package can help you assess the impact of co-occurring policies on the performance of commonly used statistical models in state policy evaluations.
+2. In @griffinMethodologicalConsiderationsEstimating2023, we demonstrate that it is critical to be able to control for effects of co-occurring policies and understand the potential bias that might arise from not controlling for those policies. Our package can help you assess the impact of co-occurring policies on the performance of commonly used statistical models in state policy evaluations.
 
 Assessing those methods in a systematic way might be challenging, but you can now use our `optic` R package to simulate policy effects and compare causal inference models using your own data.
 
@@ -62,7 +62,7 @@ remotes::install_github("RANDCorporation/optic")
 
 ## Usage
 
-The [introductory vignette](https://randcorporation.github.io/optic/articles/intro_optic.html) vignette provides a working example using a sample `overdoses` dataset provided with the package. `optic` provides three main functions: `optic_model`, `optic_simulation`, and `dispatch_simulations`. Use `optic_model` to define model specifications for each causal model to be tested in the simulation experiment. Then, pass your models, your data, and parameters to the `optic_simulation` function, that specifies a set of simulations to be performed for each `optic_model` included in your `list` of models. Finally, use `dispatch_simulations` to run your simulations in parallel.
+The [introductory vignette](https://randcorporation.github.io/optic/articles/intro_optic.html) provides a working example using a sample `overdoses` dataset provided with the package. `optic` provides three main functions: `optic_model`, `optic_simulation`, and `dispatch_simulations`. Use `optic_model` to define model specifications for each causal model to be tested in the simulation experiment. Then, pass your models, your data, and your parameters to the `optic_simulation` function, which specifies a set of simulations to be performed for each `optic_model` included in your `list` of models. Finally, use `dispatch_simulations` to run your simulations in parallel.
 
 ## Contact
 
