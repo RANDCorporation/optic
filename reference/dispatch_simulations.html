@@ -125,12 +125,12 @@ be run in parallel.</p></dd>
 <span class="r-in"><span><span class="co"># Finally, dispatch the simulation:</span></span></span>
 <span class="r-in"><span><span class="fu">dispatch_simulations</span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      outcome se_adjustment estimate       se variance   t_stat   p_value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 crude.rate          none 1.489627 1.239598 1.536602 1.201702 0.2297931</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 crude.rate          none 1.831137 1.388097 1.926812 1.319171 0.1874451</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      outcome se_adjustment  estimate       se variance    t_stat    p_value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 crude.rate          none -2.077606 1.252173 1.567937 -1.659201 0.09742142</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 crude.rate          none  1.963646 1.326726 1.760202  1.480069 0.13920239</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        mse model_name model_call</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 11.03395        lin         lm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 11.03232        lin         lm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 10.94823        lin         lm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 11.03097        lin         lm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                              model_formula policy_speed</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 crude.rate ~ state + year + population + treatment_level      instant</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 crude.rate ~ state + year + population + treatment_level      instant</span>
@@ -138,14 +138,14 @@ be run in parallel.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1                        1         level         1.265073       2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2                        1         level         1.265073       2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   effect_direction n mean_es_prior max_es_prior mean_es_outcome max_es_outcome</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1              pos 2    -0.5497036    1.3551101     -0.06818834      0.4688954</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2              pos 2     0.7381398    0.9473913      0.83411173      1.2149924</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1              pos 2    -1.0393875    1.0896687      -0.8486048       1.020454</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2              pos 2     0.6308744    0.7688565       0.8210645       1.210661</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   n_unique_enact_years mu1_prior mu0_prior sd_prior mu1_prior_old mu0_prior_old</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                    2  12.29231  12.03338 5.098109      12.29231      12.03338</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                    2  16.70000  11.93079 5.098109      16.70000      11.93079</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                    1  9.747222  12.07226 5.098109      9.747222      12.07226</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                    2 15.266667  11.92105 5.098109     15.266667      11.92105</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   sd_prior_old      mu1      mu0       sd iter</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     5.098109 16.77670 12.61045 6.655435    1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2     5.098109 19.57843 12.54130 6.667166    2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     5.098109 11.99479 12.67416 6.643074    1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     5.098109 18.31709 12.51760 6.674079    2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>
