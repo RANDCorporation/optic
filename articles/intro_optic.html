@@ -110,10 +110,10 @@ which co-occurs with the policy of-interest.</li>
 associated with both policy adoption and outcome <em>trends</em>.</li>
 </ol>
 <p>Additional details on the simulation procedures within the OPTIC
-package are available in Griffin et al., 2021 <span class="citation">(Griffin et al. 2021)</span> and Griffin et al., 2022
-<span class="citation">(Griffin et al. 2023)</span>. Forthcoming updates
-to OPTIC will provides simulations which test the effect of confounding
-bias on model performance.</p>
+package are available in <span class="citation">Griffin et al.
+(2021)</span> and <span class="citation">Griffin et al. (2023)</span>.
+Forthcoming updates to OPTIC will provides simulations which test the
+effect of confounding bias on model performance.</p>
 <p>This README covers the use of OPTIC in R and provides examples of the
 package’s features. Section one covers package installation, section two
 provides a general overview of the package’s usage, and section three
@@ -243,8 +243,9 @@ confounding scenario (“noconf”) or co-occurring policies scenario
 (“concurrent”). For the “concurrent” scenario, there are additional
 parameters required by <code>optic_simulation</code>, which are
 discussed in the “parameter” section below. Additional details on policy
-evaluation scenarios are provided in Griffin et al., 2021<span class="citation">(Griffin et al. 2021)</span> and Griffin et al.,
-2022<span class="citation">(Griffin et al. 2023)</span>.</p>
+evaluation scenarios are provided in <span class="citation">Griffin et
+al. (2021)</span> and <span class="citation">Griffin et al.
+(2023)</span>.</p>
 </div>
 <div class="section level4">
 <h4 id="treatment-scenarios">Treatment scenarios<a class="anchor" aria-label="anchor" href="#treatment-scenarios"></a>
@@ -453,7 +454,7 @@ example call of <code>optic_simulation</code> is displayed below:</p>
 <span>  </span>
 <span>  x                        <span class="op">=</span> <span class="va">overdoses</span>,</span>
 <span>  models                   <span class="op">=</span> <span class="va">sim_models</span>,</span>
-<span>  iters                    <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  iters                    <span class="op">=</span> <span class="fl">10</span>, </span>
 <span>  method                   <span class="op">=</span> <span class="st">"no_confounding"</span>,</span>
 <span>  unit_var                 <span class="op">=</span> <span class="st">"state"</span>,</span>
 <span>  treat_var                <span class="op">=</span> <span class="st">"state"</span>,</span>
@@ -467,8 +468,8 @@ example call of <code>optic_simulation</code> is displayed below:</p>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; Number of Simulations: 6</span></span>
 <span><span class="co">#&gt; Number of Models: 3</span></span>
-<span><span class="co">#&gt; Iteration per Simulation : 100</span></span>
-<span><span class="co">#&gt; Total number of Iterations to Run: 1800</span></span></code></pre></div>
+<span><span class="co">#&gt; Iteration per Simulation : 10</span></span>
+<span><span class="co">#&gt; Total number of Iterations to Run: 180</span></span></code></pre></div>
 <p>In addition to the parameters discussed above, OPTIC also permits an
 advanced user to override the internal functions of each model (such as
 the sampling method for assigning treatment), by passing a custom
@@ -491,12 +492,14 @@ try to parallelize simulation iterations on the analyst’s machine. Any
 additional packages required by the user for model calls (e.g. a
 specific modeling package) must also be passed to dispatch_simulations
 using future.globals and future.packages arguments.</p>
-<p>Note this next step will only take a few minutes to run; with large
+<p>Note this next step will only take a few seconds to run since we used
+a very small number of iterations for demonstration purpuses; with large
 numbers of permutations or iterations, it can require several hours for
-this function to finish. We suggest using the parallelization options
+this function to finish. We suggest using the parallel execution option
 (<code>use_future = T</code>), which can help a great deal for large
-analyses on your data of interest. We recommend using anywhere between
-300-1000 iterations when analyzing your final sets of output.</p>
+analyses on your data. We recommend using anywhere between 300-1000
+iterations (e.g., <code>iters = 1000</code>) when running your
+experiments.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dispatch_simulations.html">dispatch_simulations</a></span><span class="op">(</span></span>
@@ -699,11 +702,11 @@ implementation is immediate and decreases the crude.rate by 5%:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"True effect size: "</span>, <span class="va">true_est</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "True effect size: -0.633"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"FE LM effect: "</span>, <span class="fu">grab_mean_and_se</span><span class="op">(</span><span class="st">'fixed_effect_linear'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "FE LM effect: -0.683 (0.976)"</span></span>
+<span><span class="co">#&gt; [1] "FE LM effect: -0.858 (0.725)"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"FE LM adjusted effect: "</span>, <span class="fu">grab_mean_and_se</span><span class="op">(</span><span class="st">'fixed_effect_linear_adj'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "FE LM adjusted effect: -0.685 (0.975)"</span></span>
+<span><span class="co">#&gt; [1] "FE LM adjusted effect: -0.863 (0.714)"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"AR LM effect: "</span>, <span class="fu">grab_mean_and_se</span><span class="op">(</span><span class="st">'auto_regressive_linear'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "AR LM effect: -0.64 (0.428)"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "AR LM effect: -0.513 (0.392)"</span></span></code></pre></div>
 <p>From the above output, we can see all models are producing similar
 estimates, across simulated point estimate draws. While all of these
 models are biased slightly downwards compared to the true effect, the
