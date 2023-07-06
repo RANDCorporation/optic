@@ -41,7 +41,7 @@ the following assumptions:
 
 
 Additional details on the simulation procedures within the OPTIC package are
-available in Griffin et al., 2021 [@griffinMovingClassicDifferenceindifferences2021] and Griffin et al., 2022 [@griffinMethodologicalConsiderationsEstimating2023]. Forthcoming updates to OPTIC will provides simulations which test the effect of confounding bias on model performance.
+available in @griffinMovingClassicDifferenceindifferences2021 and @griffinMethodologicalConsiderationsEstimating2023. Forthcoming updates to OPTIC will provides simulations which test the effect of confounding bias on model performance.
 
 This README covers the use of OPTIC in R and provides examples of the
 package's features. Section one covers package installation, section two
@@ -101,18 +101,14 @@ scenario ("noconf") or co-occurring policies
 scenario ("concurrent"). For the "concurrent" scenario, there are
 additional parameters required by `optic_simulation`, which are
 discussed in the "parameter" section below. Additional details on policy
-evaluation scenarios are provided in Griffin et al.,
-2021[@griffinMovingClassicDifferenceindifferences2021] and Griffin et
-al., 2022[@griffinMethodologicalConsiderationsEstimating2023].
+evaluation scenarios are provided in @griffinMovingClassicDifferenceindifferences2021  and @griffinMethodologicalConsiderationsEstimating2023.
 
 ### Treatment scenarios
 
 This input represents the "true treatment effects" that OPTIC will
-simulate across each iteration of the simulations. OPTIC is currently designed to work by generating
-static treatment effects (rather than dynamic treatment effects, such as
+simulate across each iteration of the simulations. OPTIC is currently designed to work by generating static treatment effects (rather than dynamic treatment effects, such as
 time-varying treatment effects). Users should structure their treatment
-scenarios in a list, corresponding to the different types of treatment effects they would like to see examined.
-If the user is simulating models for the 'concurrent' policy evaluation scenario, the list will contain two effects within a vector for each potential treatment scenario that the user wants to examine. Using
+scenarios in a list, corresponding to the different types of treatment effects they would like to see examined. If the user is simulating models for the 'concurrent' policy evaluation scenario, the list will contain two effects within a vector for each potential treatment scenario that the user wants to examine. Using
 the example_data:
 
 ```{r}
@@ -299,7 +295,7 @@ sim_config <- optic_simulation(
   
   x                        = overdoses,
   models                   = sim_models,
-  iters                    = 100,
+  iters                    = 10, 
   method                   = "no_confounding",
   unit_var                 = "state",
   treat_var                = "state",
@@ -320,7 +316,7 @@ In addition to the parameters discussed above, OPTIC also permits an advanced us
 
 With the configuration object built, we can now simulate models with the configuration scenarios using the `simulate` function. This function accepts arguments to parallelize code through the use of the "future" package. If this setting is turned on, the function will try to parallelize simulation iterations on the analyst's machine. Any additional packages required by the user for model calls (e.g. a specific modeling package) must also be passed to dispatch_simulations using future.globals and future.packages arguments.
 
-Note this next step will only take a few minutes to run; with large numbers of permutations or iterations, it can require  several hours for this function to finish. We suggest using the parallelization options (`use_future = T`), which can help a great deal for large analyses on your data of interest. We recommend using anywhere between 300-1000 iterations when analyzing your final sets of output.
+Note this next step will only take a few seconds to run since we used a very small number of iterations for demonstration purpuses; with large numbers of permutations or iterations, it can require  several hours for this function to finish. We suggest using the parallel execution option (`use_future = T`), which can help a great deal for large analyses on your data. We recommend using anywhere between 300-1000 iterations (e.g., `iters = 1000`) when running your experiments.
 
 
 ```{r}
