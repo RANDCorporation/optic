@@ -38,8 +38,8 @@ publications to date are as follows:
     limitations of those methods. In contrast, the optimal model we
     identified—the autoregressive (AR) model—showed a lot of promise.
     That said, do not just take our word for it; try it out with your
-    own data and see how various approaches perform relative to another.
-    See the “Usage” section for details.
+    own data and see how various approaches perform relative to one
+    another. See the “Usage” section for details.
 
 2.  In Griffin et al.
     ([2023](#ref-griffinMethodologicalConsiderationsEstimating2023)), we
