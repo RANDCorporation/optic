@@ -1,5 +1,5 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file. -->
+<!-- README.md is generated from README.Rmd.  Please edit that file. -->
 
 # optic <a href='https://github.com/RANDCorporation/optic'><img src='man/figures/optic.png' align="right" height="139"  style="height:139px !important;" /></a>
 
@@ -138,7 +138,6 @@ class="csl-entry">
 Ben-Michael, Eli, Avi Feller, and Jesse Rothstein. 2021. “The Augmented
 Synthetic Control Method.” *Journal of the American Statistical
 Association* 116 (536): 1789–1803.
-<https://doi.org/10.1080/01621459.2021.1929245>.
 
 </div>
 
