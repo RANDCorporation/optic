@@ -1,6 +1,6 @@
 ## R CMD check results
 
-* This is a new release.
+* Update patch - solves an intermittent CRAN check issue related to the vignette run time.
 
 No Error or Warnings.
 
