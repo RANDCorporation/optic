@@ -1,0 +1,146 @@
+---
+title: "Introduction to OPTIC"
+output: rmarkdown::html_vignette
+bibliography: optic_refs.json
+vignette: >
+  %\VignetteIndexEntry{Introduction to OPTIC}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+```{r setup, include=FALSE}
+
+library(optic)
+
+# Load model-specific packages; discuss w/ BAG if  we should include these as dependencies
+library(did)
+library(augsynth)
+library(did2s)
+library(didimputation)
+library(fixest)
+
+knitr::opts_chunk$set(echo = TRUE)
+
+# this tidy option might be an issue.
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60))
+
+```
+
+# Introduction {.unnumbered}
+The purpose of this notebook is hold onto results from time-varying, no confounding OPTIC simulations. 
+
+Currently, OPTIC estimates a single treatment effect for all simulated treated units. 
+
+
+
+```{r Build scenarios}
+
+data(overdoses)
+
+# For whatever reason, crude.rate is missing observations for North Dakota.
+# So recompute this vector from the data:
+overdoses$crude.rate <- 1e5*(overdoses$deaths/overdoses$population)
+
+# Construct a linear increase and decrease in the effect size through time,
+# building towards or away from a 10% effect over a 5-year span:
+
+full_effect <- 0.1*mean(overdoses$crude.rate, na.rm = T)
+
+linear_ramp_up <- seq(0, 1, 0.2)*full_effect
+linear_sunset <- rev(seq(0, 1, 0.2))*full_effect
+
+instant_plateau  <- c(0, 0, 1, 1, 0, 0)*full_effect
+slow_plateau     <- c(0.2, 0.6, 1, 1, 0.6, 0.2)*full_effect
+
+time_varying_scenarios <- list(linear_ramp_up, linear_sunset, instant_plateau, slow_plateau)
+
+par(mfrow = c(2, 2))
+for (scene in time_varying_scenarios){
+  plot(seq(0, length(scene) - 1), scene,
+       xlab = "Time-to-treat", ylab = "True Effect",
+       ylim = c(0, round(full_effect, 1)))
+}
+
+mtext("Time-varying simulation scenarios", side = 3, line = - 2, outer = T)
+
+# Specify  models to simulate treatment effects:
+
+m_did <- optic_model(
+    name = "twfe",
+    type = "eventstudy",
+    call = "feols",
+    formula = crude.rate ~ unemploymentrate + i(time_to_treat, ref = c(-1, Inf)) | state + year,
+    se_adjust = "none"
+)
+  
+m_csa <- optic_model(
+    name = "csa_did",
+    type = "did",
+    call = "att_gt",
+    
+    #Formula below technically doesn't do anything but OPTIC requires it; we might want to fix this? Same for several other calls like multisynth
+    formula = crude.rate ~ unemploymentrate + treatment_level,
+    model_args = list(yname = "crude.rate", tname = 'year', idname = 'state',
+                      gname = 'treatment_year', xformla = formula(~ unemploymentrate)),
+    se_adjust = "none"
+)
+
+m_aug <- optic_model(
+    name = "augsynth",
+    type = "multisynth",
+    call = "multisynth",
+    formula = crude.rate ~ treatment_level | unemploymentrate,
+    model_args = list(unit = as.name("state"),
+                      time = as.name("year"),
+                      fixedeff = T),
+    se_adjust = "none"
+    
+)
+
+m_ar <- optic_model(
+    name = "autoregressive",
+    type = "autoreg",
+    call = "lfe",
+    formula = crude.rate ~ i(time_to_treat, ref = c(-1, Inf)) | location + year,
+    se_adjust = "none"
+    
+)
+
+
+sim_models <- list(m_did)
+
+sim_config <- optic_simulation(
+
+  x                        = overdoses,
+  models                   = sim_models,
+  iters                    = 1,
+  method                   = "time_varying",
+  unit_var                 = "state",
+  treat_var                = "state",
+  time_var                 = "year",
+  effect_magnitude         = time_varying_scenarios,
+  n_units                  = c(5, 20, 35),
+  effect_direction         = c("neg"),
+  policy_speed             = c("instant"),
+  n_implementation_periods = c(6)
+
+)
+
+results <- dispatch_simulations(
+  
+  sim_config,
+  use_future = F,
+  seed = 9781,
+  verbose = 0
+  
+)
+
+```

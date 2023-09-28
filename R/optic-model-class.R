@@ -67,8 +67,8 @@ optic_model <- function(name, type,call, formula, se_adjust, ...) {
 # Constructor:
 new_optic_model <- function(
                   name,
-                  type= c("reg", "autoreg", "multisynth", "drdid"),
-                  call= c("lm", "feols", "multisynth", "glm.nb"),
+                  type= c("reg", "autoreg", "multisynth", "did", "eventstudy", "sunab"),
+                  call= c("lm", "feols", "multisynth", "glm.nb", "att_gt", "did2s", ""),
                   formula,
                   args=list(weights=as.name('population')),
                   se_adjust=c("none", "cluster"),

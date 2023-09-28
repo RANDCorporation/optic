@@ -16,12 +16,13 @@
 #' @param concurrent bool for whether this is concurrent run or not
 #' 
 #' @noRd
-apply_treatment_effect <- function(x, model_formula, model_call, te, effect_direction, concurrent) {
+apply_treatment_effect <- function(x, model_formula, outcome, model_call, te, effect_direction, concurrent) {
+  
   # identify outcome
   outcome <- model_terms(model_formula)[["lhs"]]
   
   # identify additive or multiplicative modification of outcome required
-  if (model_call == "lm" | model_call == "feols" | model_call == "multisynth" | model_call == 'lmer') {
+  if (model_call != "glm.nb") {
     modifier <- "additive"
   } else if (model_call == "glm.nb") {
     modifier <- "multiplicative"
@@ -46,7 +47,9 @@ apply_treatment_effect <- function(x, model_formula, model_call, te, effect_dire
       } else {
         x[[outcome]] <- x[[outcome]] + (x[[outcome]] * te * x[["treatment"]])
       }
-      x[[outcome]] <- round2(x[[outcome]], 0)
+      
+      #l
+      # x[[outcome]] <- round2(x[[outcome]], 0)
     } 
     
     return(x)
