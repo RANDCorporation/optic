@@ -1,0 +1,29 @@
+#AHSR Example Code
+library(haven)
+
+#AR model 
+
+dta <- read_dta("C:/Users/bethg/Documents/OPTIC/NAL/AHSR-naloxone-case-study.dta")
+# All states
+
+#Generate lagged outcome and treatment indicator
+dta <- 
+  dta %>%
+  arrange(state_id, year) %>% 
+  group_by(state_id) %>%
+  mutate(lag1=dplyr::lag(OD_rate,n=1,default=NA),lag1.trt=dplyr::lag(standing_order_policy,n=1,default=NA))
+
+#drop first year in time series which will have lag as an NA
+dta=dta[dta$year>1999,]
+
+#Compute change code for policy indicator
+dta$policy_change=dta$standing_order_policy - dta$lag1.trt
+
+#Fitting the linear AR model
+ar=lm(OD_rate ~ policy_change+lag1+as.factor(year)+unemployment_rate,
+      data=dta)
+summary(ar)
+
+##for max - need to create time to treat variable so this model works from our sim runs. what is easiest way to do that?!?
+form_ar <- formula(crude.rate ~ unemploymentrate + lag_outcome + i(time_to_treat, ref = c(-1, Inf)) | year)
+ar <- feols(form_ar, df) 

@@ -206,10 +206,15 @@ noconf_premodel <- function(model_simulation) {
   
   x <- model_simulation$data
   model <- model_simulation$models
+  model_call <- model$model_call
+  
   outcome <- optic::model_terms(model$model_formula)[["lhs"]]
   oo <- dplyr::sym(outcome)
   model_type <- model$type
   balance_statistics <- NULL
+  
+  unit_sym <- dplyr::sym(model_simulation$unit_var)
+  time_sym <- dplyr::sym(model_simulation$time_var)
   
   ##############################
   ### APPLY TREATMENT EFFECT ###
@@ -230,10 +235,6 @@ noconf_premodel <- function(model_simulation) {
   # if autoregressive, need to add lag for crude rate
   # when outcome is deaths, derive new crude rate from modified outcome
   if (model_type == "autoreg") {
-    
-    # get lag of crude rate and add it to the model
-    unit_sym <- dplyr::sym(model_simulation$unit_var)
-    time_sym <- dplyr::sym(model_simulation$time_var)
     
     x <- x %>%
       dplyr::arrange(!!unit_sym, !!time_sym) %>%
@@ -306,13 +307,20 @@ noconf_premodel <- function(model_simulation) {
               sd = sd(!!oo, na.rm=T))
   bal_stats = bind_cols(bal_stats, bal_stats2)
   
+  # Add additional columns required by CSA method, if chosen:
+  if (model_call == "att_gt"){
+    x <- x %>% 
+      group_by(!!unit_sym) %>%
+      mutate(treatment_date = ifelse(max(trt_ind == 1), 1 + max(year ^ (1-treatment)), 0)) %>% 
+      ungroup() %>%
+      mutate(!!unit_sym := as.numeric(as.factor(!!unit_sym)))
+  }
+  
   model_simulation$balance_statistics <- bal_stats
   model_simulation$data <- x
   
-  # modified data back into object
-  model_simulation$data <- x
-  
   return(model_simulation)
+  
 }
 
 
@@ -328,15 +336,30 @@ noconf_premodel <- function(model_simulation) {
 #' @param model_simulation An object created from OpticModel, which specifies simulation settings such as model formulas, model call, etc
 #' @noRd
 noconf_model <- function(model_simulation) {
+  
   model <- model_simulation$models
+  model_type <- model_simulation$models$type
+  addtl_args <- model$model_args
+  
   x <- model_simulation$data
   
-  if (model_simulation$models$name == "drdid") {
-    args = c(list(data=x), model[["model_args"]])
-  } else if(model$model_call == "feols"){
-    args = c(list(data=x, fml=model[["model_formula"]]), model[["model_args"]], notes=FALSE)
-  }else {
-    args = c(list(data=x, formula=model[["model_formula"]]), model[["model_args"]])
+  # The only consistent argument across these
+  # models is "data". We need to also pass along user provided arguments
+  # and set some arguments based off the specific model type 
+  
+  args <- list(data=x)
+  
+  if (length(addtl_args) >= 1){
+    args <- append(args, addtl_args)
+  }
+  
+  # Change names of provided arguments to meet the needs of respective packages
+  if (model_type == "eventstudy"|model_type == "autoreg"){
+    args[['fml']] <- model$model_formula
+  }else if (model_type == "multisynth"){
+    args[['form']] <-  model$model_formula
+  }else if (model_type == "did2s"){
+    args[['treatment']] <- 'treatment'
   }
   
   m <- do.call(
@@ -378,13 +401,67 @@ noconf_postmodel <- function(model_simulation) {
   )
   
   # get model result information and apply standard error adjustments
-  if (model_simulation$models[["type"]] != "multisynth") {
+  if (model_simulation$models[["type"]] == "multisynth") {
+    
     m <- model_simulation$model_result
+    cf <- summary(m)
+    cf <- cf$att
+    estimate <- cf[cf$Level == "Average" & is.na(cf$Time), "Estimate"]
+    se <- cf[cf$Level == "Average" & is.na(cf$Time), "Std.Error"]
+    variance <- se ^ 2
+    t_stat <- NA
+    p_value <- 2 * pnorm(abs(estimate/se), lower.tail = FALSE)
+    mse <- mean(unlist(lapply(m$residuals, function(x) {mean(x^2)})))
+    
+    results <- data.frame(
+      outcome=outcome,
+      se_adjustment="none",
+      estimate=estimate,
+      se=se,
+      variance=variance,
+      t_stat=NA,
+      p_value=p_value,
+      mse=mse,
+      stringsAsFactors=FALSE
+    )
+    
+    
+    
+  } else if (model_simulation$models[["model_call"]] == "att_gt"){
+    
+    m <- model_simulation$model_result
+    m_agg <- did::aggte(m, type='dynamic', na.rm=T)
+    
+    cf <- data.frame("estimate" = m_agg$overall.att,
+                     "se" = m_agg$overall.se)
+    
+    estimate <- cf$estimate
+    se <- cf$se
+    variance <- se ^ 2
+    t_stat <- NA
+    p_value <- 2 * pnorm(abs(estimate/se), lower.tail = FALSE)
+    
+    results <- data.frame(
+      outcome=outcome,
+      se_adjustment="none",
+      estimate=estimate,
+      se=se,
+      variance=variance,
+      t_stat=NA,
+      p_value=p_value,
+      mse = NA,
+      stringsAsFactors=FALSE
+    )
+
+  } else{
+    m <- model_simulation$model_result
+    
     if(model_simulation$models$model_call=="feols"){
       cf <- as.data.frame(summary(m)$coeftable)
     } else{
       cf <- as.data.frame(summary(m)$coefficients)
     }
+    
     cf$variable <- row.names(cf)
     rownames(cf) <- NULL
     
@@ -414,29 +491,6 @@ noconf_postmodel <- function(model_simulation) {
       t_stat=c(cf[["t value"]], cf[["z value"]]),
       p_value=pval,
       mse=mean(resid(m)^2, na.rm=T),
-      stringsAsFactors=FALSE
-    )
-    
-  } else {
-    m <- model_simulation$model_result
-    cf <- summary(m)
-    cf <- cf$att
-    estimate <- cf[cf$Level == "Average" & is.na(cf$Time), "Estimate"]
-    se <- cf[cf$Level == "Average" & is.na(cf$Time), "Std.Error"]
-    variance <- se ^ 2
-    t_stat <- NA
-    p_value <- 2 * pnorm(abs(estimate/se), lower.tail = FALSE)
-    mse <- mean(unlist(lapply(m$residuals, function(x) {mean(x^2)})))
-    
-    results <- data.frame(
-      outcome=outcome,
-      se_adjustment="none",
-      estimate=estimate,
-      se=se,
-      variance=variance,
-      t_stat=NA,
-      p_value=p_value,
-      mse=mse,
       stringsAsFactors=FALSE
     )
   }

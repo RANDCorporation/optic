@@ -27,6 +27,7 @@ run_iteration <- function(single_simulation) {
     }
     
     if (!is.null(single_simulation$method_post_model)) {
+
       model_simulation <- single_simulation$method_model(model_simulation)
       
       r <- single_simulation$method_post_model(model_simulation)

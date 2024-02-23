@@ -115,15 +115,18 @@ the example_data:
 
 data(overdoses)
 
-# Calculate 5% and 10% changes in mean opioid_death_rate, across states and years. 
+# Calculate a hypothetical 5% and 10% changes in mean opioid_death_rate, 
+# across states and years. 
 five_percent_effect <- 0.05*mean(overdoses$crude.rate, na.rm = T)
 ten_percent_effect  <- 0.10*mean(overdoses$crude.rate, na.rm = T)
+
+scenarios_no_confounding <- list(five_percent_effect, ten_percent_effect)
 
 # Calculate a co-occuring policy effect
 cooccur_effect <- -0.02*mean(overdoses$crude.rate, na.rm = T)
 
 # Scenario object for "no confounding" evaluation scenario:
-scenarios_no_confounding <- list(five_percent_effect, ten_percent_effect)
+
 
 # Scenario object for "co-occuring policy" evaluation scenario:
 scenarios_co_occur <- list(c(five_percent_effect, cooccur_effect),
@@ -345,12 +348,12 @@ knitr::kable(results[[1]][c(2, 4, 6), 1:9], format = "markdown")
 
 There is also detailed information on Type I error rates when the estimated treatment effect is null, Type S error rates, and coverage. 
 
-We can use the results table to analyze the relative performance of models across data scenarios or create test statistics as needed for an analysis. For example, we might be interested in comparingrelative bias across the point estimates, in the scenario where the effect of policy implementation is immediate and decreases the crude.rate by 5%:
+We can use the results table to analyze the relative performance of models across data scenarios or create test statistics as needed for an analysis. For example, we might be interested in comparing relative bias across the point estimates, in the scenario where the effect of policy implementation is immediate and decreases the crude.rate by 5%:
 
 ```{r}
 
 # Compare point estimates across models for the 5% change scenario, with instantaneous policy adoption:
-df_compare <- results[[1]][(results[[1]]$se_adjustment == "cluster-unit")|(results[[1]]$model_name == "auto_regressive_linear"),]
+df_compare <- results[[1]][(results[[1]]$model_name == "fixed_effect_linear_adj")|(results[[1]]$model_name == "auto_regressive_linear"),]
 
 true_est <- -round(five_percent_effect, 3)
 

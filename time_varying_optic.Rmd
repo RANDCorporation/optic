@@ -20,13 +20,6 @@ knitr::opts_chunk$set(
 
 library(optic)
 
-# Load model-specific packages; discuss w/ BAG if  we should include these as dependencies
-library(did)
-library(augsynth)
-library(did2s)
-library(didimputation)
-library(fixest)
-
 knitr::opts_chunk$set(echo = TRUE)
 
 # this tidy option might be an issue.
@@ -43,6 +36,14 @@ Currently, OPTIC estimates a single treatment effect for all simulated treated u
 
 ```{r Build scenarios}
 
+# Load model-specific packages; discuss w/ BAG if  we should include these as dependencies
+library(did)
+library(augsynth)
+library(did2s)
+library(didimputation)
+library(fixest)
+library(tidyr)
+
 data(overdoses)
 
 # For whatever reason, crude.rate is missing observations for North Dakota.
@@ -53,43 +54,56 @@ overdoses$crude.rate <- 1e5*(overdoses$deaths/overdoses$population)
 # building towards or away from a 10% effect over a 5-year span:
 
 full_effect <- 0.1*mean(overdoses$crude.rate, na.rm = T)
+effect_sd   <- sd(overdoses$crude.rate, na.rm = T)
 
 linear_ramp_up <- seq(0, 1, 0.2)*full_effect
 linear_sunset <- rev(seq(0, 1, 0.2))*full_effect
 
-instant_plateau  <- c(0, 0, 1, 1, 0, 0)*full_effect
-slow_plateau     <- c(0.2, 0.6, 1, 1, 0.6, 0.2)*full_effect
+instant_plateau  <- c(0, 0.7, 1, 1, 0.9, 0.1)*full_effect
+slow_plateau     <- c(0, 0.2, 0.6, 0.9, 1, 0.8)*full_effect
 
 time_varying_scenarios <- list(linear_ramp_up, linear_sunset, instant_plateau, slow_plateau)
 
+pdf("./time_vary_plots/scenarios_visualized.pdf")
 par(mfrow = c(2, 2))
 for (scene in time_varying_scenarios){
-  plot(seq(0, length(scene) - 1), scene,
-       xlab = "Time-to-treat", ylab = "True Effect",
-       ylim = c(0, round(full_effect, 1)))
+  plot(seq(0, length(scene) - 1), scene/effect_sd,
+       xlab = "Time-since-treatment", ylab = "Treatment Effect (as SMD)",
+       ylim = c(0, round(full_effect, 1))/effect_sd)
+  lines(seq(0, length(scene) - 1), scene/effect_sd)
 }
-
 mtext("Time-varying simulation scenarios", side = 3, line = - 2, outer = T)
+dev.off()
 
 # Specify  models to simulate treatment effects:
 
-m_did <- optic_model(
+m_es <- optic_model(
     name = "twfe",
     type = "eventstudy",
     call = "feols",
     formula = crude.rate ~ unemploymentrate + i(time_to_treat, ref = c(-1, Inf)) | state + year,
+    model_args = list(cluster = "state"),
+    se_adjust = "none",
+)
+
+m_sa <- optic_model(
+    name = "sa",
+    type = "eventstudy",
+    call = "feols",
+    formula = crude.rate ~ unemploymentrate + sunab(treatment_date, time_to_treat, ref.p = c(-1, .F)) | state + year,
+    model_args = list(cluster = "state"),
     se_adjust = "none"
 )
-  
+
 m_csa <- optic_model(
     name = "csa_did",
     type = "did",
     call = "att_gt",
-    
+
     #Formula below technically doesn't do anything but OPTIC requires it; we might want to fix this? Same for several other calls like multisynth
     formula = crude.rate ~ unemploymentrate + treatment_level,
     model_args = list(yname = "crude.rate", tname = 'year', idname = 'state',
-                      gname = 'treatment_year', xformla = formula(~ unemploymentrate)),
+                      gname = 'treatment_date', xformla = formula(~ unemploymentrate)),
     se_adjust = "none"
 )
 
@@ -99,48 +113,410 @@ m_aug <- optic_model(
     call = "multisynth",
     formula = crude.rate ~ treatment_level | unemploymentrate,
     model_args = list(unit = as.name("state"),
-                      time = as.name("year"),
-                      fixedeff = T),
+                      time = as.name("year")),
     se_adjust = "none"
-    
+
+)
+
+m_bjs <- optic_model(
+  name = "bjs",
+  type = "did_imputation",
+  call = "did_imputation",
+  formula = crude.rate ~ unemploymentrate + treatment_level,
+  model_args = list(yname = "crude.rate",
+                    gname = "treatment_date",
+                    tname = "year",
+                    idname = "state"),
+  se_adjust = "none"
+)
+
+m_g <- optic_model(
+  name = "gardner",
+  type = "did2s",
+  call = "did2s",
+  formula = crude.rate ~ unemploymentrate + treatment_level,
+  model_args = list(yname = "crude.rate", treatment = "treatment",
+                    first_stage = ~ 0 | state + year,
+                    second_stage = ~ i(time_to_treat, ref = c(-1, Inf)),
+                    cluster_var = "state"),
+  se_adjust = "none"
 )
 
 m_ar <- optic_model(
     name = "autoregressive",
     type = "autoreg",
-    call = "lfe",
-    formula = crude.rate ~ i(time_to_treat, ref = c(-1, Inf)) | location + year,
+    call = "feols",
+    formula = crude.rate ~ unemploymentrate + i(time_to_treat, ref = c(-1, Inf)) | year,
     se_adjust = "none"
-    
+
 )
 
+m_ar_cluster <- optic_model(
+    name = "autoregressive_cluster",
+    type = "autoreg",
+    call = "feols",
+    formula = crude.rate ~ unemploymentrate + i(time_to_treat, ref = c(-1, Inf)) | year,
+    model_args = list(cluster = "state"),
+    se_adjust = "none"
 
-sim_models <- list(m_did)
+)
+
+# Adding in ar w/o clustering
+sim_models <- list(m_es, m_ar, m_sa, m_csa, m_g, m_bjs, m_aug, m_ar, m_ar_cluster)
+sim_models <- list(m_ar)
 
 sim_config <- optic_simulation(
 
   x                        = overdoses,
   models                   = sim_models,
-  iters                    = 1,
+  iters                    = 1000,
   method                   = "time_varying",
   unit_var                 = "state",
   treat_var                = "state",
   time_var                 = "year",
   effect_magnitude         = time_varying_scenarios,
-  n_units                  = c(5, 20, 35),
+  n_units                  = c(15, 25, 35),
   effect_direction         = c("neg"),
   policy_speed             = c("instant"),
   n_implementation_periods = c(6)
 
 )
 
-results <- dispatch_simulations(
+sim_results <- dispatch_simulations(
   
   sim_config,
-  use_future = F,
-  seed = 9781,
-  verbose = 0
+  seed = 9780,
+  verbose = 0,
+  use_future = T,
+  future.packages = c("didimputation", "did2s", "optic","augsynth", "fixest", "tidyr")
   
 )
+
+sim_results <- rbindlist(sim_results)
+
+write.csv(sim_results,  "sim_results_ar_no_cluster.csv", row.names = F)
+
+```
+
+```{Calculate GOF statistics and plot sim results} 
+
+library(ggplot2)
+library(gridExtra)
+
+df_sim <- fread("sim_results2.csv")
+
+# Remove event study ar w/o clustering for now
+
+df_sim[, scenario := paste(effect_magnitude1, effect_magnitude2, effect_magnitude3, effect_magnitude4, effect_magnitude5, effect_magnitude6)]
+
+# Reshape effect columns long; this should probably occur during the simulation procedure
+id_cols <- c("outcome", "n_implementation_periods", "n_units", "policy_speed", "effect_direction", "model_formula", "model_name", "model_call", "scenario", "iter")
+
+sum_cols <- c("n_units", "scenario", "model_name", "ttt")
+
+df_sim <- melt(df_sim, id.vars = id_cols, measure = patterns(estimate = "^estimate_ttt==", se = "^se_ttt==", variance = "^variance_ttt==", t_stat = "^t_stat_ttt==", p_value = "^p_value_ttt==",  true_effect = "^effect_magnitude"), variable.name = "ttt")
+
+# Calculate GoF statistics
+
+#Median sim error & 2.5th/97.5th percentiles
+df_sim[, true_effect := -1*true_effect]
+df_sim[, sim_error := true_effect - estimate]
+df_sim[, sim_error_std := (true_effect - estimate)/sd(overdoses$crude.rate, na.rm = T)]
+
+df_sim[, sim_error_50 := quantile(.SD$sim_error, 0.5), by = sum_cols]
+df_sim[, sim_error_025 := quantile(.SD$sim_error, 0.025), by = sum_cols]
+df_sim[, sim_error_975 := quantile(.SD$sim_error, 0.975), by = sum_cols]
+
+df_sim[, sim_error_50_std := quantile(.SD$sim_error_std, 0.5), by = sum_cols]
+df_sim[, sim_error_025_std := quantile(.SD$sim_error_std, 0.025), by = sum_cols]
+df_sim[, sim_error_975_std := quantile(.SD$sim_error_std, 0.975), by = sum_cols]
+
+#Mean error v. variance of error:
+df_sim[, sim_error_mean := mean(.SD$sim_error), by = sum_cols]
+df_sim[, sim_error_variance := var(.SD$sim_error), by = sum_cols]
+
+#RMSE
+df_sim[, sim_rmse := sum(.SD$sim_error^2)/.N, by = sum_cols]
+
+#Model coverage
+df_sim[, covered := ifelse((estimate + 1.96*se >= true_effect) & (estimate - 1.96*se <= true_effect), 1, 0)]
+df_sim[, coverage := sum(.SD$covered)/.N, by = sum_cols]
+
+# Average model estimate and variance
+df_sim[, model_est_mean := mean(.SD$estimate), by = sum_cols]
+df_sim[, model_est_025 := mean(.SD$estimate) - 1.96*(sd(.SD$estimate)), by = sum_cols]
+df_sim[, model_est_975 := mean(.SD$estimate) + 1.96*(sd(.SD$estimate)), by = sum_cols]
+
+df_sim[, model_se_mean := mean(.SD$se), by = sum_cols]
+df_sim[, model_se_025 := mean(.SD$se) - 1.96*(sd(.SD$se)), by = sum_cols]
+df_sim[, model_se_975 := mean(.SD$se) + 1.96*(sd(.SD$se)), by = sum_cols]
+
+library(ggplot2)
+library(gridExtra)
+
+df_sim <- fread("sim_results2.csv")
+
+df_sim[, scenario := paste(effect_magnitude1, effect_magnitude2, effect_magnitude3, effect_magnitude4, effect_magnitude5, effect_magnitude6)]
+
+# Reshape effect columns long; this should probably occur during the simulation procedure
+id_cols <- c("outcome", "n_implementation_periods", "n_units", "policy_speed", "effect_direction", "model_formula", "model_name", "model_call", "scenario", "iter")
+
+sum_cols <- c("n_units", "scenario", "model_name", "ttt")
+
+df_sim <- melt(df_sim, id.vars = id_cols, measure = patterns(estimate = "^estimate_ttt==", se = "^se_ttt==", variance = "^variance_ttt==", t_stat = "^t_stat_ttt==", p_value = "^p_value_ttt==",  true_effect = "^effect_magnitude"), variable.name = "ttt")
+
+# Calculate GoF statistics
+
+#Median sim error & 2.5th/97.5th percentiles
+df_sim[, true_effect := -1*true_effect]
+df_sim[, sim_error := true_effect - estimate]
+df_sim[, sim_error_std := (true_effect - estimate)/sd(overdoses$crude.rate, na.rm = T)]
+
+df_sim[, sim_error_50 := quantile(.SD$sim_error, 0.5), by = sum_cols]
+df_sim[, sim_error_025 := quantile(.SD$sim_error, 0.025), by = sum_cols]
+df_sim[, sim_error_975 := quantile(.SD$sim_error, 0.975), by = sum_cols]
+
+df_sim[, sim_error_50_std := quantile(.SD$sim_error_std, 0.5), by = sum_cols]
+df_sim[, sim_error_025_std := quantile(.SD$sim_error_std, 0.025), by = sum_cols]
+df_sim[, sim_error_975_std := quantile(.SD$sim_error_std, 0.975), by = sum_cols]
+
+#Mean error v. variance of error:
+df_sim[, sim_error_mean := mean(.SD$sim_error), by = sum_cols]
+df_sim[, sim_error_variance := var(.SD$sim_error), by = sum_cols]
+
+#RMSE
+df_sim[, sim_rmse := sum(.SD$sim_error^2)/.N, by = sum_cols]
+
+#Model coverage
+df_sim[, covered := ifelse((estimate + 1.96*se >= true_effect) & (estimate - 1.96*se <= true_effect), 1, 0)]
+df_sim[, coverage := sum(.SD$covered)/.N, by = sum_cols]
+
+df_sim[, model_se_50:= quantile(.SD$se, prob = 0.5, na.rm = T), by = sum_cols]
+df_sim[, model_se_025 := quantile(.SD$se, prob = 0.025, na.rm = T), by = sum_cols]
+df_sim[, model_se_975 := quantile(.SD$se, prob = 0.975, na.rm = T), by = sum_cols]
+
+# Change variable coding to be a little more informative on scenarios, model names,
+# and time to treat
+
+scenario_names <- data.frame("scenario_name" = c("linear increasing", "linear decreasing",
+                                                 "instant plateau", "slow plateau"),
+                             "scenario" = sapply(time_varying_scenarios, paste, collapse = " "))
+
+df_summary <- merge(df_sim, scenario_names, by = "scenario")
+df_summary[, scenario_name := factor(scenario_name, levels = scenario_names$scenario_name)]
+
+model_names_remap <- data.frame("new_model_name" = c("Event study: Two-way Fixed Effect", "Event study: AR(1)", "Event study: AR(1) (No clustering)", "Event study: Sun & Abraham", "Callaway & Sant'Anna", 
+                                                     "Two-stage DiD", "DiD imputation", "Augmented synthetic controls"),
+                                "model_name" = c("twfe", "autoregressive_cluster", "autoregressive_no_cluster", "sa", "csa_did", "gardner", "bjs", "augsynth"))
+
+df_summary <- merge(df_summary, model_names_remap, by = "model_name")
+df_summary[, model_name := factor(model_name, levels = model_names_remap$new_model_name)]
+
+df_summary[, ttt_name := ifelse(ttt == 1, paste0(ttt, " year since \ntreatment"), paste0(ttt, " years since \ntreatment"))]
+df_summary[, ttt_name := factor(ttt_name, levels = unique(df_summary$ttt_name))]
+
+df_summary[, n_units_name := paste0(n_units, " treated units")]
+df_summary[, n_units_name := factor(n_units_name, levels = unique(df_summary$n_units_name))]
+
+df_summary[, scenario := NULL]
+df_summary[, model_name := NULL]
+setnames(df_summary, "new_model_name", "model_name")
+
+# Collapse to summaries:
+df_summary <- unique(df_summary[, .(n_units, n_units_name, scenario_name, model_name, ttt, ttt_name,
+                                    sim_error_mean, sim_error_variance, sim_error_50, sim_error_025,
+                                    sim_error_975, sim_error_50_std, sim_error_025_std, sim_error_975_std, 
+                                    model_se_50, model_se_025, model_se_975,
+                                    coverage, sim_rmse)])
+
+#############
+# GOF Plots #
+#############
+
+################################
+# Mean error v. variance error #
+################################
+
+plot_colors_bw <- c('#d9d9d9','#bdbdbd','#969696','#737373','#525252','#252525','#000000')
+plot_colors_col <- c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f')
+
+plot_colors <- plot_colors_col
+
+# Scale size of PDF to improve sizing of points for canvas.
+# I played around with this number to find an aesthetic I preferred.
+
+mult <- 1.1
+
+bias_variance <- function(dd, n_treat, scene){
+  
+  dd <- dd[n_units == n_treat & scenario_name == scene,]
+  
+  plot_scatter <- ggplot(dd, aes(y = model_se_50, x = sim_error_50, color = model_name)) +
+                  facet_wrap(~ttt_name, nrow = 2) +
+                  geom_vline(xintercept = 0, linetype = 21) +
+                  labs(title = sprintf("Model bias v. model se: \n%s treated units and %s effects", n_treat, scene),
+                       y = "Median standard error \nerror",
+                       x = "Median model \nbias",
+                       color = "Estimator") +
+                  geom_errorbar(aes(ymin = model_se_025, ymax = model_se_975),  
+                                linewidth = 0.5, width = 0, alpha = 0.9) +
+                  geom_errorbarh(aes(xmin = sim_error_025, xmax = sim_error_975), 
+                                 linewidth = 0.5, width = 0, alpha = 0.9) +
+                  geom_point(size = 3, shape = 19, alpha = 0.9) +
+                  theme_bw() +
+                  scale_color_manual(values = plot_colors) +
+                  theme(plot.title = element_text(hjust = 0.5, family = 'sans', size = 16),
+                    strip.background = element_blank(),
+                    strip.text = element_text(family = "sans", size = 10),
+                    legend.position = "bottom",
+                    legend.text = element_text(family = 'sans', size = 10),
+                    axis.ticks = element_line(linewidth = 1),
+                    axis.ticks.length = unit(5.6, "points"),
+                    axis.title = element_text(size = 12, family = 'sans'),
+                    axis.title.y = element_text(size = 12, family = 'sans', angle = 0),
+                    axis.text = element_text(size = 10, family = 'sans'),
+                    axis.text.x = element_text(size = 10, family = 'sans',
+                                               margin = margin(t = 5, r = 0, b = 10, l = 0)),
+                    legend.title = element_text(family = 'sans', size = 14))
+  
+  return(plot_scatter)
+  
+}
+
+args <- expand.grid(n_treat = unique(df_summary$n_units),
+                    scene = unique(df_summary$scenario_name))
+
+args <- with(args, args[order(scene),])
+
+bias_v_variance_plots <- mapply(bias_variance, n_treat = args$n_treat, scene = args$scene, MoreArgs = list(dd = df_summary),
+                                SIMPLIFY = F, USE.NAMES = F)
+
+ggsave(filename = "./time_vary_plots/time_vary_model_error_v_se.pdf", plot = marrangeGrob(bias_v_variance_plots, nrow=1, ncol=1, top=NULL), 
+      height = 8.27*mult, width = 11.69*mult, units = "in")
+
+
+#####################
+# Error comparisons #
+#####################
+
+plot_bias <- ggplot(df_summary, aes(x = ttt, y = sim_error_50_std, color = model_name)) +
+                    geom_hline(yintercept = 0, linetype = 21) +
+                    geom_point(size = 1, shape = 19, position = position_dodge(width = 0.8)) +
+                    geom_errorbar(aes(ymin = sim_error_025_std, ymax = sim_error_975_std), linewidth = 0.5, 
+                                       width = 0, position = position_dodge(width = 0.8)) +
+                    facet_grid(rows = vars(n_units_name), cols = vars(scenario_name), labeller = "label_value") +
+                    theme_bw() +
+                    labs(title = "Median standardized bias (2.5th, 97.5th percentiles) across simulation runs",
+                         y = "Bias",
+                         x = "Years since treatment",
+                         color = "Estimator") +
+                    scale_color_manual(values = plot_colors) +
+                    theme(plot.title = element_text(hjust = 0.5, family = 'sans', size = 16),
+                      strip.background = element_blank(),
+                      strip.text = element_text(family = "sans", size = 10),
+                      legend.position = "bottom",
+                      legend.text = element_text(family = 'sans', size = 10),
+                      axis.ticks = element_line(linewidth = 1),
+                      axis.ticks.length = unit(5.6, "points"),
+                      axis.title = element_text(size = 12, family = 'sans'),
+                      axis.title.y = element_text(size = 12, family = 'sans', angle = 0),
+                      axis.text = element_text(size = 10, family = 'sans'),
+                      axis.text.x = element_text(size = 10, family = 'sans',
+                                                 margin = margin(t = 5, r = 0, b = 10, l = 0)),
+                      legend.title = element_text(family = 'sans', size = 14))
+
+ggsave(filename = "./time_vary_plots/time_vary_sim_bias_ui.pdf", plot = plot_bias, height = 8.27*mult, width = 11.69*mult, units = "in")
+
+plot_se <- ggplot(df_summary, aes(x = ttt, y = model_se_50, color = model_name)) +
+                    geom_hline(yintercept = 0, linetype = 21) +
+                    geom_point(size = 1, shape = 19, position = position_dodge(width = 0.8)) +
+                    geom_errorbar(aes(ymin = model_se_025, ymax = model_se_975), linewidth = 0.4, 
+                                       width = 0, position = position_dodge(width = 0.8),
+                                  alpha = 0.9) +
+                    facet_grid(rows = vars(n_units_name), cols = vars(scenario_name), labeller = "label_value") +
+                    theme_bw() +
+                    labs(title = "Model standard error (2.5th, 50th, & 97.5th percentiles) across simulation runs",
+                         y = "Model standard error",
+                         x = "Years since treatment",
+                         color = "Estimator") +
+                    scale_color_manual(values = plot_colors) +
+                    theme(plot.title = element_text(hjust = 0.5, family = 'sans', size = 16),
+                      strip.background = element_blank(),
+                      strip.text = element_text(family = "sans", size = 10),
+                      legend.position = "bottom",
+                      legend.text = element_text(family = 'sans', size = 10),
+                      axis.ticks = element_line(linewidth = 1),
+                      axis.ticks.length = unit(5.6, "points"),
+                      axis.title = element_text(size = 12, family = 'sans'),
+                      axis.title.y = element_text(size = 12, family = 'sans', angle = 0),
+                      axis.text = element_text(size = 10, family = 'sans'),
+                      axis.text.x = element_text(size = 10, family = 'sans',
+                                                 margin = margin(t = 5, r = 0, b = 10, l = 0)),
+                      legend.title = element_text(family = 'sans', size = 14))
+
+ggsave(filename = "./time_vary_plots/time_vary_model_se.pdf", plot = plot_se, height = 8.27*mult, width = 11.69*mult, units = "in")
+
+############
+# Coverage #
+############
+
+plot_cover <- ggplot(df_summary, aes(x = ttt, y = coverage, color = model_name)) +
+                    geom_point(size = 1.5, shape = 19) +
+                    geom_line(aes(group = model_name), linewidth = 0.7) +
+                    facet_grid(rows = vars(n_units_name), cols = vars(scenario_name), labeller = "label_value") +
+                    theme_bw() +
+                    labs(title = "Percent of sim runs with true effect \ncovered by estimated effect",
+                         y = "Coverage",
+                         x = "Years since treatment",
+                         color = "Estimator") +
+                    scale_color_manual(values = plot_colors) +
+                    scale_y_continuous(labels = scales::percent) +
+                    theme(plot.title = element_text(hjust = 0.5, family = 'sans', size = 16),
+                      strip.background = element_blank(),
+                      strip.text = element_text(family = "sans", size = 10),
+                      legend.position = "bottom",
+                      legend.text = element_text(family = 'sans', size = 10),
+                      axis.ticks = element_line(linewidth = 1),
+                      axis.ticks.length = unit(5.6, "points"),
+                      axis.title = element_text(size = 12, family = 'sans'),
+                      axis.title.y = element_text(size = 12, family = 'sans', angle = 0),
+                      axis.text = element_text(size = 10, family = 'sans'),
+                      axis.text.x = element_text(size = 10, family = 'sans',
+                                                 margin = margin(t = 5, r = 0, b = 10, l = 0)),
+                      legend.title = element_text(family = 'sans', size = 14))
+
+ggsave(filename = "./time_vary_plots/time_vary_sim_coverage.pdf", plot = plot_cover, height = 8.27*mult, width = 11.69*mult, units = "in")
+
+########
+# RMSE #
+########
+
+plot_rmse <- ggplot(df_summary, aes(x = ttt, y = sim_rmse, color = model_name)) +
+                    geom_point(size = 1, shape = 19, position = position_dodge(width = 0.8)) +
+                    geom_linerange(aes(x = ttt, ymin = 0, ymax = rmse), 
+                                   linewidth = 0.6, position = position_dodge(width = 0.8)) +
+                    facet_grid(rows = vars(n_units_name), cols = vars(scenario_name), labeller = "label_value") +
+                    theme_bw() +
+                    labs(title = "RMSE of sim runs",
+                         y = "RMSE",
+                         x = "Years since treatment",
+                         color = "Estimator") +
+                    scale_color_manual(values = plot_colors) +
+                    theme(plot.title = element_text(hjust = 0.5, family = 'sans', size = 16),
+                      strip.background = element_blank(),
+                      strip.text = element_text(family = "sans", size = 10),
+                      legend.position = "bottom",
+                      legend.text = element_text(family = 'sans', size = 10),
+                      axis.ticks = element_line(linewidth = 1),
+                      axis.ticks.length = unit(5.6, "points"),
+                      axis.title = element_text(size = 12, family = 'sans'),
+                      axis.title.y = element_text(size = 12, family = 'sans', angle = 0),
+                      axis.text = element_text(size = 10, family = 'sans'),
+                      axis.text.x = element_text(size = 10, family = 'sans',
+                                                 margin = margin(t = 5, r = 0, b = 10, l = 0)),
+                      legend.title = element_text(family = 'sans', size = 14))
+
+ggsave(filename = "./time_vary_plots/time_vary_sim_rmse.pdf", plot = plot_rmse, height = 8.27*mult, width = 11.69*mult, units = "in")
+
 
 ```
