@@ -322,7 +322,7 @@ tvary_premodel <- function(model_simulation) {
   # Add on a implementation year and time-to-treat variable:
   x <- x %>% 
     group_by(!!unit_sym) %>%
-    mutate(treatment_date = ifelse(max(trt_ind == 1), 1 + max(year ^ (1-treatment)), 0)) %>% 
+    mutate(treatment_date = ifelse(max(trt_ind == 1), max(year ^ (1-treatment)), 0)) %>% 
     ungroup()
   
   x$time_to_treat <- x$year - x$treatment_date
@@ -374,6 +374,22 @@ tvary_premodel <- function(model_simulation) {
   
   model_simulation$balance_statistics <- bal_stats
   model_simulation$data <- x
+  
+  # Save iterations for debug purposes:
+  # x <- x[, c("state", "year", "population", "unemploymentrate", "crude.rate", "time_to_treat")]
+  # x$ever_treated <- ifelse(x$time_to_treat >= 0 & x$time_to_treat != Inf, 1, 0)
+  # 
+  # filepath <- "./time_vary_plots/test_data"
+  # 
+  # if (length(list.files(filepath)) == 0){
+  #   i <- 1
+  # }else{
+  #   existing_files <- list.files(filepath)
+  #   i <- max(as.numeric(gsub("iter_|.csv", "", existing_files))) + 1
+  # }
+  # 
+  # filename <- sprintf("%s/iter_%s.csv", filepath, i)
+  # write.csv(x, filename, row.names = F)
 
   return(model_simulation)
   
