@@ -75,9 +75,12 @@ df_sim[, sim_error_50_std := quantile(.SD$sim_error_std, 0.5), by = sum_cols]
 df_sim[, sim_error_025_std := quantile(.SD$sim_error_std, 0.025), by = sum_cols]
 df_sim[, sim_error_975_std := quantile(.SD$sim_error_std, 0.975), by = sum_cols]
 
-#Mean error v. variance of error:
-df_sim[, sim_error_mean := mean(.SD$sim_error), by = sum_cols]
-df_sim[, sim_error_variance := var(.SD$sim_error), by = sum_cols]
+#Median sim variance & 2.5th/97.5th percentiles
+df_sim[, sim_variance := var(.SD$estimate), by = sum_cols]
+
+df_sim[, sim_variance_50 := quantile(.SD$sim_variance, 0.5), by = sum_cols]
+df_sim[, sim_variance_025 := quantile(.SD$sim_variance, 0.025), by = sum_cols]
+df_sim[, sim_variance_975 := quantile(.SD$sim_variance, 0.975), by = sum_cols]
 
 #RMSE
 df_sim[, sim_rmse := sum(.SD$sim_error^2)/.N, by = sum_cols]
@@ -86,9 +89,14 @@ df_sim[, sim_rmse := sum(.SD$sim_error^2)/.N, by = sum_cols]
 df_sim[, covered := ifelse((estimate + 1.96*se >= true_effect) & (estimate - 1.96*se <= true_effect), 1, 0)]
 df_sim[, coverage := sum(.SD$covered)/.N, by = sum_cols]
 
-df_sim[, model_se_50:= quantile(.SD$se, prob = 0.5, na.rm = T), by = sum_cols]
-df_sim[, model_se_025 := quantile(.SD$se, prob = 0.025, na.rm = T), by = sum_cols]
-df_sim[, model_se_975 := quantile(.SD$se, prob = 0.975, na.rm = T), by = sum_cols]
+# Average model estimate and variance
+df_sim[, model_est_mean := mean(.SD$estimate), by = sum_cols]
+df_sim[, model_est_025 := mean(.SD$estimate) - 1.96*(sd(.SD$estimate)), by = sum_cols]
+df_sim[, model_est_975 := mean(.SD$estimate) + 1.96*(sd(.SD$estimate)), by = sum_cols]
+
+df_sim[, model_se_mean := mean(.SD$se), by = sum_cols]
+df_sim[, model_se_025 := mean(.SD$se) - 1.96*(sd(.SD$se)), by = sum_cols]
+df_sim[, model_se_975 := mean(.SD$se) + 1.96*(sd(.SD$se)), by = sum_cols]
 
 # Change variable coding to be a little more informative on scenarios, model names,
 # and time to treat
@@ -121,7 +129,7 @@ setnames(df_summary, "new_model_name", "model_name")
 df_summary <- unique(df_summary[, .(n_units, n_units_name, scenario_name, model_name, ttt, ttt_name,
                                     sim_error_mean, sim_error_variance, sim_error_50, sim_error_025,
                                     sim_error_975, sim_error_50_std, sim_error_025_std, sim_error_975_std, 
-                                    model_se_50, model_se_025, model_se_975,
+                                    model_est_mean, model_est_025, model_est_975, model_se_mean, model_se_025, model_se_975,
                                     coverage, sim_rmse)])
 
 #############
@@ -146,13 +154,13 @@ bias_variance <- function(dd, n_treat, scene){
   
   dd <- dd[n_units == n_treat & scenario_name == scene,]
   
-  plot_scatter <- ggplot(dd, aes(y = model_se_50, x = sim_error_50, color = model_name)) +
+  plot_scatter <- ggplot(dd, aes(y = model_se_mean, x = sim_error_mean, color = model_name)) +
                   facet_wrap(~ttt_name, nrow = 2) +
                   geom_hline(yintercept = 0, linetype = 21) +
                   geom_point(size = 3, shape = 19) +
                   labs(title = sprintf("Model error v. model variance: \n%s treated units and %s effects", n_treat, scene),
-                       y = "Median standard error \nerror",
-                       x = "Median model \nbias",
+                       y = "Mean model \nerror",
+                       x = "Mean model \nvariance",
                        color = "Estimator") +
                   geom_errorbar(aes(ymin = model_se_025, ymax = model_se_975),  linewidth = 0.5, width = 0) +
                   geom_errorbarh(aes(xmin = sim_error_025, xmax = sim_error_975), linewidth = 0.5, width = 0) +
@@ -187,9 +195,9 @@ bias_v_variance_plots <- mapply(bias_variance, n_treat = args$n_treat, scene = a
 ggsave(filename = "./time_vary_plots/time_vary_model_error_v_variance.pdf", plot = marrangeGrob(bias_v_variance_plots, nrow=1, ncol=1, top=NULL), 
       height = 8.27*mult, width = 11.69*mult, units = "in")
 
-#####################
-# Error comparisons #
-#####################
+############
+# Sim bias #
+############
 
 plot_bias <- ggplot(df_summary, aes(x = ttt, y = sim_error_50_std, color = model_name)) +
                     geom_hline(yintercept = 0, linetype = 21) +
@@ -218,6 +226,10 @@ plot_bias <- ggplot(df_summary, aes(x = ttt, y = sim_error_50_std, color = model
                       legend.title = element_text(family = 'sans', size = 14))
 
 ggsave(filename = "./time_vary_plots/time_vary_sim_bias_ui.pdf", plot = plot_bias, height = 8.27*mult, width = 11.69*mult, units = "in")
+
+###
+# Sim variance
+###
 
 ############
 # Coverage #

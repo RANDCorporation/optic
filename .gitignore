@@ -44,3 +44,9 @@ time_vary_plots/bias_simple_advisory_opt2.svg
 time_vary_plots/bias_simple_advisory_opt2.pdf
 time_vary_plots/bias_simple_advisory_opt1.svg
 time_vary_plots/bias_simple_advisory_opt1.pdf
+time_vary_plots/time_vary_model_error_v_se.pdf
+time_vary_plots/time_vary_model_se.pdf
+time_vary_plots/time_vary_sim_bias_ui.pdf
+time_vary_plots/time_vary_sim_coverage.pdf
+time_vary_plots/time_vary_sim_paper_BAG.docx
+time_vary_plots/time_vary_sim_rmse.pdf
