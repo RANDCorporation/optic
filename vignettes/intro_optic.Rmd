@@ -83,7 +83,7 @@ Analysts will need to shape their data to work properly with OPTIC. The
 package contains an example dataset which demonstrates the format
 required by the function `optic_simulation`.
 
-```{r, echo = FALSE}
+```{r example_data, echo = FALSE}
 knitr::kable(overdoses[c(1:3, 20:22),], format = "markdown")
 ```
 
@@ -111,7 +111,7 @@ time-varying treatment effects). Users should structure their treatment
 scenarios in a list, corresponding to the different types of treatment effects they would like to see examined. If the user is simulating models for the 'concurrent' policy evaluation scenario, the list will contain two effects within a vector for each potential treatment scenario that the user wants to examine. Using
 the example_data:
 
-```{r}
+```{r scenario_setup}
 
 data(overdoses)
 
@@ -120,13 +120,11 @@ data(overdoses)
 five_percent_effect <- 0.05*mean(overdoses$crude.rate, na.rm = T)
 ten_percent_effect  <- 0.10*mean(overdoses$crude.rate, na.rm = T)
 
+# Scenario object for "no confounding" evaluation scenario:
 scenarios_no_confounding <- list(five_percent_effect, ten_percent_effect)
 
 # Calculate a co-occuring policy effect
 cooccur_effect <- -0.02*mean(overdoses$crude.rate, na.rm = T)
-
-# Scenario object for "no confounding" evaluation scenario:
-
 
 # Scenario object for "co-occuring policy" evaluation scenario:
 scenarios_co_occur <- list(c(five_percent_effect, cooccur_effect),
@@ -181,7 +179,7 @@ then attempt to estimate this effect based on user-provided models. The
 
 Below provides an example of a model list using the `example_data`:
 
-```{r}
+```{r model_specs}
 
 # Specify 3 models to simulate treatment effects: Linear fixed effect model,
 # with and without covariate adjusters, and a linear model using ar-terms
@@ -292,7 +290,7 @@ possible simulations that will be run for each model. An example call
 of `optic_simulation` is displayed below:
 
 
-```{r}
+```{r config_setup}
 
 sim_config <- optic_simulation(
   
@@ -322,12 +320,12 @@ With the configuration object built, we can now simulate models with the configu
 Note this next step will only take a few seconds to run since we used a very small number of iterations for demonstration purpuses; with large numbers of permutations or iterations, it can require  several hours for this function to finish. We suggest using the parallel execution option (`use_future = T`), which can help a great deal for large analyses on your data. We recommend using anywhere between 300-1000 iterations (e.g., `iters = 1000`) when running your experiments.
 
 
-```{r}
+```{r run_sims}
 
 results <- dispatch_simulations(
   
   sim_config,
-  use_future = T,
+  use_future = F,
   seed = 9782,
   verbose = 2,
   future.globals=c("cluster_adjust_se"),
@@ -353,7 +351,7 @@ We can use the results table to analyze the relative performance of models acros
 ```{r}
 
 # Compare point estimates across models for the 5% change scenario, with instantaneous policy adoption:
-df_compare <- results[[1]][(results[[1]]$model_name == "fixed_effect_linear_adj")|(results[[1]]$model_name == "auto_regressive_linear"),]
+df_compare <- results[[1]]
 
 true_est <- -round(five_percent_effect, 3)
 
@@ -374,7 +372,7 @@ print(paste0("AR LM effect: ", grab_mean_and_se('auto_regressive_linear')))
 
 ```
 
-From the above output, we can see all models are producing similar estimates, across simulated point estimate draws. While all of these models are biased slightly downwards compared to the true effect, the autoregressive linear model seems to outperform both the unadjusted and adjusted fixed effect model, producing an estimate  closer to truth, with improved precision. Based on this simulation, if these were the only models under consideration, these results could justify using an autoregressive linear model for analyzing the real policy effect.  
+From the above output, we can see all models are producing similar estimates, across simulated point estimate draws. While all of these models produced estimates which are closer to zero than the true effect, the linear model seems to outperform both the unadjusted and autoregressive model, producing an estimate closer to truth. Based on this simulation, if these were the only models under consideration, these results could justify using a unadjusted linear model for analyzing the real policy effect.  
 
 ### Acknowledgements
 

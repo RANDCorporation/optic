@@ -339,27 +339,34 @@ noconf_model <- function(model_simulation) {
   
   model <- model_simulation$models
   model_type <- model_simulation$models$type
+  model_call <- model$model_call
   addtl_args <- model$model_args
   
   x <- model_simulation$data
   
   # The only consistent argument across these
-  # models is "data". We need to also pass along user provided arguments
+  # models is "data" and occasionally model formula. 
+  # We need to also pass along user provided arguments
   # and set some arguments based off the specific model type 
   
-  args <- list(data=x)
+  args <- list(data=x, formula=model$model_formula)
   
   if (length(addtl_args) >= 1){
     args <- append(args, addtl_args)
   }
   
   # Change names of provided arguments to meet the needs of respective packages
-  if (model_type == "eventstudy"|model_type == "autoreg"){
+  if (model_call == "feols"){
     args[['fml']] <- model$model_formula
-  }else if (model_type == "multisynth"){
+  }else if (model_call == "multisynth"){
     args[['form']] <-  model$model_formula
-  }else if (model_type == "did2s"){
+    args[['n_leads']] <- model_simulation$n_implementation_periods
+  }else if (model_call == "did_imputation"){
+    args[['horizon']] <- T
+  }else if (model_call == "did2s"){
     args[['treatment']] <- 'treatment'
+  }else{
+    args[['formula']] <- model$model_formula
   }
   
   m <- do.call(
