@@ -140,6 +140,20 @@
 		}
 	},
 	{
+		"id":"griffin2023identifying",
+		"author":[{"family":"Griffin","given":"Beth Ann"},{"family":"Schuler","given":"Megan S"},{"family":"Stone","given":"Elizabeth M"},{"family":"Patrick","given":"Stephen W"},{"family":"Stein","given":"Bradley D"},{"family":"De Lima","given":"Pedro Nascimento"},{"family":"Griswold","given":"Max"},{"family":"Scherling","given":"Adam"},{"family":"Stuart","given":"Elizabeth A"}],
+		"citation-key":"griffin2023identifying",
+		"container-title":"Epidemiology (Cambridge, Mass.)",
+		"container-title-short":"Epidemiology",
+		"issue":"6",
+		"issued":{"date-parts":[["2023"]]},
+		"page":"856–864",
+		"publisher":"LWW",
+		"title":"Identifying optimal methods for addressing confounding bias when estimating the effects of state-level policies",
+		"type":"article-journal",
+		"URL":"https://journals.lww.com/epidem/abstract/2023/11000/identifying_optimal_methods_for_addressing.14.aspx","volume":"34"
+	},
+	{
 		"id": "ben-michaelAugmentedSyntheticControl2021",
 		"type": "article-journal",
 		"container-title": "Journal of the American Statistical Association",
