@@ -9,7 +9,7 @@ optic_model(name, type, call, formula, se_adjust, ...)
 \arguments{
 \item{name}{Name of the model object, used to identify the model when reviewing simulation results}
 
-\item{type}{Estimator used to identify the treatment effect using simulated data. Specified as a string, which can either be 'reg' (regression), 'autoreg' (autoregression, which adds a lag for the outcome variable to a regression model), 'drdid' (doubly-robust difference-in-difference estimator), or 'multisynth' (augmented synthetic control)}
+\item{type}{Estimator used to identify the treatment effect using simulated data. Specified as a string, which can either be 'reg' (regression), 'autoreg' (autoregression, which adds a lag for the outcome variable to a regression model), 'did' (doubly-robust difference-in-difference estimator), or 'multisynth' (augmented synthetic control)}
 
 \item{call}{String which specifies the R function to call for applying the estimator. Package currently supports  either 'lm' (linear model), 'feols' (fixed-effect OLS), 'multisynth' (pooled synthetic controls), or 'glm.nb' (negative-binomial generalized nearlized linear model)}
 
