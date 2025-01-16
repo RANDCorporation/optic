@@ -141,7 +141,7 @@ then attempt to estimate this effect based on user-provided models. The
 
 -   `name`: A name for the model to identify the model type in results.
 
--   `type`: Users can set this as either "autoreg", "drdid",
+-   `type`: Users can set this as either "autoreg", "did",
     "multisynth", or "reg".
 
     -   "reg" uses a typical regression framework, implementing the
@@ -149,7 +149,7 @@ then attempt to estimate this effect based on user-provided models. The
 
     -   "autoreg" adds a dependent lag to the model formula.
 
-    -   "drdid" estimates a treatment effect using a doubly-robust
+    -   "did" estimates a treatment effect using a doubly-robust
         difference-in-difference estimator, with covariates in the
         `model_formula` argument used within both the propensity score
         stage and  outcome modeling stage (for more details on doubly robust

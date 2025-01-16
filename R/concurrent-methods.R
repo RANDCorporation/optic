@@ -183,7 +183,8 @@ concurrent_premodel <- function(model_simulation) {
     model_call=model$model_call,
     te=c(model_simulation$effect_magnitude1, model_simulation$effect_magnitude2),
     effect_direction=model_simulation$effect_direction,
-    concurrent=TRUE
+    concurrent=TRUE,
+    outcome = outcome
   )
   
   # if autoregressive, need to add lag for crude rate
