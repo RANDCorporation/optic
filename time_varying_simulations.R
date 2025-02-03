@@ -15,26 +15,32 @@ library(plyr)
 
 data(overdoses)
 
-regenerate <- F
+regenerate <- T
 plots <- T
+synthetic <- T
 
 setwd("C:/users/griswold/documents/GitHub/optic/")
 
 # For whatever reason, crude.rate is missing observations for North Dakota.
 # So recompute this vector from the data:
-overdoses$crude.rate <- 1e5*(overdoses$deaths/overdoses$population)
+df <- setDT(overdoses)
+
+df$crude.rate <- 1e5*(df$deaths/df$population)
 
 # Construct a linear increase and decrease in the effect size through time,
 # building towards or away from a 10% effect over a 5-year span:
 
-full_effect <- 0.1*mean(overdoses$crude.rate, na.rm = T)
-effect_sd   <- sd(overdoses$crude.rate, na.rm = T)
+full_effect <- 0.1*mean(df$crude.rate, na.rm = T)
+effect_sd   <- sd(df$crude.rate, na.rm = T)
+
+# Construct scenarios with time-varying patterns but same 
+# average effect post-treatment.
 
 linear_ramp_up <- seq(0, 1, 0.2)*full_effect
 linear_sunset <- rev(seq(0, 1, 0.2))*full_effect
 
-instant_plateau  <- c(0, 0.7, 1, 1, 0.9, 0.1)*full_effect
-slow_plateau     <- c(0, 0.2, 0.6, 0.9, 1, 0.8)*full_effect
+instant_plateau  <- c(0, 0.3, 0.7, 1, 0.8, 0.2)*full_effect
+slow_plateau     <- c(0, 0.5, 0.6, 0.8, 0.5, 0.6)*full_effect
 
 time_varying_scenarios <- list(linear_ramp_up, linear_sunset, instant_plateau, slow_plateau)
 scenario_names <- c("I", "II", "III", "IV")
@@ -44,14 +50,14 @@ scenarios <- list()
 for (i in 1:4){
   scene <- time_varying_scenarios[[i]]
   scenarios[[i]] <- data.table("ttt" = seq(0, length(scene) - 1),
-                               "smd" = scene/effect_sd,
-                               "true_effect" = -1*scene,
-                               "scenario_name" = scenario_names[[i]])
+                                       "smd" = scene/effect_sd,
+                                       "true_effect" = scene,
+                                       "scenario_name" = scenario_names[[i]])
 }
 
 scenarios <- rbindlist(scenarios)
 
-long_names <- c("Ramp up", "Sunset", "Shock", "Attenuation")
+long_names <- c("Ramp up", "Sunset", "Temporary", "Variable")
 scenarios[, scenario_name_label := mapvalues(scenario_name, 
                                              c("I", "II", "III", "IV"),
                                              long_names)]
@@ -61,14 +67,14 @@ scenarios[, scenario_name_label := factor(scenario_name_label,
 
 scenarios[, smd := -1*smd]
 
-p <- ggplot(scenarios, aes(x = ttt, y = true_effect)) +
+p <- ggplot(scenarios, aes(x = ttt, y = smd)) +
     geom_point(size = 2.5) +
     geom_line(linewidth = 0.8) +
     facet_wrap(~scenario_name_label) +
     labs(x = "Time since treatment",
-         y = "True \neffect") +
-    scale_y_continuous(breaks = seq(-1.2, 0, 0.2),
-                       limits = c(-1.3, 0)) +
+         y = "Standardized \nMean Difference") +
+    scale_y_continuous(breaks = seq(-0.2, 0, 0.05),
+                       limits = c(-0.2, 0)) +
     theme_bw() +
     theme(strip.background = element_blank(),
           strip.text = element_text(family = 'sans', size = 14),
@@ -76,7 +82,60 @@ p <- ggplot(scenarios, aes(x = ttt, y = true_effect)) +
           axis.title.x = element_text(family = 'sans', size = 12),
           axis.title.y = element_text(family = 'sans', size = 12, angle = 0, vjust = 0.5))
 
-ggsave(filename = "./time_vary_plots/time_vary_scenarios.svg", plot = p, height = 6, width = 8, units = "in")
+ggsave(filename = "./time_vary_plots/time_vary_scenarios_10_16.svg", plot = p, height = 6, width = 8, units = "in")
+
+
+if (synthetic){
+  
+  library(synthpop)
+  
+  # Number of replicates:
+  i <- 10
+  
+  # Generate an additional 510 synthetic states based off observed data:
+  pred_mat <- matrix(c(0, 0, 0, 0,
+                       0, 0, 0, 0,
+                       1, 1, 1, 0,
+                       1, 1, 1, 0), 
+                     byrow = T, nrow = 4)
+  
+  df_true <- df[, .(state, year, unemploymentrate, crude.rate)]
+  
+  df_sim <- syn(df_true, m = i, proper = F, method = "rf", seed = 191,
+                visit.sequence = c(3, 4), predictor.matrix = pred_mat,
+                smoothing = "spline")
+  
+  # For each synthetic dataset, swap state names with a sequential number of
+  # fake names
+  fake_states <- fread("./time_vary_plots/fake_states.csv", fill = T)
+  
+  hold <- list()
+  
+  for (j in 1:i){
+    old_states <- unique(df_sim$syn[[j]]$state)
+    new_states <- fake_states[((j - 1)*51 + 1):(j*51)]$new_name
+    
+    swap <- as.data.table(df_sim$syn[[i]])
+    swap[, state := mapvalues(state, old_states, new_states)]
+    
+    hold[[j]] <- swap
+    
+  }
+  
+  df_sim <- rbindlist(hold)
+  
+  # Add on indicator for fake states:
+  df_true[, observed_data := T]
+  df_sim[, observed_data := F]
+  
+  df_sim <- rbind(df_true, df_sim)
+  
+  #ggplot(df_sim, aes(x = crude.rate, color = observed_data)) + geom_density(size = 1) + facet_wrap(~year) + theme_bw()
+  #ggplot(df_sim, aes(x = unemploymentrate, color = observed_data)) + geom_density(size = 1) + facet_wrap(~year) + theme_bw()
+  
+  ggplot(df_sim[1:1938,], aes(y = crude.rate, x = year, color = state)) + geom_line() + facet_wrap(~observed_data) + theme_bw() + theme(legend.position = "none")
+  
+}
 
 # Specify  models to simulate treatment effects:
 if (regenerate){
@@ -171,15 +230,15 @@ if (regenerate){
 
   sim_config <- optic_simulation(
     
-    x                        = overdoses,
+    x                        = df_sim,
     models                   = sim_models,
-    iters                    = 1000,
+    iters                    = 100,
     method                   = "time_varying",
     unit_var                 = "state",
     treat_var                = "state",
     time_var                 = "year",
     effect_magnitude         = time_varying_scenarios,
-    n_units                  = c(15, 25, 35),
+    n_units                  = c(280),
     effect_direction         = c("neg"),
     policy_speed             = c("instant"),
     n_implementation_periods = c(6)
@@ -198,7 +257,7 @@ if (regenerate){
   
   sim_results <- rbindlist(sim_results)
   
-  write.csv(sim_results,  "sim_results_ar_no_cluster.csv", row.names = F)
+  write.csv(sim_results,  "sim_results_synthetic_10_18.csv", row.names = F)
   
 }
 
@@ -226,8 +285,6 @@ if (plots){
   df_sim[, sim_error := true_effect - estimate]
   df_sim[, sim_error_std := abs((true_effect - estimate)/sd(overdoses$crude.rate, na.rm = T))]
   
-  df_sim[, sim_error_mean := mean(abs(.SD$sim_error)), by = sum_cols]
-  
   df_sim[, sim_error_50 := quantile(.SD$sim_error, 0.5), by = sum_cols]
   df_sim[, sim_error_025 := quantile(.SD$sim_error, 0.025), by = sum_cols]
   df_sim[, sim_error_975 := quantile(.SD$sim_error, 0.975), by = sum_cols]
@@ -238,7 +295,6 @@ if (plots){
   
   #Median sim variance & 2.5th/97.5th percentiles
   df_sim[, sim_variance := var(.SD$estimate), by = sum_cols]
-  df_sim[, sim_sd := sd(.SD$estimate), by = sum_cols]
   
   #RMSE
   df_sim[, sim_rmse := sum(.SD$sim_error^2)/.N, by = sum_cols]
@@ -282,11 +338,10 @@ if (plots){
   
   # Collapse to summaries:
   df_summary <- unique(df_summary[, .(n_units, n_units_name, scenario_name, model_name, ttt,
-                                      sim_error_mean, sim_error_50, sim_error_025, sim_error_975, 
-                                      sim_error_50_std, sim_error_025_std, sim_error_975_std,
-                                      sim_variance, sim_sd, sim_rmse,
+                                      sim_error_50, sim_error_025,
+                                      sim_error_975, sim_error_50_std, sim_error_025_std, sim_error_975_std,
                                       model_est_mean, model_est_025, model_est_975, model_se_mean, model_se_025, model_se_975,
-                                      coverage)])
+                                      coverage, sim_rmse, sim_variance)])
   
   # Remove ar model w/o clustering and adjust time-to-treatment name
   df_summary <- df_summary[model_name != "Event study: AR(1) (No clustering)"]
@@ -451,16 +506,14 @@ if (plots){
    ggsave(filename = "./time_vary_plots/time_vary_sim_bias_no_ui.pdf", plot = plot_bias_no, height = 8.27*mult, width = 11.69*mult, units = "in")
    
    # Simplified figure for presentation:
+   sanzo_cols <- sanzo::quads$c252
    selected <- c("Augmented synthetic controls", "Event study: AR(1)",  "Event study: Two-way Fixed Effect",
                  "Callaway & Sant'Anna")
    
    df_summary_simple <- df_summary_2x2[scenario_name %in% c("I", "II") & model_name %in% selected]
    df_summary_simple[, model_name := factor(model_name, selected)]
    
-   
-   sanzo_cols <- sanzo::quads$c252
-   plot_bias_simple1 <- ggplot(df_summary_2x2, aes(x = as.factor(ttt), y = sim_error_50_std, color = model_name)) +
-               geom_hline(yintercept = 0, linetype = 21) +
+   plot_bias_simple1 <- ggplot(df_summary_simple, aes(x = as.factor(ttt), y = sim_error_50_std, color = model_name)) +
                geom_linerange(aes(ymin = 0, ymax = sim_error_50_std,
                                   xmin = as.factor(ttt), xmax = as.factor(ttt)),
                               position = position_dodge(width = 0.7), size = 3) +
@@ -470,11 +523,11 @@ if (plots){
                     y = "Bias  ",
                     x = "Years since treatment",
                     color = "Estimator") +
-               scale_color_manual(values = plot_colors_col) +
+               scale_color_manual(values = sanzo_cols) +
                guides(color = guide_legend(nrow = 2, byrow = T)) +
                theme(plot.title = element_text(hjust = 0.5, family = 'sans', size = 18),
                      strip.background = element_blank(),
-                     strip.text = element_text(family = "sans", size = 12),
+                     strip.text = element_text(family = "sans", size = 14),
                      legend.position = "bottom",
                      legend.text = element_text(family = 'sans', size = 12),
                      axis.ticks = element_line(linewidth = 1),
@@ -486,25 +539,25 @@ if (plots){
                                                 margin = margin(t = 5, r = 0, b = 10, l = 0)),
                      legend.title = element_text(family = 'sans', size = 12))
    
-   ggsave(filename = "./time_vary_plots/bias_simple_advisory_opt1.pdf", 
+   ggsave(filename = "./time_vary_plots/bias_simple_advisory_opt1.svg", 
           plot = plot_bias_simple1, height = 8.27*mult, width = 11.69*mult, units = "in")
    
-   plot_bias_simple2 <- ggplot(df_summary_2x2, aes(x = ttt, y = sim_error_mean, color = model_name)) +
-                       geom_line(alpha = 0.8, linetype = 2) +
+   plot_bias_simple2 <- ggplot(df_summary_simple, aes(x = ttt, y = sim_error_50_std, color = model_name)) +
                        geom_point(size = 2, shape = 19) +
+                       geom_line(size = 1) +
                        facet_wrap(~scenario_name_label) +
                        theme_bw() +
-                       labs(title = "Mean bias across simulation runs\n",
-                            y = "Mean \nbias ",
+                       labs(title = "Median standardized bias across simulation runs\n",
+                            y = "Bias  ",
                             x = "Years since treatment",
                             color = "Estimator") +
-                       scale_color_manual(values = plot_colors) +
+                       scale_color_manual(values = sanzo_cols) +
                        guides(color = guide_legend(nrow = 2, byrow = T)) +
-                        scale_y_continuous(breaks = seq(0, 3, 0.5),
-                                          limits = c(0, 3)) +
+                       scale_y_continuous(breaks = seq(0, 0.4, 0.1),
+                                          limits = c(0, 0.4)) +
                        theme(plot.title = element_text(hjust = 0.5, family = 'sans', size = 18),
                              strip.background = element_blank(),
-                             strip.text = element_text(family = "sans", size = 12),
+                             strip.text = element_text(family = "sans", size = 14),
                              legend.position = "bottom",
                              legend.text = element_text(family = 'sans', size = 12),
                              axis.ticks = element_line(linewidth = 1),
@@ -516,7 +569,7 @@ if (plots){
                                                         margin = margin(t = 5, r = 0, b = 10, l = 0)),
                              legend.title = element_text(family = 'sans', size = 12))
    
-   ggsave(filename = "./time_vary_plots/fig_1.pdf", 
+   ggsave(filename = "./time_vary_plots/bias_simple_advisory_opt2.svg", 
           plot = plot_bias_simple2, height = 8.27*mult, width = 11.69*mult, units = "in")
    
    # As percent diff:
@@ -584,36 +637,6 @@ if (plots){
    ggsave(filename = "./time_vary_plots/time_vary_sim_variance_ui_2x2.pdf", plot = plot_var_2x2, 
           height = 8.27*mult, width = 11.69*mult, units = "in")
    
-   plot_sim_var_simple <- ggplot(df_summary_2x2, aes(x = ttt, y = sim_sd, color = model_name)) +
-                       geom_line(alpha = 0.8, linetype = 2) +
-                       geom_point(size = 2, shape = 19) +
-                       facet_wrap(~scenario_name_label) +
-                       theme_bw() +
-                       labs(title = "Standard deviation of estimated effects across simulation runs\n",
-                            y = "Standard \ndeviation  ",
-                            x = "Years since treatment",
-                            color = "Estimator") +
-                       scale_color_manual(values = plot_colors) +
-                       scale_y_continuous(breaks = seq(0, 3.5, 0.5),
-                                          limits = c(0, 3.5)) +
-                       guides(color = guide_legend(nrow = 2, byrow = T)) +
-                       theme(plot.title = element_text(hjust = 0.5, family = 'sans', size = 18),
-                             strip.background = element_blank(),
-                             strip.text = element_text(family = "sans", size = 12),
-                             legend.position = "bottom",
-                             legend.text = element_text(family = 'sans', size = 12),
-                             axis.ticks = element_line(linewidth = 1),
-                             axis.ticks.length = unit(5.6, "points"),
-                             axis.title = element_text(size = 14, family = 'sans'),
-                             axis.title.y = element_text(size = 14, family = 'sans', angle = 0),
-                             axis.text = element_text(size = 10, family = 'sans'),
-                             axis.text.x = element_text(size = 10, family = 'sans',
-                                                        margin = margin(t = 5, r = 0, b = 10, l = 0)),
-                             legend.title = element_text(family = 'sans', size = 12))
-   
-   ggsave(filename = "./time_vary_plots/fig_2.pdf", plot = plot_sim_var_simple, height = 8.27*mult, width = 11.69*mult, units = "in")
-   
-   
   ########################
   # Model standard error #
   ########################
@@ -625,7 +648,7 @@ if (plots){
                             width = 0, position = position_dodge(width = 0.8)) +
               facet_grid(rows = vars(n_units_name), cols = vars(scenario_name), labeller = "label_value") +
               theme_bw() +
-              labs(title = "Median model standard error (2.5th, 97.5th percentiles) across simulation runs",
+              labs(title = "Median standard error (2.5th, 97.5th percentiles) across simulation runs",
                    y = "Standard error",
                    x = "Years since treatment",
                    color = "Estimator") +
@@ -675,35 +698,6 @@ if (plots){
   
   ggsave(filename = "./time_vary_plots/time_vary_se_no_ui.pdf", plot = plot_var_no, height = 8.27*mult, width = 11.69*mult, units = "in")
   
-  plot_var_simple <- ggplot(df_summary_2x2, aes(x = ttt, y = model_se_mean, color = model_name)) +
-                      geom_line(alpha = 0.8, linetype = 2) +
-                      geom_point(size = 2, shape = 19) +
-                      facet_wrap(~scenario_name_label) +
-                      theme_bw() +
-                      labs(title = "Mean of standard errors across simulation runs\n",
-                           y = "Standard \nerror  ",
-                           x = "Years since treatment",
-                           color = "Estimator") +
-                      scale_y_continuous(breaks = seq(0, 3, 1),
-                                         limits = c(0, 3)) +
-                      scale_color_manual(values = plot_colors) +
-                      guides(color = guide_legend(nrow = 2, byrow = T)) +
-                      theme(plot.title = element_text(hjust = 0.5, family = 'sans', size = 18),
-                            strip.background = element_blank(),
-                            strip.text = element_text(family = "sans", size = 12),
-                            legend.position = "bottom",
-                            legend.text = element_text(family = 'sans', size = 12),
-                            axis.ticks = element_line(linewidth = 1),
-                            axis.ticks.length = unit(5.6, "points"),
-                            axis.title = element_text(size = 14, family = 'sans'),
-                            axis.title.y = element_text(size = 14, family = 'sans', angle = 0),
-                            axis.text = element_text(size = 10, family = 'sans'),
-                            axis.text.x = element_text(size = 10, family = 'sans',
-                                                       margin = margin(t = 5, r = 0, b = 10, l = 0)),
-                            legend.title = element_text(family = 'sans', size = 12))
-  
-  ggsave(filename = "./time_vary_plots/fig_4.pdf", plot = plot_var_simple, height = 8.27*mult, width = 11.69*mult, units = "in")
-  
   
   ############
   # Coverage #
@@ -736,8 +730,8 @@ if (plots){
   
   plot_cover_2x2 <- ggplot(df_summary_2x2, aes(x = ttt, y = coverage, color = model_name)) +
               geom_point(size = 1.5, shape = 19) +
-              geom_line(aes(group = model_name), linetype = 2) +
-              facet_wrap(~scenario_name_label, labeller = "label_value") +
+              geom_line(aes(group = model_name), linewidth = 0.7) +
+              facet_wrap(~scenario_name, labeller = "label_value") +
               theme_bw() +
               labs(title = "Percent of sim runs with true effect \ncovered by estimated effect",
                    y = "Coverage",
@@ -759,8 +753,9 @@ if (plots){
                                                margin = margin(t = 5, r = 0, b = 10, l = 0)),
                     legend.title = element_text(family = 'sans', size = 14))
   
+  
   ggsave(filename = "./time_vary_plots/time_vary_sim_coverage.pdf", plot = plot_cover, height = 8.27*mult, width = 11.69*mult, units = "in")
-  ggsave(filename = "./time_vary_plots/fig_5.pdf", plot = plot_cover_2x2, height = 8.27*mult, width = 11.69*mult, units = "in")
+  ggsave(filename = "./time_vary_plots/time_vary_sim_coverage_2x2.pdf", plot = plot_cover_2x2, height = 8.27*mult, width = 11.69*mult, units = "in")
   
   ########
   # RMSE #
@@ -820,33 +815,62 @@ if (plots){
   
   ggsave(filename = "./time_vary_plots/time_vary_sim_rmse_2x2.pdf", plot = plot_rmse_2x2, height = 8.27*mult, width = 11.69*mult, units = "in")
   
-  plot_rmse_simple <- ggplot(df_summary_2x2, aes(x = ttt, y = sim_rmse, color = model_name)) +
-    geom_line(alpha = 0.8, linetype = 2) +
-    geom_point(size = 2, shape = 19) +
-    facet_wrap(~scenario_name_label) +
-    theme_bw() +
-    labs(title = "RMSE across simulation runs\n",
-         y = "RMSE  ",
-         x = "Years since treatment",
-         color = "Estimator") +
-    scale_color_manual(values = plot_colors) +
-    scale_y_continuous(limits = c(0, 12),
-                       breaks = seq(0, 12, 3)) +
-    guides(color = guide_legend(nrow = 2, byrow = T)) +
-    theme(plot.title = element_text(hjust = 0.5, family = 'sans', size = 18),
-          strip.background = element_blank(),
-          strip.text = element_text(family = "sans", size = 12),
-          legend.position = "bottom",
-          legend.text = element_text(family = 'sans', size = 12),
-          axis.ticks = element_line(linewidth = 1),
-          axis.ticks.length = unit(5.6, "points"),
-          axis.title = element_text(size = 14, family = 'sans'),
-          axis.title.y = element_text(size = 14, family = 'sans', angle = 0),
-          axis.text = element_text(size = 10, family = 'sans'),
-          axis.text.x = element_text(size = 10, family = 'sans',
-                                     margin = margin(t = 5, r = 0, b = 10, l = 0)),
-          legend.title = element_text(family = 'sans', size = 12))
-  
-  ggsave(filename = "./time_vary_plots/fig_3.pdf", plot = plot_rmse_simple, height = 8.27*mult, width = 11.69*mult, units = "in")
-  
 }
+
+library(did)
+library(data.table)
+library(plyr)
+library(ggplot2)
+
+# Check pre/post period average trends across treat/control groups using CSA:
+df_check <- fread("./time_vary_plots/test_data/test_data_full.csv")
+
+# Hold onto first 12 iterations:
+n_iters <- 12
+df_check <- df_check[iter %in% 1:12,]
+
+# Add on year of first treatment for CSA method:
+df_check[, treatment_date := ifelse(max(treat_status == 1), max(year ^ (1-treat_status)), 0), by = c("state", "iter")] 
+
+# For each iteration, calculate TWFE event study and display
+# event-study plot:
+
+es_res <- function(i, dd){
+  
+  dd <- dd[iter == i,]
+  dd[, state := as.numeric(as.factor(state))]
+
+  csa <- att_gt(yname = "crude.rate", 
+                tname = "year", 
+                idname = "state", 
+                gname = "treatment_date", 
+                xformla = ~ unemploymentrate,
+                data = dd)
+  
+  csa <- aggte(csa, type = "dynamic", na.rm = T, 
+               clustervars = "state", balance_e = 6)
+  
+  res <- data.table(group_time = csa$egt, 
+                    effect_mean = csa$att.egt,
+                    effect_lower = csa$att.egt - csa$se.egt*csa$crit.val.egt,
+                    effect_upper = csa$att.egt + csa$se.egt*csa$crit.val.egt,
+                    iter = i)
+  
+  return(res)
+         
+}
+
+results <- ldply(1:12, es_res, dd = df_check)
+
+ggplot(results, aes(x = group_time, y = effect_mean)) +
+  geom_point(size = 2) +
+  geom_vline(xintercept = 0, linetype = 21) +
+  geom_hline(yintercept = 0, linetype = 21) +
+  geom_linerange(aes(ymin = effect_lower, ymax = effect_upper)) +
+  facet_wrap(~iter, nrow = 3) +
+  theme_classic() +
+  labs(x = "Group time",
+       y = "Treatment effect mean",
+       title = "Event study plots for first 12 iterations, using CSA estimates") +
+  theme(strip.background = element_blank())
+
