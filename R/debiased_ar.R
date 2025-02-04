@@ -2,11 +2,11 @@ require(fixest)
 
 # Create model specification. 
 
-mod <- function(df, lag_num, date_name, cov_names = NULL, interact = F){
+mod <- function(df, lag_num, date_name, cov_names = NULL, linear_mod = F){
   
   df <- setDT(df)
   
-  if (interact == F){
+  if (linear_mod == F){
     y_t <- sprintf("y_t%s", 0:(lag_num - 1))
     a_t <- sprintf("a_t%s", 1:(lag_num))
     
@@ -99,13 +99,26 @@ autoreg_debiased <- function(data, lags, interact = T,
   
   names(init_values) <- term_names
   
-  # Using initial values as starting point, try to fit model over 200
-  # iterations, with small steps.
-  mod_fit <- try({nls(mod(df, lags, interact = T, date_name = date_name,
-                          cov_names = cov_names), 
-                 start = init_values, 
-                 data = df,
-                 control = nls.control(minFactor = 1e-4, maxiter = 200))})
+  # Using initial try to fit model over 200
+  # iterations, with smallish steps.
+  ar_model <- mod(df, lags, linear_mod = T, date_name = date_name,
+                  cov_names = cov_names)
+  
+  try_nls <- function(mod, df){
+    res <- tryCatch(
+      {
+        nls(mod, 
+            start = init_values, 
+            data = df,
+            control = nls.control(minFactor = 1e-4, maxiter = 200)) 
+      },
+      error = function(e){
+        return(e)
+      }
+    )
+    return(res)
+  }
+  
   
   return(mod_fit)
   
