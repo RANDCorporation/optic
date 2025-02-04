@@ -249,7 +249,7 @@ tvary_premodel <- function(model_simulation) {
   time_sym <- dplyr::sym(model_simulation$time_var)
 
   # if autoregressive, need to add lagged outcome
-  if (model_type == "autoreg") {
+  if (model_type == "autoreg"|model_type == "autoreg_debiased") {
     
     x <- x %>%
       dplyr::arrange(!!unit_sym, !!time_sym) %>%
@@ -336,7 +336,7 @@ tvary_premodel <- function(model_simulation) {
   # Depending on the model, we may need to recode treatment year or
   # treatment date:
   
-  if (model_type == "eventstudy"|model_type == "autoreg"){
+  if (model_type == "eventstudy"|model_type == "autoreg"|model_type == "autoreg_debiased"){
     
     # Sun and Abraham models expect treatment year to be Inf, if untreated:
     x <- x %>% 
@@ -437,10 +437,22 @@ tvary_model <- function(model_simulation) {
     args[['treatment']] <- 'treatment'
   }
   
-  m <- do.call(
-    model[["model_call"]],
-    args
-  )
+  # Hold onto the error message. This is meant to protect against
+  # possible convergence issues with ASCM & Debiased Autoregressive models
+  
+  try_model <- function(model, args){
+    m <- tryCatch(
+      {
+        do.call(model[['model_call']], args)
+      },
+      error = function(e){
+        return(e)
+      }
+    )
+    return(m)
+  }
+  
+  m <- try_model(model, args)
   
   model_simulation$model_result <- m
   
@@ -485,16 +497,40 @@ tvary_postmodel <- function(model_simulation) {
   
   m <- model_simulation$model_result
   
-  # get model result information and apply standard error adjustments
-  if (model_simulation$models[["type"]] == "eventstudy"|model_simulation$models[["type"]] == "autoreg"|model_simulation$models[["type"]] == "did2s") {
-
+  # First, check to see if the model returned an error. If so,
+  # save the model error message within the results table. We can filter this
+  # out later. 
+  
+  if (inherits(m, "error")){
+    message <- paste("Error: ", m$message)
+    
+    # Duplicate error message across estimate. In future,
+    # need to make a separate column to hold onto errors.
+    
+    cf <- list()
+    cf[["Estimate"]] <- rep(message, meta_data$n_implementation_periods)
+    
+    r <- data.frame(
+      outcome=outcome,
+      se_adjustment="none",
+      estimate=cf[["Estimate"]],
+      se=NA,
+      variance=NA,
+      t_stat=NA,
+      p_value=NA,
+      mse=NA,
+      stringsAsFactors=FALSE)
+  }else{
+    # get model result information and apply standard error adjustments
+    if (model_simulation$models[["type"]] == "eventstudy"|model_simulation$models[["type"]] == "autoreg"|model_simulation$models[["type"]] == "did2s") {
+      
       cf <- as.data.frame(summary(m)$coeftable)
       
       cf$variable <- row.names(cf)
       rownames(cf) <- NULL
       
       keep_treat <- paste0("time_to_treat::", 1:meta_data$n_implementation_periods)
-
+      
       cf <- cf[cf$variable %in% keep_treat, ]
       estimate <- cf[["Estimate"]]
       
@@ -527,7 +563,7 @@ tvary_postmodel <- function(model_simulation) {
       variance <- se ^ 2
       t_stat <- NA
       p_value <- 2 * pnorm(abs(estimate/se), lower.tail = FALSE)
-
+      
       r <- data.frame(
         outcome=outcome,
         se_adjustment="none",
@@ -540,7 +576,7 @@ tvary_postmodel <- function(model_simulation) {
         stringsAsFactors=FALSE
       )
     }else if (model_simulation$models[['type']] == "multisynth"){
-    
+      
       cf <- summary(m)
       cf <- cf$att
       
@@ -594,7 +630,62 @@ tvary_postmodel <- function(model_simulation) {
         stringsAsFactors=FALSE
       )
       
+    }else if(model_simulation$models[['type']] == "autoreg_debiased"){
+      
+      if (class(m) == "try-error"){
+        m <- 'Model did not converge'
+      }else{
+        mod_fit <- summary(m)
+        
+        lags <- model_simulation$models$model_args$model_args$lags
+        
+        eff_interest <- paste0("theta_t", 1:lags)
+        thetas <- coef(mod_fit)[eff_interest, "Estimate"]
+        
+        # Convert to time-varying effects:
+        
+        estimate <- c()
+        for (i in 1:length(thetas)){
+          estimate[i] <- sum(thetas[1:i])
+        }
+        
+        # Get variance-covariance matrix, then calculate joint se:
+        # e.g., b1 + b2 = sqrt(var[b1] + var[b2] + 2Cov[b1, b2])
+        se <- c()
+        
+        vcov_mat <- vcov(m)
+        vcov_reduced <- which(rownames(vcov_mat) %in% eff_interest)
+        vcov_mat <- vcov_mat[vcov_reduced, vcov_reduced, drop = F]
+        
+        sum_se <- function(i, vcov_mat){
+          
+          var_sum <- sum(vcov_mat[1:i])
+          cov_sum <- 2*sum(vcov_mat[1:i][upper.tri(vcov_mat[1:i])])
+          
+          return(sqrt(var_sum + cov_sum))
+          
+        }
+        
+        for (i in 1:length(thetas)){
+          se[i] <- sum_se(i, vcov_mat)
+        }
+        
+        variance <- se^2
+        
+        r <- data.frame(
+          outcome=outcome,
+          se_adjustment="none",
+          estimate=estimate,
+          se=se,
+          variance=variance,
+          t_stat=NA,
+          p_value=NA,
+          mse = NA,
+          stringsAsFactors=FALSE
+        )
+      }
     }
+  }
   
   #Make effect names a little bit smaller:
   effect_names <- gsub("effect_magnitude", "ttt==", effect_names)
