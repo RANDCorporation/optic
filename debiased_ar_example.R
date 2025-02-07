@@ -2,10 +2,12 @@
 # Max Griswold
 # 2/3/2025
 
+rm(list = ls())
+
 library(data.table)
 library(fixest)
 
-df <- fread("test_sim.csv")
+dd <- fread("./test_sim.csv")
 
 true_effects <- c(1.2554486, 1.0043589, 0.7532691, 0.5021794, 0.2510897, 0.0000000)
 
@@ -15,7 +17,7 @@ mod <- function(df, lag_num, date_name, cov_names = NULL, linear_mod = F){
   
   df <- setDT(df)
   
-  if (linear_mod == F){
+  if (linear_mod == T){
     y_t <- sprintf("y_t%s", 0:(lag_num - 1))
     a_t <- sprintf("a_t%s", 1:(lag_num))
     
@@ -29,7 +31,9 @@ mod <- function(df, lag_num, date_name, cov_names = NULL, linear_mod = F){
     
   }else{
     
+    # Fixed effects
     # First date is the reference category.
+    
     dates   <- unique(df[, get(date_name)])[-1]
     
     fe_year <- sprintf("alpha_%s", 1:length(dates))
@@ -82,18 +86,27 @@ autoreg_debiased <- function(data, lags, outcome_name,
   df <- setDT(data)
   
   treat_lag <- paste0("a_t", 0:(lags + lags - 2))
-  df[, (treat_lag) := shift(trt_ind, n = 0:(lags + lags - 2))]
+  df[, (treat_lag) := shift(trt_ind, n = 0:(lags + lags - 2)), by = unit_name]
   
   outcome_lag <- paste0("y_t", 0:lags)
-  df[, (outcome_lag) := shift(get(outcome_name), n = 0:lags)]
+  df[, (outcome_lag) := shift(get(outcome_name), n = 0:lags), by = unit_name]
   
   df[, (date_name) := as.factor(get(date_name))]
   
+  # Restrict dataset to the minimum set of rows we can use to estimate the
+  # model, given the number of lags:
+  max_lag <- treat_lag[length(treat_lag)]
+  avail_date <- unique(df[!is.na(get(max_lag)), get(date_name)])
+
+  df <- df[get(date_name) %in% avail_date,]
+  df[, (date_name) := factor(get(date_name), levels = unique(get(date_name)))]
+  
   # Get initial starting conditions using a linear model
-  init_values <- coef(lm(mod(df, lags, interact = F, 
+  init_values <- coef(lm(mod(df, lags, linear_mod = T, 
                              date_name = date_name,
                              cov_names = cov_names), data = df))
   
+  # Subtracting due to omitted variables
   term_names <- c("beta_0", 
                   sprintf("alpha_%s", 1:(nlevels(df[, get(date_name)]) - 1)),
                   sprintf("delta_%s", 1:(lags - 1)),
@@ -107,7 +120,7 @@ autoreg_debiased <- function(data, lags, outcome_name,
   
   # Using initial try to fit model over 200
   # iterations, with smallish steps.
-  ar_model <- mod(df, lags, interact = T, date_name = date_name,
+  ar_model <- mod(df, lags, date_name = date_name,
                   cov_names = cov_names)
   
   try_nls <- function(mod, df){
@@ -116,7 +129,7 @@ autoreg_debiased <- function(data, lags, outcome_name,
         nls(mod, 
             start = init_values, 
             data = df,
-            control = nls.control(minFactor = 1e-4, maxiter = 200)) 
+            control = nls.control(minFactor = 1e-10, maxiter = 200)) 
       },
       error = function(e){
         return(e)
@@ -132,12 +145,54 @@ autoreg_debiased <- function(data, lags, outcome_name,
   
 }
 
+cluster_se_ar_db <- function(mod, df, lags, date_name, unit_name){
+  
+  res      <- residuals(mod)
+  
+  jacob <- m$m$gradient()
+
+  bread <- solve(crossprod(jacob))
+  
+  # Reconstruct model data to get indices for each clustered unit
+  # associated with the residuals & jacobian.
+  max_lags <- lags + lags - 1
+  dates <- unique(df[, get(date_name)])
+  dates <- dates[max_lags:length(dates)]
+  
+  df <- df[get(date_name) %in% dates]
+  
+  clusters <- df[, get(unit_name)]
+  n_clust <- length(unique(clusters))
+  
+  meat <- 0
+  
+  for (clust in clusters){
+    
+    i <- which(clusters == clust)
+    
+    influence_clust <- res[i] %*% jacob[i, , drop = F]
+    meat <- meat + crossprod(influence_clust)
+    
+  }
+  
+  meat <- meat/n_clust
+  
+  vcov_clust <- bread %*% meat %*% bread
+  
+  # Add on names for terms:
+  rownames(vcov_clust) <- names(coef(m))
+  colnames(vcov_clust) <- names(coef(m))
+  
+  return(vcov_clust)
+  
+} 
+
 # Run model and use estimated parameters to calculate time-varying effects.
 
 # Specify number of lags
 l <- 6
 
-m <- autoreg_debiased(df, lags = l, outcome_name = "crude.rate",
+m <- autoreg_debiased(dd, lags = l, outcome_name = "crude.rate",
                       unit_name = "state", date_name = "year",
                       cov_names = "unemploymentrate")
 
@@ -158,7 +213,9 @@ for (i in 1:length(thetas)){
 # e.g., b1 + b2 = sqrt(var[b1] + var[b2] + 2Cov[b1, b2])
 estimated_se <- c()
 
-vcov_mat <- vcov(m)
+vcov_mat <- cluster_se_ar_db(m, dd, l, "year", "state")
+#vcov_mat <- vcov(m)
+
 vcov_reduced <- which(rownames(vcov_mat) %in% eff_interest)
 vcov_mat <- vcov_mat[vcov_reduced, vcov_reduced, drop = F]
 

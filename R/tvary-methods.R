@@ -504,21 +504,20 @@ tvary_postmodel <- function(model_simulation) {
   if (inherits(m, "error")){
     message <- paste("Error: ", m$message)
     
-    # Duplicate error message across estimate. In future,
-    # need to make a separate column to hold onto errors.
-    
-    cf <- list()
-    cf[["Estimate"]] <- rep(message, meta_data$n_implementation_periods)
+    # Create dummy indicators for estimates to ensure pivot_wider
+    # works correctly later.
+    dummy_estimates <- rep(NA, model_simulation$n_implementation_periods)
     
     r <- data.frame(
       outcome=outcome,
       se_adjustment="none",
-      estimate=cf[["Estimate"]],
+      estimate=dummy_estimates,
       se=NA,
       variance=NA,
       t_stat=NA,
       p_value=NA,
       mse=NA,
+      error = message,
       stringsAsFactors=FALSE)
   }else{
     # get model result information and apply standard error adjustments
@@ -545,6 +544,7 @@ tvary_postmodel <- function(model_simulation) {
         t_stat=c(cf[["t value"]], cf[["z value"]]),
         p_value=pval,
         mse=mean(resid(m)^2, na.rm=T),
+        error = NA,
         stringsAsFactors=FALSE
       )
       
@@ -573,6 +573,7 @@ tvary_postmodel <- function(model_simulation) {
         t_stat=NA,
         p_value=p_value,
         mse = NA,
+        error = NA,
         stringsAsFactors=FALSE
       )
     }else if (model_simulation$models[['type']] == "multisynth"){
@@ -599,7 +600,8 @@ tvary_postmodel <- function(model_simulation) {
         t_stat=NA,
         p_value=p_value,
         mse = NA,
-        stringsAsFactors=FALSE
+        error = NA,
+        stringsAsFactors=FALSE,
       )
     }else if (model_simulation$models[['type']] == "did_imputation"){
       
@@ -627,14 +629,12 @@ tvary_postmodel <- function(model_simulation) {
         t_stat=NA,
         p_value=p_value,
         mse = NA,
+        error = NA,
         stringsAsFactors=FALSE
       )
       
     }else if(model_simulation$models[['type']] == "autoreg_debiased"){
-      
-      if (class(m) == "try-error"){
-        m <- 'Model did not converge'
-      }else{
+    
         mod_fit <- summary(m)
         
         lags <- model_simulation$models$model_args$model_args$lags
@@ -652,6 +652,8 @@ tvary_postmodel <- function(model_simulation) {
         # Get variance-covariance matrix, then calculate joint se:
         # e.g., b1 + b2 = sqrt(var[b1] + var[b2] + 2Cov[b1, b2])
         se <- c()
+        
+        # Estimated clustered-robust standard errors
         
         vcov_mat <- vcov(m)
         vcov_reduced <- which(rownames(vcov_mat) %in% eff_interest)
@@ -681,9 +683,9 @@ tvary_postmodel <- function(model_simulation) {
           t_stat=NA,
           p_value=NA,
           mse = NA,
+          error = NA,
           stringsAsFactors=FALSE
-        )
-      }
+      )
     }
   }
   
@@ -699,7 +701,7 @@ tvary_postmodel <- function(model_simulation) {
   # Reshape results so that time-varying effects are kept as columns,
   # rather than rows
   r <- pivot_wider(r, 
-                   id_cols = c(outcome, mse),
+                   id_cols = c(outcome, mse, error),
                    names_from = variable,
                    values_from = c(estimate, se, variance, t_stat, p_value))
   

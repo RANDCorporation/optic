@@ -6,7 +6,7 @@ mod <- function(df, lag_num, date_name, cov_names = NULL, linear_mod = F){
   
   df <- setDT(df)
   
-  if (linear_mod == F){
+  if (linear_mod){
     y_t <- sprintf("y_t%s", 0:(lag_num - 1))
     a_t <- sprintf("a_t%s", 1:(lag_num))
     
@@ -66,9 +66,8 @@ mod <- function(df, lag_num, date_name, cov_names = NULL, linear_mod = F){
   
 }
 
-# Estimate debiased AR model.
-
-autoreg_debiased <- function(data, lags, interact = T, 
+# Estimate debiased AR model
+autoreg_debiased <- function(data, lags,
                         outcome_name, unit_name, date_name,
                         cov_names = NULL){
   
@@ -84,7 +83,7 @@ autoreg_debiased <- function(data, lags, interact = T,
   
   # Get initial starting conditions
   
-  init_values <- coef(lm(mod(df, lags, interact = F, 
+  init_values <- coef(lm(mod(df, lags, linear_mod = T, 
                              date_name = date_name,
                              cov_names = cov_names), data = df))
   
@@ -101,7 +100,7 @@ autoreg_debiased <- function(data, lags, interact = T,
   
   # Using initial try to fit model over 200
   # iterations, with smallish steps.
-  ar_model <- mod(df, lags, linear_mod = T, date_name = date_name,
+  ar_model <- mod(df, lags,  date_name = date_name,
                   cov_names = cov_names)
   
   try_nls <- function(mod, df){
@@ -119,6 +118,7 @@ autoreg_debiased <- function(data, lags, interact = T,
     return(res)
   }
   
+  mod_fit <- try_nls(ar_model, df)
   
   return(mod_fit)
   

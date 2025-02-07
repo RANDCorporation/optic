@@ -237,14 +237,14 @@ if (regenerate){
   # )
   
   # Adding in ar w/o clustering
-  #sim_models <- list(m_es, m_ar_db, m_sa, m_csa, m_g, m_bjs, m_aug)
-  sim_models <- list(m_aug)
+  sim_models <- list(m_es, m_ar_db, m_sa, m_csa, m_g, m_bjs, m_aug)
+  #sim_models <- list(m_es, m_ar_db)
   
   # sim_config <- optic_simulation(
   # 
   #   x                        = df_sim,
   #   models                   = sim_models,
-  #   iters                    = 100,
+  #   iters                    = 1000,
   #   method                   = "time_varying",
   #   unit_var                 = "state",
   #   treat_var                = "state",
@@ -267,7 +267,7 @@ if (regenerate){
     treat_var                = "state",
     time_var                 = "year",
     effect_magnitude         = time_varying_scenarios,
-    n_units                  = c(25),
+    n_units                  = c(15, 25, 35),
     effect_direction         = c("pos"),
     policy_speed             = c("instant"),
     n_implementation_periods = c(6)
@@ -286,7 +286,7 @@ if (regenerate){
   
   sim_results <- rbindlist(sim_results)
   
-  write.csv(sim_results,  "sim_results_v3_p2.csv", row.names = F)
+  write.csv(sim_results,  "sim_results_v4.csv", row.names = F)
   
 }
 
