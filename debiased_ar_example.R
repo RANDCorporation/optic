@@ -6,8 +6,11 @@ rm(list = ls())
 
 library(data.table)
 library(fixest)
+library(sandwich)
 
-dd <- fread("./test_sim.csv")
+dd <- fread("./test_sim_2.csv")
+
+cluster_errors <- T
 
 true_effects <- c(1.2554486, 1.0043589, 0.7532691, 0.5021794, 0.2510897, 0.0000000)
 
@@ -145,7 +148,7 @@ autoreg_debiased <- function(data, lags, outcome_name,
   
 }
 
-cluster_se_ar_db <- function(mod, df, lags, date_name, unit_name){
+cluster_vcov <- function(mod, df, lags, date_name, unit_name){
   
   res      <- residuals(mod)
   
@@ -154,7 +157,10 @@ cluster_se_ar_db <- function(mod, df, lags, date_name, unit_name){
   bread <- solve(crossprod(jacob))
   
   # Reconstruct model data to get indices for each clustered unit
-  # associated with the residuals & jacobian.
+  # associated with the residuals & jacobian. 
+  
+  # We need to subset the df because rows get dropped from
+  # the analysis dataframe when lags are introduced
   max_lags <- lags + lags - 1
   dates <- unique(df[, get(date_name)])
   dates <- dates[max_lags:length(dates)]
@@ -166,16 +172,15 @@ cluster_se_ar_db <- function(mod, df, lags, date_name, unit_name){
   
   meat <- 0
   
-  for (clust in clusters){
+  for (i in 1:n_clust){
     
-    i <- which(clusters == clust)
+    clust <- unique(clusters)[i]
+    i <- which(clust == clusters)
     
     influence_clust <- res[i] %*% jacob[i, , drop = F]
     meat <- meat + crossprod(influence_clust)
     
   }
-  
-  meat <- meat/n_clust
   
   vcov_clust <- bread %*% meat %*% bread
   
@@ -213,18 +218,30 @@ for (i in 1:length(thetas)){
 # e.g., b1 + b2 = sqrt(var[b1] + var[b2] + 2Cov[b1, b2])
 estimated_se <- c()
 
-vcov_mat <- cluster_se_ar_db(m, dd, l, "year", "state")
+#vcov_mat <- cluster_vcov(m, dd, l, "year", "state")
 #vcov_mat <- vcov(m)
+if (cluster_errors){
+  
+  max_lags <- 6 + 6 - 1
+  dates <- unique(dd[, year])
+  dates <- dates[max_lags:length(dates)]
+  
+  dd <- dd[year %in% dates,]
+  
+  vcov_mat <- vcovCL(m, cluster = dd$state, type = "HC0")
+}else{
+  vcov_mat <- vcov(m)
+}
 
 vcov_reduced <- which(rownames(vcov_mat) %in% eff_interest)
 vcov_mat <- vcov_mat[vcov_reduced, vcov_reduced, drop = F]
 
 sum_se <- function(i, vcov_mat){
   
-  var_sum <- sum(vcov_mat[1:i])
-  cov_sum <- 2*sum(vcov_mat[1:i][upper.tri(vcov_mat[1:i])])
+  vect <- c(rep(1, i), rep(0, ncol(vcov_mat) - i))
+  se <- sqrt(vect %*% vcov_mat %*% vect)
   
-  return(sqrt(var_sum + cov_sum))
+  return(se)
   
 }
 
@@ -234,3 +251,4 @@ for (i in 1:length(thetas)){
 
 print(estimated_effects)
 print(estimated_se)
+

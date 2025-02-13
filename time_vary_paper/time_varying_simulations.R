@@ -237,8 +237,8 @@ if (regenerate){
   # )
   
   # Adding in ar w/o clustering
-  sim_models <- list(m_es, m_ar_db, m_sa, m_csa, m_g, m_bjs, m_aug)
-  #sim_models <- list(m_es, m_ar_db)
+  #sim_models <- list(m_es, m_ar_db, m_sa, m_csa, m_g, m_bjs, m_aug)
+  sim_models <- list(m_ar_db)
   
   # sim_config <- optic_simulation(
   # 
