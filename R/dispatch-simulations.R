@@ -178,6 +178,7 @@ dispatch_simulations <- function(object, seed=NULL, use_future=FALSE, verbose=0,
         }
         
         sim_results[[j]] <- r
+        
         rm(r)
       }
     }

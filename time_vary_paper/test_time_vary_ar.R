@@ -27,6 +27,7 @@ mod <- function(data, lag_num, lin = F){
                    paste0(y_t[2:lag_num], collapse = " + "), " + ", 
                    paste0(a_t, collapse = " + "))
   }else{
+    
     # First year is the reference category
     years   <- unique(data$year)[-1]
     fe_year <- sprintf("alpha_%s", 1:length(years))

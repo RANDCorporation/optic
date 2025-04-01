@@ -601,7 +601,7 @@ tvary_postmodel <- function(model_simulation) {
         p_value=p_value,
         mse = NA,
         error = NA,
-        stringsAsFactors=FALSE,
+        stringsAsFactors=FALSE
       )
     }else if (model_simulation$models[['type']] == "did_imputation"){
       
