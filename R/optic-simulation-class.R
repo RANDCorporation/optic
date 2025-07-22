@@ -26,17 +26,15 @@ OpticSim <- R6::R6Class(
       iters, params, globals) {
       
       # create matrix of all combinations of iterable params
-      
-      simulation_params_df <- tidyr::expand_grid(params) %>% as.data.frame()
-      simulation_params <- simulation_params_df
-      simulation_params <- type.convert(simulation_params, as.is=TRUE)
+      # Use do.call to properly expand the params list into separate arguments
+      simulation_params <- do.call(tidyr::expand_grid, params) %>% as.data.frame()
       
       private$.data <- data
       private$.models <- models
       private$.iters <- iters
       private$.params <- params
       private$.globals <- globals
-      private$.simulation_params <- simulation_params_df
+      private$.simulation_params <- simulation_params
       
       private$.method_sample <- method_sample
       private$.method_pre_model <- method_pre_model
