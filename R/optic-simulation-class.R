@@ -1,5 +1,3 @@
-
-
 #------------------------------------------------------------------------------#
 # OPTIC R Package Code Repository
 # Copyright (C) 2023 by The RAND Corporation
@@ -28,9 +26,9 @@ OpticSim <- R6::R6Class(
       iters, params, globals) {
       
       # create matrix of all combinations of iterable params
-      simulation_params <- purrr::cross(params)
-      simulation_params <- lapply(simulation_params, unlist)
-      simulation_params <- data.frame(do.call("rbind", simulation_params), stringsAsFactors = FALSE)
+      
+      simulation_params_df <- tidyr::expand_grid(params) %>% as.data.frame()
+      simulation_params <- simulation_params_df
       simulation_params <- type.convert(simulation_params, as.is=TRUE)
       
       private$.data <- data
@@ -38,7 +36,7 @@ OpticSim <- R6::R6Class(
       private$.iters <- iters
       private$.params <- params
       private$.globals <- globals
-      private$.simulation_params <- simulation_params
+      private$.simulation_params <- simulation_params_df
       
       private$.method_sample <- method_sample
       private$.method_pre_model <- method_pre_model

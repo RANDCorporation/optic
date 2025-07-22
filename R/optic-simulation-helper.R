@@ -284,7 +284,7 @@ optic_simulation <- function(x, models, iters,
   
   if (verbose) {
     # let user know combinations and total individual models
-    combs <- length(models) * length(purrr::cross(params))
+    combs <- length(models) * nrow(tidyr::expand_grid(params))
     runs <- combs * iters
     
     print(conf)
