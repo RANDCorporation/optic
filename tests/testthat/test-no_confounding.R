@@ -1,6 +1,3 @@
-
-
-
 #------------------------------------------------------------------------------#
 # OPTIC R Package Code Repository
 # Copyright (C) 2023 by The RAND Corporation
@@ -70,3 +67,15 @@ linear_results <- dispatch_simulations(
 )
 
 linear_results_df <- do.call(rbind, linear_results)
+
+test_that("no_confounding results have consistent structure", {
+  expect_snapshot(list(
+    dim = dim(linear_results_df),
+    colnames = colnames(linear_results_df),
+    nrow = nrow(linear_results_df)
+  ))
+})
+
+test_that("no_confounding summary results are consistent", {
+  expect_snapshot(summary(linear_results_df))
+})

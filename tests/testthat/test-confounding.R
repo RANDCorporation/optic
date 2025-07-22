@@ -1,5 +1,3 @@
-
-
 #------------------------------------------------------------------------------#
 # OPTIC R Package Code Repository
 # Copyright (C) 2023 by The RAND Corporation
@@ -125,4 +123,16 @@ test_that("confounding simulations work", {
   
   expect_false(any(is.na(linear_results_df)))
   
+})
+
+test_that("confounding results have consistent structure", {
+  expect_snapshot(list(
+    dim = dim(linear_results_df),
+    colnames = colnames(linear_results_df),
+    nrow = nrow(linear_results_df)
+  ))
+})
+
+test_that("confounding summary results are consistent", {
+  expect_snapshot(summary(linear_results_df))
 })

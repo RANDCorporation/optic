@@ -1,5 +1,3 @@
-
-
 #------------------------------------------------------------------------------#
 # OPTIC R Package Code Repository
 # Copyright (C) 2023 by The RAND Corporation
@@ -85,5 +83,17 @@ test_that("concurrent simulations work", {
   
   expect_false(any(is.na(concurrent_results)))
   
+})
+
+test_that("concurrent results have consistent structure", {
+  expect_snapshot(list(
+    dim = dim(concurrent_results),
+    colnames = colnames(concurrent_results),
+    nrow = nrow(concurrent_results)
+  ))
+})
+
+test_that("concurrent summary results are consistent", {
+  expect_snapshot(summary(concurrent_results))
 })
 
