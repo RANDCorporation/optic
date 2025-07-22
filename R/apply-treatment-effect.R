@@ -16,10 +16,7 @@
 #' @param concurrent bool for whether this is concurrent run or not
 #' 
 #' @noRd
-apply_treatment_effect <- function(x, model_formula, outcome, model_call, te, effect_direction, concurrent) {
-  
-  # identify outcome
-  outcome <- model_terms(model_formula)[["lhs"]]
+apply_treatment_effect <- function(x, model_formula, outcome, model_call, te, effect_direction, concurrent){
   
   # identify additive or multiplicative modification of outcome required
   if (model_call != "glm.nb") {

@@ -45,11 +45,12 @@ noconf_sample <- function(single_simulation) {
   model_type = names(single_simulation$models)
   
   # If there is at least one did model
-  if(!any(model_type == "drdid")){
+  if(!any(model_type == "did")){
     outcomes <- unique(sapply(single_simulation$models, function(x) { optic::model_terms(x[["model_formula"]])[["lhs"]] }))
   }else{
-    outcomes <- as.character(single_simulation$models$drdid$model_args$yname)
+    outcomes <- as.character(single_simulation$models$did$model_args$yname)
   }
+  
   ###############################################
   ### IDENTIFY TREATED UNITS AND TIME PERIODS ###
   ###############################################
@@ -206,10 +207,15 @@ noconf_premodel <- function(model_simulation) {
   
   x <- model_simulation$data
   model <- model_simulation$models
-  model_call <- model$model_call
-  
-  outcome <- optic::model_terms(model$model_formula)[["lhs"]]
-  oo <- dplyr::sym(outcome)
+
+  if (model$type != "did") {
+    outcome <- optic::model_terms(model$model_formula)[["lhs"]]
+    oo <- dplyr::sym(outcome)
+  } else if (model$type=='did') {
+    outcome <- as.character(model_simulation$models$model_args$yname)
+    oo <- dplyr::sym(outcome)
+  }
+
   model_type <- model$type
   balance_statistics <- NULL
   
@@ -226,14 +232,19 @@ noconf_premodel <- function(model_simulation) {
     model_call=model$model_call,
     te=c(model_simulation$effect_magnitude),
     effect_direction=model_simulation$effect_direction,
-    concurrent=FALSE
+    concurrent=FALSE,
+    outcome = outcome
   )
+
+  unit_sym <- dplyr::sym(model_simulation$unit_var)
+  time_sym <- dplyr::sym(model_simulation$time_var)
   
   # PNL note
   # this implementation does not seem to use the lagged crude rate
   
   # if autoregressive, need to add lag for crude rate
   # when outcome is deaths, derive new crude rate from modified outcome
+  # if autoregressive, need to add lagged outcome
   if (model_type == "autoreg") {
     
     x <- x %>%
@@ -242,18 +253,13 @@ noconf_premodel <- function(model_simulation) {
       dplyr::mutate(lag_outcome = dplyr::lag(!!oo, n=1L)) %>%
       dplyr::ungroup()
     
-    if(model$model_call == "feols"){
       formula_components <- as.character(model_simulation$models$model_formula)
       updated_3 <- strsplit(formula_components[3], " | ", fixed=TRUE)
-      if(length(updated_3[[1]]==1)){
-        new_fmla <- as.formula(paste(formula_components[2], formula_components[1], updated_3[[1]][1], "+ lag_outcome"))
-      }else{
-        new_fmla <- as.formula(paste(formula_components[2], formula_components[1], updated_3[[1]][1], "+ lag_outcome |", updated_3[[1]][2]))
-      }
+      
+      new_fmla <- as.formula(paste(formula_components[2], formula_components[1], updated_3[[1]][[1]], "+ lag_outcome"))
+    
       model_simulation$models$model_formula <- new_fmla
-    }else{
-      model_simulation$models$model_formula <- update.formula(model_simulation$models$model_formula, ~ . + lag_outcome)
-    }
+   
   } else if (model_type == "multisynth") {
     x$treatment[x$treatment > 0] <- 1
     x$treatment_level[x$treatment_level > 0] <- 1
@@ -262,9 +268,11 @@ noconf_premodel <- function(model_simulation) {
     if (sum(is.na(x[[outcome]])) > 0) {
       stop("multisynth method cannot handle missingness in outcome.")
     }
-  } else if (model_type == "drdid") {
+  } else if (model_type == "did") {
+    
     x$treatment[x$treatment > 0] <- 1
     x$treatment_level[x$treatment_level > 0] <- 1
+
   }
   
   # get balance information
@@ -306,6 +314,53 @@ noconf_premodel <- function(model_simulation) {
               mu0 = mean((!!oo)[treatment == 0], na.rm=T),
               sd = sd(!!oo, na.rm=T))
   bal_stats = bind_cols(bal_stats, bal_stats2)
+
+  # Add on first year for treatment, which we will use to define
+  # treatment status across models.
+  
+  x <- x %>% 
+    group_by(!!unit_sym) %>%
+    mutate(treatment_date = ifelse(max(trt_ind == 1), max(year ^ (1-treatment)), 0)) %>% 
+    ungroup()
+
+  # Depending on the model, we may need to recode treatment year or
+  # treatment date:
+
+  if (model_type == "reg"|model_type == "autoreg"){
+    
+    # Sun and Abraham models expect treatment year to be Inf, if untreated:
+    x <- x %>% 
+      mutate(treatment_date = ifelse(treatment_date == 0, Inf, treatment_date))
+    
+  }else if (model_type == "did"){
+    
+    # CSA models expect treatment year to be Inf, if untreated and expects
+    # location to be a numeric variable
+    x <- x %>% 
+      mutate(treatment_date = ifelse(treatment_date == 0, Inf, treatment_date),
+             !!unit_sym := as.numeric(as.factor(!!unit_sym)))
+    
+  }else if (model_type == "multisynth"){
+    
+    # Multisynth expects treatment to be either a 0/1 (sampling process uses this
+    # variable instrumentally to produce draws of treatment effect. So reset to 
+    # binary)
+    
+    x <- x %>% mutate(treatment = ifelse(treatment > 0, 1, 0))
+    
+  }else if (model_type == "did_imputation"){
+    
+    # I added this section for completeness, in case we want to modify later.
+    #Borusyak, Jaravel, and Spiess expects treatment_date to be zero for
+    # untreated units. So no need to change data coding.
+    
+  }else if (model_type == "did2s"){
+    
+    # Similar to multisynth, we need treatment to again be binary for
+    # the first stage 
+    x <- x %>% mutate(treatment = ifelse(treatment > 0, 1, 0))
+    
+  }
   
   # Add additional columns required by CSA method, if chosen:
   if (model_call == "att_gt"){
@@ -339,34 +394,29 @@ noconf_model <- function(model_simulation) {
   
   model <- model_simulation$models
   model_type <- model_simulation$models$type
-  model_call <- model$model_call
   addtl_args <- model$model_args
   
   x <- model_simulation$data
   
   # The only consistent argument across these
-  # models is "data" and occasionally model formula. 
-  # We need to also pass along user provided arguments
+  # models is "data". We need to also pass along user provided arguments
   # and set some arguments based off the specific model type 
   
-  args <- list(data=x, formula=model$model_formula)
+  args <- list(data=x)
   
   if (length(addtl_args) >= 1){
     args <- append(args, addtl_args)
   }
   
   # Change names of provided arguments to meet the needs of respective packages
-  if (model_call == "feols"){
-    args[['fml']] <- model$model_formula
-  }else if (model_call == "multisynth"){
-    args[['form']] <-  model$model_formula
-    args[['n_leads']] <- model_simulation$n_implementation_periods
-  }else if (model_call == "did_imputation"){
-    args[['horizon']] <- T
-  }else if (model_call == "did2s"){
-    args[['treatment']] <- 'treatment'
-  }else{
+  if (model_type == "reg"|model_type == "autoreg"){
     args[['formula']] <- model$model_formula
+  }else if (model_type == "multisynth"){
+    args[['form']] <-  model$model_formula
+  }else if (model_type == "did_imputation"){
+    args[['horizon']] <- T
+  }else if (model_type == "did2s"){
+    args[['treatment']] <- 'treatment'
   }
   
   m <- do.call(
@@ -391,8 +441,12 @@ noconf_model <- function(model_simulation) {
 #' @importFrom stats resid
 #' @noRd
 noconf_postmodel <- function(model_simulation) {
-  
-  outcome <- optic::model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
+
+  if (model_simulation$models[["type"]] == "did"){
+    outcome <- as.character(model_simulation$models$model_args$yname)
+  }else{
+    outcome <- optic::model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
+  }
   # get run metadata to merge in after
   meta_data <- data.frame(
     model_name = model_simulation$models$name,
@@ -406,10 +460,70 @@ noconf_postmodel <- function(model_simulation) {
     n_units=model_simulation$n_units,
     effect_direction=model_simulation$effect_direction  
   )
+
+  m <- model_simulation$model_result
   
   # get model result information and apply standard error adjustments
-  if (model_simulation$models[["type"]] == "multisynth") {
+  if (model_simulation$models[["type"]] == "reg"|model_simulation$models[["type"]] == "autoreg"|model_simulation$models[["type"]] == "did2s") {
+    if(model_simulation$models$model_call=="feols"){
+      cf <- as.data.frame(summary(m)$coeftable)
+    } else{
+      cf <- as.data.frame(summary(m)$coefficients)
+    }
+    cf$variable <- row.names(cf)
+    rownames(cf) <- NULL
     
+    treatment <- cf$variable[grepl("^treatment", cf$variable)][1]
+    
+    cf <- cf[cf$variable == treatment, ]
+    estimate <- cf[["Estimate"]]
+    
+    if(model_simulation$models$model_call == 'lmer'){
+      # For ME model, below should use Satterthwaite approximation or 
+      # Kenward-Roger approximation (which would produce more conservative
+      # p-values than assuming t dist is, more or less, converging normal
+      # given sample size (See ex. Barr et al., 2013))
+      pval <- 1.96*(1 - pnorm(abs(cf[["t value"]])))
+    }else{
+      pval <- c(cf[["Pr(>|t|)"]], cf[["Pr(>|z|)"]])
+    }
+    
+    results <- data.frame(
+      outcome=outcome,
+      se_adjustment="none",
+      estimate=estimate,
+      se=cf[["Std. Error"]],
+      variance=cf[["Std. Error"]] ^ 2,
+      t_stat=c(cf[["t value"]], cf[["z value"]]),
+      p_value=pval,
+      mse=mean(resid(m)^2, na.rm=T),
+      stringsAsFactors=FALSE
+    )
+  } else if (model_simulation$models[["type"]] == "did"){
+    m_agg <- did::aggte(m, type='group', na.rm=T)
+
+    cf <- data.frame("estimate" = m_agg$overall.att,
+                     "se" = m_agg$overall.se)
+          
+    estimate <- cf$estimate
+    se <- cf$se
+    variance <- se ^ 2
+    t_stat <- NA
+    p_value <- 2 * pnorm(abs(estimate/se), lower.tail = FALSE)
+
+    results <- data.frame(
+        outcome=outcome,
+        se_adjustment="none",
+        estimate=estimate,
+        se=se,
+        variance=variance,
+        t_stat=NA,
+        p_value=p_value,
+        mse = NA,
+        stringsAsFactors=FALSE
+      )
+  }
+  else{
     m <- model_simulation$model_result
     cf <- summary(m)
     cf <- cf$att
@@ -653,9 +767,9 @@ noconf_postmodel <- function(model_simulation) {
   }
   
   results <- left_join(results, meta_data, by="outcome")
-  results <- left_join(results, model_simulation$balance_statistics, by="outcome")
   
   return(results)
+
 }
 
 
