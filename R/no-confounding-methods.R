@@ -18,6 +18,7 @@
 #' 
 #' @noRd
 noconf_sample <- function(single_simulation) {
+  
   ##########################################
   ### PULL DATA AND PARAMETERS/VARIABLES ###
   ##########################################

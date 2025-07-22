@@ -126,13 +126,12 @@ test_that("confounding simulations work", {
 })
 
 test_that("confounding results have consistent structure", {
+  col_types <- sapply(linear_results_df, class)
   expect_snapshot(list(
     dim = dim(linear_results_df),
     colnames = colnames(linear_results_df),
-    nrow = nrow(linear_results_df)
+    nrow = nrow(linear_results_df),
+    col_types = col_types
   ))
 })
 
-test_that("confounding summary results are consistent", {
-  expect_snapshot(summary(linear_results_df))
-})

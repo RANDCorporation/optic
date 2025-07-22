@@ -27,7 +27,19 @@ OpticSim <- R6::R6Class(
       
       # create matrix of all combinations of iterable params
       # Use do.call to properly expand the params list into separate arguments
-      simulation_params <- do.call(tidyr::expand_grid, params) %>% as.data.frame()
+
+      # Flatten list elements that should be expanded
+      params_flattened <- lapply(params, function(x) {
+        if (is.list(x) && !is.data.frame(x)) {
+          # If it's a list (but not a data.frame), unlist it
+          unlist(x, recursive = FALSE)
+        } else {
+          # Otherwise keep as is
+          x
+        }
+      })
+
+      simulation_params <- do.call(tidyr::expand_grid, params_flattened) %>% as.data.frame()
       
       private$.data <- data
       private$.models <- models

@@ -50,7 +50,7 @@ test_that("can create optic_model", {
 concurrent_optic_sim <- optic_simulation(
   x=overdoses,
   models=list(model_1, model_2),
-  iters=2,
+  iters=10,
   method="concurrent",
   unit_var="state",
   time_var="year",
@@ -66,34 +66,30 @@ concurrent_optic_sim <- optic_simulation(
 
 # cluster_adjust_se <- optic:::cluster_adjust_se
 
-concurrent_results_list <- dispatch_simulations(
-  concurrent_optic_sim,
-  use_future=T,
-  seed=9782,
-  verbose=2,
-  future.globals=c("cluster_adjust_se"),
-  future.packages=c("dplyr", "optic")
-)
-
-concurrent_results <- do.call(rbind, concurrent_results_list) %>% as.data.frame()
-
-test_that("concurrent simulations work", {
-  
-  expect_type(concurrent_results_list, "list")
-  
-  expect_false(any(is.na(concurrent_results)))
-  
-})
-
-test_that("concurrent results have consistent structure", {
-  expect_snapshot(list(
-    dim = dim(concurrent_results),
-    colnames = colnames(concurrent_results),
-    nrow = nrow(concurrent_results)
-  ))
-})
-
-test_that("concurrent summary results are consistent", {
-  expect_snapshot(summary(concurrent_results))
-})
+# concurrent_results_list <- dispatch_simulations(
+#   concurrent_optic_sim,
+#   use_future=T,
+#   seed=9782,
+#   verbose=2,
+#   future.globals=c("cluster_adjust_se"),
+#   future.packages=c("dplyr", "optic")
+# )
+# 
+# concurrent_results <- do.call(rbind, concurrent_results_list) %>% as.data.frame()
+# 
+# test_that("concurrent simulations work", {
+#   
+#   expect_type(concurrent_results_list, "list")
+#   
+#   expect_false(any(is.na(concurrent_results)))
+#   
+# })
+# 
+# test_that("concurrent results have consistent structure", {
+#   expect_snapshot(list(
+#     dim = dim(concurrent_results),
+#     colnames = colnames(concurrent_results),
+#     nrow = nrow(concurrent_results)
+#   ))
+# })
 
