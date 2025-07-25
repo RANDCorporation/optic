@@ -257,7 +257,6 @@ noconf_premodel <- function(model_simulation) {
     model_simulation$models$model_formula <- new_fmla
     
   } else if (model_type == "multisynth") {
-    browser()
     x$treatment[x$treatment > 0] <- 1
     x$treatment_level[x$treatment_level > 0] <- 1
     x <- x %>%

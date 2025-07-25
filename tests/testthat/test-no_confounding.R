@@ -5,7 +5,7 @@
 #------------------------------------------------------------------------------#
 
 # Testing an example of the no_confounding method
-
+library(dplyr)
 data(overdoses)
 
 linear0 <- 0
@@ -45,16 +45,42 @@ m_aug <- optic_model(
   type = "multisynth",
   call = "multisynth",
   formula = opioid_rx ~ treatment_level,
-  model_args = list(unit = as.name("state"),
-                    time = as.name("year"),
-                    lambda = 0.1),
+  unit = as.name("state"),
+  time = as.name("year"),
+  lambda = 0.1,
+  se_adjust = "none",
+  fixedeff = F
+)
+
+m_csa <- optic_model(
+  name = "csa_did",
+  type = "did",
+  call = "att_gt",
+  formula = opioid_rx ~ treatment_level,
+  yname = "opioid_rx", 
+  tname = 'year', 
+  idname = 'state',
+  gname = 'treatment_date', 
+  # xformla = formula(~ unemploymentrate),
   se_adjust = "none"
 )
 
+# Remove nebraska for augsynth to work:
+# You are including a fixed effect with `fixedeff = T`, but the following units only have one pre-treatment outcome: (Nebraska). Either remove these units or set `fixedeff = F`.
+data <- overdoses %>%
+  dplyr::filter(!(state %in% c("Nebraska", "Nevada", "Arkansas", "Mississippi")))
+
+models <- list(
+               #m_csa
+               m_aug
+               #fixedeff_linear, 
+               #fixedeff_linear_two, 
+               #lm_ar
+               )
 
 linear_fe_config <- optic_simulation(
-  x=overdoses,
-  models=list(fixedeff_linear, fixedeff_linear_two, lm_ar, m_aug),
+  x=data,
+  models=models,
   iters=11,
   method = "no_confounding",
   globals=NULL,
@@ -64,9 +90,10 @@ linear_fe_config <- optic_simulation(
   effect_magnitude=list(linear0, linear5),
   n_units= c(5),
   effect_direction=c("neg"),
-  policy_speed=list("instant", "slow"),
-  n_implementation_periods=c(3, 10)
+  policy_speed=c("instant"),
+  n_implementation_periods=c(1)
 )
+
 
 linear_results <- dispatch_simulations(
   linear_fe_config,
@@ -74,7 +101,7 @@ linear_results <- dispatch_simulations(
   seed=9782,
   verbose=2,
   future.globals=c("cluster_adjust_se"),
-  future.packages=c("MASS", "dplyr", "optic")
+  future.packages=c("MASS", "dplyr", "optic", "augsynth", "did")
 )
 
 
