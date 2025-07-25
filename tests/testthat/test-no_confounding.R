@@ -40,10 +40,21 @@ lm_ar <- optic_model(
   se_adjust = "cluster-unit"
 )
 
+m_aug <- optic_model(
+  name = "augsynth",
+  type = "multisynth",
+  call = "multisynth",
+  formula = opioid_rx ~ treatment_level,
+  model_args = list(unit = as.name("state"),
+                    time = as.name("year"),
+                    lambda = 0.1),
+  se_adjust = "none"
+)
+
 
 linear_fe_config <- optic_simulation(
   x=overdoses,
-  models=list(fixedeff_linear, fixedeff_linear_two, lm_ar),
+  models=list(fixedeff_linear, fixedeff_linear_two, lm_ar, m_aug),
   iters=11,
   method = "no_confounding",
   globals=NULL,

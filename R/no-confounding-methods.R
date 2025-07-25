@@ -1,5 +1,3 @@
-
-
 #------------------------------------------------------------------------------#
 # OPTIC R Package Code Repository
 # Copyright (C) 2023 by The RAND Corporation
@@ -300,7 +298,8 @@ noconf_premodel <- function(model_simulation) {
               .groups="drop"
     ) %>%
     mutate(outcome = outcome,
-           n_unique_enact_years = length(unique(sapply(model_simulation$treated_units, function(x) {min(x[["policy_years"]])}))))
+           n_unique_enact_years = length(unique(sapply(model_simulation$treated_units, function(x) {min(x[["policy_years"]])}))
+    ))
   
   bal_stats2 = x %>%
     summarize(mu1_prior = mean(prior_control[treatment > 0], na.rm=T),
@@ -412,6 +411,7 @@ noconf_model <- function(model_simulation) {
   }
 
   # NOTE: perform second validation (validate_pre_call) here using model and args
+  validate_optic_model_pre_call(model, args)
   
   m <- do.call(
     model[["model_call"]],
