@@ -324,9 +324,12 @@ validate_did_init <- function(model, data, params) {
     stop("DID models require model_args: ", paste(missing_args, collapse = ", "))
   }
   
-  # Check variables exist in data
+  # Check variables exist in data, except for gname == 'treatment_date'
   for (arg_name in required_args) {
     var_name <- model$model_args[[arg_name]]
+    if (arg_name == "gname" && var_name == "treatment_date") {
+      next  # skip check for treatment_date at init
+    }
     if (!var_name %in% names(data)) {
       stop("Variable '", var_name, "' specified in ", arg_name, " not found in data")
     }
