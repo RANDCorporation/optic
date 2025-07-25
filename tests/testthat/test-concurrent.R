@@ -65,8 +65,8 @@ concurrent_optic_sim <- optic_simulation(
 )
 
 # cluster_adjust_se <- optic:::cluster_adjust_se
-
-# concurrent_results_list <- dispatch_simulations(
+# Concurrent tests turned off:
+# concurrent_results <- dispatch_simulations(
 #   concurrent_optic_sim,
 #   use_future=T,
 #   seed=9782,
@@ -75,14 +75,10 @@ concurrent_optic_sim <- optic_simulation(
 #   future.packages=c("dplyr", "optic")
 # )
 # 
-# concurrent_results <- do.call(rbind, concurrent_results_list) %>% as.data.frame()
-# 
 # test_that("concurrent simulations work", {
-#   
-#   expect_type(concurrent_results_list, "list")
-#   
+# 
 #   expect_false(any(is.na(concurrent_results)))
-#   
+# 
 # })
 # 
 # test_that("concurrent results have consistent structure", {

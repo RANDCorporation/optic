@@ -1,11 +1,11 @@
 # no_confounding results have consistent structure
 
     Code
-      list(dim = dim(linear_results_df), colnames = colnames(linear_results_df),
-      nrow = nrow(linear_results_df), col_types = col_types)
+      list(dim = dim(linear_results), colnames = colnames(linear_results), nrow = nrow(
+        linear_results), col_types = col_types)
     Output
       $dim
-      [1] 480  19
+      [1] 1056   19
       
       $colnames
        [1] "outcome"                  "se_adjustment"           
@@ -20,7 +20,7 @@
       [19] "seed"                    
       
       $nrow
-      [1] 480
+      [1] 1056
       
       $col_types
                        outcome            se_adjustment                 estimate 

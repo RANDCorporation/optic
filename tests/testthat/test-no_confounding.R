@@ -44,7 +44,7 @@ lm_ar <- optic_model(
 linear_fe_config <- optic_simulation(
   x=overdoses,
   models=list(fixedeff_linear, fixedeff_linear_two, lm_ar),
-  iters=5,
+  iters=11,
   method = "no_confounding",
   globals=NULL,
   unit_var="state",
@@ -66,14 +66,13 @@ linear_results <- dispatch_simulations(
   future.packages=c("MASS", "dplyr", "optic")
 )
 
-linear_results_df <- do.call(rbind, linear_results)
 
 test_that("no_confounding results have consistent structure", {
-  col_types <- sapply(linear_results_df, class)
+  col_types <- sapply(linear_results, class)
   expect_snapshot(list(
-    dim = dim(linear_results_df),
-    colnames = colnames(linear_results_df),
-    nrow = nrow(linear_results_df),
+    dim = dim(linear_results),
+    colnames = colnames(linear_results),
+    nrow = nrow(linear_results),
     col_types = col_types
   ))
 })

@@ -259,6 +259,7 @@ noconf_premodel <- function(model_simulation) {
     model_simulation$models$model_formula <- new_fmla
     
   } else if (model_type == "multisynth") {
+    browser()
     x$treatment[x$treatment > 0] <- 1
     x$treatment_level[x$treatment_level > 0] <- 1
     x <- x %>%
@@ -403,11 +404,14 @@ noconf_model <- function(model_simulation) {
     args[['formula']] <- model$model_formula
   }else if (model_type == "multisynth"){
     args[['form']] <-  model$model_formula
+    # We probably need to add trt_time to the arguments in multisynth
   }else if (model_type == "did_imputation"){
     args[['horizon']] <- T
   }else if (model_type == "did2s"){
     args[['treatment']] <- 'treatment'
   }
+
+  # NOTE: perform second validation (validate_pre_call) here using model and args
   
   m <- do.call(
     model[["model_call"]],

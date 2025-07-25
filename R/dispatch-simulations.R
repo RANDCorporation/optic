@@ -1,5 +1,3 @@
-
-
 #------------------------------------------------------------------------------#
 # OPTIC R Package Code Repository
 # Copyright (C) 2023 by The RAND Corporation
@@ -17,10 +15,14 @@
 #'     be run in parallel.
 #' @param verbose Default TRUE. IF TRUE, provides details on what's currently running.
 #' @param ... additional parameters to be passed to future_apply. User can pass future.globals and future.packages if your code relies on additional packages
+#' @param graceful If TRUE, errors in iterations are caught and retried up to 10% of total iterations. If FALSE, errors are not caught and will stop execution. Default is FALSE.
 #' 
 #' @importFrom future.apply future_lapply
 #' @importFrom stats simulate
-#' @returns A list of dataframes, where each list entry contains results for a set of simulation parameters, with dataframes containing estimated treatment effects and summary statistics by model and  draw.
+#' @importFrom progressr with_progress progressor
+#' @importFrom tidyr expand_grid
+#' @importFrom dplyr bind_rows
+#' @returns A single dataframe containing estimated treatment effects and summary statistics by model and draw, bound together to allow for different column names.
 #' @examples 
 #' # Set up a basic model and simulation scenario:
 #' data(overdoses)
@@ -49,153 +51,124 @@
 #' # Finally, dispatch the simulation:
 #' dispatch_simulations(sim)
 #' @export
-dispatch_simulations <- function(object, seed=NULL, use_future=FALSE, verbose=0, ...) {
-  
-  # only use this with optic sim objects.
-  # This is purposefully not written as a generic
+dispatch_simulations <- function(object, seed=NULL, use_future=FALSE, verbose=0, graceful=FALSE, ...) {
   stopifnot("OpticSim" %in% class(object))
   
-  return_list <- list()
+  # Create experimental design combining simulation_params with iterations
+  experimental_design <- object$simulation_params %>%
+    dplyr::mutate(param_id = dplyr::row_number()) %>%
+    tidyr::expand_grid(iter = 1:object$iters) %>%
+    dplyr::select(param_id, iter, dplyr::everything())
   
-  # iterate over all combinations in config
-  for (i in 1:nrow(object$simulation_params)) {
-    single_simulation <- object$setup_single_simulation(i)
-    if (verbose > 0) {
-      cat(paste("JOB", i, "OF", nrow(object$simulation_params), "DISPATCHED:\n"))
-      if (use_future) {
-        cat("        DISPATCH METHOD: parallel (future)\n")
-      } else {
-        cat("        DISPATCH METHOD: single-threaded\n")
-      }
-      if (verbose > 1) {
-        cat("        PARAMS:\n")
-        for (p in names(object$simulation_params[i, ])) {
-          cat(paste0("            ", p, ": ", object$simulation_params[i, p], "\n"))
-        }
-      }
-    }
-    
-    # use future if user requests and it's set up
+  total_runs <- nrow(experimental_design)
+  
+  if (verbose > 0) {
+    cat(paste("TOTAL RUNS:", total_runs, "\n"))
+    cat(paste("SIMULATION SCENARIOS:", nrow(object$simulation_params), "\n"))
+    cat(paste("ITERATIONS PER SCENARIO:", object$iters, "\n"))
     if (use_future) {
-      #==========================================================================
-      #==========================================================================
-      # PARALLEL DISPATCH ITERATIONS - using future
-      #==========================================================================
-      #==========================================================================
-      if (!is.null(seed)) {
-        use_seed <- seed
-      } else {
-        use_seed <- NULL
-      }
-      
-      # all iterations of this single sim run
-      sim_results <- future.apply::future_lapply(
-        1:single_simulation$iters,
-        FUN=function(j) {
-          failed_attempts <- 0
-          complete <- 0
-          while (complete < 1 & failed_attempts < 0.10 * single_simulation$iters) {
-            r <- tryCatch({
-              run_iteration(single_simulation)
-            },
-            error=function(e) {
-              e
-            })
-            if (! "error" %in% class(r)) {
-              complete <- complete + 1
-            } else {
-              if (failed_attempts == 0.10*single_simulation$iters) {
-                stop(paste("attempted 10 percent of total iterations in single thread;",
-                           "something is not right, here's the most recent error:",
-                           r))
-              }
-              failed_attempts <- failed_attempts + 1
-            }
-          }
-          
-          # if this is one data.frame, assign iteration number
-          if (is.data.frame(r)) {
-            r$iter <- j
-            
-          # if this is not a data.frame, then it must be a list of data.frames:
-          } else {
-            # check that it is a list of data.frames:
-            stopifnot(is.list(r))
-            
-            if(!all(sapply(r, is.data.frame))) {
-              print(r$message)
-              stop(paste0("Error in simulate.sim_config. Results are not data.frames. Error: \n", r$message))
-            }
-            # stopifnot(all(sapply(r, is.data.frame)))
-            r <- lapply(r, function(x){ x$iter <- j})
-          }
-          return(r)
-        },
-        future.seed=use_seed,
-        ...
-      )
+      cat("DISPATCH METHOD: parallel (future)\n")
     } else {
-      #==========================================================================
-      #==========================================================================
-      # SINGLE THREADED DISPATCH ITERATIONS
-      #==========================================================================
-      #==========================================================================
-      if (!is.null(seed)) {
-        use_seed <- seed
-        set.seed(use_seed)
-      }
-      
-      sim_results <- list()
-      for(j in 1:single_simulation$iters) {
-        failed_attempts <- 0
-        complete <- 0
-        while (complete < 1 & failed_attempts < 0.10 * single_simulation$iters) {
-          
-          r <- tryCatch({
-            run_iteration(single_simulation)
-          },
-          error=function(e) {
-            e
-          })
-          if (! "error" %in% class(r)) {
-            complete <- complete + 1
-          } else{
-            failed_attempts <- failed_attempts + 1
-          }
-        }
-        if (failed_attempts == 0.10*single_simulation$iters) {
-          print(c(i,j))
-          stop(paste("attempted 10 percent of total iterations in single thread;",
-                     "something is not right, here's the most recent error:",
-                     paste(r, collapse=" ")))
-          
-        }
-        
-        if (is.data.frame(r)) {
-          r$iter <- j
-        } else if (is.list(r)) {
-          r <- lapply(r, function(x){ x$iter <- j})
-        }
-        
-        sim_results[[j]] <- r
-        rm(r)
-      }
+      cat("DISPATCH METHOD: single-threaded\n")
     }
-    
-    #==========================================================================
-    #==========================================================================
-    # CLEAN UP AND ADD META DATA TO RUN
-    #==========================================================================
-    #==========================================================================
-    full_results <- do.call("rbind", sim_results)
-    
-    # add in config/meta information to the run
-    if (!is.null(seed)) {
-      full_results$seed <- use_seed
-    }
-    
-    return_list[[i]] <- full_results
   }
   
-  return(return_list)
+  # Set seed if provided
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
+  
+  # Common function to run a single iteration
+  run_single_iteration <- function(i) {
+    param_id <- experimental_design$param_id[i]
+    iter <- experimental_design$iter[i]
+    single_simulation <- object$setup_single_simulation(param_id)
+    sim_params <- object$simulation_params[param_id, ]
+    
+    run_single_sim_iteration(single_simulation, iter, graceful, sim_params, object$iters)
+  }
+  
+  if (use_future) {
+    # default progress bar with eta estimation
+    results <- progressr::with_progress({
+      p <- progressr::progressor(steps = total_runs)
+      future.apply::future_lapply(
+        1:total_runs,
+        FUN = function(i) {
+          p()
+          run_single_iteration(i)
+        },
+        future.seed = seed,
+        ...
+      )
+    })
+  } else {
+    # Sequential execution with progress bar
+    results <- progressr::with_progress({
+      p <- progressr::progressor(steps = total_runs)
+      lapply(1:total_runs, function(i) {
+        p()
+        run_single_iteration(i)
+      })
+    })
+  }
+  
+  # Bind all results together using dplyr::bind_rows to handle different column names
+  final_results <- dplyr::bind_rows(results)
+  
+  # Add seed information if provided
+  if (!is.null(seed)) {
+    final_results$seed <- seed
+  }
+  
+  return(final_results)
+}
+
+print_simulation_parms <- function(sim_params) {
+  cat("Simulation parameters:\n")
+  for (p in names(sim_params)) {
+    cat(paste0("  ", p, ": ", sim_params[[p]], "\n"))
+  }
+}
+
+# Helper for running a single simulation iteration, with optional graceful error handling
+run_single_sim_iteration <- function(single_simulation, iter, graceful, sim_params, total_iters) {
+  if (!graceful) {
+    r <- run_iteration(single_simulation)
+  } else {
+    failed_attempts <- 0
+    complete <- 0
+    max_attempts <- ceiling(0.10 * total_iters)
+    
+    while (complete < 1 & failed_attempts < max_attempts) {
+      r <- tryCatch({
+        run_iteration(single_simulation)
+      }, error = function(e) e)
+      
+      if (!"error" %in% class(r)) {
+        complete <- complete + 1
+      } else {
+        failed_attempts <- failed_attempts + 1
+      }
+    }
+    
+    if (failed_attempts == max_attempts) {
+      print_simulation_parms(sim_params)
+      stop(paste("attempted", max_attempts, "times; something is not right, here's the most recent error:",
+                 if (inherits(r, "error")) r$message else r))
+    }
+  }
+  
+  # Assign iteration number
+  if (is.data.frame(r)) {
+    r$iter <- iter
+  } else if (is.list(r)) {
+    if (!all(sapply(r, is.data.frame))) {
+      print(if (inherits(r, "error")) r$message else r)
+      stop(paste0("Error in run_iteration. Results are not data.frames. Error: \n", if (inherits(r, "error")) r$message else r))
+    }
+    r <- lapply(r, function(x) { x$iter <- iter; x })
+  }
+  
+  return(r)
 }

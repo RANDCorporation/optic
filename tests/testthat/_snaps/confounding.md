@@ -1,8 +1,8 @@
 # confounding results have consistent structure
 
     Code
-      list(dim = dim(linear_results_df), colnames = colnames(linear_results_df),
-      nrow = nrow(linear_results_df), col_types = col_types)
+      list(dim = dim(linear_results), colnames = colnames(linear_results), nrow = nrow(
+        linear_results), col_types = col_types)
     Output
       $dim
       [1] 180  48
