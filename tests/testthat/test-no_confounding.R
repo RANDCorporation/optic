@@ -9,16 +9,16 @@ library(dplyr)
 data(overdoses)
 
 linear0 <- 0
-linear5 <- .05*mean(overdoses$opioid_rx, na.rm=T)
-linear15 <- .15*mean(overdoses$opioid_rx, na.rm=T)
-linear25 <- .25*mean(overdoses$opioid_rx, na.rm=T)
+linear5 <- .05*mean(overdoses$crude.rate, na.rm=T)
+linear15 <- .15*mean(overdoses$crude.rate, na.rm=T)
+linear25 <- .25*mean(overdoses$crude.rate, na.rm=T)
 
 # create optic_model object:
 fixedeff_linear <- optic_model(
   name="fixedeff_linear",
   type="reg",
   call="lm",
-  formula=opioid_rx ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state),
+  formula=crude.rate ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state),
   weights= as.name("population"),
   se_adjust=c("none", "cluster-unit", "cluster-treat", "huber", "arellano")
 )
@@ -27,7 +27,7 @@ fixedeff_linear_two <- optic_model(
   name="fixedeff_linear_two",
   type="reg",
   call="lm",
-  formula=opioid_rx ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state),
+  formula=crude.rate ~ treatment_level + unemploymentrate + as.factor(year) + as.factor(state),
   weights= as.name("population"),
   se_adjust=c("none", "cluster-unit", "cluster-treat", "huber", "arellano")
 )
@@ -36,7 +36,7 @@ lm_ar <- optic_model(
   name = "auto_regressive_linear",
   type = "autoreg",
   call = "lm",
-  formula = opioid_rx ~ unemploymentrate + year + treatment_change,
+  formula = crude.rate ~ unemploymentrate + year + treatment_change,
   se_adjust = "cluster-unit"
 )
 
@@ -44,7 +44,7 @@ m_aug <- optic_model(
   name = "augsynth",
   type = "multisynth",
   call = "multisynth",
-  formula = opioid_rx ~ treatment_level,
+  formula = crude.rate ~ treatment_level,
   unit = as.name("state"),
   time = as.name("year"),
   lambda = 0.1,
@@ -56,8 +56,8 @@ m_csa <- optic_model(
   name = "csa_did",
   type = "did",
   call = "att_gt",
-  formula = opioid_rx ~ treatment_level,
-  yname = "opioid_rx", 
+  formula = crude.rate ~ treatment_level,
+  yname = "crude.rate", 
   tname = 'year', 
   idname = 'state',
   gname = 'treatment_date', 
@@ -68,7 +68,7 @@ m_csa <- optic_model(
 # Remove nebraska for augsynth to work:
 # You are including a fixed effect with `fixedeff = T`, but the following units only have one pre-treatment outcome: (Nebraska). Either remove these units or set `fixedeff = F`.
 data <- overdoses %>%
-  dplyr::filter(!(state %in% c("Nebraska", "Nevada", "Arkansas", "Mississippi")))
+  dplyr::filter(!(state %in% c("Nebraska", "Nevada", "Arkansas", "Mississippi", "Oregon")))
 
 models <- list(
                #m_csa
@@ -94,15 +94,18 @@ linear_fe_config <- optic_simulation(
   n_implementation_periods=c(1)
 )
 
-
+suppressWarnings({
 linear_results <- dispatch_simulations(
   linear_fe_config,
   use_future=T,
   seed=9782,
-  verbose=2,
+  verbose=0,
   future.globals=c("cluster_adjust_se"),
   future.packages=c("MASS", "dplyr", "optic", "augsynth", "did")
 )
+} 
+)
+
 
 
 test_that("no_confounding results have consistent structure", {

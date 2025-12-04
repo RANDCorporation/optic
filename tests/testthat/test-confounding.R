@@ -102,14 +102,15 @@ linear_fe_config <- optic_simulation(
   bias_size=c("small","medium","large")
 )
 
+# Suppressing warnings for the tests.
 linear_results <- dispatch_simulations(
   linear_fe_config,
   use_future=T,
   seed=9782,
-  verbose=2,
+  verbose=0,
   future.globals=c("cluster_adjust_se"),
   future.packages=c("MASS", "dplyr", "optic")
-)
+)  
 
 
 test_that("confounding simulations work", {
