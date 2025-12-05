@@ -4,12 +4,7 @@
 # See README.md for information on usage and licensing
 #------------------------------------------------------------------------------#
 
-# Skip dispatch simulation tests during R CMD check
-skip_if(nzchar(Sys.getenv("OPTIC_SKIP_DISPATCH")),
-        "Skipping dispatch simulation tests (OPTIC_SKIP_DISPATCH is set)")
-
 # Testing an example of the confounding method
-
 
 data(overdoses)
 

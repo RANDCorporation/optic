@@ -4,13 +4,15 @@
 # See README.md for information on usage and licensing
 #------------------------------------------------------------------------------#
 
-# Skip dispatch simulation tests during R CMD check
-skip_if(nzchar(Sys.getenv("OPTIC_SKIP_DISPATCH")),
-        "Skipping dispatch simulation tests (OPTIC_SKIP_DISPATCH is set)")
-
 # Testing an example of the no_confounding method
 library(dplyr)
-library(augsynth)
+
+# Only load augsynth if OPTIC_TEST_AUGSYNTH is set (for CI/CD workflows that have it installed)
+test_augsynth <- nzchar(Sys.getenv("OPTIC_TEST_AUGSYNTH"))
+if (test_augsynth) {
+  library(augsynth)
+}
+
 data(overdoses)
 
 linear0 <- 0
@@ -45,27 +47,30 @@ lm_ar <- optic_model(
   se_adjust = "cluster-unit"
 )
 
-m_aug <- optic_model(
-  name = "augsynth",
-  type = "multisynth",
-  call = "multisynth",
-  formula = crude.rate ~ treatment_level,
-  unit = as.name("state"),
-  time = as.name("year"),
-  lambda = 0.1,
-  se_adjust = "none",
-  fixedeff = F
-)
+# Conditionally create augsynth model only if the package is available
+if (test_augsynth) {
+  m_aug <- optic_model(
+    name = "augsynth",
+    type = "multisynth",
+    call = "multisynth",
+    formula = crude.rate ~ treatment_level,
+    unit = as.name("state"),
+    time = as.name("year"),
+    lambda = 0.1,
+    se_adjust = "none",
+    fixedeff = F
+  )
+}
 
 m_csa <- optic_model(
   name = "csa_did",
   type = "did",
   call = "att_gt",
   formula = crude.rate ~ treatment_level,
-  yname = "crude.rate", 
-  tname = 'year', 
+  yname = "crude.rate",
+  tname = 'year',
   idname = 'state',
-  gname = 'treatment_date', 
+  gname = 'treatment_date',
   # xformla = formula(~ unemploymentrate),
   se_adjust = "none"
 )
@@ -75,13 +80,17 @@ m_csa <- optic_model(
 data <- overdoses %>%
   dplyr::filter(!(state %in% c("Nebraska", "Nevada", "Arkansas", "Mississippi", "Oregon")))
 
+# Build models list - only include augsynth if available
 models <- list(
                m_csa,
-               m_aug,
-               fixedeff_linear, 
-               fixedeff_linear_two, 
+               fixedeff_linear,
+               fixedeff_linear_two,
                lm_ar
                )
+
+if (test_augsynth) {
+  models <- c(list(m_aug), models)
+}
 
 linear_fe_config <- optic_simulation(
   x=data,
@@ -100,15 +109,21 @@ linear_fe_config <- optic_simulation(
 )
 
 suppressWarnings({
+# Conditionally include augsynth in future.packages
+future_pkgs <- c("MASS", "dplyr", "optic", "did")
+if (test_augsynth) {
+  future_pkgs <- c(future_pkgs, "augsynth")
+}
+
 linear_results <- dispatch_simulations(
   linear_fe_config,
   use_future=T,
   seed=9782,
   verbose=0,
   future.globals=c("cluster_adjust_se"),
-  future.packages=c("MASS", "dplyr", "optic", "augsynth", "did")
+  future.packages=future_pkgs
 )
-} 
+}
 )
 
 

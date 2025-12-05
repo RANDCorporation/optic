@@ -5,7 +5,7 @@
         linear_results), col_types = col_types)
     Output
       $dim
-      [1] 308  19
+      [1] 286  19
       
       $colnames
        [1] "outcome"                  "se_adjustment"           
@@ -20,7 +20,7 @@
       [19] "seed"                    
       
       $nrow
-      [1] 308
+      [1] 286
       
       $col_types
                        outcome            se_adjustment                 estimate 
