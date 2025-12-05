@@ -40,7 +40,6 @@ Imports:
     tidyr,
     utils
 Suggests:
-    augsynth,
     future,
     knitr,
     rmarkdown,
