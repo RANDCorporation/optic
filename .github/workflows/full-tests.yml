@@ -14,7 +14,7 @@ jobs:
     name: Full Tests & Coverage (Ubuntu Release)
 
     env:
-      GITHUB_PAT: ${{ secrets.GIT_TOKEN }}
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
     steps:
