@@ -16,3 +16,5 @@ dev
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
 ^LICENSE$
+^\.claude$
+^\.vscode$

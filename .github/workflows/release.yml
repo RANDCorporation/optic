@@ -1,0 +1,236 @@
+# Workflow for preparing releases
+# Triggers when a version tag is pushed (e.g., v1.0.3)
+# - For MAJOR/MINOR releases (v1.0.0, v1.1.0): Full CRAN prep
+# - For PATCH releases (v1.0.1): GitHub release only
+# After CRAN prep completes, manually submit to CRAN using devtools::release()
+
+name: Prepare Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.3)'
+        required: true
+      is_cran:
+        description: 'Prepare for CRAN submission?'
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  # Determine if this is a CRAN release (major/minor) or just patch
+  detect-release-type:
+    runs-on: ubuntu-latest
+    outputs:
+      is_cran_release: ${{ steps.check.outputs.is_cran }}
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Determine release type
+        id: check
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "is_cran=${{ inputs.is_cran }}" >> $GITHUB_OUTPUT
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            # Extract version from tag (remove 'v' prefix)
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+            # Check if patch version is 0 (major or minor release)
+            PATCH=$(echo $VERSION | cut -d. -f3)
+            if [ "$PATCH" = "0" ]; then
+              echo "is_cran=true" >> $GITHUB_OUTPUT
+              echo "🎯 Major/Minor release detected - Will prepare for CRAN"
+            else
+              echo "is_cran=false" >> $GITHUB_OUTPUT
+              echo "🔧 Patch release detected - GitHub release only"
+            fi
+          fi
+
+  # Run comprehensive checks
+  check-package:
+    needs: detect-release-type
+    runs-on: ${{ matrix.config.os }}
+    name: Check ${{ matrix.config.os }} (${{ matrix.config.r }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: macos-latest,   r: 'release'}
+          - {os: windows-latest, r: 'release'}
+          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
+          - {os: ubuntu-latest,   r: 'release'}
+          - {os: ubuntu-latest,   r: 'oldrel-1'}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      - name: Install remotes package
+        run: Rscript -e 'install.packages("remotes")'
+
+      - name: Install augsynth from GitHub
+        run: Rscript -e 'remotes::install_github("ebenmichael/augsynth")'
+
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+          error-on: '"error"'
+
+  # Build source package and create GitHub release
+  create-release:
+    needs: [detect-release-type, check-package]
+    runs-on: ubuntu-latest
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      IS_CRAN_RELEASE: ${{ needs.detect-release-type.outputs.is_cran_release }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::devtools
+            any::desc
+
+      - name: Install remotes package
+        run: Rscript -e 'install.packages("remotes")'
+
+      - name: Install augsynth from GitHub
+        run: Rscript -e 'remotes::install_github("ebenmichael/augsynth")'
+
+      - name: Build source package
+        run: |
+          dir.create("release", showWarnings = FALSE)
+          tarball <- devtools::build(path = "release")
+          cat("TARBALL_PATH=", tarball, "\n", file = Sys.getenv("GITHUB_ENV"), append = TRUE, sep = "")
+
+          # Get package version
+          version <- desc::desc_get_version()
+          cat("PKG_VERSION=", as.character(version), "\n", file = Sys.getenv("GITHUB_ENV"), append = TRUE, sep = "")
+        shell: Rscript {0}
+
+      - name: Extract release notes from NEWS.md
+        id: extract_notes
+        run: |
+          # Extract the most recent version's notes from NEWS.md
+          awk '/^# optic [0-9]/ {if (p) exit; p=1; next} p' NEWS.md > release_notes.md
+
+          # Add release type info
+          if [ "$IS_CRAN_RELEASE" = "true" ]; then
+            echo "" >> release_notes.md
+            echo "---" >> release_notes.md
+            echo "**📦 This is a CRAN release candidate**" >> release_notes.md
+            echo "" >> release_notes.md
+            echo "See [CRAN submission checklist](.github/RELEASE_CHECKLIST.md) for next steps." >> release_notes.md
+          else
+            echo "" >> release_notes.md
+            echo "---" >> release_notes.md
+            echo "**🔧 Patch release - GitHub only (not submitted to CRAN)**" >> release_notes.md
+          fi
+
+          echo "Release notes extracted"
+          cat release_notes.md
+        shell: bash
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ env.TARBALL_PATH }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          name: ${{ env.IS_CRAN_RELEASE == 'true' && '📦 CRAN Release' || '🔧 Patch Release' }} v${{ needs.detect-release-type.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Display next steps
+        run: |
+          echo "✅ Release ${{ env.PKG_VERSION }} prepared successfully!"
+          echo ""
+          echo "📦 Source tarball: ${{ env.TARBALL_PATH }}"
+          echo ""
+          if [ "$IS_CRAN_RELEASE" = "true" ]; then
+            echo "🎯 CRAN RELEASE - Next steps:"
+            echo "1. Download the tarball from the GitHub release"
+            echo "2. Review and update cran-comments.md if needed"
+            echo "3. Run devtools::check_win_devel() locally"
+            echo "4. Run devtools::check_rhub() if needed"
+            echo "5. Submit to CRAN with: devtools::submit_cran()"
+            echo "   OR upload manually at: https://cran.r-project.org/submit.html"
+          else
+            echo "🔧 PATCH RELEASE - GitHub release created"
+            echo "No CRAN submission needed for patch releases"
+          fi
+        shell: bash
+
+  # Update pkgdown website after successful release
+  update-pkgdown:
+    needs: create-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::pkgdown, local::.
+          needs: website
+
+      - name: Install remotes package
+        run: Rscript -e 'install.packages("remotes")'
+
+      - name: Install augsynth from GitHub
+        run: Rscript -e 'remotes::install_github("ebenmichael/augsynth")'
+
+      - name: Build and deploy pkgdown site
+        run: |
+          git config --local user.name "$GITHUB_ACTOR"
+          git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          Rscript -e 'pkgdown::deploy_to_branch(new_process = FALSE)'

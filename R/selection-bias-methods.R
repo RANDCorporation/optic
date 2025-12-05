@@ -541,7 +541,7 @@ selbias_postmodel <- function(model_simulation) {
     clust_indices <- as.numeric(rownames(m$model))
     clust_var <- as.character(model_simulation$data[[model_simulation$unit_var]][clust_indices])
     clust_coeffs <- cluster_adjust_se(m, clust_var)[[2]]
-    clust_vcov <- cluster_adjust_se(m, clust_var)[[1]][2,3] #not 100% alginment with SEs from model so worried this is off
+    
     class(clust_coeffs) <- c("coeftest", "matrix")
     clust_coeffs <- as.data.frame(clust_coeffs)
     clust_coeffs$variable <- row.names(clust_coeffs)

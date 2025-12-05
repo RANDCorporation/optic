@@ -1,5 +1,3 @@
-
-
 #------------------------------------------------------------------------------#
 # OPTIC R Package Code Repository
 # Copyright (C) 2023 by The RAND Corporation
@@ -28,10 +26,20 @@ OpticSim <- R6::R6Class(
       iters, params, globals) {
       
       # create matrix of all combinations of iterable params
-      simulation_params <- purrr::cross(params)
-      simulation_params <- lapply(simulation_params, unlist)
-      simulation_params <- data.frame(do.call("rbind", simulation_params), stringsAsFactors = FALSE)
-      simulation_params <- type.convert(simulation_params, as.is=TRUE)
+      # Use do.call to properly expand the params list into separate arguments
+
+      # Flatten list elements that should be expanded
+      params_flattened <- lapply(params, function(x) {
+        if (is.list(x) && !is.data.frame(x)) {
+          # If it's a list (but not a data.frame), unlist it
+          unlist(x, recursive = FALSE)
+        } else {
+          # Otherwise keep as is
+          x
+        }
+      })
+
+      simulation_params <- do.call(tidyr::expand_grid, params_flattened) %>% as.data.frame()
       
       private$.data <- data
       private$.models <- models

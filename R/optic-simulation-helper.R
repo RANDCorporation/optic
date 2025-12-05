@@ -1,5 +1,3 @@
-
-
 #------------------------------------------------------------------------------#
 # OPTIC R Package Code Repository
 # Copyright (C) 2023 by The RAND Corporation
@@ -119,7 +117,6 @@ optic_simulation <- function(x, models, iters,
   # iters should be integer
   iters <- as.integer(iters)
   
-  
   # Start setting the default methods:
   if(method == "concurrent") {
     d_method_sample= concurrent_sample
@@ -156,8 +153,14 @@ optic_simulation <- function(x, models, iters,
     d_method_model = selbias_model
     d_method_post_model = selbias_postmodel
     d_method_results = selbias_results
+  } else if (method == "time_varying"){
+    d_method_sample = tvary_sample
+    d_method_pre_model = tvary_premodel
+    d_method_model = tvary_model
+    d_method_post_model = tvary_postmodel
+    d_method_results = tvary_results
   } else {
-    stop("method argument must be either no_confounding, confounding, or concurrent")
+    stop("method argument must be either no_confounding, confounding, concurrent, or time-varying")
   }
   
   # Choose among default methods or user-provided methods.
@@ -217,7 +220,7 @@ optic_simulation <- function(x, models, iters,
   stopifnot(all(policy_speed %in% c("instant", "slow")))
   stopifnot(is.numeric(n_implementation_periods))
   
-  # Crete list with mandatory parameters
+  # Create list with mandatory parameters
   params <- list(unit_var = unit_var,
                  time_var = time_var,
                  effect_magnitude = effect_magnitude,
@@ -228,7 +231,6 @@ optic_simulation <- function(x, models, iters,
                  prior_control = prior_control)
   
   # Add method-specific parameters if they are provided:
-  
   if(!missing(rhos)) {
     params$rhos <- rhos
   }
@@ -265,12 +267,6 @@ optic_simulation <- function(x, models, iters,
                               time_var = params$time_var,
                               outcome_var = first_model_outcome)
   
-  ###
-  # create a OpticSim object
-  # It is difficult to 
-  ###
-  
-  
   conf <- OpticSim$new(
     data=x,
     models=models,
@@ -283,10 +279,15 @@ optic_simulation <- function(x, models, iters,
     method_post_model=method_post_model,
     method_results=method_results
   )
+
+  # NOTE: The first validation should be done here. So, iterate over the models in conf, and call their validate_init function:
+  for (model_name in names(models)) {
+    validate_optic_model_init(models[[model_name]], x, params)
+  }
   
   if (verbose) {
     # let user know combinations and total individual models
-    combs <- length(models) * length(purrr::cross(params))
+    combs <- length(models) * nrow(tidyr::expand_grid(params))
     runs <- combs * iters
     
     print(conf)
