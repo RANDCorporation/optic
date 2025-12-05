@@ -2,12 +2,10 @@
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 # This workflow runs AFTER the full-tests workflow completes successfully
 on:
-  workflow_run:
-    workflows: ["Full Tests"]
-    types:
-      - completed
-  # Allow manual triggers for testing
-  workflow_dispatch:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
 
 name: R-CMD-check
 
