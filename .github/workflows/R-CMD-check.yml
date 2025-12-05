@@ -6,7 +6,6 @@ on:
     workflows: ["Full Tests"]
     types:
       - completed
-    branches: [develop, main]
   # Allow manual triggers for testing
   workflow_dispatch:
 
