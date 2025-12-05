@@ -12,7 +12,6 @@ name: R-CMD-check
 jobs:
   R-CMD-check:
     # Only run if the full-tests workflow succeeded (or if manually triggered)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ${{ matrix.config.os }}
 
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
