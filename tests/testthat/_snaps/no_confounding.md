@@ -5,7 +5,7 @@
         linear_results), col_types = col_types)
     Output
       $dim
-      [1] 22 19
+      [1] 308  19
       
       $colnames
        [1] "outcome"                  "se_adjustment"           
@@ -20,13 +20,13 @@
       [19] "seed"                    
       
       $nrow
-      [1] 22
+      [1] 308
       
       $col_types
                        outcome            se_adjustment                 estimate 
                    "character"              "character"                "numeric" 
                             se                 variance                   t_stat 
-                     "numeric"                "numeric"                "logical" 
+                     "numeric"                "numeric"                "numeric" 
                        p_value                      mse               model_name 
                      "numeric"                "numeric"              "character" 
                     model_call            model_formula             policy_speed 

@@ -6,6 +6,7 @@
 
 # Testing an example of the no_confounding method
 library(dplyr)
+library(augsynth)
 data(overdoses)
 
 linear0 <- 0
@@ -71,11 +72,11 @@ data <- overdoses %>%
   dplyr::filter(!(state %in% c("Nebraska", "Nevada", "Arkansas", "Mississippi", "Oregon")))
 
 models <- list(
-               #m_csa
-               m_aug
-               #fixedeff_linear, 
-               #fixedeff_linear_two, 
-               #lm_ar
+               m_csa,
+               m_aug,
+               fixedeff_linear, 
+               fixedeff_linear_two, 
+               lm_ar
                )
 
 linear_fe_config <- optic_simulation(
