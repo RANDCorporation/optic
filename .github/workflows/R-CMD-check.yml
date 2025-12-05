@@ -48,7 +48,7 @@ jobs:
           needs: check
 
       - name: Install remotes package
-        run: Rscript -e 'install.packages("remotes")'
+        run: Rscript -e 'install.packages("remotes", repos = "https://cloud.r-project.org")'
 
       - name: Install augsynth from GitHub
         run: Rscript -e 'remotes::install_github("ebenmichael/augsynth")'
