@@ -1,4 +1,4 @@
-# Full test suite workflow - runs all tests including dispatch simulations
+# Full test suite workflow - runs all tests including dispatch simulations and coverage
 # This workflow must complete successfully before R-CMD-check runs
 name: Full Tests
 
@@ -11,10 +11,10 @@ on:
 jobs:
   full-tests:
     runs-on: ubuntu-latest
-    name: Full Tests (Ubuntu Release)
+    name: Full Tests & Coverage (Ubuntu Release)
 
     env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PAT: ${{ secrets.GIT_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
     steps:
@@ -29,7 +29,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::devtools, any::testthat
+          extra-packages: any::devtools, any::testthat, any::covr
           needs: check
 
       - name: Install remotes package
@@ -40,3 +40,7 @@ jobs:
 
       - name: Run full test suite (including dispatch simulations)
         run: Rscript -e 'devtools::test()'
+
+      - name: Test coverage
+        run: covr::codecov(token = "${{ secrets.CODECOV_TOKEN }}")
+        shell: Rscript {0}
