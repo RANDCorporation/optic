@@ -5,51 +5,18 @@
 #------------------------------------------------------------------------------#
 
 
-#' Execute simulations defined in a optic_simulation object
+#' Dispatch Simulations
 #' 
-#' @param object Simulation scenarios object created using optic_simulation
-#' @param seed Specified as either NULL or a numeric. Sets a seed, which is becomes an index in results, for
-#'     each independent set of simulations in optic_simulation.
-#' @param use_future Runs simulation scenarios in parallel. Default FALSE, set to TRUE if you have already setup a future
-#'     plan (e.g., multiprocess, cluster, etc) and would like for the iterations to
-#'     be run in parallel.
-#' @param verbose Default TRUE. IF TRUE, provides details on what's currently running.
-#' @param ... additional parameters to be passed to future_apply. User can pass future.globals and future.packages if your code relies on additional packages
-#' @param graceful If TRUE, errors in iterations are caught and retried up to 10% of total iterations. If FALSE, errors are not caught and will stop execution. Default is FALSE.
-#' 
-#' @importFrom future.apply future_lapply
-#' @importFrom stats simulate
-#' @importFrom progressr with_progress progressor
-#' @importFrom tidyr expand_grid
-#' @importFrom dplyr bind_rows
-#' @returns A single dataframe containing estimated treatment effects and summary statistics by model and draw, bound together to allow for different column names.
-#' @examples 
-#' # Set up a basic model and simulation scenario:
-#' data(overdoses)
-#' 
-#' eff <- 0.1*mean(overdoses$crude.rate, na.rm = TRUE)
-#' form <- formula(crude.rate ~ state + year + population + treatment_level)
-#' mod <- optic_model(name = 'lin', 
-#'                    type = 'reg', 
-#'                    call = 'lm', 
-#'                    formula = form, 
-#'                    se_adjust = 'none')
-#' 
-#' sim <- optic_simulation(x = overdoses, 
-#'                         models = list(mod), 
-#'                         method = 'no_confounding', 
-#'                         unit_var = 'state', 
-#'                         treat_var = 'state',
-#'                         time_var = 'year', 
-#'                         effect_magnitude = list(eff), 
-#'                         n_units = 2, 
-#'                         effect_direction = 'pos', 
-#'                         iters = 2,
-#'                         policy_speed = 'instant', 
-#'                         n_implementation_periods = 1)
-#' 
-#' # Finally, dispatch the simulation:
-#' dispatch_simulations(sim)
+#' @description Runs optic simulations
+#'
+#' @param object Simulation scenarios object created using `optic_simulation`
+#' @param seed Specified as either NULL or a numeric. Sets a seed, which is becomes an index in results, for each independent set of simulations in `optic_simulation`.
+#' @param use_future Runs simulation scenarios in parallel. Default FALSE, set to TRUE if you would like for the iterations to be run in parallel.
+#' @param verbose Default 0. If greater than 0, provides details on what is currently running.
+#' @param graceful If TRUE, errors in iterations are caught and retried up to 10 percent of total iterations. If FALSE, errors are not caught and will stop execution. Default is FALSE.
+#' @param ... Additional parameters to be passed to model call.
+#'
+#' @return A single `data.frame` containing estimated treatment effects and summary statistics by model and draw, bound together to allow for different column names.
 #' @export
 dispatch_simulations <- function(object, seed=NULL, use_future=FALSE, verbose=0, graceful=FALSE, ...) {
   stopifnot("OpticSim" %in% class(object))

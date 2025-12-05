@@ -19,13 +19,17 @@
 #' @return optic_model An optic_model object to be used as an input within optic_simulations. Details model calls and parameters.
 #' @examples 
 #' 
-#' # Set up a simple linear model
-#' form <- formula(crude.rate ~ state + year + population + treatment_level)
-#' mod <- optic_model(name = 'lin', 
-#'                    type = 'reg', 
-#'                    call = 'lm', 
-#'                    formula = form, 
-#'                    se_adjust = 'none')
+#' # Load the overdoses example dataset
+#' data(overdoses)
+#' 
+#' # Set up a simple linear model with fixed effects
+#' lm_fe <- optic_model(
+#'   name = 'fixed_effect_linear', 
+#'   type = 'reg', 
+#'   call = 'lm', 
+#'   formula = crude.rate ~ as.factor(year) + as.factor(state) + treatment_level, 
+#'   se_adjust = 'cluster'
+#' )
 #' 
 #' # Deploy an auto-regressive model.
 #' # type = "autoreg" will make AR term 
@@ -33,25 +37,23 @@
 #' # in formula the use of "treatment_change" as the treatment variable 
 #' # rather than "treatment_level" like in the previous example:
 #' 
-#' form_ar <- formula(crude.rate ~ state + year + population + treatment_change)
-#' mod_ar <- optic_model(name = "auto_regressive_linear", 
-#'                       type = "autoreg", 
-#'                       call = "lm", 
-#'                       formula = form_ar,
-#'                       se_adjust = "none")
+#' lm_ar <- optic_model(
+#'   name = "auto_regressive_linear", 
+#'   type = "autoreg", 
+#'   call = "lm", 
+#'   formula = crude.rate ~ unemploymentrate + as.factor(year) + treatment_change,
+#'   se_adjust = "none"
+#' )
 #' 
-#' # One could also use a different call, assuming the right packages 
-#' # are installed and the model uses a familiar formula framework. 
-#' # Example with random intercept for states, using lme4 package.
-#' 
-#' form_me <- formula(crude.rate ~ 
-#'                    population + year + treatment_level + (1|state))
-#'                    
-#' mod_me <- optic_model(name = "mixed_effect", 
-#'                       type = "reg", 
-#'                       call = "lmer", 
-#'                       formula = form_me, 
-#'                       se_adjust = "none")
+#' # Fixed effects model with covariate adjustment
+#' lm_fe_adj <- optic_model(
+#'   name = "fixed_effect_linear_adj",
+#'   type = "reg",
+#'   call = "lm",
+#'   formula = crude.rate ~ unemploymentrate + as.factor(year) + 
+#'             as.factor(state) + treatment_level,
+#'   se_adjust = "cluster"
+#' )
 #' 
 #' @export
 #'

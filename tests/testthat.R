@@ -17,7 +17,7 @@
 library(testthat)
 library(optic)
 
-future::plan(multisession)
+future::plan(future::multisession)
 
 test_check("optic")
 

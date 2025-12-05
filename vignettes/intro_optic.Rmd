@@ -25,6 +25,20 @@ knitr::opts_chunk$set(echo = TRUE)
 # this tidy option might be an issue.
 knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60))
 
+# Set number of iterations based on build context
+# - Full iterations (1000) for pkgdown website builds
+# - Quick iterations (10) for R CMD check and local quick builds
+#
+# To test locally with full iterations, run in R console:
+#   Sys.setenv(BUILD_VIGNETTES_FULL = "true")
+#   devtools::build_vignettes()
+#
+n_iter <- if (identical(Sys.getenv("BUILD_VIGNETTES_FULL"), "true")) {
+  1000  # Full iterations for comprehensive results on website
+} else {
+  10    # Quick iterations for testing and CI checks
+}
+
 ```
 
 # Introduction {.unnumbered}
@@ -293,10 +307,10 @@ of `optic_simulation` is displayed below:
 ```{r config_setup}
 
 sim_config <- optic_simulation(
-  
+
   x                        = overdoses,
   models                   = sim_models,
-  iters                    = 1000, # using 10 for building the vignette online.
+  iters                    = n_iter,
   method                   = "no_confounding",
   unit_var                 = "state",
   treat_var                = "state",
@@ -317,7 +331,17 @@ In addition to the parameters discussed above, OPTIC also permits an advanced us
 
 With the configuration object built, we can now simulate models with the configuration scenarios using the `simulate` function. This function accepts arguments to parallelize code through the use of the "future" package. If this setting is turned on, the function will try to parallelize simulation iterations on the analyst's machine. Any additional packages required by the user for model calls (e.g. a specific modeling package) must also be passed to dispatch_simulations using future.globals and future.packages arguments.
 
-Note this next step will only take a few seconds to run since we used a very small number of iterations for demonstration purpuses; with large numbers of permutations or iterations, it can require  several hours for this function to finish. We suggest using the parallel execution option (`use_future = T`), which can help a great deal for large analyses on your data. We recommend using anywhere between 300-1000 iterations (e.g., `iters = 1000`) when running your experiments.
+```{r iter_note, echo=FALSE, results='asis'}
+if (n_iter < 100) {
+  cat("Note: This vignette uses", n_iter, "iterations for demonstration purposes to ensure quick build times. ")
+  cat("In practice, we recommend using 300-1000 iterations for reliable results. ")
+  cat("With large numbers of iterations, simulations can require several hours to finish. ")
+} else {
+  cat("Note: This vignette uses", n_iter, "iterations to provide comprehensive results. ")
+  cat("For quick testing, you may want to use fewer iterations (e.g., 10-50). ")
+}
+cat("We suggest using the parallel execution option (`use_future = TRUE`), which can help a great deal for large analyses.")
+```
 
 
 ```{r run_sims}
