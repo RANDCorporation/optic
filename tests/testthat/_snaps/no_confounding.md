@@ -1,8 +1,7 @@
 # no_confounding results have consistent structure
 
     Code
-      list(dim = dim(linear_results), colnames = colnames(linear_results), nrow = nrow(
-        linear_results), col_types = col_types)
+      list(dim = dim(linear_results), colnames = colnames(linear_results), col_types = col_types)
     Output
       $dim
       [1] 286  19
@@ -18,9 +17,6 @@
       [15] "effect_magnitude"         "n_units"                 
       [17] "effect_direction"         "iter"                    
       [19] "seed"                    
-      
-      $nrow
-      [1] 286
       
       $col_types
                        outcome            se_adjustment                 estimate 

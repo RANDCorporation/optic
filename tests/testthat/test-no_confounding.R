@@ -133,7 +133,6 @@ test_that("no_confounding results have consistent structure", {
   expect_snapshot(list(
     dim = dim(linear_results),
     colnames = colnames(linear_results),
-    nrow = nrow(linear_results),
     col_types = col_types
   ))
 })

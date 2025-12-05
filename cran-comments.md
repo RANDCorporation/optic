@@ -2,10 +2,9 @@
 
 This is a minor release of optic (version 1.1.0). This version includes:
 
-* New time-varying treatment methods for analyzing policies with time-varying effects
 * Major refactoring of dispatch_simulations() function with improved documentation
 * Enhanced validation system for model specifications
-* Multiple bug fixes for spillover analysis and parameter handling
+* Multiple bug fixes
 * Improved vignettes and documentation
 * Removed augsynth from dependencies (moved to Suggests) to address installation issues
 
