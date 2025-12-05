@@ -53,6 +53,9 @@ jobs:
       - name: Install augsynth from GitHub
         run: Rscript -e 'remotes::install_github("ebenmichael/augsynth")'
 
+      - name: Run tests
+        run: Rscript -e 'devtools::test()'
+
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
