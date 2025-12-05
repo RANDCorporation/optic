@@ -1,21 +1,27 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+# This workflow runs AFTER the full-tests workflow completes successfully
 on:
-  push:
+  workflow_run:
+    workflows: ["Full Tests"]
+    types:
+      - completed
     branches: [develop, main]
-  pull_request:
-    branches: [develop, main]
+  # Allow manual triggers for testing
+  workflow_dispatch:
 
 name: R-CMD-check
 
 jobs:
   R-CMD-check:
+    # Only run if the full-tests workflow succeeded (or if manually triggered)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ${{ matrix.config.os }}
 
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         config:
           - {os: macos-latest,   r: 'release'}
@@ -30,6 +36,8 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
+      # Skip dispatch simulation tests during R CMD check
+      OPTIC_SKIP_DISPATCH: true
 
     steps:
       - uses: actions/checkout@v3
@@ -46,15 +54,6 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
-
-      - name: Install remotes package
-        run: Rscript -e 'install.packages(c("remotes", "devtools"), repos = "https://cloud.r-project.org")'
-
-      - name: Install augsynth from GitHub
-        run: Rscript -e 'remotes::install_github("ebenmichael/augsynth")'
-
-      - name: Run tests
-        run: Rscript -e 'devtools::test()'
 
       - uses: r-lib/actions/check-r-package@v2
         with:

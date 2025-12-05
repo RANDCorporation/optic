@@ -1,0 +1,42 @@
+# Full test suite workflow - runs all tests including dispatch simulations
+# This workflow must complete successfully before R-CMD-check runs
+name: Full Tests
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  full-tests:
+    runs-on: ubuntu-latest
+    name: Full Tests (Ubuntu Release)
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::devtools, any::testthat
+          needs: check
+
+      - name: Install remotes package
+        run: Rscript -e 'install.packages("remotes", repos = "https://cloud.r-project.org")'
+
+      - name: Install augsynth from GitHub
+        run: Rscript -e 'remotes::install_github("ebenmichael/augsynth")'
+
+      - name: Run full test suite (including dispatch simulations)
+        run: Rscript -e 'devtools::test()'
