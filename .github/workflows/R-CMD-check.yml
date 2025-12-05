@@ -47,6 +47,9 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
+      - name: Install remotes package
+        run: Rscript -e 'install.packages("remotes")'
+
       - name: Install augsynth from GitHub
         run: Rscript -e 'remotes::install_github("ebenmichael/augsynth")'
 
