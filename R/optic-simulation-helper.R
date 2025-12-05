@@ -1,5 +1,3 @@
-
-
 #------------------------------------------------------------------------------#
 # OPTIC R Package Code Repository
 # Copyright (C) 2023 by The RAND Corporation
@@ -281,10 +279,15 @@ optic_simulation <- function(x, models, iters,
     method_post_model=method_post_model,
     method_results=method_results
   )
+
+  # NOTE: The first validation should be done here. So, iterate over the models in conf, and call their validate_init function:
+  for (model_name in names(models)) {
+    validate_optic_model_init(models[[model_name]], x, params)
+  }
   
   if (verbose) {
     # let user know combinations and total individual models
-    combs <- length(models) * length(purrr::cross(params))
+    combs <- length(models) * nrow(tidyr::expand_grid(params))
     runs <- combs * iters
     
     print(conf)

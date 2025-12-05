@@ -1,0 +1,193 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Draft Release Notes",
+      "type": "shell",
+      "command": "Rscript",
+      "args": [
+        ".github/scripts/draft-release-notes.R"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Prepare Release (Interactive)",
+      "type": "shell",
+      "command": "Rscript",
+      "args": [
+        ".github/scripts/prepare-release.R",
+        "${input:releaseType}"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Get Commits Since Release",
+      "type": "shell",
+      "command": "${workspaceFolder}/.github/scripts/get-commits-since-release.sh",
+      "args": [
+        "${input:commitFormat}"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    },
+    {
+      "label": "R CMD check",
+      "type": "shell",
+      "command": "Rscript",
+      "args": [
+        "-e",
+        "devtools::check()"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Run Tests",
+      "type": "shell",
+      "command": "Rscript",
+      "args": [
+        "-e",
+        "devtools::test()"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Build Package",
+      "type": "shell",
+      "command": "Rscript",
+      "args": [
+        "-e",
+        "devtools::build()"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Check Windows (devel)",
+      "type": "shell",
+      "command": "Rscript",
+      "args": [
+        "-e",
+        "devtools::check_win_devel()"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    },
+    {
+      "label": "Update pkgdown Site",
+      "type": "shell",
+      "command": "Rscript",
+      "args": [
+        "-e",
+        "pkgdown::build_site()"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "releaseType",
+      "type": "pickString",
+      "description": "What type of release?",
+      "options": [
+        "major",
+        "minor",
+        "patch",
+        "dev"
+      ],
+      "default": "minor"
+    },
+    {
+      "id": "commitFormat",
+      "type": "pickString",
+      "description": "Commit list format",
+      "options": [
+        "simple",
+        "detailed",
+        "categorized",
+        "stats"
+      ],
+      "default": "categorized"
+    }
+  ]
+}
