@@ -59,7 +59,7 @@
       <h1>Introduction to OPTIC</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/v1.0.2/vignettes/intro_optic.Rmd" class="external-link"><code>vignettes/intro_optic.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/main/vignettes/intro_optic.Rmd" class="external-link"><code>vignettes/intro_optic.Rmd</code></a></small>
       <div class="d-none name"><code>intro_optic.Rmd</code></div>
     </div>
 
@@ -455,6 +455,14 @@ example call of <code>optic_simulation</code> is displayed below:</p>
 <span>  n_implementation_periods <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: `cross()` was deprecated in purrr 1.0.0.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Please use `tidyr::expand_grid()` instead.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See &lt;https://github.com/tidyverse/purrr/issues/768&gt;.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The deprecated feature was likely used in the <span style="color: #0000BB;">optic</span> package.</span></span>
+<span><span class="co">#&gt;   Please report the issue at <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/randcorporation/optic/issues&gt;</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">generated.</span></span></span>
 <span><span class="co">#&gt; Number of Simulations: 6</span></span>
 <span><span class="co">#&gt; Number of Models: 3</span></span>
 <span><span class="co">#&gt; Iteration per Simulation : 10</span></span>
@@ -513,17 +521,6 @@ experiments.</p>
 <span><span class="co">#&gt;             n_implementation_periods: 1</span></span>
 <span><span class="co">#&gt;             prior_control: level</span></span>
 <span><span class="co">#&gt;             treat_var: state</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:MASS':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     select</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     filter, lag</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
 <span><span class="co">#&gt; JOB 2 OF 6 DISPATCHED:</span></span>
 <span><span class="co">#&gt;         DISPATCH METHOD: parallel (future)</span></span>
 <span><span class="co">#&gt;         PARAMS:</span></span>
@@ -746,7 +743,7 @@ State-Level Policies.”</span> <em>BMC Medical Research Methodology</em>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

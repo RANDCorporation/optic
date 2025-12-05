@@ -33,7 +33,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Execute simulations defined in a optic_simulation object</h1>
-      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/v1.0.2/R/dispatch-simulations.R" class="external-link"><code>R/dispatch-simulations.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/main/R/dispatch-simulations.R" class="external-link"><code>R/dispatch-simulations.R</code></a></small>
       <div class="d-none name"><code>dispatch_simulations.Rd</code></div>
     </div>
 
@@ -103,6 +103,11 @@ be run in parallel.</p></dd>
 <span class="r-in"><span>                        iters <span class="op">=</span> <span class="fl">2</span>,</span></span>
 <span class="r-in"><span>                        policy_speed <span class="op">=</span> <span class="st">'instant'</span>, </span></span>
 <span class="r-in"><span>                        n_implementation_periods <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`cross()` was deprecated in purrr 1.0.0.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use `tidyr::expand_grid()` instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> See &lt;https://github.com/tidyverse/purrr/issues/768&gt;.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The deprecated feature was likely used in the <span style="color: #0000BB;">optic</span> package.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   Please report the issue at <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/randcorporation/optic/issues&gt;</span>.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Number of Simulations: 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Number of Models: 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Iteration per Simulation : 2</span>
@@ -111,12 +116,12 @@ be run in parallel.</p></dd>
 <span class="r-in"><span><span class="co"># Finally, dispatch the simulation:</span></span></span>
 <span class="r-in"><span><span class="fu">dispatch_simulations</span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      outcome se_adjustment   estimate       se variance     t_stat    p_value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 crude.rate          none  0.8947822 1.255696 1.576772  0.7125786 0.47629000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 crude.rate          none -2.6622182 1.172858 1.375597 -2.2698548 0.02345061</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      outcome se_adjustment    estimate       se variance      t_stat   p_value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 crude.rate          none  0.05595668 1.186343  1.40741  0.04716736 0.9623902</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 crude.rate          none -0.67953698 1.431831  2.05014 -0.47459304 0.6351914</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        mse model_name model_call</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 11.03329        lin         lm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 10.89946        lin         lm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 11.02171        lin         lm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 11.01193        lin         lm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                              model_formula policy_speed</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 crude.rate ~ state + year + population + treatment_level      instant</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 crude.rate ~ state + year + population + treatment_level      instant</span>
@@ -138,7 +143,7 @@ be run in parallel.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
