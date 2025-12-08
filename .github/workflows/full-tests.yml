@@ -16,6 +16,8 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
+      # Enable full model suite tests including augsynth
+      OPTIC_FULL_MODEL_SUITE: true
 
     steps:
       - uses: actions/checkout@v3
