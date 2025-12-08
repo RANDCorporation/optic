@@ -6,15 +6,14 @@
 
 ## New features
 
-* Added time-varying treatment methods (635 lines of new functionality in `tvary-methods.R`) for analyzing policies with time-varying effects.
 * Enhanced validation system for model specifications, improving error messages and catching configuration issues earlier.
 * Introduced snapshot testing for simulation results to ensure consistent output structure across versions.
 
 ## Improvements
 
 * Major refactoring of `dispatch_simulations()` function for improved clarity and maintainability.
-* Enhanced `optic_model` class with better validation and documentation (432 lines of improvements).
-* Replaced deprecated `purrr::cross()` with `tidyr::expand_grid()` for better parameter expansion.
+* Enhanced `optic_model` class with better validation and documentation.
+* Replaced deprecated `purrr::cross()` with `tidyr::expand_grid()` for more reliable parameter expansion.
 * Improved vignettes with updated examples using refactored functions.
 * Clarified package description and documentation.
 
