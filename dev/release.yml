@@ -65,9 +65,7 @@ jobs:
         config:
           - {os: macos-latest,   r: 'release'}
           - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
-          - {os: ubuntu-latest,   r: 'oldrel-1'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -88,12 +86,6 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
-
-      - name: Install remotes package
-        run: Rscript -e 'install.packages("remotes")'
-
-      - name: Install augsynth from GitHub
-        run: Rscript -e 'remotes::install_github("ebenmichael/augsynth")'
 
       - uses: r-lib/actions/check-r-package@v2
         with:
@@ -126,12 +118,6 @@ jobs:
           extra-packages: |
             any::devtools
             any::desc
-
-      - name: Install remotes package
-        run: Rscript -e 'install.packages("remotes")'
-
-      - name: Install augsynth from GitHub
-        run: Rscript -e 'remotes::install_github("ebenmichael/augsynth")'
 
       - name: Build source package
         run: |
@@ -222,12 +208,6 @@ jobs:
         with:
           extra-packages: any::pkgdown, local::.
           needs: website
-
-      - name: Install remotes package
-        run: Rscript -e 'install.packages("remotes")'
-
-      - name: Install augsynth from GitHub
-        run: Rscript -e 'remotes::install_github("ebenmichael/augsynth")'
 
       - name: Build and deploy pkgdown site
         run: |
