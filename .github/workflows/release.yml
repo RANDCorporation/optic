@@ -121,12 +121,6 @@ jobs:
             any::devtools
             any::desc
 
-      - name: Install remotes package
-        run: Rscript -e 'install.packages("remotes")'
-
-      - name: Install augsynth from GitHub
-        run: Rscript -e 'remotes::install_github("ebenmichael/augsynth")'
-
       - name: Build source package
         run: |
           dir.create("release", showWarnings = FALSE)
@@ -216,12 +210,6 @@ jobs:
         with:
           extra-packages: any::pkgdown, local::.
           needs: website
-
-      - name: Install remotes package
-        run: Rscript -e 'install.packages("remotes")'
-
-      - name: Install augsynth from GitHub
-        run: Rscript -e 'remotes::install_github("ebenmichael/augsynth")'
 
       - name: Build and deploy pkgdown site
         run: |
