@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optic</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -249,15 +249,16 @@ user wants to examine. Using the example_data:</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">overdoses</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Calculate 5% and 10% changes in mean opioid_death_rate, across states and years. </span></span>
+<span><span class="co"># Calculate a hypothetical 5% and 10% changes in mean opioid_death_rate, </span></span>
+<span><span class="co"># across states and years. </span></span>
 <span><span class="va">five_percent_effect</span> <span class="op">&lt;-</span> <span class="fl">0.05</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">overdoses</span><span class="op">$</span><span class="va">crude.rate</span>, na.rm <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
 <span><span class="va">ten_percent_effect</span>  <span class="op">&lt;-</span> <span class="fl">0.10</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">overdoses</span><span class="op">$</span><span class="va">crude.rate</span>, na.rm <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Calculate a co-occuring policy effect</span></span>
-<span><span class="va">cooccur_effect</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">0.02</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">overdoses</span><span class="op">$</span><span class="va">crude.rate</span>, na.rm <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
-<span></span>
 <span><span class="co"># Scenario object for "no confounding" evaluation scenario:</span></span>
 <span><span class="va">scenarios_no_confounding</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">five_percent_effect</span>, <span class="va">ten_percent_effect</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Calculate a co-occuring policy effect</span></span>
+<span><span class="va">cooccur_effect</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">0.02</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">overdoses</span><span class="op">$</span><span class="va">crude.rate</span>, na.rm <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Scenario object for "co-occuring policy" evaluation scenario:</span></span>
 <span><span class="va">scenarios_co_occur</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">five_percent_effect</span>, <span class="va">cooccur_effect</span><span class="op">)</span>,</span>
@@ -440,10 +441,10 @@ example call of <code>optic_simulation</code> is displayed below:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">sim_config</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/optic_simulation.html">optic_simulation</a></span><span class="op">(</span></span>
-<span>  </span>
+<span></span>
 <span>  x                        <span class="op">=</span> <span class="va">overdoses</span>,</span>
 <span>  models                   <span class="op">=</span> <span class="va">sim_models</span>,</span>
-<span>  iters                    <span class="op">=</span> <span class="fl">10</span>, </span>
+<span>  iters                    <span class="op">=</span> <span class="fl">10</span>, <span class="co"># for real-world applications, we use 1000 iterations</span></span>
 <span>  method                   <span class="op">=</span> <span class="st">"no_confounding"</span>,</span>
 <span>  unit_var                 <span class="op">=</span> <span class="st">"state"</span>,</span>
 <span>  treat_var                <span class="op">=</span> <span class="st">"state"</span>,</span>
@@ -455,14 +456,6 @@ example call of <code>optic_simulation</code> is displayed below:</p>
 <span>  n_implementation_periods <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `cross()` was deprecated in purrr 1.0.0.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Please use `tidyr::expand_grid()` instead.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See &lt;https://github.com/tidyverse/purrr/issues/768&gt;.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The deprecated feature was likely used in the <span style="color: #0000BB;">optic</span> package.</span></span>
-<span><span class="co">#&gt;   Please report the issue at <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/randcorporation/optic/issues&gt;</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">generated.</span></span></span>
 <span><span class="co">#&gt; Number of Simulations: 6</span></span>
 <span><span class="co">#&gt; Number of Models: 3</span></span>
 <span><span class="co">#&gt; Iteration per Simulation : 10</span></span>
@@ -489,113 +482,37 @@ try to parallelize simulation iterations on the analyst’s machine. Any
 additional packages required by the user for model calls (e.g. a
 specific modeling package) must also be passed to dispatch_simulations
 using future.globals and future.packages arguments.</p>
-<p>Note this next step will only take a few seconds to run since we used
-a very small number of iterations for demonstration purpuses; with large
-numbers of permutations or iterations, it can require several hours for
-this function to finish. We suggest using the parallel execution option
-(<code>use_future = T</code>), which can help a great deal for large
-analyses on your data. We recommend using anywhere between 300-1000
-iterations (e.g., <code>iters = 1000</code>) when running your
-experiments.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dispatch_simulations.html">dispatch_simulations</a></span><span class="op">(</span></span>
 <span>  </span>
 <span>  <span class="va">sim_config</span>,</span>
-<span>  use_future <span class="op">=</span> <span class="cn">T</span>,</span>
+<span>  use_future <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">9782</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  future.globals<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cluster_adjust_se"</span><span class="op">)</span>,</span>
 <span>  future.packages<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MASS"</span>, <span class="st">"dplyr"</span>, <span class="st">"optic"</span><span class="op">)</span></span>
 <span>  </span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; JOB 1 OF 6 DISPATCHED:</span></span>
-<span><span class="co">#&gt;         DISPATCH METHOD: parallel (future)</span></span>
-<span><span class="co">#&gt;         PARAMS:</span></span>
-<span><span class="co">#&gt;             unit_var: state</span></span>
-<span><span class="co">#&gt;             time_var: year</span></span>
-<span><span class="co">#&gt;             effect_magnitude: 0.632536458333333</span></span>
-<span><span class="co">#&gt;             n_units: 30</span></span>
-<span><span class="co">#&gt;             effect_direction: neg</span></span>
-<span><span class="co">#&gt;             policy_speed: instant</span></span>
-<span><span class="co">#&gt;             n_implementation_periods: 1</span></span>
-<span><span class="co">#&gt;             prior_control: level</span></span>
-<span><span class="co">#&gt;             treat_var: state</span></span>
-<span><span class="co">#&gt; JOB 2 OF 6 DISPATCHED:</span></span>
-<span><span class="co">#&gt;         DISPATCH METHOD: parallel (future)</span></span>
-<span><span class="co">#&gt;         PARAMS:</span></span>
-<span><span class="co">#&gt;             unit_var: state</span></span>
-<span><span class="co">#&gt;             time_var: year</span></span>
-<span><span class="co">#&gt;             effect_magnitude: 1.26507291666667</span></span>
-<span><span class="co">#&gt;             n_units: 30</span></span>
-<span><span class="co">#&gt;             effect_direction: neg</span></span>
-<span><span class="co">#&gt;             policy_speed: instant</span></span>
-<span><span class="co">#&gt;             n_implementation_periods: 1</span></span>
-<span><span class="co">#&gt;             prior_control: level</span></span>
-<span><span class="co">#&gt;             treat_var: state</span></span>
-<span><span class="co">#&gt; JOB 3 OF 6 DISPATCHED:</span></span>
-<span><span class="co">#&gt;         DISPATCH METHOD: parallel (future)</span></span>
-<span><span class="co">#&gt;         PARAMS:</span></span>
-<span><span class="co">#&gt;             unit_var: state</span></span>
-<span><span class="co">#&gt;             time_var: year</span></span>
-<span><span class="co">#&gt;             effect_magnitude: 0.632536458333333</span></span>
-<span><span class="co">#&gt;             n_units: 40</span></span>
-<span><span class="co">#&gt;             effect_direction: neg</span></span>
-<span><span class="co">#&gt;             policy_speed: instant</span></span>
-<span><span class="co">#&gt;             n_implementation_periods: 1</span></span>
-<span><span class="co">#&gt;             prior_control: level</span></span>
-<span><span class="co">#&gt;             treat_var: state</span></span>
-<span><span class="co">#&gt; JOB 4 OF 6 DISPATCHED:</span></span>
-<span><span class="co">#&gt;         DISPATCH METHOD: parallel (future)</span></span>
-<span><span class="co">#&gt;         PARAMS:</span></span>
-<span><span class="co">#&gt;             unit_var: state</span></span>
-<span><span class="co">#&gt;             time_var: year</span></span>
-<span><span class="co">#&gt;             effect_magnitude: 1.26507291666667</span></span>
-<span><span class="co">#&gt;             n_units: 40</span></span>
-<span><span class="co">#&gt;             effect_direction: neg</span></span>
-<span><span class="co">#&gt;             policy_speed: instant</span></span>
-<span><span class="co">#&gt;             n_implementation_periods: 1</span></span>
-<span><span class="co">#&gt;             prior_control: level</span></span>
-<span><span class="co">#&gt;             treat_var: state</span></span>
-<span><span class="co">#&gt; JOB 5 OF 6 DISPATCHED:</span></span>
-<span><span class="co">#&gt;         DISPATCH METHOD: parallel (future)</span></span>
-<span><span class="co">#&gt;         PARAMS:</span></span>
-<span><span class="co">#&gt;             unit_var: state</span></span>
-<span><span class="co">#&gt;             time_var: year</span></span>
-<span><span class="co">#&gt;             effect_magnitude: 0.632536458333333</span></span>
-<span><span class="co">#&gt;             n_units: 50</span></span>
-<span><span class="co">#&gt;             effect_direction: neg</span></span>
-<span><span class="co">#&gt;             policy_speed: instant</span></span>
-<span><span class="co">#&gt;             n_implementation_periods: 1</span></span>
-<span><span class="co">#&gt;             prior_control: level</span></span>
-<span><span class="co">#&gt;             treat_var: state</span></span>
-<span><span class="co">#&gt; JOB 6 OF 6 DISPATCHED:</span></span>
-<span><span class="co">#&gt;         DISPATCH METHOD: parallel (future)</span></span>
-<span><span class="co">#&gt;         PARAMS:</span></span>
-<span><span class="co">#&gt;             unit_var: state</span></span>
-<span><span class="co">#&gt;             time_var: year</span></span>
-<span><span class="co">#&gt;             effect_magnitude: 1.26507291666667</span></span>
-<span><span class="co">#&gt;             n_units: 50</span></span>
-<span><span class="co">#&gt;             effect_direction: neg</span></span>
-<span><span class="co">#&gt;             policy_speed: instant</span></span>
-<span><span class="co">#&gt;             n_implementation_periods: 1</span></span>
-<span><span class="co">#&gt;             prior_control: level</span></span>
-<span><span class="co">#&gt;             treat_var: state</span></span></code></pre></div>
+<span><span class="co">#&gt; TOTAL RUNS: 60 </span></span>
+<span><span class="co">#&gt; SIMULATION SCENARIOS: 6 </span></span>
+<span><span class="co">#&gt; ITERATIONS PER SCENARIO: 10 </span></span>
+<span><span class="co">#&gt; DISPATCH METHOD: single-threaded</span></span></code></pre></div>
 <p>OPTIC will provide a short summary on the models being run if verbose
 is set to 1 or 2. We now have results which can be used to construct
-summary statistics and compare models for policy evaluation. Each
-scenario will be saved as a list entry in the results object, with each
-list entry containing a dataframe with rows for model results. Model
-results return model point estimates &amp; standard errors for each
-treatment variable (in the ‘noconf’ method, this variable would be
-‘treatment’ and for the ’concurrent” method, this variable would be
-treatment1 &amp; treatment2), along with policy scenario settings.</p>
+summary statistics and compare models for policy evaluation. The results
+object is a dataframe with rows for model results from each simulation
+iteration and scenario. Model results return model point estimates &amp;
+standard errors for each treatment variable (in the ‘noconf’ method,
+this variable would be ‘treatment’ and for the ’concurrent” method, this
+variable would be treatment1 &amp; treatment2), along with policy
+scenario settings.</p>
 <p>The results table includes the simulation run parameters, along with
 estimates of the simulated treatment effect. The table below displays a
 few select estimates from the large results table:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">results</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">6</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">9</span><span class="op">]</span>, format <span class="op">=</span> <span class="st">"markdown"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">results</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">6</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">9</span><span class="op">]</span>, format <span class="op">=</span> <span class="st">"markdown"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="2%">
@@ -626,36 +543,36 @@ few select estimates from the large results table:</p>
 <td align="left">2</td>
 <td align="left">crude.rate</td>
 <td align="left">cluster-unit</td>
-<td align="right">-0.8347378</td>
-<td align="right">0.7812159</td>
-<td align="right">0.6102983</td>
-<td align="right">-1.0685109</td>
-<td align="right">0.2855798</td>
-<td align="right">10.19993</td>
+<td align="right">0.4484649</td>
+<td align="right">0.8253356</td>
+<td align="right">0.6811788</td>
+<td align="right">0.5433728</td>
+<td align="right">0.5870092</td>
+<td align="right">10.11952</td>
 <td align="left">fixed_effect_linear</td>
 </tr>
 <tr class="even">
 <td align="left">4</td>
 <td align="left">crude.rate</td>
 <td align="left">cluster-unit</td>
-<td align="right">-0.7610651</td>
-<td align="right">0.7671034</td>
-<td align="right">0.5884476</td>
-<td align="right">-0.9921284</td>
-<td align="right">0.3214048</td>
-<td align="right">10.16414</td>
+<td align="right">0.4359681</td>
+<td align="right">0.8084088</td>
+<td align="right">0.6535247</td>
+<td align="right">0.5392916</td>
+<td align="right">0.5898207</td>
+<td align="right">10.08406</td>
 <td align="left">fixed_effect_linear_adj</td>
 </tr>
 <tr class="odd">
 <td align="left">6</td>
 <td align="left">crude.rate</td>
 <td align="left">none</td>
-<td align="right">-0.8240759</td>
-<td align="right">0.4038133</td>
-<td align="right">0.1630652</td>
-<td align="right">-2.0407349</td>
-<td align="right">0.0415718</td>
-<td align="right">10.20003</td>
+<td align="right">-0.6021976</td>
+<td align="right">0.4020783</td>
+<td align="right">0.1616669</td>
+<td align="right">-1.4977124</td>
+<td align="right">0.1345625</td>
+<td align="right">10.20254</td>
 <td align="left">fixed_effect_linear</td>
 </tr>
 </tbody>
@@ -665,13 +582,13 @@ estimated treatment effect is null, Type S error rates, and
 coverage.</p>
 <p>We can use the results table to analyze the relative performance of
 models across data scenarios or create test statistics as needed for an
-analysis. For example, we might be interested in comparingrelative bias
+analysis. For example, we might be interested in comparing relative bias
 across the point estimates, in the scenario where the effect of policy
 implementation is immediate and decreases the crude.rate by 5%:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Compare point estimates across models for the 5% change scenario, with instantaneous policy adoption:</span></span>
-<span><span class="va">df_compare</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="op">(</span><span class="va">results</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">se_adjustment</span> <span class="op">==</span> <span class="st">"cluster-unit"</span><span class="op">)</span><span class="op">|</span><span class="op">(</span><span class="va">results</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">model_name</span> <span class="op">==</span> <span class="st">"auto_regressive_linear"</span><span class="op">)</span>,<span class="op">]</span></span>
+<span><span class="va">df_compare</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">[</span><span class="va">results</span><span class="op">$</span><span class="va">effect_magnitude</span> <span class="op">==</span> <span class="va">five_percent_effect</span>, <span class="op">]</span></span>
 <span></span>
 <span><span class="va">true_est</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">five_percent_effect</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span></span>
@@ -688,19 +605,19 @@ implementation is immediate and decreases the crude.rate by 5%:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"True effect size: "</span>, <span class="va">true_est</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "True effect size: -0.633"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"FE LM effect: "</span>, <span class="fu">grab_mean_and_se</span><span class="op">(</span><span class="st">'fixed_effect_linear'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "FE LM effect: -0.858 (0.725)"</span></span>
+<span><span class="co">#&gt; [1] "FE LM effect: -0.559 (0.808)"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"FE LM adjusted effect: "</span>, <span class="fu">grab_mean_and_se</span><span class="op">(</span><span class="st">'fixed_effect_linear_adj'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "FE LM adjusted effect: -0.863 (0.714)"</span></span>
+<span><span class="co">#&gt; [1] "FE LM adjusted effect: -0.575 (0.822)"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"AR LM effect: "</span>, <span class="fu">grab_mean_and_se</span><span class="op">(</span><span class="st">'auto_regressive_linear'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "AR LM effect: -0.513 (0.392)"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "AR LM effect: -0.595 (0.44)"</span></span></code></pre></div>
 <p>From the above output, we can see all models are producing similar
 estimates, across simulated point estimate draws. While all of these
-models are biased slightly downwards compared to the true effect, the
-autoregressive linear model seems to outperform both the unadjusted and
-adjusted fixed effect model, producing an estimate closer to truth, with
-improved precision. Based on this simulation, if these were the only
-models under consideration, these results could justify using an
-autoregressive linear model for analyzing the real policy effect.</p>
+models produced estimates which are closer to zero than the true effect,
+the linear model seems to outperform both the unadjusted and
+autoregressive model, producing an estimate closer to truth. Based on
+this simulation, if these were the only models under consideration,
+these results could justify using a unadjusted linear model for
+analyzing the real policy effect.</p>
 </div>
 <div class="section level4">
 <h4 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>

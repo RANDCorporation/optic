@@ -6,7 +6,7 @@
   : Calculates the exposure rate applied to each year provided month of
   policy implementation and number of years to full implementation
 - [`dispatch_simulations()`](https://randcorporation.github.io/optic/reference/dispatch_simulations.md)
-  : Execute simulations defined in a optic_simulation object
+  : Dispatch Simulations
 - [`exposure_list()`](https://randcorporation.github.io/optic/reference/exposure_list.md)
   : Applies a time-varying treatment effect
 - [`model_terms()`](https://randcorporation.github.io/optic/reference/model_terms.md)

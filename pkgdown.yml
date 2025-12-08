@@ -3,7 +3,7 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   intro_optic: intro_optic.html
-last_built: 2025-12-05T21:10Z
+last_built: 2025-12-08T20:20Z
 urls:
   reference: https://randcorporation.github.io/optic/reference
   article: https://randcorporation.github.io/optic/articles

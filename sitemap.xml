@@ -1,6 +1,11 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://randcorporation.github.io/optic/404.html</loc></url>
+<url><loc>https://randcorporation.github.io/optic/AGENT_README.html</loc></url>
+<url><loc>https://randcorporation.github.io/optic/AGENT_RELEASE_GUIDE.html</loc></url>
 <url><loc>https://randcorporation.github.io/optic/LICENSE-text.html</loc></url>
+<url><loc>https://randcorporation.github.io/optic/RELEASE_CHECKLIST.html</loc></url>
+<url><loc>https://randcorporation.github.io/optic/RELEASE_GUIDE.html</loc></url>
+<url><loc>https://randcorporation.github.io/optic/VIGNETTE_BUILD.html</loc></url>
 <url><loc>https://randcorporation.github.io/optic/articles/index.html</loc></url>
 <url><loc>https://randcorporation.github.io/optic/articles/intro_optic.html</loc></url>
 <url><loc>https://randcorporation.github.io/optic/authors.html</loc></url>

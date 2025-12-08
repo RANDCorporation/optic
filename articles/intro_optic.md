@@ -113,15 +113,16 @@ user wants to examine. Using the example_data:
 
 data(overdoses)
 
-# Calculate 5% and 10% changes in mean opioid_death_rate, across states and years. 
+# Calculate a hypothetical 5% and 10% changes in mean opioid_death_rate, 
+# across states and years. 
 five_percent_effect <- 0.05*mean(overdoses$crude.rate, na.rm = T)
 ten_percent_effect  <- 0.10*mean(overdoses$crude.rate, na.rm = T)
 
-# Calculate a co-occuring policy effect
-cooccur_effect <- -0.02*mean(overdoses$crude.rate, na.rm = T)
-
 # Scenario object for "no confounding" evaluation scenario:
 scenarios_no_confounding <- list(five_percent_effect, ten_percent_effect)
+
+# Calculate a co-occuring policy effect
+cooccur_effect <- -0.02*mean(overdoses$crude.rate, na.rm = T)
 
 # Scenario object for "co-occuring policy" evaluation scenario:
 scenarios_co_occur <- list(c(five_percent_effect, cooccur_effect),
@@ -309,10 +310,10 @@ possible simulations that will be run for each model. An example call of
 ``` r
 
 sim_config <- optic_simulation(
-  
+
   x                        = overdoses,
   models                   = sim_models,
-  iters                    = 10, 
+  iters                    = 10, # for real-world applications, we use 1000 iterations
   method                   = "no_confounding",
   unit_var                 = "state",
   treat_var                = "state",
@@ -324,14 +325,6 @@ sim_config <- optic_simulation(
   n_implementation_periods = c(1)
 
 )
-#> Warning: `cross()` was deprecated in purrr 1.0.0.
-#> ℹ Please use `tidyr::expand_grid()` instead.
-#> ℹ See <https://github.com/tidyverse/purrr/issues/768>.
-#> ℹ The deprecated feature was likely used in the optic package.
-#>   Please report the issue at <https://github.com/randcorporation/optic/issues>.
-#> This warning is displayed once every 8 hours.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
 #> Number of Simulations: 6
 #> Number of Models: 3
 #> Iteration per Simulation : 10
@@ -357,109 +350,33 @@ additional packages required by the user for model calls (e.g. a
 specific modeling package) must also be passed to dispatch_simulations
 using future.globals and future.packages arguments.
 
-Note this next step will only take a few seconds to run since we used a
-very small number of iterations for demonstration purpuses; with large
-numbers of permutations or iterations, it can require several hours for
-this function to finish. We suggest using the parallel execution option
-(`use_future = T`), which can help a great deal for large analyses on
-your data. We recommend using anywhere between 300-1000 iterations
-(e.g., `iters = 1000`) when running your experiments.
-
 ``` r
 
 results <- dispatch_simulations(
   
   sim_config,
-  use_future = T,
+  use_future = F,
   seed = 9782,
   verbose = 2,
   future.globals=c("cluster_adjust_se"),
   future.packages=c("MASS", "dplyr", "optic")
   
 )
-#> JOB 1 OF 6 DISPATCHED:
-#>         DISPATCH METHOD: parallel (future)
-#>         PARAMS:
-#>             unit_var: state
-#>             time_var: year
-#>             effect_magnitude: 0.632536458333333
-#>             n_units: 30
-#>             effect_direction: neg
-#>             policy_speed: instant
-#>             n_implementation_periods: 1
-#>             prior_control: level
-#>             treat_var: state
-#> JOB 2 OF 6 DISPATCHED:
-#>         DISPATCH METHOD: parallel (future)
-#>         PARAMS:
-#>             unit_var: state
-#>             time_var: year
-#>             effect_magnitude: 1.26507291666667
-#>             n_units: 30
-#>             effect_direction: neg
-#>             policy_speed: instant
-#>             n_implementation_periods: 1
-#>             prior_control: level
-#>             treat_var: state
-#> JOB 3 OF 6 DISPATCHED:
-#>         DISPATCH METHOD: parallel (future)
-#>         PARAMS:
-#>             unit_var: state
-#>             time_var: year
-#>             effect_magnitude: 0.632536458333333
-#>             n_units: 40
-#>             effect_direction: neg
-#>             policy_speed: instant
-#>             n_implementation_periods: 1
-#>             prior_control: level
-#>             treat_var: state
-#> JOB 4 OF 6 DISPATCHED:
-#>         DISPATCH METHOD: parallel (future)
-#>         PARAMS:
-#>             unit_var: state
-#>             time_var: year
-#>             effect_magnitude: 1.26507291666667
-#>             n_units: 40
-#>             effect_direction: neg
-#>             policy_speed: instant
-#>             n_implementation_periods: 1
-#>             prior_control: level
-#>             treat_var: state
-#> JOB 5 OF 6 DISPATCHED:
-#>         DISPATCH METHOD: parallel (future)
-#>         PARAMS:
-#>             unit_var: state
-#>             time_var: year
-#>             effect_magnitude: 0.632536458333333
-#>             n_units: 50
-#>             effect_direction: neg
-#>             policy_speed: instant
-#>             n_implementation_periods: 1
-#>             prior_control: level
-#>             treat_var: state
-#> JOB 6 OF 6 DISPATCHED:
-#>         DISPATCH METHOD: parallel (future)
-#>         PARAMS:
-#>             unit_var: state
-#>             time_var: year
-#>             effect_magnitude: 1.26507291666667
-#>             n_units: 50
-#>             effect_direction: neg
-#>             policy_speed: instant
-#>             n_implementation_periods: 1
-#>             prior_control: level
-#>             treat_var: state
+#> TOTAL RUNS: 60 
+#> SIMULATION SCENARIOS: 6 
+#> ITERATIONS PER SCENARIO: 10 
+#> DISPATCH METHOD: single-threaded
 ```
 
 OPTIC will provide a short summary on the models being run if verbose is
 set to 1 or 2. We now have results which can be used to construct
-summary statistics and compare models for policy evaluation. Each
-scenario will be saved as a list entry in the results object, with each
-list entry containing a dataframe with rows for model results. Model
-results return model point estimates & standard errors for each
-treatment variable (in the ‘noconf’ method, this variable would be
-‘treatment’ and for the ’concurrent” method, this variable would be
-treatment1 & treatment2), along with policy scenario settings.
+summary statistics and compare models for policy evaluation. The results
+object is a dataframe with rows for model results from each simulation
+iteration and scenario. Model results return model point estimates &
+standard errors for each treatment variable (in the ‘noconf’ method,
+this variable would be ‘treatment’ and for the ’concurrent” method, this
+variable would be treatment1 & treatment2), along with policy scenario
+settings.
 
 The results table includes the simulation run parameters, along with
 estimates of the simulated treatment effect. The table below displays a
@@ -467,28 +384,28 @@ few select estimates from the large results table:
 
 ``` r
 
-knitr::kable(results[[1]][c(2, 4, 6), 1:9], format = "markdown")
+knitr::kable(results[c(2, 4, 6), 1:9], format = "markdown")
 ```
 
 |     | outcome    | se_adjustment |   estimate |        se |  variance |     t_stat |   p_value |      mse | model_name              |
 |:----|:-----------|:--------------|-----------:|----------:|----------:|-----------:|----------:|---------:|:------------------------|
-| 2   | crude.rate | cluster-unit  | -0.8347378 | 0.7812159 | 0.6102983 | -1.0685109 | 0.2855798 | 10.19993 | fixed_effect_linear     |
-| 4   | crude.rate | cluster-unit  | -0.7610651 | 0.7671034 | 0.5884476 | -0.9921284 | 0.3214048 | 10.16414 | fixed_effect_linear_adj |
-| 6   | crude.rate | none          | -0.8240759 | 0.4038133 | 0.1630652 | -2.0407349 | 0.0415718 | 10.20003 | fixed_effect_linear     |
+| 2   | crude.rate | cluster-unit  |  0.4484649 | 0.8253356 | 0.6811788 |  0.5433728 | 0.5870092 | 10.11952 | fixed_effect_linear     |
+| 4   | crude.rate | cluster-unit  |  0.4359681 | 0.8084088 | 0.6535247 |  0.5392916 | 0.5898207 | 10.08406 | fixed_effect_linear_adj |
+| 6   | crude.rate | none          | -0.6021976 | 0.4020783 | 0.1616669 | -1.4977124 | 0.1345625 | 10.20254 | fixed_effect_linear     |
 
 There is also detailed information on Type I error rates when the
 estimated treatment effect is null, Type S error rates, and coverage.
 
 We can use the results table to analyze the relative performance of
 models across data scenarios or create test statistics as needed for an
-analysis. For example, we might be interested in comparingrelative bias
+analysis. For example, we might be interested in comparing relative bias
 across the point estimates, in the scenario where the effect of policy
 implementation is immediate and decreases the crude.rate by 5%:
 
 ``` r
 
 # Compare point estimates across models for the 5% change scenario, with instantaneous policy adoption:
-df_compare <- results[[1]][(results[[1]]$se_adjustment == "cluster-unit")|(results[[1]]$model_name == "auto_regressive_linear"),]
+df_compare <- results[results$effect_magnitude == five_percent_effect, ]
 
 true_est <- -round(five_percent_effect, 3)
 
@@ -505,21 +422,21 @@ grab_mean_and_se <- function(model_name){
 print(paste0("True effect size: ", true_est))
 #> [1] "True effect size: -0.633"
 print(paste0("FE LM effect: ", grab_mean_and_se('fixed_effect_linear')))
-#> [1] "FE LM effect: -0.858 (0.725)"
+#> [1] "FE LM effect: -0.559 (0.808)"
 print(paste0("FE LM adjusted effect: ", grab_mean_and_se('fixed_effect_linear_adj')))
-#> [1] "FE LM adjusted effect: -0.863 (0.714)"
+#> [1] "FE LM adjusted effect: -0.575 (0.822)"
 print(paste0("AR LM effect: ", grab_mean_and_se('auto_regressive_linear')))
-#> [1] "AR LM effect: -0.513 (0.392)"
+#> [1] "AR LM effect: -0.595 (0.44)"
 ```
 
 From the above output, we can see all models are producing similar
 estimates, across simulated point estimate draws. While all of these
-models are biased slightly downwards compared to the true effect, the
-autoregressive linear model seems to outperform both the unadjusted and
-adjusted fixed effect model, producing an estimate closer to truth, with
-improved precision. Based on this simulation, if these were the only
-models under consideration, these results could justify using an
-autoregressive linear model for analyzing the real policy effect.
+models produced estimates which are closer to zero than the true effect,
+the linear model seems to outperform both the unadjusted and
+autoregressive model, producing an estimate closer to truth. Based on
+this simulation, if these were the only models under consideration,
+these results could justify using a unadjusted linear model for
+analyzing the real policy effect.
 
 #### Acknowledgements
 
