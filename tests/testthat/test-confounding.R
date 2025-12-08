@@ -1,5 +1,3 @@
-
-
 #------------------------------------------------------------------------------#
 # OPTIC R Package Code Repository
 # Copyright (C) 2023 by The RAND Corporation
@@ -7,7 +5,6 @@
 #------------------------------------------------------------------------------#
 
 # Testing an example of the confounding method
-
 
 data(overdoses)
 
@@ -104,25 +101,30 @@ linear_fe_config <- optic_simulation(
   bias_size=c("small","medium","large")
 )
 
-
+# Suppressing warnings for the tests.
 linear_results <- dispatch_simulations(
   linear_fe_config,
   use_future=T,
   seed=9782,
-  verbose=2,
+  verbose=0,
   future.globals=c("cluster_adjust_se"),
   future.packages=c("MASS", "dplyr", "optic")
-)
-
-linear_results_df <- do.call(rbind, linear_results)
-
-linear_results_df
+)  
 
 
 test_that("confounding simulations work", {
   
-  expect_type(linear_results, "list")
-  
-  expect_false(any(is.na(linear_results_df)))
+  expect_false(any(is.na(linear_results)))
   
 })
+
+test_that("confounding results have consistent structure", {
+  col_types <- sapply(linear_results, class)
+  expect_snapshot(list(
+    dim = dim(linear_results),
+    colnames = colnames(linear_results),
+    nrow = nrow(linear_results),
+    col_types = col_types
+  ))
+})
+

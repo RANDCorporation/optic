@@ -4,6 +4,8 @@
 # See README.md for information on usage and licensing
 #------------------------------------------------------------------------------#
 
+
+devtools::load_all()
 # ammend dependencies
 attachment::att_amend_desc()
 

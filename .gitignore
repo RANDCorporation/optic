@@ -10,3 +10,81 @@ inst/doc
 docs
 /doc/
 /Meta/
+*.docx
+*.pdf
+*.svg
+time_vary_plots/~WRL0005.tmp
+time_vary_plots/~$me_vary_sim_paper_4_5_24_BAG.docx
+time_vary_plots/time_varying_simulations.Rmd
+time_vary_plots/time_vary_sim_variance_ui_2x2.pdf
+time_vary_plots/time_vary_sim_rmse.pdf
+time_vary_plots/time_vary_sim_paper_BAG.docx
+time_vary_plots/time_vary_sim_paper_7_15.docx
+time_vary_plots/time_vary_sim_paper_4_5_24_BAG.docx
+time_vary_plots/time_vary_sim_paper_4_5_24.docx
+time_vary_plots/time_vary_sim_coverage_2x2.pdf
+time_vary_plots/time_vary_sim_coverage.pdf
+time_vary_plots/time_vary_sim_bias_ui_2x2.pdf
+time_vary_plots/time_vary_sim_bias_ui.pdf
+time_vary_plots/time_vary_sim_bias_no_ui.pdf
+time_vary_plots/time_vary_se_no_ui.pdf
+time_vary_plots/time_vary_se.pdf
+time_vary_plots/time_vary_scenarios.svg
+time_vary_plots/time_vary_scenarios.pdf
+time_vary_plots/time_vary_model_se.pdf
+time_vary_plots/time_vary_model_error_v_variance.pdf
+time_vary_plots/time_vary_model_error_v_se.pdf
+time_vary_plots/test_data/test_data.zip
+time_vary_plots/fig_5.pdf
+time_vary_plots/fig_4.pdf
+time_vary_plots/fig_3.pdf
+time_vary_plots/fig_2.pdf
+time_vary_plots/fig_1.pdf
+time_vary_plots/bias_simple_advisory_opt2.svg
+time_vary_plots/bias_simple_advisory_opt2.pdf
+time_vary_plots/bias_simple_advisory_opt1.svg
+time_vary_plots/bias_simple_advisory_opt1.pdf
+time_vary_plots/time_vary_model_error_v_se.pdf
+time_vary_plots/time_vary_model_se.pdf
+time_vary_plots/time_vary_sim_bias_ui.pdf
+time_vary_plots/time_vary_sim_coverage.pdf
+time_vary_plots/time_vary_sim_paper_BAG.docx
+time_vary_plots/time_vary_sim_rmse.pdf
+class_materials/AHSR-naloxone-case-study.dta
+class_materials/Code for AHSR_BAG_arTVcode_max.R
+class_materials/Code for AHSR_BAG_arTVcode_max.txt
+class_materials/Code for AHSR_BAG_mgg_edits.R
+class_materials/its_plot.png
+class_materials/OPTIC_webinar_sample_code_BAG.R
+class_materials/OPTIC_webinar_sample_code_BAG.txt
+class_materials/OPTIC_webinar_sample_code_BAG_mgg_edits.R
+class_materials/OPTIC_webinar_sample_code_BAG_mgg_edits_bag.R
+class_materials/OPTIC_webinar_sample_code_BAG_mgg_edits_bag.txt
+class_materials/OPTIC_webinar_sample_code_BAG_mgg_edits_bag_mgg_small_edits.R
+class_materials/summarize_sim_results.R
+class_materials/winter_workshop_sims.R
+dev/confound_review/04_plot_results_BAG.txt
+dev/confound_review/2023-06-22-figures/fig_10_TE_Empirical variance.eps
+dev/confound_review/2023-06-22-figures/fig_11_TE_RMSE.eps
+dev/confound_review/2023-06-22-figures/fig_12_TE_Coverage.eps
+dev/confound_review/2023-06-22-figures/fig_1_no_TE_Bias (effect size scale).eps
+dev/confound_review/2023-06-22-figures/fig_2_no_TE_Bias (original scale).eps
+dev/confound_review/2023-06-22-figures/fig_3_no_TE_Variance.eps
+dev/confound_review/2023-06-22-figures/fig_4_no_TE_Empirical variance.eps
+dev/confound_review/2023-06-22-figures/fig_5_no_TE_RMSE.eps
+dev/confound_review/2023-06-22-figures/fig_6_no_TE_Coverage.eps
+dev/confound_review/2023-06-22-figures/fig_7_TE_Bias (effect size scale).eps
+dev/confound_review/2023-06-22-figures/fig_8_TE_Bias (original scale).eps
+dev/confound_review/2023-06-22-figures/fig_9_TE_Variance.eps
+dev/confound_review/summarized_results_full_runs_noTE2022-11-16.Rds
+dev/confound_review/summarized_results_full_runs_TE2022-12-20.Rds
+dev/confound_review/test_code_06192023_paper_permutations_adding_models_ASCM.txt
+dev/confound_review/test_code_06192023_paper_permutations_adding_models_ASCM_DID.r
+dev/confound_review/test_code_06192023_paper_permutations_adding_models_ASCM_DID.txt
+fixed_sims.R
+test_time_vary_ar.R
+time_vary_plots/example_models_for_testing.R
+time_vary_plots/share_w_bag.zip
+time_vary_plots/share_w_bag/code/time_varying_simulations.Rmd
+time_varying_simulations.R
+vignettes/intro_optic.Rmd
