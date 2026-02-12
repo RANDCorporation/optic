@@ -207,6 +207,9 @@ noconf_premodel <- function(model_simulation) {
   x <- model_simulation$data
   model <- model_simulation$models
   
+  # PNL TODO 02/05/2026:
+  # Observe what happens here for different models.
+  
   if (model$type != "did") {
     outcome <- optic::model_terms(model$model_formula)[["lhs"]]
     oo <- dplyr::sym(outcome)
@@ -255,6 +258,16 @@ noconf_premodel <- function(model_simulation) {
     new_fmla <- as.formula(paste(formula_components[2], formula_components[1], updated_3[[1]][[1]], "+ lag_outcome"))
     
     model_simulation$models$model_formula <- new_fmla
+    
+  } else if (model_type == "autoeffect") {
+    
+    ae_args <- resolve_autoeffect_args(model_simulation$models, model_simulation$unit_var, model_simulation$time_var)
+    trt_col <- ae_args$trt_name
+    if (!trt_col %in% names(x)) {
+      x[[trt_col]] <- as.numeric(x$treatment > 0)
+    } else {
+      x[[trt_col]] <- as.numeric(x[[trt_col]] > 0)
+    }
     
   } else if (model_type == "multisynth") {
     x$treatment[x$treatment > 0] <- 1
@@ -397,9 +410,42 @@ noconf_model <- function(model_simulation) {
     args <- append(args, addtl_args)
   }
   
+  # TODO: here, this could be done by dependency injection or something similar
+  # PNL: 02/05/2026
+  # We could have a model_args_rename_fn for each model that does this.
+  # There are many places in the code where we have this kind of confusing if/else 
+  # statements that do things specific to the models
+  # I suspect many of those things apply to multiple methods, though they
+  # *could* be different for different methods.
+  # 
   # Change names of provided arguments to meet the needs of respective packages
   if (model_type == "reg"|model_type == "autoreg"){
-    args[['formula']] <- model$model_formula
+    # feols uses 'fml' parameter, other models use 'formula'
+    if (model$model_call == "feols") {
+      args[['fml']] <- model$model_formula
+    } else {
+      args[['formula']] <- model$model_formula
+    }
+  }else if (model_type == "autoeffect"){
+    ae_args <- resolve_autoeffect_args(model, model_simulation$unit_var, model_simulation$time_var)
+    # Remove effect_lag from args since it's not an argument to autoeffect()
+    if ('effect_lag' %in% names(args)) {
+      args[['effect_lag']] <- NULL
+    }
+    # Also remove formula and any other optic-specific args
+    if ('formula' %in% names(args)) {
+      args[['formula']] <- NULL
+    }
+    args[['lags']] <- ae_args$lags
+    args[['outcome_name']] <- ae_args$outcome_name
+    args[['unit_name']] <- ae_args$unit_name
+    args[['date_name']] <- ae_args$date_name
+    args[['trt_name']] <- ae_args$trt_name
+    if (!is.null(ae_args$cov_names)) {
+      args[['cov_names']] <- ae_args$cov_names
+    } else if ('cov_names' %in% names(args)) {
+      args[['cov_names']] <- NULL
+    }
   }else if (model_type == "multisynth"){
     args[['form']] <-  model$model_formula
     # We probably need to add trt_time to the arguments in multisynth
@@ -457,6 +503,7 @@ noconf_postmodel <- function(model_simulation) {
   m <- model_simulation$model_result
   
   # get model result information and apply standard error adjustments
+  # TODO: This is also something that should not be here.
   if (model_simulation$models[["type"]] == "reg"|model_simulation$models[["type"]] == "autoreg"|model_simulation$models[["type"]] == "did2s") {
     if(model_simulation$models$model_call=="feols"){
       cf <- as.data.frame(summary(m)$coeftable)
@@ -513,6 +560,43 @@ noconf_postmodel <- function(model_simulation) {
       t_stat=NA,
       p_value=p_value,
       mse = NA,
+      stringsAsFactors=FALSE
+    )
+  } else if (model_simulation$models[["type"]] == "autoeffect") {
+    ae_args <- resolve_autoeffect_args(model_simulation$models, model_simulation$unit_var, model_simulation$time_var)
+    effect_lag <- ae_args$effect_lag
+    cum_effects <- m$cumulative_effects
+    
+    if (!isTRUE(m$convergence) || is.null(cum_effects)) {
+      estimate <- NA_real_
+      se <- NA_real_
+    } else {
+      if (!effect_lag %in% cum_effects$Lag) {
+        stop("Requested effect_lag = ", effect_lag, " not available in cumulative effects output.")
+      }
+      effect_row <- cum_effects[cum_effects$Lag == effect_lag, ]
+      estimate <- effect_row$Estimate
+      se <- effect_row$StdError
+    }
+    
+    variance <- se ^ 2
+    t_stat <- ifelse(is.na(se) || se == 0, NA_real_, estimate / se)
+    p_value <- ifelse(is.na(t_stat), NA_real_, 2 * pnorm(abs(t_stat), lower.tail = FALSE))
+    mse <- if (!is.null(m$model)) {
+      mean(stats::residuals(m$model)^2, na.rm = TRUE)
+    } else {
+      NA_real_
+    }
+    
+    results <- data.frame(
+      outcome=outcome,
+      se_adjustment="none",
+      estimate=estimate,
+      se=se,
+      variance=variance,
+      t_stat=t_stat,
+      p_value=p_value,
+      mse=mse,
       stringsAsFactors=FALSE
     )
   }
