@@ -10,6 +10,8 @@ inst/doc
 docs
 /doc/
 /Meta/
+dev/
+tests/**/*.md
 *.docx
 *.pdf
 *.svg
