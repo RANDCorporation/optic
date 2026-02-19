@@ -13,10 +13,5 @@
 #' @return char(1) corresponding to the model outcome
 #' @noRd
 get_model_outcome = function(model){
-  if(model$type != "drdid"){
-    outcome <- model_terms(model[["model_formula"]])[["lhs"]]
-  }else{
-    outcome <- as.character(model$model_args$yname)
-  }
-  return(outcome)
+  get_behavior(model$type)$get_outcome(model)
 }

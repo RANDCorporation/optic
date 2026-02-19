@@ -187,22 +187,10 @@ concurrent_premodel <- function(model_simulation) {
     outcome = outcome
   )
   
-  # if autoregressive, need to add lag for crude rate
-  # when outcome is deaths, derive new crude rate from modified outcome
-  if (model$type == "autoreg") {
-    
-    # get lag of crude rate and add it to the model
-    unit_sym <- dplyr::sym(model_simulation$unit_var)
-    time_sym <- dplyr::sym(model_simulation$time_var)
-    
-    x <- x %>%
-      dplyr::arrange(!!unit_sym, !!time_sym) %>%
-      dplyr::group_by(!!unit_sym) %>%
-      dplyr::mutate(lag_outcome = dplyr::lag(!!oo, n=1L)) %>%
-      dplyr::ungroup()
-    
-    model_simulation$models$model_formula <- update.formula(model_simulation$models$model_formula, ~ . + lag_outcome)
-  }
+  # Model-type-specific data preparation (lag outcome, etc.)
+  premodel_result <- get_behavior(model$type)$prepare_premodel(x, model_simulation)
+  x <- premodel_result$x
+  model_simulation$models <- premodel_result$models
   
   # modified data back into object
   model_simulation$data <- x

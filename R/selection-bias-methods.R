@@ -34,13 +34,11 @@ selbias_sample <- function(single_simulation) {
   number_implementation_years <- as.numeric(single_simulation$n_implementation_periods)
   model_type <- names(single_simulation$models)
   
-  # since this is happening before the model loop in run_iteration, we need to 
+  # since this is happening before the model loop in run_iteration, we need to
   # make sure we augment all unique outcomes used by models
-  if (all(model_type != "did")) {
-    outcomes <- unique(sapply(single_simulation$models, function(x) { optic::model_terms(x[["model_formula"]])[["lhs"]] }))
-  } else if (any(model_type == 'did')) {
-    outcomes <- as.character(single_simulation$models$did$model_args$yname)
-  }
+  outcomes <- unique(sapply(single_simulation$models, function(m) {
+    get_behavior(m$type)$get_outcome(m)
+  }))
   
   bias_vals <- single_simulation$globals[["bias_vals"]][[single_simulation$bias_type]][[single_simulation$prior_control]][[single_simulation$bias_size]]
   
@@ -275,51 +273,23 @@ selbias_premodel <- function(model_simulation) {
   model <- model_simulation$models
   conf <- dplyr::sym(model_simulation$conf_var)
   
-  if (model$type != "did") {
-    outcome <- optic::model_terms(model$model_formula)[["lhs"]]
-    oo <- dplyr::sym(outcome)
-  } else if (model$type=='did') {
-    outcome <- as.character(model_simulation$models$model_args$yname)
-    oo <- dplyr::sym(outcome)
-  }
+  outcome <- get_behavior(model$type)$get_outcome(model)
+  oo <- dplyr::sym(outcome)
   model_type <- model$type
   balance_statistics <- NULL
   
-  # PNL note
-  # this implementation does not seem to use 
-  # the lagged crude rate
-  # It uses the lagged outcome.
+  # Model-type-specific data preparation (lag outcome, binarize treatment, etc.)
+  premodel_result <- get_behavior(model_type)$prepare_premodel(x, model_simulation)
+  x <- premodel_result$x
+  model_simulation$models <- premodel_result$models
 
-  # if autoregressive, need to add lag for crude rate
-  # when outcome is deaths, derive new crude rate from modified outcome
-  if (model_type == "autoreg") {
-    
-    # get lag of crude rate and add it to the model
+  # selbias-specific: DID needs treatment_year for selection bias approach
+  if (model_type == "did") {
     unit_sym <- dplyr::sym(model_simulation$unit_var)
-    time_sym <- dplyr::sym(model_simulation$time_var)
-    
     x <- x %>%
-      dplyr::arrange(!!unit_sym, !!time_sym) %>%
       dplyr::group_by(!!unit_sym) %>%
-      dplyr::mutate(lag_outcome = dplyr::lag(!!oo, n=1L)) %>%
+      dplyr::mutate(treatment_year = 1 + max(year ^ (1 - treatment))) %>%
       dplyr::ungroup()
-    
-    model_simulation$models$model_formula <- update.formula(model_simulation$models$model_formula, ~ . + lag_outcome)
-  } else if (model_type == "multisynth") {
-    x$treatment[x$treatment > 0] <- 1
-    x$treatment_level[x$treatment_level > 0] <- 1
-    x <- x %>%
-      filter(!is.na(!!oo))
-    if (sum(is.na(x[[outcome]])) > 0) {
-      stop("multisynth method cannot handle missingness in outcome.")
-    }
-  } else if (model_type == "did") {
-    x$treatment[x$treatment > 0] <- 1
-    x$treatment_level[x$treatment_level > 0] <- 1
-    x <- x %>% 
-      group_by(!!unit_sym) %>%
-      mutate(treatment_year = 1 + max(year ^ (1-treatment))) %>% 
-      ungroup()
   }
   
   # get balance information
@@ -385,12 +355,12 @@ selbias_model <- function(model_simulation) {
   model <- model_simulation$models
   x <- model_simulation$data
   
-  if (model_simulation$models$type %in% c("did", "multisynth")) {
-    args = c(list(data=x), model[["model_args"]])
-  } else {
-    args = c(list(data=x, formula=model[["model_formula"]]), model[["model_args"]])
+  args <- list(data = x)
+  if (length(model[["model_args"]]) >= 1) {
+    args <- append(args, model[["model_args"]])
   }
-  
+  args <- get_behavior(model$type)$prepare_model_args(args, model, model_simulation)
+
   m <- do.call(
     model[["model_call"]],
     args
@@ -414,11 +384,7 @@ selbias_model <- function(model_simulation) {
 selbias_postmodel <- function(model_simulation) {
   
   
-  if (model_simulation$models$type != "did") {
-    outcome <- model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
-  } else if (model_simulation$models$type == "did") {
-    outcome <- as.character(model_simulation$models$model_args$yname)
-  }
+  outcome <- get_behavior(model_simulation$models$type)$get_outcome(model_simulation$models)
   
   bias_vals <- model_simulation$globals[["bias_vals"]][[model_simulation$bias_type]][[model_simulation$prior_control]][[model_simulation$bias_size]]
   # get run metadata to merge in after
@@ -447,142 +413,42 @@ selbias_postmodel <- function(model_simulation) {
     a5 = bias_vals["a5"]
   )
   
-  # get model result information and apply standard error adjustments
-  if (!(model_simulation$models[["type"]] %in% c("multisynth","did"))) {
-    m <- model_simulation$model_result
-    cf <- as.data.frame(summary(m)$coefficients)
-    cf$variable <- row.names(cf)
-    rownames(cf) <- NULL
-    
-    treatment <- cf$variable[grepl("^treatment", cf$variable)][1]
-    
-    cf <- cf[cf$variable == treatment, ]
-    estimate <- cf[["Estimate"]]
-    
-    r <- data.frame(
-      outcome=outcome,
-      se_adjustment="none",
-      estimate=estimate,
-      se=cf[["Std. Error"]],
-      variance=cf[["Std. Error"]] ^ 2,
-      t_stat=c(cf[["t value"]], cf[["z value"]]),
-      p_value=c(cf[["Pr(>|t|)"]], cf[["Pr(>|z|)"]]),
-      # mse=mean(m[["residuals"]]^2, na.rm=T),
-      stringsAsFactors=FALSE
-    )
-  } else if (model_simulation$models[["type"]] == "multisynth") {
-    m <- model_simulation$model_result
-    cf <- summary(m)
-    cf <- cf$att
-    estimate <- cf[cf$Level == "Average" & is.na(cf$Time), "Estimate"]
-    se <- cf[cf$Level == "Average" & is.na(cf$Time), "Std.Error"]
-    variance <- se ^ 2
-    t_stat <- NA
-    p_value <- 2 * pnorm(abs(estimate/se), lower.tail = FALSE)
-    # mse <- mean(unlist(lapply(m$residuals, function(x) {mean(x^2)})))
-    
-    r <- data.frame(
-      outcome=outcome,
-      se_adjustment="none",
-      estimate=estimate,
-      se=se,
-      variance=variance,
-      t_stat=NA,
-      p_value=p_value,
-      # mse=mse,
-      stringsAsFactors=FALSE
-    )
-  } else if (model_simulation$models[["type"]] == "did") {
-    m <- model_simulation$model_result
-    m_agg <- did::aggte(m, type='dynamic', na.rm=T)
+  # Extract core results via model type registry
+  m <- model_simulation$model_result
+  model_obj <- model_simulation$models
+
+  if (model_obj[["type"]] == "did") {
+    # selbias uses dynamic aggregation for DID (different from noconf's group aggregation)
+    m_agg <- did::aggte(m, type = "dynamic", na.rm = TRUE)
     cf <- summary(m_agg, returnOutput = TRUE, verbose = FALSE)[[1]]
     colnames(cf) <- trimws(colnames(cf))
     estimate <- cf$ATT
     se <- cf[["Std. Error"]]
-    variance <- se ^ 2
-    t_stat <- NA
-    p_value <- 2 * pnorm(abs(estimate/se), lower.tail = FALSE)
-    # mse <- mean(unlist(lapply(m$residuals, function(x) {mean(x^2)})))
-    
+    variance <- se^2
+    p_value <- 2 * pnorm(abs(estimate / se), lower.tail = FALSE)
+
     r <- data.frame(
-      outcome=outcome,
-      se_adjustment="none",
-      estimate=estimate,
-      se=se,
-      variance=variance,
-      t_stat=NA,
-      p_value=p_value,
-      # mse=mse,
-      stringsAsFactors=FALSE
+      outcome = outcome, se_adjustment = "none",
+      estimate = estimate, se = se, variance = variance,
+      t_stat = NA, p_value = p_value, stringsAsFactors = FALSE
     )
+  } else {
+    r <- get_behavior(model_obj[["type"]])$extract_results(m, model_obj, model_simulation)
+    r$mse <- NULL  # selbias results do not include mse
+    estimate <- r$estimate[1]
+  }
+
+  # For SE adjustment code below: extract treatment variable name
+  treatment <- NULL
+  if (!(model_obj[["type"]] %in% c("multisynth", "did"))) {
+    cf_names <- rownames(summary(m)$coefficients)
+    treatment <- cf_names[grepl("^treatment", cf_names)][1]
   }
   
-  if ("huber" %in% model_simulation$models[["se_adjust"]]) {
-    cov_h <- sandwich::vcovHC(m, type="HC0")
-    h_se <- sqrt(diag(cov_h))[names(diag(cov_h)) == treatment]
-    
-    h_r <- data.frame(
-      outcome=outcome,
-      se_adjustment="huber",
-      estimate=estimate,
-      se=h_se,
-      variance=h_se ^ 2,
-      t_stat=estimate / h_se,
-      p_value=2 * pnorm(abs(estimate / h_se), lower.tail=FALSE),
-      # mse=mean(m[["residuals"]]^2, na.rm=T),
-      stringsAsFactors=FALSE
-    )
-    
-    r <- rbind(r, h_r)
-    rownames(r) <- NULL
-  }
-  
-  if ("cluster" %in% model_simulation$models[["se_adjust"]]) {
-    clust_indices <- as.numeric(rownames(m$model))
-    clust_var <- as.character(model_simulation$data[[model_simulation$unit_var]][clust_indices])
-    clust_coeffs <- cluster_adjust_se(m, clust_var)[[2]]
-    
-    class(clust_coeffs) <- c("coeftest", "matrix")
-    clust_coeffs <- as.data.frame(clust_coeffs)
-    clust_coeffs$variable <- row.names(clust_coeffs)
-    rownames(clust_coeffs) <- NULL
-    clust_coeffs <- clust_coeffs[clust_coeffs$variable == treatment,]
-    
-    c_r <- data.frame(
-      outcome=outcome,
-      se_adjustment="cluster",
-      estimate=clust_coeffs[["Estimate"]],
-      se=clust_coeffs[["Std. Error"]],
-      variance=clust_coeffs[["Std. Error"]] ^ 2,
-      t_stat=c(clust_coeffs[["z value"]], clust_coeffs[["t value"]]),
-      p_value=c(clust_coeffs[["Pr(>|z|)"]], clust_coeffs[["Pr(>|t|)"]]),
-      # mse=mean(m[["residuals"]]^2, na.rm=T),
-      stringsAsFactors=FALSE
-    )
-    
-    r <- rbind(r, c_r)
-  }
-  
-  if ("arellano" %in% model_simulation$models[["se_adjust"]]) {
-    clust_indices <- as.numeric(rownames(m$model))
-    clust_var <- as.character(model_simulation$data[[model_simulation$unit_var]][clust_indices])
-    cov_hc <- sandwich::vcovHC(m, type="HC1", cluster=clust_var, method="arellano")
-    hc_se <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == treatment]
-    
-    hc_r <- data.frame(
-      outcome=outcome,
-      se_adjustment="arellano",
-      estimate=estimate,
-      se=hc_se,
-      variance=hc_se ^ 2,
-      t_stat=estimate / hc_se,
-      p_value=2 * pnorm(abs(estimate / hc_se), lower.tail=FALSE),
-      # mse=mean(m[["residuals"]]^2, na.rm=T),
-      stringsAsFactors=FALSE
-    )
-    
-    r <- rbind(r, hc_r)
-    rownames(r) <- NULL
+  # Apply SE adjustments (selbias doesn't include mse)
+  if (!is.null(treatment)) {
+    r <- apply_se_adjustments_lm(r, m, model_simulation, treatment,
+                                  estimate, include_mse = FALSE)
   }
   
   r <- left_join(r, meta_data, by="outcome")

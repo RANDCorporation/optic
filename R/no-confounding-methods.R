@@ -43,12 +43,9 @@ noconf_sample <- function(single_simulation) {
   effect_direction <- single_simulation$effect_direction
   model_type = names(single_simulation$models)
   
-  # If there is at least one did model
-  if(!any(model_type == "did")){
-    outcomes <- unique(sapply(single_simulation$models, function(x) { optic::model_terms(x[["model_formula"]])[["lhs"]] }))
-  }else{
-    outcomes <- as.character(single_simulation$models$did$model_args$yname)
-  }
+  outcomes <- unique(sapply(single_simulation$models, function(m) {
+    get_behavior(m$type)$get_outcome(m)
+  }))
   
   ###############################################
   ### IDENTIFY TREATED UNITS AND TIME PERIODS ###
@@ -207,13 +204,8 @@ noconf_premodel <- function(model_simulation) {
   x <- model_simulation$data
   model <- model_simulation$models
   
-  if (model$type != "did") {
-    outcome <- optic::model_terms(model$model_formula)[["lhs"]]
-    oo <- dplyr::sym(outcome)
-  } else if (model$type=='did') {
-    outcome <- as.character(model_simulation$models$model_args$yname)
-    oo <- dplyr::sym(outcome)
-  }
+  outcome <- get_behavior(model$type)$get_outcome(model)
+  oo <- dplyr::sym(outcome)
   
   model_type <- model$type
   balance_statistics <- NULL
@@ -234,42 +226,11 @@ noconf_premodel <- function(model_simulation) {
   
   unit_sym <- dplyr::sym(model_simulation$unit_var)
   time_sym <- dplyr::sym(model_simulation$time_var)
-  
-  # PNL note
-  # this implementation does not seem to use the lagged crude rate
-  
-  # if autoregressive, need to add lag for crude rate
-  # when outcome is deaths, derive new crude rate from modified outcome
-  # if autoregressive, need to add lagged outcome
-  if (model_type == "autoreg") {
-    
-    x <- x %>%
-      dplyr::arrange(!!unit_sym, !!time_sym) %>%
-      dplyr::group_by(!!unit_sym) %>%
-      dplyr::mutate(lag_outcome = dplyr::lag(!!oo, n=1L)) %>%
-      dplyr::ungroup()
-    
-    formula_components <- as.character(model_simulation$models$model_formula)
-    updated_3 <- strsplit(formula_components[3], " | ", fixed=TRUE)
-    
-    new_fmla <- as.formula(paste(formula_components[2], formula_components[1], updated_3[[1]][[1]], "+ lag_outcome"))
-    
-    model_simulation$models$model_formula <- new_fmla
-    
-  } else if (model_type == "multisynth") {
-    x$treatment[x$treatment > 0] <- 1
-    x$treatment_level[x$treatment_level > 0] <- 1
-    x <- x %>%
-      filter(!is.na(!!oo))
-    if (sum(is.na(x[[outcome]])) > 0) {
-      stop("multisynth method cannot handle missingness in outcome.")
-    }
-  } else if (model_type == "did") {
-    
-    x$treatment[x$treatment > 0] <- 1
-    x$treatment_level[x$treatment_level > 0] <- 1
-    
-  }
+
+  # Model-type-specific data preparation (lag outcome, binarize treatment, etc.)
+  premodel_result <- get_behavior(model_type)$prepare_premodel(x, model_simulation)
+  x <- premodel_result$x
+  model_simulation$models <- premodel_result$models
   
   # get balance information
   bal_stats <- x %>%
@@ -320,44 +281,8 @@ noconf_premodel <- function(model_simulation) {
     mutate(treatment_date = ifelse(max(trt_ind == 1), max(year ^ (1-treatment)), 0)) %>% 
     ungroup()
   
-  # Depending on the model, we may need to recode treatment year or
-  # treatment date:
-  
-  if (model_type == "reg"|model_type == "autoreg"){
-    
-    # Sun and Abraham models expect treatment year to be Inf, if untreated:
-    x <- x %>% 
-      mutate(treatment_date = ifelse(treatment_date == 0, Inf, treatment_date))
-    
-  }else if (model_type == "did"){
-    
-    # CSA models expect treatment year to be Inf, if untreated and expects
-    # location to be a numeric variable
-    x <- x %>% 
-      mutate(treatment_date = ifelse(treatment_date == 0, Inf, treatment_date),
-             !!unit_sym := as.numeric(as.factor(!!unit_sym)))
-    
-  }else if (model_type == "multisynth"){
-    
-    # Multisynth expects treatment to be either a 0/1 (sampling process uses this
-    # variable instrumentally to produce draws of treatment effect. So reset to 
-    # binary)
-    
-    x <- x %>% mutate(treatment = ifelse(treatment > 0, 1, 0))
-    
-  }else if (model_type == "did_imputation"){
-    
-    # I added this section for completeness, in case we want to modify later.
-    #Borusyak, Jaravel, and Spiess expects treatment_date to be zero for
-    # untreated units. So no need to change data coding.
-    
-  }else if (model_type == "did2s"){
-    
-    # Similar to multisynth, we need treatment to again be binary for
-    # the first stage 
-    x <- x %>% mutate(treatment = ifelse(treatment > 0, 1, 0))
-    
-  }
+  # Model-type-specific recoding of treatment_date
+  x <- get_behavior(model_type)$recode_treatment_date(x, unit_sym)
   
   model_simulation$balance_statistics <- bal_stats
   model_simulation$data <- x
@@ -397,17 +322,8 @@ noconf_model <- function(model_simulation) {
     args <- append(args, addtl_args)
   }
   
-  # Change names of provided arguments to meet the needs of respective packages
-  if (model_type == "reg"|model_type == "autoreg"){
-    args[['formula']] <- model$model_formula
-  }else if (model_type == "multisynth"){
-    args[['form']] <-  model$model_formula
-    # We probably need to add trt_time to the arguments in multisynth
-  }else if (model_type == "did_imputation"){
-    args[['horizon']] <- T
-  }else if (model_type == "did2s"){
-    args[['treatment']] <- 'treatment'
-  }
+  # Model-type-specific argument preparation
+  args <- get_behavior(model_type)$prepare_model_args(args, model, model_simulation)
 
   # NOTE: perform second validation (validate_pre_call) here using model and args
   validate_optic_model_pre_call(model, args)
@@ -435,11 +351,7 @@ noconf_model <- function(model_simulation) {
 #' @noRd
 noconf_postmodel <- function(model_simulation) {
   
-  if (model_simulation$models[["type"]] == "did"){
-    outcome <- as.character(model_simulation$models$model_args$yname)
-  }else{
-    outcome <- optic::model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
-  }
+  outcome <- get_behavior(model_simulation$models[["type"]])$get_outcome(model_simulation$models)
   # get run metadata to merge in after
   meta_data <- data.frame(
     model_name = model_simulation$models$name,
@@ -456,238 +368,31 @@ noconf_postmodel <- function(model_simulation) {
   
   m <- model_simulation$model_result
   
-  # get model result information and apply standard error adjustments
-  if (model_simulation$models[["type"]] == "reg"|model_simulation$models[["type"]] == "autoreg"|model_simulation$models[["type"]] == "did2s") {
-    if(model_simulation$models$model_call=="feols"){
-      cf <- as.data.frame(summary(m)$coeftable)
-    } else{
-      cf <- as.data.frame(summary(m)$coefficients)
+  # Extract core results via model type registry
+  model <- model_simulation$models
+  results <- get_behavior(model[["type"]])$extract_results(m, model, model_simulation)
+  estimate <- results$estimate[1]
+
+  # For SE adjustment code below: extract treatment variable name from model coefs
+  # (only needed for reg/autoreg/did2s where SE adjustments apply)
+  treatment <- NULL
+  if (model[["type"]] %in% c("reg", "autoreg", "did2s")) {
+    if (model$model_call == "feols") {
+      cf_names <- rownames(summary(m)$coeftable)
+    } else {
+      cf_names <- rownames(summary(m)$coefficients)
     }
-    cf$variable <- row.names(cf)
-    rownames(cf) <- NULL
-    
-    treatment <- cf$variable[grepl("^treatment", cf$variable)][1]
-    
-    cf <- cf[cf$variable == treatment, ]
-    estimate <- cf[["Estimate"]]
-    
-    if(model_simulation$models$model_call == 'lmer'){
-      # For ME model, below should use Satterthwaite approximation or 
-      # Kenward-Roger approximation (which would produce more conservative
-      # p-values than assuming t dist is, more or less, converging normal
-      # given sample size (See ex. Barr et al., 2013))
-      pval <- 1.96*(1 - pnorm(abs(cf[["t value"]])))
-    }else{
-      pval <- c(cf[["Pr(>|t|)"]], cf[["Pr(>|z|)"]])
-    }
-    
-    results <- data.frame(
-      outcome=outcome,
-      se_adjustment="none",
-      estimate=estimate,
-      se=cf[["Std. Error"]],
-      variance=cf[["Std. Error"]] ^ 2,
-      t_stat=c(cf[["t value"]], cf[["z value"]]),
-      p_value=pval,
-      mse=mean(resid(m)^2, na.rm=T),
-      stringsAsFactors=FALSE
-    )
-  } else if (model_simulation$models[["type"]] == "did"){
-    m_agg <- did::aggte(m, type='group', na.rm=T)
-    
-    cf <- data.frame("estimate" = m_agg$overall.att,
-                     "se" = m_agg$overall.se)
-    
-    estimate <- cf$estimate
-    se <- cf$se
-    variance <- se ^ 2
-    t_stat <- NA
-    p_value <- 2 * pnorm(abs(estimate/se), lower.tail = FALSE)
-    
-    results <- data.frame(
-      outcome=outcome,
-      se_adjustment="none",
-      estimate=estimate,
-      se=se,
-      variance=variance,
-      t_stat=NA,
-      p_value=p_value,
-      mse = NA,
-      stringsAsFactors=FALSE
-    )
-  }
-  else{
-    m <- model_simulation$model_result
-    cf <- summary(m)
-    cf <- cf$att
-    estimate <- cf[cf$Level == "Average" & is.na(cf$Time), "Estimate"]
-    se <- cf[cf$Level == "Average" & is.na(cf$Time), "Std.Error"]
-    variance <- se ^ 2
-    t_stat <- NA
-    p_value <- 2 * pnorm(abs(estimate/se), lower.tail = FALSE)
-    mse <- mean(unlist(lapply(m$residuals, function(x) {mean(x^2)})))
-    
-    results <- data.frame(
-      outcome=outcome,
-      se_adjustment="none",
-      estimate=estimate,
-      se=se,
-      variance=variance,
-      t_stat=NA,
-      p_value=p_value,
-      mse=mse,
-      stringsAsFactors=FALSE
-    )
+    treatment <- cf_names[grepl("^treatment", cf_names)][1]
   }
   
-  if(model_simulation$models$model_call=="feols"){
-    model <- model_simulation$models
-    x <- model_simulation$data
-    if("cluster-unit" %in% model$se_adjust){
-      fml = model[["model_formula"]]
-      my_weights <- model[["model_args"]]$weights
-      m_new <- feols(fml = fml, data = x, weights = my_weights, cluster = model_simulation$unit_var, nthreads=4, notes=FALSE)
-      cf <- as.data.frame(summary(m_new)$coeftable)
-      cf$variable <- row.names(cf)
-      rownames(cf) <- NULL
-      treatment <- cf$variable[grepl("^treatment", cf$variable)][1]
-      cf <- cf[cf$variable == treatment, ]
-      estimate <- cf[["Estimate"]]
-      cluster_unit_results <- data.frame(
-        outcome=outcome,
-        se_adjustment="cluster-unit",
-        estimate=estimate,
-        se=cf[["Std. Error"]],
-        variance=cf[["Std. Error"]] ^ 2,
-        t_stat=c(cf[["t value"]], cf[["z value"]]),
-        p_value=c(cf[["Pr(>|t|)"]], cf[["Pr(>|z|)"]]),
-        mse=mean(m_new[["residuals"]]^2, na.rm=T),
-        stringsAsFactors=FALSE
-      )
-      results <- rbind(results, cluster_unit_results)
-      rownames(results) <- NULL
-    }
-    if("cluster-treat" %in% model$se_adjust){
-      fml = model[["model_formula"]]
-      my_weights <- model[["model_args"]]$weights
-      m_new <- feols(fml = fml, data = x, weights = my_weights, cluster = model_simulation$treat_var, nthreads=4, notes=FALSE)
-      cf <- as.data.frame(summary(m_new)$coeftable)
-      cf$variable <- row.names(cf)
-      rownames(cf) <- NULL
-      treatment <- cf$variable[grepl("^treatment", cf$variable)][1]
-      cf <- cf[cf$variable == treatment, ]
-      estimate <- cf[["Estimate"]]
-      cluster_treat_results <- data.frame(
-        outcome=outcome,
-        se_adjustment="cluster-treat",
-        estimate=estimate,
-        se=cf[["Std. Error"]],
-        variance=cf[["Std. Error"]] ^ 2,
-        t_stat=c(cf[["t value"]], cf[["z value"]]),
-        p_value=c(cf[["Pr(>|t|)"]], cf[["Pr(>|z|)"]]),
-        mse=mean(m_new[["residuals"]]^2, na.rm=T),
-        stringsAsFactors=FALSE
-      )
-      results <- rbind(results, cluster_treat_results)
-      rownames(results) <- NULL
-    }
-    
-  }else{
-    if ("huber" %in% model_simulation$models[["se_adjust"]]) {
-      cov_h <- sandwich::vcovHC(m, type="HC0")
-      h_se <- sqrt(diag(cov_h))[names(diag(cov_h)) == treatment]
-      
-      h_r <- data.frame(
-        outcome=outcome,
-        se_adjustment="huber",
-        estimate=estimate,
-        se=h_se,
-        variance=h_se ^ 2,
-        t_stat=estimate / h_se,
-        p_value=2 * pnorm(abs(estimate / h_se), lower.tail=FALSE),
-        mse=mean(resid(m)^2, na.rm=T),
-        stringsAsFactors=FALSE
-      )
-      results <- rbind(results, h_r)
-      rownames(results) <- NULL
-    }
-    
-    if ("cluster-treat" %in% model_simulation$models[["se_adjust"]]) {
-      clust_indices <- as.numeric(rownames(m$model))
-      clust_var <- as.character(model_simulation$data[[model_simulation$treat_var]][clust_indices])
-      cluster_adjust_se_res <- cluster_adjust_se(m, clust_var)
-      clust_coeffs <- cluster_adjust_se_res[[2]]
-      clust_vcov <- cluster_adjust_se_res[[1]][2,3] #not 100% alginment with SEs from model so worried this is off
-      class(clust_coeffs) <- c("coeftest", "matrix")
-      clust_coeffs <- as.data.frame(clust_coeffs)
-      clust_coeffs$variable <- row.names(clust_coeffs)
-      rownames(clust_coeffs) <- NULL
-      clust_coeffs <- clust_coeffs[clust_coeffs$variable == treatment,]
-      
-      c_r <- data.frame(
-        outcome=outcome,
-        se_adjustment="cluster-treat",
-        estimate=clust_coeffs[["Estimate"]],
-        se=clust_coeffs[["Std. Error"]],
-        variance=clust_coeffs[["Std. Error"]] ^ 2,
-        t_stat=c(clust_coeffs[["z value"]], clust_coeffs[["t value"]]),
-        p_value=c(clust_coeffs[["Pr(>|z|)"]], clust_coeffs[["Pr(>|t|)"]]),
-        mse=mean(resid(m)^2, na.rm=T),
-        stringsAsFactors=FALSE
-      )
-      
-      results <- rbind(results, c_r)
-      rownames(results) <- NULL
-    }
-    
-    if ("cluster-unit" %in% model_simulation$models[["se_adjust"]]) {
-      clust_indices <- as.numeric(rownames(m$model))
-      clust_var <- as.character(model_simulation$data[[model_simulation$unit_var]][clust_indices])
-      cluster_adjust_se_res <- cluster_adjust_se(m, clust_var)
-      clust_coeffs <- cluster_adjust_se_res[[2]]
-      clust_vcov <- cluster_adjust_se_res[[1]][2,3] #not 100% alignment with SEs from model so worried this is off
-      class(clust_coeffs) <- c("coeftest", "matrix")
-      clust_coeffs <- as.data.frame(clust_coeffs)
-      clust_coeffs$variable <- row.names(clust_coeffs)
-      rownames(clust_coeffs) <- NULL
-      clust_coeffs <- clust_coeffs[clust_coeffs$variable == treatment,]
-      
-      c_r_unit <- data.frame(
-        outcome=outcome,
-        se_adjustment="cluster-unit",
-        estimate=clust_coeffs[["Estimate"]],
-        se=clust_coeffs[["Std. Error"]],
-        variance=clust_coeffs[["Std. Error"]] ^ 2,
-        t_stat=c(clust_coeffs[["z value"]], clust_coeffs[["t value"]]),
-        p_value=c(clust_coeffs[["Pr(>|z|)"]], clust_coeffs[["Pr(>|t|)"]]),
-        mse=mean(resid(m)^2, na.rm=T),
-        stringsAsFactors=FALSE
-      )
-      
-      results <- rbind(results, c_r_unit)
-      rownames(results) <- NULL
-    }
-    
-    if ("arellano" %in% model_simulation$models[["se_adjust"]]) {
-      clust_indices <- as.numeric(rownames(m$model))
-      clust_var <- as.character(model_simulation$data[[model_simulation$treat_var]][clust_indices])
-      cov_hc <- sandwich::vcovHC(m, type="HC1", cluster=clust_var, method="arellano")
-      hc_se <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == treatment]
-      
-      hc_r <- data.frame(
-        outcome=outcome,
-        se_adjustment="arellano",
-        estimate=estimate,
-        se=hc_se,
-        variance=hc_se ^ 2,
-        t_stat=estimate / hc_se,
-        p_value=2 * pnorm(abs(estimate / hc_se), lower.tail=FALSE),
-        mse=mean(resid(m)^2, na.rm=T),
-        stringsAsFactors=FALSE
-      )
-      results <- rbind(results, hc_r)
-      rownames(results) <- NULL
-    }
+  # Apply SE adjustments
+  if (model_simulation$models$model_call == "feols") {
+    results <- apply_se_adjustments_feols(results, model_simulation$models, model_simulation)
+  } else if (!is.null(treatment)) {
+    mse_val <- mean(resid(m)^2, na.rm = TRUE)
+    results <- apply_se_adjustments_lm(results, m, model_simulation, treatment,
+                                        estimate, mse = mse_val,
+                                        arellano_cluster_var = model_simulation$treat_var)
   }
   
   results <- left_join(results, meta_data, by="outcome")
