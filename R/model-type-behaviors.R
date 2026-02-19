@@ -377,6 +377,271 @@ get_behavior <- function(model_type) {
 
 
 # =============================================================================
+# SE ADJUSTMENT FUNCTIONS
+# =============================================================================
+
+# These functions compute adjusted standard errors and return a one-row
+# data.frame with columns: se_adjustment, estimate, se, variance, t_stat,
+# p_value, mse. Callers can add `outcome` or drop `mse` as needed.
+
+#' Extract the treatment variable name from a model's coefficient table
+#' @noRd
+.get_treatment_varname <- function(m, model_call = "lm") {
+  if (model_call == "feols") {
+    cf_names <- rownames(summary(m)$coeftable)
+  } else {
+    cf_names <- rownames(summary(m)$coefficients)
+  }
+  cf_names[grepl("^treatment", cf_names)][1]
+}
+
+#' Huber (HC0) robust standard errors
+#' @param m Fitted model object
+#' @param treatment Character: name of the treatment variable in the coef table
+#' @param estimate Numeric: the point estimate for the treatment effect
+#' @param mse Numeric: mean squared error (or NA)
+#' @return One-row data.frame with SE adjustment results
+#' @noRd
+.se_adjust_huber <- function(m, treatment, estimate, mse = NA_real_) {
+  cov_h <- sandwich::vcovHC(m, type = "HC0")
+  h_se <- sqrt(diag(cov_h))[names(diag(cov_h)) == treatment]
+
+  data.frame(
+    se_adjustment = "huber",
+    estimate = estimate,
+    se = h_se,
+    variance = h_se^2,
+    t_stat = estimate / h_se,
+    p_value = 2 * pnorm(abs(estimate / h_se), lower.tail = FALSE),
+    mse = mse,
+    stringsAsFactors = FALSE
+  )
+}
+
+#' Cluster-adjusted standard errors via cluster_adjust_se (for lm-type models)
+#' @param m Fitted model object
+#' @param treatment Character: treatment variable name
+#' @param data Data frame used for modeling
+#' @param cluster_var_name Character: name of the clustering variable in data
+#' @param label Character: label for se_adjustment column
+#' @param mse Numeric: mean squared error (or NA)
+#' @return One-row data.frame with SE adjustment results
+#' @noRd
+.se_adjust_cluster_lm <- function(m, treatment, data, cluster_var_name,
+                                   label = "cluster", mse = NA_real_) {
+  clust_indices <- as.numeric(rownames(m$model))
+  clust_var <- as.character(data[[cluster_var_name]][clust_indices])
+  clust_coeffs <- cluster_adjust_se(m, clust_var)[[2]]
+  class(clust_coeffs) <- c("coeftest", "matrix")
+  clust_coeffs <- as.data.frame(clust_coeffs)
+  clust_coeffs$variable <- row.names(clust_coeffs)
+  rownames(clust_coeffs) <- NULL
+  clust_coeffs <- clust_coeffs[clust_coeffs$variable == treatment, ]
+
+  data.frame(
+    se_adjustment = label,
+    estimate = clust_coeffs[["Estimate"]],
+    se = clust_coeffs[["Std. Error"]],
+    variance = clust_coeffs[["Std. Error"]]^2,
+    t_stat = c(clust_coeffs[["t value"]], clust_coeffs[["z value"]]),
+    p_value = c(clust_coeffs[["Pr(>|t|)"]], clust_coeffs[["Pr(>|z|)"]]),
+    mse = mse,
+    stringsAsFactors = FALSE
+  )
+}
+
+#' Cluster-adjusted standard errors via feols re-estimation
+#' @param model optic_model object
+#' @param data Data frame used for modeling
+#' @param cluster_var_name Character: name of clustering variable
+#' @param label Character: label for se_adjustment column
+#' @return One-row data.frame with SE adjustment results
+#' @noRd
+.se_adjust_cluster_feols <- function(model, data, cluster_var_name, label) {
+  fml <- model[["model_formula"]]
+  my_weights <- model[["model_args"]]$weights
+  # Convert weights for feols if needed
+  if (!is.null(my_weights) && is.name(my_weights)) {
+    my_weights <- stats::as.formula(paste0("~", as.character(my_weights)))
+  }
+  m_new <- feols(fml = fml, data = data, weights = my_weights,
+                 cluster = cluster_var_name, nthreads = 4, notes = FALSE)
+  cf <- as.data.frame(summary(m_new)$coeftable)
+  cf$variable <- row.names(cf)
+  rownames(cf) <- NULL
+  treatment <- cf$variable[grepl("^treatment", cf$variable)][1]
+  cf <- cf[cf$variable == treatment, ]
+
+  data.frame(
+    se_adjustment = label,
+    estimate = cf[["Estimate"]],
+    se = cf[["Std. Error"]],
+    variance = cf[["Std. Error"]]^2,
+    t_stat = c(cf[["t value"]], cf[["z value"]]),
+    p_value = c(cf[["Pr(>|t|)"]], cf[["Pr(>|z|)"]]),
+    mse = mean(m_new[["residuals"]]^2, na.rm = TRUE),
+    stringsAsFactors = FALSE
+  )
+}
+
+#' Arellano heteroskedasticity-consistent standard errors
+#' @param m Fitted model object
+#' @param treatment Character: treatment variable name
+#' @param estimate Numeric: point estimate
+#' @param data Data frame used for modeling
+#' @param cluster_var_name Character: name of clustering variable
+#' @param mse Numeric: mean squared error (or NA)
+#' @return One-row data.frame with SE adjustment results
+#' @noRd
+.se_adjust_arellano <- function(m, treatment, estimate, data,
+                                 cluster_var_name, mse = NA_real_) {
+  clust_indices <- as.numeric(rownames(m$model))
+  clust_var <- as.character(data[[cluster_var_name]][clust_indices])
+  cov_hc <- sandwich::vcovHC(m, type = "HC1", cluster = clust_var,
+                              method = "arellano")
+  hc_se <- sqrt(diag(cov_hc))[names(diag(cov_hc)) == treatment]
+
+  data.frame(
+    se_adjustment = "arellano",
+    estimate = estimate,
+    se = hc_se,
+    variance = hc_se^2,
+    t_stat = estimate / hc_se,
+    p_value = 2 * pnorm(abs(estimate / hc_se), lower.tail = FALSE),
+    mse = mse,
+    stringsAsFactors = FALSE
+  )
+}
+
+#' Match columns of a new SE adjustment row to the base results columns
+#'
+#' Ensures the SE adjustment row has the same columns as the base results,
+#' adding missing columns as NA and removing extra ones.
+#' @param adj_row One-row data.frame from an SE adjustment helper
+#' @param base_results The base results data.frame whose columns to match
+#' @return adj_row with columns matching base_results
+#' @noRd
+.match_se_columns <- function(adj_row, base_results) {
+  base_cols <- names(base_results)
+  # Copy missing columns from base_results first row (propagate metadata like outcome)
+  for (col in base_cols) {
+    if (!col %in% names(adj_row)) {
+      adj_row[[col]] <- base_results[[col]][1]
+    }
+  }
+  # Keep only base columns, in the same order
+  adj_row[base_cols]
+}
+
+#' Apply all requested SE adjustments for a non-feols model
+#'
+#' Checks which adjustments are requested in model$se_adjust and applies each,
+#' appending rows to the base results data.frame.
+#'
+#' @param results Base results data.frame (with se_adjustment="none" row)
+#' @param m Fitted model object
+#' @param model_simulation Simulation configuration list
+#' @param treatment Character: treatment variable name from coefficient table
+#' @param estimate Numeric: point estimate for treatment
+#' @param mse Numeric: mean squared error (or NA)
+#' @param include_mse Logical: whether to include mse column in results
+#' @return Updated results data.frame with SE adjustment rows appended
+#' @noRd
+apply_se_adjustments_lm <- function(results, m, model_simulation, treatment,
+                                     estimate, mse = NA_real_,
+                                     include_mse = TRUE,
+                                     arellano_cluster_var = NULL) {
+  se_adjusts <- model_simulation$models[["se_adjust"]]
+  data <- model_simulation$data
+
+  if ("huber" %in% se_adjusts) {
+    h_r <- .se_adjust_huber(m, treatment, estimate, mse)
+    if (!include_mse) h_r$mse <- NULL
+    h_r <- .match_se_columns(h_r, results)
+    results <- rbind(results, h_r)
+    rownames(results) <- NULL
+  }
+
+  if ("cluster-treat" %in% se_adjusts) {
+    c_r <- .se_adjust_cluster_lm(m, treatment, data,
+                                  model_simulation$treat_var,
+                                  label = "cluster-treat", mse = mse)
+    if (!include_mse) c_r$mse <- NULL
+    c_r <- .match_se_columns(c_r, results)
+    results <- rbind(results, c_r)
+    rownames(results) <- NULL
+  }
+
+  if ("cluster-unit" %in% se_adjusts) {
+    c_r <- .se_adjust_cluster_lm(m, treatment, data,
+                                  model_simulation$unit_var,
+                                  label = "cluster-unit", mse = mse)
+    if (!include_mse) c_r$mse <- NULL
+    c_r <- .match_se_columns(c_r, results)
+    results <- rbind(results, c_r)
+    rownames(results) <- NULL
+  }
+
+  # "cluster" (generic) — used by iter_results and selbias, clusters on unit_var
+  if ("cluster" %in% se_adjusts) {
+    c_r <- .se_adjust_cluster_lm(m, treatment, data,
+                                  model_simulation$unit_var,
+                                  label = "cluster", mse = mse)
+    if (!include_mse) c_r$mse <- NULL
+    c_r <- .match_se_columns(c_r, results)
+    results <- rbind(results, c_r)
+    rownames(results) <- NULL
+  }
+
+  if ("arellano" %in% se_adjusts) {
+    # Use explicit arellano_cluster_var if provided, else fall back to unit_var
+    cluster_var <- arellano_cluster_var %||% model_simulation$unit_var
+    hc_r <- .se_adjust_arellano(m, treatment, estimate, data,
+                                 cluster_var, mse = mse)
+    if (!include_mse) hc_r$mse <- NULL
+    hc_r <- .match_se_columns(hc_r, results)
+    results <- rbind(results, hc_r)
+    rownames(results) <- NULL
+  }
+
+  results
+}
+
+#' Apply all requested SE adjustments for a feols model
+#'
+#' Re-fits the model with cluster= parameter for each requested cluster type.
+#'
+#' @param results Base results data.frame
+#' @param model optic_model object
+#' @param model_simulation Simulation configuration list
+#' @return Updated results data.frame with SE adjustment rows appended
+#' @noRd
+apply_se_adjustments_feols <- function(results, model, model_simulation) {
+  data <- model_simulation$data
+
+  if ("cluster-unit" %in% model$se_adjust) {
+    c_r <- .se_adjust_cluster_feols(model, data,
+                                     model_simulation$unit_var,
+                                     label = "cluster-unit")
+    c_r <- .match_se_columns(c_r, results)
+    results <- rbind(results, c_r)
+    rownames(results) <- NULL
+  }
+
+  if ("cluster-treat" %in% model$se_adjust) {
+    c_r <- .se_adjust_cluster_feols(model, data,
+                                     model_simulation$treat_var,
+                                     label = "cluster-treat")
+    c_r <- .match_se_columns(c_r, results)
+    results <- rbind(results, c_r)
+    rownames(results) <- NULL
+  }
+
+  results
+}
+
+
+# =============================================================================
 # REGISTRY
 # =============================================================================
 
