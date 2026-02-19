@@ -40,12 +40,13 @@ Imports:
     tidyr,
     utils
 Suggests:
-    autoeffect,
     fixest,
     future,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)
+Config/Needs/integration:
+    autoeffect
 VignetteBuilder: 
     knitr
 Config/testthat/edition: 3
