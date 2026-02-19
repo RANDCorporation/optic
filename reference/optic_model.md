@@ -20,7 +20,8 @@ optic_model(name, type, call, formula, se_adjust, ...)
   Estimator used to identify the treatment effect using simulated data.
   Specified as a string, which can either be 'reg' (regression),
   'autoreg' (autoregression, which adds a lag for the outcome variable
-  to a regression model), 'drdid' (doubly-robust
+  to a regression model), 'autoeffect' (debiased autoregressive model
+  implemented via the autoeffect package), 'drdid' (doubly-robust
   difference-in-difference estimator), or 'multisynth' (augmented
   synthetic control)
 

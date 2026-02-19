@@ -4,7 +4,7 @@
 
 - No changes yet.
 
-## optic 1.1.0
+## optic 1.1.3
 
 ### New features
 
@@ -29,7 +29,6 @@
 
 ### Bug fixes
 
-- Fixed issues with spillover analysis validation and testing.
 - Fixed parameter handling in
   [`dispatch_simulations()`](https://randcorporation.github.io/optic/reference/dispatch_simulations.md)
   where params list structure was incorrect.

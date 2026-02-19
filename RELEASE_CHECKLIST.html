@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">optic</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,7 +33,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>CRAN Release Checklist for optic</h1>
-      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/v1.1.3/.github/RELEASE_CHECKLIST.md" class="external-link"><code>.github/RELEASE_CHECKLIST.md</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/main/.github/RELEASE_CHECKLIST.md" class="external-link"><code>.github/RELEASE_CHECKLIST.md</code></a></small>
     </div>
 
 <div id="cran-release-checklist-for-optic" class="section level1">
@@ -76,19 +76,19 @@
 <li>Downstream dependencies check results (if applicable)</li>
 </ul></li>
 <li><p><label><input type="checkbox">Update version in <code>DESCRIPTION</code> (done by script)</label></p></li>
-<li><p><label><input type="checkbox">Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> to update man pages if needed</label></p></li>
+<li><p><label><input type="checkbox">Run <code>devtools::document()</code> to update man pages if needed</label></p></li>
 </ul></div>
 <div class="section level3">
 <h3 id="id_3-run-comprehensive-checks">3. Run Comprehensive Checks<a class="anchor" aria-label="anchor" href="#id_3-run-comprehensive-checks"></a></h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Standard check</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/check.html" class="external-link">check</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">check</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Check on Windows devel (REQUIRED for CRAN submissions)</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/check_win.html" class="external-link">check_win_devel</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">check_win_devel</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Check on R-hub (optional but recommended for first-time submissions)</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/check_rhub.html" class="external-link">check_rhub</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">check_rhub</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Check reverse dependencies if any</span></span>
 <span><span class="fu">revdepcheck</span><span class="fu">::</span><span class="fu">revdep_check</span><span class="op">(</span>num_workers <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
@@ -127,7 +127,7 @@
 <h3 id="option-1-using-devtools-recommended">Option 1: Using devtools (Recommended)<a class="anchor" aria-label="anchor" href="#option-1-using-devtools-recommended"></a></h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Submit to CRAN</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/submit_cran.html" class="external-link">submit_cran</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">submit_cran</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>This will: - Build the package - Run final checks - Upload to CRAN’s submission system - You’ll receive a confirmation email</p>
 </div>
 <div class="section level3">
@@ -156,10 +156,10 @@
 <li><label><input type="checkbox">Start development version:</label></li>
 </ul><div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Bump to development version</span></span>
-<span><span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/use_version.html" class="external-link">use_dev_version</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">usethis</span><span class="fu">::</span><span class="fu">use_dev_version</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Add development section to NEWS.md</span></span>
-<span><span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/use_news_md.html" class="external-link">use_news_md</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">usethis</span><span class="fu">::</span><span class="fu">use_news_md</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <ul class="task-list"><li><label><input type="checkbox">Update <code>NEWS.md</code> to add development section:</label></li>
 </ul><div class="sourceCode" id="cb6"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu"># optic (development version)</span></span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optic</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,7 +33,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/randcorporation/optic/blob/v1.1.3/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/randcorporation/optic/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
@@ -41,14 +41,14 @@
 <ul><li>No changes yet.</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.0" id="optic-110">optic 1.1.0<a class="anchor" aria-label="anchor" href="#optic-110"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.1.3" id="optic-113">optic 1.1.3<a class="anchor" aria-label="anchor" href="#optic-113"></a></h2>
 <div class="section level3">
-<h3 id="new-features-1-1-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-1-0"></a></h3>
+<h3 id="new-features-1-1-3">New features<a class="anchor" aria-label="anchor" href="#new-features-1-1-3"></a></h3>
 <ul><li>Enhanced validation system for model specifications, improving error messages and catching configuration issues earlier.</li>
 <li>Introduced snapshot testing for simulation results to ensure consistent output structure across versions.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="improvements-1-1-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-1-1-0"></a></h3>
+<h3 id="improvements-1-1-3">Improvements<a class="anchor" aria-label="anchor" href="#improvements-1-1-3"></a></h3>
 <ul><li>Major refactoring of <code><a href="../reference/dispatch_simulations.html">dispatch_simulations()</a></code> function for improved clarity and maintainability.</li>
 <li>Enhanced <code>optic_model</code> class with better validation and documentation.</li>
 <li>Replaced deprecated <code><a href="https://purrr.tidyverse.org/reference/cross.html" class="external-link">purrr::cross()</a></code> with <code><a href="https://tidyr.tidyverse.org/reference/expand_grid.html" class="external-link">tidyr::expand_grid()</a></code> for more reliable parameter expansion.</li>
@@ -56,16 +56,15 @@
 <li>Clarified package description and documentation.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-1-1-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-0"></a></h3>
-<ul><li>Fixed issues with spillover analysis validation and testing.</li>
-<li>Fixed parameter handling in <code><a href="../reference/dispatch_simulations.html">dispatch_simulations()</a></code> where params list structure was incorrect.</li>
+<h3 id="bug-fixes-1-1-3">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-3"></a></h3>
+<ul><li>Fixed parameter handling in <code><a href="../reference/dispatch_simulations.html">dispatch_simulations()</a></code> where params list structure was incorrect.</li>
 <li>Fixed <code>expand_grid</code> issue in parameter combinations.</li>
 <li>Fixed no-confounding method tests to use correct outcome variables.</li>
 <li>Corrected CRAN check issues related to <code>dispatch_simulations</code> documentation.</li>
 <li>Fixed vignette build issues (<a href="https://github.com/randcorporation/optic/issues/22" class="external-link">#22</a>).</li>
 </ul></div>
 <div class="section level3">
-<h3 id="internal-changes-1-1-0">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-1-0"></a></h3>
+<h3 id="internal-changes-1-1-3">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-1-3"></a></h3>
 <ul><li>Removed <code>augsynth</code> from package dependencies to move to Suggests (addresses installation issues on some platforms).</li>
 <li>Improved GitHub Actions workflows with separate test and check workflows for better CI/CD reliability.</li>
 <li>Added comprehensive snapshot tests for confounding and no-confounding methods.</li>
