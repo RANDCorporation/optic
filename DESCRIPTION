@@ -40,6 +40,8 @@ Imports:
     tidyr,
     utils
 Suggests:
+    autoeffect,
+    fixest,
     future,
     knitr,
     rmarkdown,

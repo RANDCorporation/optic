@@ -54,12 +54,10 @@ tvary_sample <- function(single_simulation) {
   effect_direction <- single_simulation$effect_direction
   model_type = names(single_simulation$models)
   
-  # DID package specifies outcome name differently so make sure to pull out from model_args rather than use the formula:
-  if(!any(model_type == "did")){
-    outcomes <- unique(sapply(single_simulation$models, function(x) { optic::model_terms(x[["model_formula"]])[["lhs"]] }))
-  }else{
-    outcomes <- as.character(single_simulation$models$drdid$model_args$yname)
-  }
+  # Extract outcome variable name(s) from all models
+  outcomes <- unique(sapply(single_simulation$models, function(m) {
+    get_behavior(m$type)$get_outcome(m)
+  }))
   
   ###############################################
   ### IDENTIFY TREATED UNITS AND TIME PERIODS ###
@@ -218,13 +216,8 @@ tvary_premodel <- function(model_simulation) {
   x <- model_simulation$data
   model <- model_simulation$models
   
-  if (model$type != "did") {
-    outcome <- optic::model_terms(model$model_formula)[["lhs"]]
-    oo <- dplyr::sym(outcome)
-  } else if (model$type=='did') {
-    outcome <- as.character(model_simulation$models$model_args$model_args$yname)
-    oo <- dplyr::sym(outcome)
-  }
+  outcome <- get_behavior(model$type)$get_outcome(model)
+  oo <- dplyr::sym(outcome)
   
   model_type <- model$type
   balance_statistics <- NULL
@@ -248,36 +241,10 @@ tvary_premodel <- function(model_simulation) {
   unit_sym <- dplyr::sym(model_simulation$unit_var)
   time_sym <- dplyr::sym(model_simulation$time_var)
 
-  # if autoregressive, need to add lagged outcome
-  if (model_type == "autoreg") {
-    
-    x <- x %>%
-      dplyr::arrange(!!unit_sym, !!time_sym) %>%
-      dplyr::group_by(!!unit_sym) %>%
-      dplyr::mutate(lag_outcome = dplyr::lag(!!oo, n=1L)) %>%
-      dplyr::ungroup()
-    
-      formula_components <- as.character(model_simulation$models$model_formula)
-      updated_3 <- strsplit(formula_components[3], " | ", fixed=TRUE)
-      
-      new_fmla <- as.formula(paste(formula_components[2], formula_components[1], updated_3[[1]][[1]], "+ lag_outcome |", updated_3[[1]][[2]]))
-    
-      model_simulation$models$model_formula <- new_fmla
-   
-  } else if (model_type == "multisynth") {
-    x$treatment[x$treatment > 0] <- 1
-    x$treatment_level[x$treatment_level > 0] <- 1
-    x <- x %>%
-      filter(!is.na(!!oo))
-    if (sum(is.na(x[[outcome]])) > 0) {
-      stop("multisynth method cannot handle missingness in outcome.")
-    }
-  } else if (model_type == "did") {
-    
-    x$treatment[x$treatment > 0] <- 1
-    x$treatment_level[x$treatment_level > 0] <- 1
-
-  }
+  # Model-type-specific data preparation (lag outcome, binarize treatment, etc.)
+  premodel_result <- get_behavior(model_type)$prepare_premodel(x, model_simulation)
+  x <- premodel_result$x
+  model_simulation$models <- premodel_result$models
   
   # get balance information
   bal_stats <- x %>%
@@ -333,44 +300,8 @@ tvary_premodel <- function(model_simulation) {
                                      Inf,
                                      time_to_treat))
   
-  # Depending on the model, we may need to recode treatment year or
-  # treatment date:
-  
-  if (model_type == "eventstudy"|model_type == "autoreg"){
-    
-    # Sun and Abraham models expect treatment year to be Inf, if untreated:
-    x <- x %>% 
-      mutate(treatment_date = ifelse(treatment_date == 0, Inf, treatment_date))
-    
-  }else if (model_type == "did"){
-    
-    # CSA models expect treatment year to be Inf, if untreated and expects
-    # location to be a numeric variable
-    x <- x %>% 
-      mutate(treatment_date = ifelse(treatment_date == 0, Inf, treatment_date),
-             !!unit_sym := as.numeric(as.factor(!!unit_sym)))
-    
-  }else if (model_type == "multisynth"){
-    
-    # Multisynth expects treatment to be either a 0/1 (sampling process uses this
-    # variable instrumentally to produce draws of treatment effect. So reset to 
-    # binary)
-    
-    x <- x %>% mutate(treatment = ifelse(treatment > 0, 1, 0))
-    
-  }else if (model_type == "did_imputation"){
-    
-    # I added this section for completeness, in case we want to modify later.
-    #Borusyak, Jaravel, and Spiess expects treatment_date to be zero for
-    # untreated units. So no need to change data coding.
-    
-  }else if (model_type == "did2s"){
-    
-    # Similar to multisynth, we need treatment to again be binary for
-    # the first stage 
-    x <- x %>% mutate(treatment = ifelse(treatment > 0, 1, 0))
-    
-  }
+  # Model-type-specific recoding of treatment_date
+  x <- get_behavior(model_type)$recode_treatment_date(x, unit_sym)
   
   model_simulation$balance_statistics <- bal_stats
   model_simulation$data <- x
@@ -411,7 +342,7 @@ tvary_model <- function(model_simulation) {
   
   model <- model_simulation$models
   model_type <- model_simulation$models$type
-  addtl_args <- model$model_args$model_args
+  addtl_args <- model$model_args
   
   x <- model_simulation$data
   
@@ -425,16 +356,12 @@ tvary_model <- function(model_simulation) {
     args <- append(args, addtl_args)
   }
   
-  # Change names of provided arguments to meet the needs of respective packages
-  if (model_type == "eventstudy"|model_type == "autoreg"){
-    args[['fml']] <- model$model_formula
-  }else if (model_type == "multisynth"){
-    args[['form']] <-  model$model_formula
-    args[['n_leads']] <- model_simulation$n_implementation_periods
-  }else if (model_type == "did_imputation"){
-    args[['horizon']] <- T
-  }else if (model_type == "did2s"){
-    args[['treatment']] <- 'treatment'
+  # Model-type-specific argument preparation
+  args <- get_behavior(model_type)$prepare_model_args(args, model, model_simulation)
+
+  # tvary-specific: multisynth needs n_leads for time-varying analysis
+  if (model_type == "multisynth") {
+    args[["n_leads"]] <- model_simulation$n_implementation_periods
   }
   
   m <- do.call(
@@ -462,7 +389,7 @@ tvary_model <- function(model_simulation) {
 
 tvary_postmodel <- function(model_simulation) {
   
-  outcome <- optic::model_terms(model_simulation$models[["model_formula"]])[["lhs"]]
+  outcome <- get_behavior(model_simulation$models[["type"]])$get_outcome(model_simulation$models)
   
   # get run metadata to merge in after
   meta_data <- data.frame(

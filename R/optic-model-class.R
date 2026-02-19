@@ -586,7 +586,8 @@ resolve_autoeffect_args <- function(model, unit_var, time_var) {
   args$date_name <- args$date_name %||% time_var
   args$trt_name <- args$trt_name %||% "trt_ind"
   args$lags <- args$lags %||% stop("autoeffect models require a 'lags' argument")
-  args$cov_names <- args$cov_names %||% NULL  args$effect_lag <- args$effect_lag %||% args$lags
+  args$cov_names <- args$cov_names %||% NULL
+  args$effect_lag <- args$effect_lag %||% args$lags
   args
 }
 

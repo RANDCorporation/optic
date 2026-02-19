@@ -66,7 +66,9 @@ utils::globalVariables(c("treatment1",
                          "trt_ind_new",
                          "trt_pr",
                          "variable",
-                         "year"))
+                         "year",
+                         "lag_outcome",
+                         "treatment_year"))
 
 
 
