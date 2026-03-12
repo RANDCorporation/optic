@@ -57,12 +57,7 @@ test_that("autoeffect integration runs alongside TWFE model", {
     call = "autoeffect",
     formula = outcome ~ treatment_level,
     se_adjust = "none",
-    lags = 2,
-    unit_name = "unit",
-    date_name = "year",
-    trt_name = "trt_ind",
-    outcome_name = "outcome",
-    effect_lag = 2
+    lags = 2
   )
 
   sim <- optic_simulation(

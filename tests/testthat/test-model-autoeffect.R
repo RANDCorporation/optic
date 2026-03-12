@@ -21,13 +21,9 @@ test_that("optic_model creates valid autoeffect model", {
     name = "autoeffect_basic",
     type = "autoeffect",
     call = "autoeffect",
-    formula = crude.rate ~ treatment,
+    formula = crude.rate ~ treatment_level,
     se_adjust = "none",
-    lags = 2,
-    unit_name = "state",
-    date_name = "year",
-    trt_name = "trt_ind",
-    outcome_name = "crude.rate"
+    lags = 2
   )
 
   expect_s3_class(model, "optic_model")
@@ -42,10 +38,9 @@ test_that("autoeffect model requires lags parameter", {
     name = "autoeffect_lags",
     type = "autoeffect",
     call = "autoeffect",
-    formula = crude.rate ~ treatment,
+    formula = crude.rate ~ treatment_level,
     se_adjust = "none",
-    lags = 3,
-    trt_name = "trt_ind"
+    lags = 3
   )
 
   expect_equal(model$model_args$lags, 3)
@@ -58,7 +53,7 @@ test_that("autoeffect model stores trt_name parameter", {
     name = "autoeffect_trt",
     type = "autoeffect",
     call = "autoeffect",
-    formula = crude.rate ~ treatment,
+    formula = crude.rate ~ treatment_level,
     se_adjust = "none",
     lags = 2,
     trt_name = "treatment_indicator"
@@ -67,38 +62,117 @@ test_that("autoeffect model stores trt_name parameter", {
   expect_equal(model$model_args$trt_name, "treatment_indicator")
 })
 
-test_that("autoeffect model supports effect_lag parameter", {
+test_that("effect_lag is deprecated and warns when different from lags", {
   skip_if_not_installed("autoeffect")
 
   model <- optic_model(
     name = "autoeffect_effect_lag",
     type = "autoeffect",
     call = "autoeffect",
-    formula = crude.rate ~ treatment,
+    formula = crude.rate ~ treatment_level,
     se_adjust = "none",
     lags = 3,
-    effect_lag = 2,
-    trt_name = "trt_ind"
+    effect_lag = 2
   )
 
-  expect_equal(model$model_args$effect_lag, 2)
+  expect_warning(
+    args <- resolve_autoeffect_args(model, "state", "year"),
+    "effect_lag.*deprecated"
+  )
+  expect_equal(args$effect_lag, 3)  # uses lags, not effect_lag
 })
 
-test_that("autoeffect model supports covariates", {
+test_that("covariates extracted from formula RHS", {
   skip_if_not_installed("autoeffect")
 
   model <- optic_model(
-    name = "autoeffect_cov",
+    name = "autoeffect_formula_cov",
     type = "autoeffect",
     call = "autoeffect",
-    formula = crude.rate ~ treatment,
+    formula = crude.rate ~ treatment_level + unemploymentrate,
+    se_adjust = "none",
+    lags = 2
+  )
+
+  args <- resolve_autoeffect_args(model, "state", "year")
+  expect_true(inherits(args$x_formula, "formula"))
+  expect_equal(all.vars(args$x_formula), "unemploymentrate")
+})
+
+test_that("factor covariates preserved in extracted x_formula", {
+  skip_if_not_installed("autoeffect")
+
+  model <- optic_model(
+    name = "autoeffect_factor_cov",
+    type = "autoeffect",
+    call = "autoeffect",
+    formula = crude.rate ~ treatment_level + unemploymentrate + as.factor(year),
+    se_adjust = "none",
+    lags = 2
+  )
+
+  args <- resolve_autoeffect_args(model, "state", "year")
+  expect_true(inherits(args$x_formula, "formula"))
+  formula_str <- deparse(args$x_formula)
+  expect_true(grepl("unemploymentrate", formula_str))
+  expect_true(grepl("as.factor\\(year\\)", formula_str))
+})
+
+test_that("no covariates when formula has only treatment variable", {
+  skip_if_not_installed("autoeffect")
+
+  model <- optic_model(
+    name = "autoeffect_no_cov",
+    type = "autoeffect",
+    call = "autoeffect",
+    formula = crude.rate ~ treatment_level,
+    se_adjust = "none",
+    lags = 2
+  )
+
+  args <- resolve_autoeffect_args(model, "state", "year")
+  expect_null(args$x_formula)
+})
+
+test_that("deprecated cov_names triggers warning and converts to x_formula", {
+  skip_if_not_installed("autoeffect")
+
+  model <- optic_model(
+    name = "autoeffect_deprecated_cov",
+    type = "autoeffect",
+    call = "autoeffect",
+    formula = crude.rate ~ treatment_level,
     se_adjust = "none",
     lags = 2,
-    trt_name = "trt_ind",
     cov_names = c("unemploymentrate", "population")
   )
 
-  expect_equal(model$model_args$cov_names, c("unemploymentrate", "population"))
+  expect_warning(
+    args <- resolve_autoeffect_args(model, "state", "year"),
+    "cov_names.*deprecated"
+  )
+  expect_true(inherits(args$x_formula, "formula"))
+  expect_null(args$cov_names)
+})
+
+test_that("deprecated x_formula in ... triggers warning", {
+  skip_if_not_installed("autoeffect")
+
+  model <- optic_model(
+    name = "autoeffect_deprecated_xfml",
+    type = "autoeffect",
+    call = "autoeffect",
+    formula = crude.rate ~ treatment_level,
+    se_adjust = "none",
+    lags = 2,
+    x_formula = ~unemploymentrate
+  )
+
+  expect_warning(
+    args <- resolve_autoeffect_args(model, "state", "year"),
+    "x_formula.*deprecated"
+  )
+  expect_true(inherits(args$x_formula, "formula"))
 })
 
 test_that("autoeffect only works with autoeffect call", {
@@ -109,7 +183,7 @@ test_that("autoeffect only works with autoeffect call", {
       name = "autoeffect_invalid",
       type = "autoeffect",
       call = "lm",
-      formula = crude.rate ~ treatment,
+      formula = crude.rate ~ treatment_level,
       se_adjust = "none"
     )
   )
@@ -122,14 +196,9 @@ test_that("end-to-end: autoeffect model runs through dispatch_simulations", {
     name = "autoeffect_e2e",
     type = "autoeffect",
     call = "autoeffect",
-    formula = crude.rate ~ treatment,
+    formula = crude.rate ~ treatment_level,
     se_adjust = "none",
-    lags = 2,
-    unit_name = "state",
-    date_name = "year",
-    trt_name = "trt_ind",
-    outcome_name = "crude.rate",
-    effect_lag = 2
+    lags = 2
   )
 
   sim <- optic_simulation(
@@ -157,22 +226,16 @@ test_that("end-to-end: autoeffect model runs through dispatch_simulations", {
   expect_true(all(c("estimate", "se") %in% colnames(results)))
 })
 
-test_that("end-to-end: autoeffect model with covariates", {
+test_that("end-to-end: autoeffect model with covariates in formula", {
   skip_if_not_installed("autoeffect")
 
   model <- optic_model(
     name = "autoeffect_cov_e2e",
     type = "autoeffect",
     call = "autoeffect",
-    formula = crude.rate ~ treatment,
+    formula = crude.rate ~ treatment_level + unemploymentrate,
     se_adjust = "none",
-    lags = 2,
-    unit_name = "state",
-    date_name = "year",
-    trt_name = "trt_ind",
-    outcome_name = "crude.rate",
-    cov_names = "unemploymentrate",
-    effect_lag = 2
+    lags = 2
   )
 
   sim <- optic_simulation(
@@ -207,14 +270,9 @@ test_that("end-to-end: autoeffect model with confounding method", {
     name = "autoeffect_confounding_e2e",
     type = "autoeffect",
     call = "autoeffect",
-    formula = crude.rate ~ treatment,
+    formula = crude.rate ~ treatment_level,
     se_adjust = "none",
-    lags = 2,
-    unit_name = "state",
-    date_name = "year",
-    trt_name = "trt_ind",
-    outcome_name = "crude.rate",
-    effect_lag = 2
+    lags = 2
   )
 
   bias_vals <- list(

@@ -440,8 +440,9 @@ validate_autoeffect_init <- function(model, data, params) {
     stop("autoeffect models require a treatment indicator specified via 'trt_name'")
   }
   
-  if (!is.null(args$cov_names)) {
-    missing_covs <- setdiff(args$cov_names, names(data))
+  if (!is.null(args$x_formula)) {
+    cov_vars <- all.vars(args$x_formula)
+    missing_covs <- setdiff(cov_vars, names(data))
     if (length(missing_covs) > 0) {
       stop("Covariates missing for autoeffect model: ", paste(missing_covs, collapse = ", "))
     }
@@ -454,28 +455,29 @@ validate_autoeffect_pre_call <- function(model, args) {
   if (length(missing_args) > 0) {
     stop("Missing arguments for autoeffect model: ", paste(missing_args, collapse = ", "))
   }
-  
+
   data <- args$data
   outcome <- args$outcome_name
   unit_name <- args$unit_name
   date_name <- args$date_name
   trt_name <- args$trt_name
-  
+
   if (!all(c(outcome, unit_name, date_name, trt_name) %in% names(data))) {
     stop("Autoeffect model data is missing required columns (outcome, unit, time, or treatment indicator)")
   }
-  
+
   trt_vals <- data[[trt_name]]
   if (!is.numeric(trt_vals) || any(!trt_vals %in% c(0, 1, NA))) {
     stop("Autoeffect treatment indicator '", trt_name, "' must be binary (0/1)")
   }
-  
+
   if (!is.numeric(args$lags) || length(args$lags) != 1 || args$lags < 2) {
     stop("Autoeffect models require 'lags' >= 2")
   }
-  
-  if (!is.null(args$cov_names)) {
-    missing_covs <- setdiff(args$cov_names, names(data))
+
+  if (!is.null(args$x_formula)) {
+    cov_vars <- all.vars(args$x_formula)
+    missing_covs <- setdiff(cov_vars, names(data))
     if (length(missing_covs) > 0) {
       stop("Autoeffect model covariates missing from data: ", paste(missing_covs, collapse = ", "))
     }
@@ -586,9 +588,46 @@ resolve_autoeffect_args <- function(model, unit_var, time_var) {
   args$date_name <- args$date_name %||% time_var
   args$trt_name <- args$trt_name %||% "trt_ind"
   args$lags <- args$lags %||% stop("autoeffect models require a 'lags' argument")
-  args$cov_names <- args$cov_names %||% NULL
-  args$effect_lag <- args$effect_lag %||% args$lags
+  if (!is.null(args$effect_lag) && args$effect_lag != args$lags) {
+    warning("'effect_lag' is deprecated and will be ignored. Using 'lags' = ",
+            args$lags, " for cumulative effect extraction.", call. = FALSE)
+  }
+  args$effect_lag <- args$lags
+
+  # Covariate resolution: formula RHS is the canonical source.
+  # Direct x_formula / cov_names in ... are deprecated.
+  if (!is.null(args$x_formula)) {
+    warning("Passing 'x_formula' directly is deprecated for autoeffect models. ",
+            "Specify covariates in the formula instead (e.g., outcome ~ treatment_level + x1 + x2).",
+            call. = FALSE)
+  } else if (!is.null(args$cov_names)) {
+    warning("Passing 'cov_names' directly is deprecated for autoeffect models. ",
+            "Specify covariates in the formula instead (e.g., outcome ~ treatment_level + x1 + x2).",
+            call. = FALSE)
+    args$x_formula <- stats::as.formula(paste("~", paste(args$cov_names, collapse = " + ")))
+    args$cov_names <- NULL
+  } else {
+    args$x_formula <- .extract_covariates_from_formula(model$model_formula)
+  }
+
   args
+}
+
+#' Extract covariate terms from a two-sided formula, removing treatment variables
+#'
+#' Returns a one-sided formula of non-treatment RHS terms, or NULL if none.
+#' @param fml A two-sided formula
+#' @return A one-sided formula or NULL
+#' @noRd
+.extract_covariates_from_formula <- function(fml) {
+  treatment_terms <- c("treatment_level", "treatment_change", "treatment",
+                       "treatment1_level", "treatment2_level",
+                       "treatment1_change", "treatment2_change")
+  fml_terms <- stats::terms(fml)
+  term_labels <- attr(fml_terms, "term.labels")
+  covariate_terms <- term_labels[!term_labels %in% treatment_terms]
+  if (length(covariate_terms) == 0) return(NULL)
+  stats::as.formula(paste("~", paste(covariate_terms, collapse = " + ")))
 }
 
 `%||%` <- function(x, y) {
