@@ -173,19 +173,23 @@ get_behavior <- function(model_type) {
 # autoeffect: resolve ae_args and map params
 .prepare_model_args_autoeffect <- function(args, model, model_simulation) {
   ae_args <- resolve_autoeffect_args(model, model_simulation$unit_var, model_simulation$time_var)
-  # Remove optic-specific args
+  # Remove optic-specific args that autoeffect() doesn't accept
   args[["effect_lag"]] <- NULL
   args[["formula"]] <- NULL
-  # Map autoeffect-specific args
+  args[["outcome_name"]] <- NULL
+  args[["unit_name"]] <- NULL
+  args[["date_name"]] <- NULL
+  args[["trt_name"]] <- NULL
+  args[["cov_names"]] <- NULL
+  args[["x_formula"]] <- NULL
+  # Map resolved autoeffect-specific args
   args[["lags"]] <- ae_args$lags
   args[["outcome_name"]] <- ae_args$outcome_name
   args[["unit_name"]] <- ae_args$unit_name
   args[["date_name"]] <- ae_args$date_name
   args[["trt_name"]] <- ae_args$trt_name
-  if (!is.null(ae_args$cov_names)) {
-    args[["cov_names"]] <- ae_args$cov_names
-  } else if ("cov_names" %in% names(args)) {
-    args[["cov_names"]] <- NULL
+  if (!is.null(ae_args$x_formula)) {
+    args[["x_formula"]] <- ae_args$x_formula
   }
   args
 }
