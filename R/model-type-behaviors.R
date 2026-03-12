@@ -517,6 +517,46 @@ get_behavior <- function(model_type) {
   )
 }
 
+#' Cluster-adjusted standard errors for autoeffect (NLS) models
+#'
+#' Delegates entirely to autoeffect::cumulative_effects(cluster=).
+#' @param ae_object Fitted autoeffect object
+#' @param model optic_model object
+#' @param model_simulation Simulation configuration list
+#' @param cluster_var_name Character: column name to cluster on
+#' @param label Character: label for se_adjustment column
+#' @return One-row data.frame with SE adjustment results
+#' @noRd
+.se_adjust_cluster_autoeffect <- function(ae_object, model, model_simulation,
+                                           cluster_var_name, label) {
+  ae_args <- resolve_autoeffect_args(model, model_simulation$unit_var,
+                                      model_simulation$time_var)
+  effect_lag <- ae_args$effect_lag
+
+  cum_effects_fn <- utils::getFromNamespace("cumulative_effects", "autoeffect")
+  cum_effects <- cum_effects_fn(ae_object, cluster = cluster_var_name)
+
+  if (is.null(cum_effects) || !effect_lag %in% cum_effects$Lag) {
+    estimate <- NA_real_; se <- NA_real_
+  } else {
+    effect_row <- cum_effects[cum_effects$Lag == effect_lag, ]
+    estimate <- effect_row$Estimate; se <- effect_row$StdError
+  }
+
+  variance <- se^2
+  t_stat <- ifelse(is.na(se) || se == 0, NA_real_, estimate / se)
+  p_value <- ifelse(is.na(t_stat), NA_real_, 2 * pnorm(abs(t_stat), lower.tail = FALSE))
+  mse <- if (!is.null(ae_object$model)) {
+    mean(stats::residuals(ae_object$model)^2, na.rm = TRUE)
+  } else {
+    NA_real_
+  }
+
+  data.frame(se_adjustment = label, estimate = estimate, se = se,
+             variance = variance, t_stat = t_stat, p_value = p_value,
+             mse = mse, stringsAsFactors = FALSE)
+}
+
 #' Match columns of a new SE adjustment row to the base results columns
 #'
 #' Ensures the SE adjustment row has the same columns as the base results,
@@ -646,64 +686,126 @@ apply_se_adjustments_feols <- function(results, model, model_simulation) {
 
 
 # =============================================================================
+# BEHAVIOR 6: apply_se_adjustments
+# =============================================================================
+
+# Autoeffect: delegates to autoeffect::cumulative_effects(cluster=)
+.apply_se_adjustments_autoeffect <- function(results, m, model, model_simulation) {
+  se_adjusts <- model[["se_adjust"]]
+
+  cluster_types <- c("cluster-unit", "cluster-treat", "cluster")
+  cluster_vars <- list(
+    "cluster-unit"  = model_simulation$unit_var,
+    "cluster-treat" = model_simulation$treat_var,
+    "cluster"       = model_simulation$unit_var
+  )
+
+  for (adj_type in cluster_types) {
+    if (adj_type %in% se_adjusts) {
+      adj <- .se_adjust_cluster_autoeffect(m, model, model_simulation,
+                                            cluster_vars[[adj_type]], adj_type)
+      adj <- .match_se_columns(adj, results)
+      results <- rbind(results, adj)
+      rownames(results) <- NULL
+    }
+  }
+
+  unsupported <- intersect(se_adjusts, c("huber", "arellano"))
+  if (length(unsupported) > 0) {
+    warning("SE adjustments [", paste(unsupported, collapse = ", "),
+            "] are not supported for autoeffect (nls) models and will be skipped.",
+            call. = FALSE)
+  }
+  results
+}
+
+# Reg/autoreg/did2s/eventstudy: wraps existing lm/feols SE adjustment functions
+.apply_se_adjustments_reg <- function(results, m, model, model_simulation) {
+  if (model$model_call == "feols") {
+    return(apply_se_adjustments_feols(results, model, model_simulation))
+  }
+  treatment <- .get_treatment_varname(m, model$model_call)
+  if (is.null(treatment)) return(results)
+  estimate <- results$estimate[1]
+  mse_val <- mean(stats::resid(m)^2, na.rm = TRUE)
+  apply_se_adjustments_lm(results, m, model_simulation, treatment,
+                           estimate, mse = mse_val,
+                           arellano_cluster_var = model_simulation$treat_var)
+}
+
+# No-op (did, multisynth -- handle SEs natively)
+.apply_se_adjustments_noop <- function(results, m, model, model_simulation) {
+  results
+}
+
+
+# =============================================================================
 # REGISTRY
 # =============================================================================
 
 .model_type_registry <- list(
   reg = list(
-    get_outcome          = .get_outcome_formula,
-    prepare_premodel     = .prepare_premodel_noop,
+    get_outcome           = .get_outcome_formula,
+    prepare_premodel      = .prepare_premodel_noop,
     recode_treatment_date = .recode_trt_date_inf,
-    prepare_model_args   = .prepare_model_args_reg,
-    extract_results      = .extract_results_reg
+    prepare_model_args    = .prepare_model_args_reg,
+    extract_results       = .extract_results_reg,
+    apply_se_adjustments  = .apply_se_adjustments_reg
   ),
   autoreg = list(
-    get_outcome          = .get_outcome_formula,
-    prepare_premodel     = .prepare_premodel_autoreg,
+    get_outcome           = .get_outcome_formula,
+    prepare_premodel      = .prepare_premodel_autoreg,
     recode_treatment_date = .recode_trt_date_inf,
-    prepare_model_args   = .prepare_model_args_reg,
-    extract_results      = .extract_results_reg
+    prepare_model_args    = .prepare_model_args_reg,
+    extract_results       = .extract_results_reg,
+    apply_se_adjustments  = .apply_se_adjustments_reg
   ),
   autoeffect = list(
-    get_outcome          = .get_outcome_formula,
-    prepare_premodel     = .prepare_premodel_autoeffect,
+    get_outcome           = .get_outcome_formula,
+    prepare_premodel      = .prepare_premodel_autoeffect,
     recode_treatment_date = .recode_trt_date_autoeffect,
-    prepare_model_args   = .prepare_model_args_autoeffect,
-    extract_results      = .extract_results_autoeffect
+    prepare_model_args    = .prepare_model_args_autoeffect,
+    extract_results       = .extract_results_autoeffect,
+    apply_se_adjustments  = .apply_se_adjustments_autoeffect
   ),
   multisynth = list(
-    get_outcome          = .get_outcome_formula,
-    prepare_premodel     = .prepare_premodel_multisynth,
+    get_outcome           = .get_outcome_formula,
+    prepare_premodel      = .prepare_premodel_multisynth,
     recode_treatment_date = .recode_trt_date_binarize,
-    prepare_model_args   = .prepare_model_args_multisynth,
-    extract_results      = .extract_results_multisynth
+    prepare_model_args    = .prepare_model_args_multisynth,
+    extract_results       = .extract_results_multisynth,
+    apply_se_adjustments  = .apply_se_adjustments_noop
   ),
   did = list(
-    get_outcome          = .get_outcome_did,
-    prepare_premodel     = .prepare_premodel_did,
+    get_outcome           = .get_outcome_did,
+    prepare_premodel      = .prepare_premodel_did,
     recode_treatment_date = .recode_trt_date_did,
-    prepare_model_args   = .prepare_model_args_did,
-    extract_results      = .extract_results_did
+    prepare_model_args    = .prepare_model_args_did,
+    extract_results       = .extract_results_did,
+    apply_se_adjustments  = .apply_se_adjustments_noop
   ),
   eventstudy = list(
-    get_outcome          = .get_outcome_formula,
-    prepare_premodel     = .prepare_premodel_noop,
+    get_outcome           = .get_outcome_formula,
+    prepare_premodel      = .prepare_premodel_noop,
     recode_treatment_date = .recode_trt_date_inf,
-    prepare_model_args   = .prepare_model_args_eventstudy,
-    extract_results      = .extract_results_reg
+    prepare_model_args    = .prepare_model_args_eventstudy,
+    extract_results       = .extract_results_reg,
+    apply_se_adjustments  = .apply_se_adjustments_reg
   ),
   did2s = list(
-    get_outcome          = .get_outcome_formula,
-    prepare_premodel     = .prepare_premodel_noop,
+    get_outcome           = .get_outcome_formula,
+    prepare_premodel      = .prepare_premodel_noop,
     recode_treatment_date = .recode_trt_date_binarize,
-    prepare_model_args   = .prepare_model_args_did2s,
-    extract_results      = .extract_results_reg
+    prepare_model_args    = .prepare_model_args_did2s,
+    extract_results       = .extract_results_reg,
+    apply_se_adjustments  = .apply_se_adjustments_reg
   ),
   did_imputation = list(
-    get_outcome          = .get_outcome_formula,
-    prepare_premodel     = .prepare_premodel_noop,
+    get_outcome           = .get_outcome_formula,
+    prepare_premodel      = .prepare_premodel_noop,
     recode_treatment_date = .recode_trt_date_noop,
-    prepare_model_args   = .prepare_model_args_did_imputation,
-    extract_results      = NULL  # did_imputation result extraction is model-specific
+    prepare_model_args    = .prepare_model_args_did_imputation,
+    extract_results       = NULL,
+    apply_se_adjustments  = .apply_se_adjustments_noop
   )
 )

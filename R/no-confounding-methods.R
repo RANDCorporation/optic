@@ -373,27 +373,10 @@ noconf_postmodel <- function(model_simulation) {
   results <- get_behavior(model[["type"]])$extract_results(m, model, model_simulation)
   estimate <- results$estimate[1]
 
-  # For SE adjustment code below: extract treatment variable name from model coefs
-  # (only needed for reg/autoreg/did2s where SE adjustments apply)
-  treatment <- NULL
-  if (model[["type"]] %in% c("reg", "autoreg", "did2s")) {
-    if (model$model_call == "feols") {
-      cf_names <- rownames(summary(m)$coeftable)
-    } else {
-      cf_names <- rownames(summary(m)$coefficients)
-    }
-    treatment <- cf_names[grepl("^treatment", cf_names)][1]
-  }
-  
-  # Apply SE adjustments
-  if (model_simulation$models$model_call == "feols") {
-    results <- apply_se_adjustments_feols(results, model_simulation$models, model_simulation)
-  } else if (!is.null(treatment)) {
-    mse_val <- mean(resid(m)^2, na.rm = TRUE)
-    results <- apply_se_adjustments_lm(results, m, model_simulation, treatment,
-                                        estimate, mse = mse_val,
-                                        arellano_cluster_var = model_simulation$treat_var)
-  }
+  # Apply SE adjustments via model type registry
+  results <- get_behavior(model[["type"]])$apply_se_adjustments(
+    results, m, model, model_simulation
+  )
   
   results <- left_join(results, meta_data, by="outcome")
   
