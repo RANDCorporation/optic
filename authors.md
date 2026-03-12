@@ -23,13 +23,13 @@ Source:
 
 Griffin B, Nascimento de Lima P, Griswold M, Scherling A, Pane J, Grimm
 G (2026). *optic: Simulation Tool for Causal Inference Using
-Longitudinal Data*. R package version 1.2.0,
+Longitudinal Data*. R package version 1.2.1,
 <https://randcorporation.github.io/optic/>.
 
     @Manual{,
       title = {optic: Simulation Tool for Causal Inference Using Longitudinal Data},
       author = {Beth Ann Griffin and Pedro {Nascimento de Lima} and Max Griswold and Adam Scherling and Joseph Pane and Geoffrey Grimm},
       year = {2026},
-      note = {R package version 1.2.0},
+      note = {R package version 1.2.1},
       url = {https://randcorporation.github.io/optic/},
     }
