@@ -262,6 +262,85 @@ test_that("end-to-end: autoeffect model with covariates in formula", {
   expect_equal(nrow(results), 1)
 })
 
+test_that("end-to-end: autoeffect with cluster-unit SE produces two result rows", {
+  skip_if_not_installed("autoeffect")
+
+  model <- optic_model(
+    name = "autoeffect_cluster_e2e",
+    type = "autoeffect",
+    call = "autoeffect",
+    formula = crude.rate ~ treatment_level,
+    se_adjust = c("none", "cluster-unit"),
+    lags = 2
+  )
+
+  sim <- optic_simulation(
+    x = test_data,
+    models = list(model),
+    iters = 1,
+    method = "no_confounding",
+    unit_var = "state",
+    treat_var = "state",
+    time_var = "year",
+    effect_magnitude = list(0),
+    n_units = 5,
+    effect_direction = "pos",
+    policy_speed = "instant",
+    n_implementation_periods = 1,
+    verbose = FALSE
+  )
+
+  results <- suppressWarnings(
+    dispatch_simulations(sim, use_future = FALSE, seed = 555, verbose = 0)
+  )
+
+  expect_true(is.data.frame(results))
+  expect_equal(nrow(results), 2)
+  expect_true("none" %in% results$se_adjustment)
+  expect_true("cluster-unit" %in% results$se_adjustment)
+
+  # Verify both rows have valid SE values
+  expect_true(all(!is.na(results$se)))
+})
+
+test_that("autoeffect with unsupported huber SE warns and skips", {
+  skip_if_not_installed("autoeffect")
+
+  model <- optic_model(
+    name = "autoeffect_huber_warn",
+    type = "autoeffect",
+    call = "autoeffect",
+    formula = crude.rate ~ treatment_level,
+    se_adjust = c("none", "huber"),
+    lags = 2
+  )
+
+  sim <- optic_simulation(
+    x = test_data,
+    models = list(model),
+    iters = 1,
+    method = "no_confounding",
+    unit_var = "state",
+    treat_var = "state",
+    time_var = "year",
+    effect_magnitude = list(0),
+    n_units = 5,
+    effect_direction = "pos",
+    policy_speed = "instant",
+    n_implementation_periods = 1,
+    verbose = FALSE
+  )
+
+  expect_warning(
+    results <- dispatch_simulations(sim, use_future = FALSE, seed = 444, verbose = 0),
+    "not supported for autoeffect"
+  )
+
+  # Only "none" row should be present (huber skipped)
+  expect_equal(nrow(results), 1)
+  expect_equal(results$se_adjustment, "none")
+})
+
 test_that("end-to-end: autoeffect model with confounding method", {
   skip("Confounding method needs fix: selbias code tries to access $coefficients on autoeffect models")
   skip_if_not_installed("autoeffect")
