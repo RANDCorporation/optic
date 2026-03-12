@@ -83,6 +83,10 @@ dev/confound_review/summarized_results_full_runs_TE2022-12-20.Rds
 dev/confound_review/test_code_06192023_paper_permutations_adding_models_ASCM.txt
 dev/confound_review/test_code_06192023_paper_permutations_adding_models_ASCM_DID.r
 dev/confound_review/test_code_06192023_paper_permutations_adding_models_ASCM_DID.txt
+dev/*.R
+dev/*.Rds
+dev/*.rds
+dev/*.RData
 fixed_sims.R
 test_time_vary_ar.R
 time_vary_plots/example_models_for_testing.R

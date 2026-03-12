@@ -68,7 +68,7 @@ optic_model <- function(name, type,call, formula, se_adjust, ...) {
 new_optic_model <- function(
                   name,
                   type= c("reg", "autoreg", "autoeffect", "multisynth", "did"),
-                  call= c("lm", "feols", "multisynth", "glm.nb", "autoeffect"),
+                  call= c("lm", "feols", "multisynth", "glm.nb", "autoeffect", "att_gt"),
                   formula,
                   args=list(weights=as.name('population')),
                   se_adjust=c("none", "cluster"),
@@ -82,13 +82,13 @@ new_optic_model <- function(
   stopifnot(is.character(name))
   stopifnot(length(name) == 1)
   m$name <- name
-  
+
   m$type <- match.arg(type)
-  
+
   stopifnot(rlang::is_formula(formula))
   m$model_formula <- formula
-  
-  m$model_call <- call
+
+  m$model_call <- match.arg(call)
   
   # Browser
   # Create list of arguments:
