@@ -33,15 +33,49 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/randcorporation/optic/blob/v1.2.2/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/randcorporation/optic/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="optic-development-version">optic (development version)<a class="anchor" aria-label="anchor" href="#optic-development-version"></a></h2>
-<ul><li>No changes yet.</li>
+<h2 class="pkg-version" data-toc-text="1.2.2" id="optic-122"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.2.2" class="external-link">optic 1.2.2</a><a class="anchor" aria-label="anchor" href="#optic-122"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-2-2">New features<a class="anchor" aria-label="anchor" href="#new-features-1-2-2"></a></h3>
+<ul><li>Clustered standard error support for autoeffect models, delegating to <code>autoeffect::cumulative_effects(cluster=)</code>. Unsupported SE adjustments (huber, arellano) now warn and skip. (<a href="https://github.com/RANDCorporation/optic/pull/37" class="external-link">#37</a>)</li>
 </ul></div>
+<div class="section level3">
+<h3 id="internal-changes-1-2-2">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-2-2"></a></h3>
+<ul><li>Moved SE adjustment behavior into the model type registry, replacing if-else chain in <code>noconf_postmodel()</code>. (<a href="https://github.com/RANDCorporation/optic/pull/37" class="external-link">#37</a>)</li>
+</ul></div>
+</div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.3" id="optic-113">optic 1.1.3<a class="anchor" aria-label="anchor" href="#optic-113"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.2.1" id="optic-121"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.2.1" class="external-link">optic 1.2.1</a><a class="anchor" aria-label="anchor" href="#optic-121"></a></h2>
+<div class="section level3">
+<h3 id="improvements-1-2-1">Improvements<a class="anchor" aria-label="anchor" href="#improvements-1-2-1"></a></h3>
+<ul><li>Autoeffect models now extract covariates from the formula RHS like reg/autoreg models, eliminating separate <code>x_formula</code> or <code>cov_names</code> parameters. Deprecation warnings added for the old interface. (<a href="https://github.com/RANDCorporation/optic/pull/36" class="external-link">#36</a>)</li>
+</ul></div>
+<div class="section level3">
+<h3 id="internal-changes-1-2-1">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-2-1"></a></h3>
+<ul><li>Restored <code><a href="https://rdrr.io/r/base/match.arg.html" class="external-link">match.arg()</a></code> for type and call validation in <code>new_optic_model()</code> constructor. (<a href="https://github.com/RANDCorporation/optic/pull/35" class="external-link">#35</a>)</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-2-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-2-1"></a></h3>
+<ul><li>Fixed GitHub Actions workflow errors: resolved missing knitr dependencies for vignette building and covr conflicts with parallel test execution. (<a href="https://github.com/RANDCorporation/optic/pull/34" class="external-link">#34</a>)</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.2.0" id="optic-120"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.2.0" class="external-link">optic 1.2.0</a><a class="anchor" aria-label="anchor" href="#optic-120"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-2-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-2-0"></a></h3>
+<ul><li>Added <code>type="autoeffect"</code> model type support to the simulation framework. (<a href="https://github.com/RANDCorporation/optic/commit/6b791fe" class="external-link"><code>6b791fe</code></a>)</li>
+</ul></div>
+<div class="section level3">
+<h3 id="internal-changes-1-2-0">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-2-0"></a></h3>
+<ul><li>Refactored model-specific behavior out of method scripts into central registry in <code>model-type-behaviors.R</code>, consolidating duplicated if/else chains. (<a href="https://github.com/RANDCorporation/optic/commit/f92688f" class="external-link"><code>f92688f</code></a>)</li>
+<li>Consolidated duplicated SE adjustment code into centralized helper functions. (<a href="https://github.com/RANDCorporation/optic/commit/005e88c" class="external-link"><code>005e88c</code></a>)</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.3" id="optic-113"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.1.3" class="external-link">optic 1.1.3</a><a class="anchor" aria-label="anchor" href="#optic-113"></a></h2>
 <div class="section level3">
 <h3 id="new-features-1-1-3">New features<a class="anchor" aria-label="anchor" href="#new-features-1-1-3"></a></h3>
 <ul><li>Enhanced validation system for model specifications, improving error messages and catching configuration issues earlier.</li>
@@ -72,15 +106,15 @@
 </ul></div>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.2" id="optic-102">optic 1.0.2<a class="anchor" aria-label="anchor" href="#optic-102"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.0.2" id="optic-102"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.0.2" class="external-link">optic 1.0.2</a><a class="anchor" aria-label="anchor" href="#optic-102"></a></h2>
 <ul><li>Bug fixes for spillover analysis.</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.1" id="optic-101">optic 1.0.1<a class="anchor" aria-label="anchor" href="#optic-101"></a></h2><p class="text-muted">CRAN release: 2023-08-08</p>
+<h2 class="pkg-version" data-toc-text="1.0.1" id="optic-101"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.0.1" class="external-link">optic 1.0.1</a><a class="anchor" aria-label="anchor" href="#optic-101"></a></h2><p class="text-muted">CRAN release: 2023-08-08</p>
 <ul><li>reduces run-time of vignettes by reducing number of replications.</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.0" id="optic-100">optic 1.0.0<a class="anchor" aria-label="anchor" href="#optic-100"></a></h2><p class="text-muted">CRAN release: 2023-05-26</p>
+<h2 class="pkg-version" data-toc-text="1.0.0" id="optic-100"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.0.0" class="external-link">optic 1.0.0</a><a class="anchor" aria-label="anchor" href="#optic-100"></a></h2><p class="text-muted">CRAN release: 2023-05-26</p>
 <ul><li>First package release.</li>
 </ul></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
