@@ -19,7 +19,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/randcorporation/optic/blob/0.2.5/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/randcorporation/optic/blob/v1.2.2/DESCRIPTION)
 
 Griffin B, Nascimento de Lima P, Griswold M, Scherling A, Pane J, Grimm
 G (2026). *optic: Simulation Tool for Causal Inference Using
