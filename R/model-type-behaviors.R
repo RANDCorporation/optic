@@ -300,6 +300,8 @@ get_behavior <- function(model_type) {
   if (!isTRUE(m$convergence) || is.null(cum_effects)) {
     estimate <- NA_real_
     se <- NA_real_
+    t_stat <- NA_real_
+    p_value <- NA_real_
   } else {
     if (!effect_lag %in% cum_effects$Lag) {
       stop("Requested effect_lag = ", effect_lag, " not available in cumulative effects output.")
@@ -307,11 +309,11 @@ get_behavior <- function(model_type) {
     effect_row <- cum_effects[cum_effects$Lag == effect_lag, ]
     estimate <- effect_row$Estimate
     se <- effect_row$StdError
+    t_stat <- effect_row$t_stat
+    p_value <- effect_row$p_value
   }
 
   variance <- se^2
-  t_stat <- ifelse(is.na(se) || se == 0, NA_real_, estimate / se)
-  p_value <- ifelse(is.na(t_stat), NA_real_, 2 * pnorm(abs(t_stat), lower.tail = FALSE))
   mse <- if (!is.null(m$model)) {
     mean(stats::residuals(m$model)^2, na.rm = TRUE)
   } else {
@@ -538,14 +540,14 @@ get_behavior <- function(model_type) {
 
   if (is.null(cum_effects) || !effect_lag %in% cum_effects$Lag) {
     estimate <- NA_real_; se <- NA_real_
+    t_stat <- NA_real_; p_value <- NA_real_
   } else {
     effect_row <- cum_effects[cum_effects$Lag == effect_lag, ]
     estimate <- effect_row$Estimate; se <- effect_row$StdError
+    t_stat <- effect_row$t_stat; p_value <- effect_row$p_value
   }
 
   variance <- se^2
-  t_stat <- ifelse(is.na(se) || se == 0, NA_real_, estimate / se)
-  p_value <- ifelse(is.na(t_stat), NA_real_, 2 * pnorm(abs(t_stat), lower.tail = FALSE))
   mse <- if (!is.null(ae_object$model)) {
     mean(stats::residuals(ae_object$model)^2, na.rm = TRUE)
   } else {
