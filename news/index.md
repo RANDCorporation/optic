@@ -1,5 +1,14 @@
 # Changelog
 
+## optic (development version)
+
+### Bug fixes
+
+- Autoeffect model p-values now use the t-distribution (via
+  `cumulative_effects()`) instead of manually computing with the normal
+  distribution. This fixes inflated Type I error rates for DAR models.
+  ([\#38](https://github.com/RANDCorporation/optic/pull/38))
+
 ## [optic 1.2.2](https://github.com/RANDCorporation/optic/releases/tag/v1.2.2)
 
 ### New features

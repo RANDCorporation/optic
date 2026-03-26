@@ -51,9 +51,7 @@ Update `cran-comments.md` with:
 
 Update version in `DESCRIPTION` (done by script)
 
-Run
-[`devtools::document()`](https://devtools.r-lib.org/reference/document.html)
-to update man pages if needed
+Run `devtools::document()` to update man pages if needed
 
 ### 3. Run Comprehensive Checks
 
