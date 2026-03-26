@@ -2,6 +2,8 @@
 
 ## optic (development version)
 
+## [optic 1.2.3](https://github.com/RANDCorporation/optic/releases/tag/v1.2.3)
+
 ### Bug fixes
 
 - Autoeffect model p-values now use the t-distribution (via
