@@ -2,6 +2,8 @@
 
 ## optic (development version)
 
+## [optic 1.2.4](https://github.com/RANDCorporation/optic/releases/tag/v1.2.4)
+
 ### New features
 
 - Added simulation performance statistics functions:
