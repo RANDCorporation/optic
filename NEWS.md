@@ -1,5 +1,9 @@
 # optic (development version)
 
+## New features
+
+* Added simulation performance statistics functions: `sim_rejection_rate()`, `sim_bias()`, `sim_mse()`, `sim_correction_factor()`, `sim_coverage()`, `sim_type_s_error()`, `sim_correct_rejection_rate()`, and `summarize_simulation()` for computing Type I error, power, bias, coverage, and related metrics from Monte Carlo simulation output.
+
 # [optic 1.2.3](https://github.com/RANDCorporation/optic/releases/tag/v1.2.3)
 
 ## Bug fixes
@@ -26,60 +30,8 @@
 
 * Restored `match.arg()` for type and call validation in `new_optic_model()` constructor. ([#35](https://github.com/RANDCorporation/optic/pull/35))
 
-## Bug fixes
-
-* Fixed GitHub Actions workflow errors: resolved missing knitr dependencies for vignette building and covr conflicts with parallel test execution. ([#34](https://github.com/RANDCorporation/optic/pull/34))
-
 # [optic 1.2.0](https://github.com/RANDCorporation/optic/releases/tag/v1.2.0)
 
 ## New features
 
-* Added `type="autoeffect"` model type support to the simulation framework. ([`6b791fe`](https://github.com/RANDCorporation/optic/commit/6b791fe))
-
-## Internal changes
-
-* Refactored model-specific behavior out of method scripts into central registry in `model-type-behaviors.R`, consolidating duplicated if/else chains. ([`f92688f`](https://github.com/RANDCorporation/optic/commit/f92688f))
-* Consolidated duplicated SE adjustment code into centralized helper functions. ([`005e88c`](https://github.com/RANDCorporation/optic/commit/005e88c))
-
-# [optic 1.1.3](https://github.com/RANDCorporation/optic/releases/tag/v1.1.3)
-
-## New features
-
-* Enhanced validation system for model specifications, improving error messages and catching configuration issues earlier.
-* Introduced snapshot testing for simulation results to ensure consistent output structure across versions.
-
-## Improvements
-
-* Major refactoring of `dispatch_simulations()` function for improved clarity and maintainability.
-* Enhanced `optic_model` class with better validation and documentation.
-* Replaced deprecated `purrr::cross()` with `tidyr::expand_grid()` for more reliable parameter expansion.
-* Improved vignettes with updated examples using refactored functions.
-* Clarified package description and documentation.
-
-## Bug fixes
-
-* Fixed parameter handling in `dispatch_simulations()` where params list structure was incorrect.
-* Fixed `expand_grid` issue in parameter combinations.
-* Fixed no-confounding method tests to use correct outcome variables.
-* Corrected CRAN check issues related to `dispatch_simulations` documentation.
-* Fixed vignette build issues (#22).
-
-## Internal changes
-
-* Removed `augsynth` from package dependencies to move to Suggests (addresses installation issues on some platforms).
-* Improved GitHub Actions workflows with separate test and check workflows for better CI/CD reliability.
-* Added comprehensive snapshot tests for confounding and no-confounding methods.
-* Updated NAMESPACE to remove unused exports.
-
-# [optic 1.0.2](https://github.com/RANDCorporation/optic/releases/tag/v1.0.2)
-
-* Bug fixes for spillover analysis.
-
-# [optic 1.0.1](https://github.com/RANDCorporation/optic/releases/tag/v1.0.1)
-
-* reduces run-time of vignettes by reducing number of replications.
-
-# [optic 1.0.0](https://github.com/RANDCorporation/optic/releases/tag/v1.0.0)
-
-* First package release.
-
+* Added autoeffect model type support for debiased autoregressive treatment effect estimation. New model type `"autoeffect"` integrates with the `autoeffect` package. ([#34](https://github.com/RANDCorporation/optic/pull/34))
