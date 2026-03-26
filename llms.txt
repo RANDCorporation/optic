@@ -186,6 +186,22 @@ Local Files.” Accessed June 20, 2023.
   : Create a configuration object used to run simulations
 - [`overdoses`](https://randcorporation.github.io/optic/reference/overdoses.md)
   : OPTIC Overdoses example data.
+- [`sim_bias()`](https://randcorporation.github.io/optic/reference/sim_bias.md)
+  : Bias of point estimates
+- [`sim_correct_rejection_rate()`](https://randcorporation.github.io/optic/reference/sim_correct_rejection_rate.md)
+  : Correct rejection rate
+- [`sim_correction_factor()`](https://randcorporation.github.io/optic/reference/sim_correction_factor.md)
+  : Empirical correction factor
+- [`sim_coverage()`](https://randcorporation.github.io/optic/reference/sim_coverage.md)
+  : Coverage of confidence intervals
+- [`sim_mse()`](https://randcorporation.github.io/optic/reference/sim_mse.md)
+  : Mean squared error
+- [`sim_rejection_rate()`](https://randcorporation.github.io/optic/reference/sim_rejection_rate.md)
+  : Rejection rate (Type I error under the null)
+- [`sim_type_s_error()`](https://randcorporation.github.io/optic/reference/sim_type_s_error.md)
+  : Type S (sign) error rate
+- [`summarize_simulation()`](https://randcorporation.github.io/optic/reference/summarize_simulation.md)
+  : Summarize simulation results
 
 # Articles
 

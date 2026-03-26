@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optic</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,7 +59,7 @@
       <h1>Introduction to OPTIC</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/v1.2.3/vignettes/intro_optic.Rmd" class="external-link"><code>vignettes/intro_optic.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/main/vignettes/intro_optic.Rmd" class="external-link"><code>vignettes/intro_optic.Rmd</code></a></small>
       <div class="d-none name"><code>intro_optic.Rmd</code></div>
     </div>
 
@@ -115,7 +115,7 @@ scenarios described above.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Install remotes if necessary</span></span>
 <span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"RANDCorporation/optic"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"RANDCorporation/optic"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="overview-of-the-optic-package">Overview of the OPTIC Package<a class="anchor" aria-label="anchor" href="#overview-of-the-optic-package"></a>
@@ -618,6 +618,129 @@ autoregressive model, producing an estimate closer to truth. Based on
 this simulation, if these were the only models under consideration,
 these results could justify using a unadjusted linear model for
 analyzing the real policy effect.</p>
+</div>
+<div class="section level4">
+<h4 id="summarizing-simulation-performance">Summarizing simulation performance<a class="anchor" aria-label="anchor" href="#summarizing-simulation-performance"></a>
+</h4>
+<p>OPTIC provides the <code><a href="../reference/summarize_simulation.html">summarize_simulation()</a></code> function to
+compute standard performance metrics from simulation results. Given a
+results data frame and the true effect value, it returns a single-row
+summary with bias, variance, MSE, rejection rate (Type I error under the
+null), coverage, Type S error, and the empirical correction factor.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     filter, lag</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
+<span></span>
+<span><span class="co"># Summarize results for the 5% effect scenario, across all models and n_units:</span></span>
+<span><span class="va">results</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">effect_magnitude</span> <span class="op">==</span> <span class="va">five_percent_effect</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">model_name</span>, <span class="va">n_units</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_map.html" class="external-link">group_modify</a></span><span class="op">(</span><span class="op">~</span> <span class="fu"><a href="../reference/summarize_simulation.html">summarize_simulation</a></span><span class="op">(</span><span class="va">.x</span>, true_effect <span class="op">=</span> <span class="op">-</span><span class="va">five_percent_effect</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">model_name</span>, <span class="va">n_units</span>, <span class="va">mean_bias</span>, <span class="va">rejection_rate</span>, <span class="va">coverage</span>, <span class="va">rmse</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, format <span class="op">=</span> <span class="st">"markdown"</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="11%">
+<col width="13%">
+<col width="20%">
+<col width="12%">
+<col width="8%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">model_name</th>
+<th align="right">n_units</th>
+<th align="right">mean_bias</th>
+<th align="right">rejection_rate</th>
+<th align="right">coverage</th>
+<th align="right">rmse</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">auto_regressive_linear</td>
+<td align="right">30</td>
+<td align="right">0.158</td>
+<td align="right">0.10</td>
+<td align="right">0.90</td>
+<td align="right">0.522</td>
+</tr>
+<tr class="even">
+<td align="left">auto_regressive_linear</td>
+<td align="right">40</td>
+<td align="right">-0.096</td>
+<td align="right">0.30</td>
+<td align="right">1.00</td>
+<td align="right">0.361</td>
+</tr>
+<tr class="odd">
+<td align="left">auto_regressive_linear</td>
+<td align="right">50</td>
+<td align="right">0.050</td>
+<td align="right">0.40</td>
+<td align="right">1.00</td>
+<td align="right">0.404</td>
+</tr>
+<tr class="even">
+<td align="left">fixed_effect_linear</td>
+<td align="right">30</td>
+<td align="right">0.068</td>
+<td align="right">0.25</td>
+<td align="right">0.90</td>
+<td align="right">0.930</td>
+</tr>
+<tr class="odd">
+<td align="left">fixed_effect_linear</td>
+<td align="right">40</td>
+<td align="right">-0.003</td>
+<td align="right">0.35</td>
+<td align="right">0.95</td>
+<td align="right">0.829</td>
+</tr>
+<tr class="even">
+<td align="left">fixed_effect_linear</td>
+<td align="right">50</td>
+<td align="right">0.155</td>
+<td align="right">0.25</td>
+<td align="right">0.90</td>
+<td align="right">0.624</td>
+</tr>
+<tr class="odd">
+<td align="left">fixed_effect_linear_adj</td>
+<td align="right">30</td>
+<td align="right">0.075</td>
+<td align="right">0.25</td>
+<td align="right">0.90</td>
+<td align="right">0.924</td>
+</tr>
+<tr class="even">
+<td align="left">fixed_effect_linear_adj</td>
+<td align="right">40</td>
+<td align="right">-0.019</td>
+<td align="right">0.35</td>
+<td align="right">0.90</td>
+<td align="right">0.855</td>
+</tr>
+<tr class="odd">
+<td align="left">fixed_effect_linear_adj</td>
+<td align="right">50</td>
+<td align="right">0.116</td>
+<td align="right">0.30</td>
+<td align="right">0.90</td>
+<td align="right">0.647</td>
+</tr>
+</tbody>
+</table>
+<p>The individual metric functions (<code><a href="../reference/sim_rejection_rate.html">sim_rejection_rate()</a></code>,
+<code><a href="../reference/sim_bias.html">sim_bias()</a></code>, <code><a href="../reference/sim_coverage.html">sim_coverage()</a></code>, etc.) are also
+exported for custom analyses. See <code><a href="../reference/sim_rejection_rate.html">?sim_rejection_rate</a></code> for
+details.</p>
 </div>
 <div class="section level4">
 <h4 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>

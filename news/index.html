@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optic</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,11 +33,15 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/randcorporation/optic/blob/v1.2.3/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/randcorporation/optic/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="optic-development-version">optic (development version)<a class="anchor" aria-label="anchor" href="#optic-development-version"></a></h2>
+<div class="section level3">
+<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li>Added simulation performance statistics functions: <code><a href="../reference/sim_rejection_rate.html">sim_rejection_rate()</a></code>, <code><a href="../reference/sim_bias.html">sim_bias()</a></code>, <code><a href="../reference/sim_mse.html">sim_mse()</a></code>, <code><a href="../reference/sim_correction_factor.html">sim_correction_factor()</a></code>, <code><a href="../reference/sim_coverage.html">sim_coverage()</a></code>, <code><a href="../reference/sim_type_s_error.html">sim_type_s_error()</a></code>, <code><a href="../reference/sim_correct_rejection_rate.html">sim_correct_rejection_rate()</a></code>, and <code><a href="../reference/summarize_simulation.html">summarize_simulation()</a></code> for computing Type I error, power, bias, coverage, and related metrics from Monte Carlo simulation output.</li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.3" id="optic-123"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.2.3" class="external-link">optic 1.2.3</a><a class="anchor" aria-label="anchor" href="#optic-123"></a></h2>
@@ -67,66 +71,14 @@
 <h3 id="internal-changes-1-2-1">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-2-1"></a></h3>
 <ul><li>Restored <code><a href="https://rdrr.io/r/base/match.arg.html" class="external-link">match.arg()</a></code> for type and call validation in <code>new_optic_model()</code> constructor. (<a href="https://github.com/RANDCorporation/optic/pull/35" class="external-link">#35</a>)</li>
 </ul></div>
-<div class="section level3">
-<h3 id="bug-fixes-1-2-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-2-1"></a></h3>
-<ul><li>Fixed GitHub Actions workflow errors: resolved missing knitr dependencies for vignette building and covr conflicts with parallel test execution. (<a href="https://github.com/RANDCorporation/optic/pull/34" class="external-link">#34</a>)</li>
-</ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.0" id="optic-120"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.2.0" class="external-link">optic 1.2.0</a><a class="anchor" aria-label="anchor" href="#optic-120"></a></h2>
 <div class="section level3">
 <h3 id="new-features-1-2-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-2-0"></a></h3>
-<ul><li>Added <code>type="autoeffect"</code> model type support to the simulation framework. (<a href="https://github.com/RANDCorporation/optic/commit/6b791fe" class="external-link"><code>6b791fe</code></a>)</li>
-</ul></div>
-<div class="section level3">
-<h3 id="internal-changes-1-2-0">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-2-0"></a></h3>
-<ul><li>Refactored model-specific behavior out of method scripts into central registry in <code>model-type-behaviors.R</code>, consolidating duplicated if/else chains. (<a href="https://github.com/RANDCorporation/optic/commit/f92688f" class="external-link"><code>f92688f</code></a>)</li>
-<li>Consolidated duplicated SE adjustment code into centralized helper functions. (<a href="https://github.com/RANDCorporation/optic/commit/005e88c" class="external-link"><code>005e88c</code></a>)</li>
+<ul><li>Added autoeffect model type support for debiased autoregressive treatment effect estimation. New model type <code>"autoeffect"</code> integrates with the <code>autoeffect</code> package. (<a href="https://github.com/RANDCorporation/optic/pull/34" class="external-link">#34</a>)</li>
 </ul></div>
 </div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.3" id="optic-113"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.1.3" class="external-link">optic 1.1.3</a><a class="anchor" aria-label="anchor" href="#optic-113"></a></h2>
-<div class="section level3">
-<h3 id="new-features-1-1-3">New features<a class="anchor" aria-label="anchor" href="#new-features-1-1-3"></a></h3>
-<ul><li>Enhanced validation system for model specifications, improving error messages and catching configuration issues earlier.</li>
-<li>Introduced snapshot testing for simulation results to ensure consistent output structure across versions.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="improvements-1-1-3">Improvements<a class="anchor" aria-label="anchor" href="#improvements-1-1-3"></a></h3>
-<ul><li>Major refactoring of <code><a href="../reference/dispatch_simulations.html">dispatch_simulations()</a></code> function for improved clarity and maintainability.</li>
-<li>Enhanced <code>optic_model</code> class with better validation and documentation.</li>
-<li>Replaced deprecated <code><a href="https://purrr.tidyverse.org/reference/cross.html" class="external-link">purrr::cross()</a></code> with <code><a href="https://tidyr.tidyverse.org/reference/expand_grid.html" class="external-link">tidyr::expand_grid()</a></code> for more reliable parameter expansion.</li>
-<li>Improved vignettes with updated examples using refactored functions.</li>
-<li>Clarified package description and documentation.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="bug-fixes-1-1-3">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-3"></a></h3>
-<ul><li>Fixed parameter handling in <code><a href="../reference/dispatch_simulations.html">dispatch_simulations()</a></code> where params list structure was incorrect.</li>
-<li>Fixed <code>expand_grid</code> issue in parameter combinations.</li>
-<li>Fixed no-confounding method tests to use correct outcome variables.</li>
-<li>Corrected CRAN check issues related to <code>dispatch_simulations</code> documentation.</li>
-<li>Fixed vignette build issues (<a href="https://github.com/randcorporation/optic/issues/22" class="external-link">#22</a>).</li>
-</ul></div>
-<div class="section level3">
-<h3 id="internal-changes-1-1-3">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-1-3"></a></h3>
-<ul><li>Removed <code>augsynth</code> from package dependencies to move to Suggests (addresses installation issues on some platforms).</li>
-<li>Improved GitHub Actions workflows with separate test and check workflows for better CI/CD reliability.</li>
-<li>Added comprehensive snapshot tests for confounding and no-confounding methods.</li>
-<li>Updated NAMESPACE to remove unused exports.</li>
-</ul></div>
-</div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.2" id="optic-102"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.0.2" class="external-link">optic 1.0.2</a><a class="anchor" aria-label="anchor" href="#optic-102"></a></h2>
-<ul><li>Bug fixes for spillover analysis.</li>
-</ul></div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.1" id="optic-101"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.0.1" class="external-link">optic 1.0.1</a><a class="anchor" aria-label="anchor" href="#optic-101"></a></h2><p class="text-muted">CRAN release: 2023-08-08</p>
-<ul><li>reduces run-time of vignettes by reducing number of replications.</li>
-</ul></div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.0" id="optic-100"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.0.0" class="external-link">optic 1.0.0</a><a class="anchor" aria-label="anchor" href="#optic-100"></a></h2><p class="text-muted">CRAN release: 2023-05-26</p>
-<ul><li>First package release.</li>
-</ul></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

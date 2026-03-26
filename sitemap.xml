@@ -1,11 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://randcorporation.github.io/optic/404.html</loc></url>
-<url><loc>https://randcorporation.github.io/optic/AGENT_README.html</loc></url>
-<url><loc>https://randcorporation.github.io/optic/AGENT_RELEASE_GUIDE.html</loc></url>
 <url><loc>https://randcorporation.github.io/optic/LICENSE-text.html</loc></url>
-<url><loc>https://randcorporation.github.io/optic/RELEASE_CHECKLIST.html</loc></url>
-<url><loc>https://randcorporation.github.io/optic/RELEASE_GUIDE.html</loc></url>
-<url><loc>https://randcorporation.github.io/optic/VIGNETTE_BUILD.html</loc></url>
 <url><loc>https://randcorporation.github.io/optic/articles/index.html</loc></url>
 <url><loc>https://randcorporation.github.io/optic/articles/intro_optic.html</loc></url>
 <url><loc>https://randcorporation.github.io/optic/authors.html</loc></url>
@@ -19,6 +14,13 @@
 <url><loc>https://randcorporation.github.io/optic/reference/optic_model.html</loc></url>
 <url><loc>https://randcorporation.github.io/optic/reference/optic_simulation.html</loc></url>
 <url><loc>https://randcorporation.github.io/optic/reference/overdoses.html</loc></url>
-<url><loc>https://randcorporation.github.io/optic/release_workflow_read.html</loc></url>
+<url><loc>https://randcorporation.github.io/optic/reference/sim_bias.html</loc></url>
+<url><loc>https://randcorporation.github.io/optic/reference/sim_correct_rejection_rate.html</loc></url>
+<url><loc>https://randcorporation.github.io/optic/reference/sim_correction_factor.html</loc></url>
+<url><loc>https://randcorporation.github.io/optic/reference/sim_coverage.html</loc></url>
+<url><loc>https://randcorporation.github.io/optic/reference/sim_mse.html</loc></url>
+<url><loc>https://randcorporation.github.io/optic/reference/sim_rejection_rate.html</loc></url>
+<url><loc>https://randcorporation.github.io/optic/reference/sim_type_s_error.html</loc></url>
+<url><loc>https://randcorporation.github.io/optic/reference/summarize_simulation.html</loc></url>
 </urlset>
 

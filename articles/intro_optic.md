@@ -438,6 +438,56 @@ this simulation, if these were the only models under consideration,
 these results could justify using a unadjusted linear model for
 analyzing the real policy effect.
 
+#### Summarizing simulation performance
+
+OPTIC provides the
+[`summarize_simulation()`](https://randcorporation.github.io/optic/reference/summarize_simulation.md)
+function to compute standard performance metrics from simulation
+results. Given a results data frame and the true effect value, it
+returns a single-row summary with bias, variance, MSE, rejection rate
+(Type I error under the null), coverage, Type S error, and the empirical
+correction factor.
+
+``` r
+library(dplyr)
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
+
+# Summarize results for the 5% effect scenario, across all models and n_units:
+results %>%
+  filter(effect_magnitude == five_percent_effect) %>%
+  group_by(model_name, n_units) %>%
+  group_modify(~ summarize_simulation(.x, true_effect = -five_percent_effect)) %>%
+  select(model_name, n_units, mean_bias, rejection_rate, coverage, rmse) %>%
+  knitr::kable(digits = 3, format = "markdown")
+```
+
+| model_name              | n_units | mean_bias | rejection_rate | coverage |  rmse |
+|:------------------------|--------:|----------:|---------------:|---------:|------:|
+| auto_regressive_linear  |      30 |     0.158 |           0.10 |     0.90 | 0.522 |
+| auto_regressive_linear  |      40 |    -0.096 |           0.30 |     1.00 | 0.361 |
+| auto_regressive_linear  |      50 |     0.050 |           0.40 |     1.00 | 0.404 |
+| fixed_effect_linear     |      30 |     0.068 |           0.25 |     0.90 | 0.930 |
+| fixed_effect_linear     |      40 |    -0.003 |           0.35 |     0.95 | 0.829 |
+| fixed_effect_linear     |      50 |     0.155 |           0.25 |     0.90 | 0.624 |
+| fixed_effect_linear_adj |      30 |     0.075 |           0.25 |     0.90 | 0.924 |
+| fixed_effect_linear_adj |      40 |    -0.019 |           0.35 |     0.90 | 0.855 |
+| fixed_effect_linear_adj |      50 |     0.116 |           0.30 |     0.90 | 0.647 |
+
+The individual metric functions
+([`sim_rejection_rate()`](https://randcorporation.github.io/optic/reference/sim_rejection_rate.md),
+[`sim_bias()`](https://randcorporation.github.io/optic/reference/sim_bias.md),
+[`sim_coverage()`](https://randcorporation.github.io/optic/reference/sim_coverage.md),
+etc.) are also exported for custom analyses. See
+[`?sim_rejection_rate`](https://randcorporation.github.io/optic/reference/sim_rejection_rate.md)
+for details.
+
 #### Acknowledgements
 
 This package was financially supported through a National Institutes of
