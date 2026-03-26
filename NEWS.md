@@ -1,5 +1,7 @@
 # optic (development version)
 
+# [optic 1.2.4](https://github.com/RANDCorporation/optic/releases/tag/v1.2.4)
+
 ## New features
 
 * Added simulation performance statistics functions: `sim_rejection_rate()`, `sim_bias()`, `sim_mse()`, `sim_correction_factor()`, `sim_coverage()`, `sim_type_s_error()`, `sim_correct_rejection_rate()`, and `summarize_simulation()` for computing Type I error, power, bias, coverage, and related metrics from Monte Carlo simulation output.
