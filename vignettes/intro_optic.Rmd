@@ -370,7 +370,25 @@ print(paste0("AR LM effect: ", grab_mean_and_se('auto_regressive_linear')))
 
 ```
 
-From the above output, we can see all models are producing similar estimates, across simulated point estimate draws. While all of these models produced estimates which are closer to zero than the true effect, the linear model seems to outperform both the unadjusted and autoregressive model, producing an estimate closer to truth. Based on this simulation, if these were the only models under consideration, these results could justify using a unadjusted linear model for analyzing the real policy effect.  
+From the above output, we can see all models are producing similar estimates, across simulated point estimate draws. While all of these models produced estimates which are closer to zero than the true effect, the linear model seems to outperform both the unadjusted and autoregressive model, producing an estimate closer to truth. Based on this simulation, if these were the only models under consideration, these results could justify using a unadjusted linear model for analyzing the real policy effect.
+
+### Summarizing simulation performance
+
+OPTIC provides the `summarize_simulation()` function to compute standard performance metrics from simulation results. Given a results data frame and the true effect value, it returns a single-row summary with bias, variance, MSE, rejection rate (Type I error under the null), coverage, Type S error, and the empirical correction factor.
+
+```{r summarize_simulation}
+library(dplyr)
+
+# Summarize results for the 5% effect scenario, across all models and n_units:
+results %>%
+  filter(effect_magnitude == five_percent_effect) %>%
+  group_by(model_name, n_units) %>%
+  group_modify(~ summarize_simulation(.x, true_effect = -five_percent_effect)) %>%
+  select(model_name, n_units, mean_bias, rejection_rate, coverage, rmse) %>%
+  knitr::kable(digits = 3, format = "markdown")
+```
+
+The individual metric functions (`sim_rejection_rate()`, `sim_bias()`, `sim_coverage()`, etc.) are also exported for custom analyses. See `?sim_rejection_rate` for details.
 
 ### Acknowledgements
 
