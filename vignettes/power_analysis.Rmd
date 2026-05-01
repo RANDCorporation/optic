@@ -172,7 +172,12 @@ plan(sequential)
 ```
 
 ```{r load-results, include = FALSE}
-results <- readRDS("../inst/extdata/power_vignette_results.rds")
+rds_path <- system.file("extdata", "power_vignette_results.rds",
+                        package = "optic")
+if (!nzchar(rds_path)) {
+  rds_path <- "../inst/extdata/power_vignette_results.rds"
+}
+results <- readRDS(rds_path)
 ```
 
 ## Summarize results
