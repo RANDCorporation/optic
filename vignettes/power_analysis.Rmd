@@ -8,11 +8,18 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
+can_run <- requireNamespace("augsynth", quietly = TRUE) &&
+  requireNamespace("did", quietly = TRUE) &&
+  requireNamespace("autoeffect", quietly = TRUE) &&
+  requireNamespace("ggplot2", quietly = TRUE) &&
+  requireNamespace("future", quietly = TRUE)
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.width = 7,
-  fig.height = 5
+  fig.height = 5,
+  eval = can_run
 )
 ```
 
@@ -45,7 +52,7 @@ Although the exact syntax varies by model, power analysis in optic generally fol
 
 This workflow lets users align power calculations with the substantive features of their policy setting, including how quickly a policy is expected to affect outcomes.
 
-# An example: comparing power for TWFE, AR, ASCM, and CSA
+# An example: comparing power for TWFE, Debiased AR, ASCM, and CSA
 
 We illustrate the workflow using the `overdoses` dataset shipped with optic, which contains state-year panel data on drug overdose crude death rates, unemployment, and population for 51 U.S. states from 1999 to 2017.
 
@@ -58,6 +65,7 @@ library(tidyr)
 library(ggplot2)
 library(augsynth)
 library(did)
+library(autoeffect)
 
 data(overdoses)
 ```
@@ -81,7 +89,7 @@ cat("Years:", paste(range(sim_data$year), collapse = "-"), "\n")
 We specify four models that represent distinct analytic traditions in policy evaluation:
 
 - **TWFE**: Two-way fixed effects regression with unit and time fixed effects, cluster-robust standard errors at the state level.
-- **AR**: Autoregressive model with a lagged dependent variable and year fixed effects, cluster-robust standard errors.
+- **Debiased AR**: Debiased autoregressive model via the `autoeffect` package, which removes the bias inherent in standard autoregressive panel models by using Nickell-bias-corrected estimates. We include an unemployment rate covariate and use 2 lags for cumulative effect estimation, with cluster-robust standard errors.
 - **ASCM**: Augmented synthetic control, which reweights untreated units to match pre-treatment trends.
 - **CSA**: Callaway and Sant'Anna's group-time ATT estimator, designed for staggered adoption settings.
 
@@ -95,13 +103,13 @@ twfe <- optic_model(
   se_adjust = "cluster-unit"
 )
 
-ar <- optic_model(
-  name = "AR",
-  type = "autoreg",
-  call = "lm",
-  formula = crude.rate ~ unemploymentrate + as.factor(year) +
-    treatment_change,
-  se_adjust = "cluster-unit"
+debar <- optic_model(
+  name = "Debiased AR",
+  type = "autoeffect",
+  call = "autoeffect",
+  formula = crude.rate ~ treatment_level + unemploymentrate,
+  se_adjust = "cluster-unit",
+  lags = 2
 )
 
 ascm <- optic_model(
@@ -145,7 +153,7 @@ n_iters <- 100
 
 sim <- optic_simulation(
   x = sim_data,
-  models = list(twfe, ar, ascm, csa),
+  models = list(twfe, debar, ascm, csa),
   iters = n_iters,
   method = "no_confounding",
   unit_var = "state",
@@ -167,7 +175,7 @@ plan(multisession, workers = 6)
 results <- suppressWarnings(
   dispatch_simulations(
     sim, use_future = TRUE, seed = 47201, verbose = 0,
-    future.packages = c("optic", "augsynth", "did", "dplyr")
+    future.packages = c("optic", "autoeffect", "augsynth", "did", "dplyr")
   )
 )
 
@@ -181,7 +189,8 @@ For each combination of model, effect size, and number of treated units, we comp
 ```{r summarize}
 results_filtered <- results %>%
   filter(
-    (model_name %in% c("TWFE", "AR") & se_adjustment == "cluster-unit") |
+    (model_name %in% c("TWFE", "Debiased AR") &
+      se_adjustment == "cluster-unit") |
     (model_name %in% c("ASCM", "CSA") & se_adjustment == "none")
   )
 
@@ -218,7 +227,7 @@ The figure below shows correct-direction power as a function of effect size, fac
 
 ```{r power-curves, fig.width = 8, fig.height = 6}
 model_colors <- c(
-  "TWFE" = "#2166AC", "AR" = "#B2182B",
+  "TWFE" = "#2166AC", "Debiased AR" = "#B2182B",
   "ASCM" = "#1B7837", "CSA" = "#762A83"
 )
 
@@ -233,7 +242,7 @@ ggplot(
   facet_wrap(~n_units_label, nrow = 1) +
   scale_color_manual(values = model_colors, name = NULL) +
   scale_shape_manual(
-    values = c("TWFE" = 16, "AR" = 17, "ASCM" = 15, "CSA" = 18),
+    values = c("TWFE" = 16, "Debiased AR" = 17, "ASCM" = 15, "CSA" = 18),
     name = NULL
   ) +
   scale_x_continuous(breaks = unique(summary_df$effect_pct)) +
@@ -269,7 +278,7 @@ Several patterns typically emerge from these comparisons, though the specific re
 
 - **TWFE** tends to have high power when the number of treated units is moderate to large, but its Type I error can be inflated when treatment timing is staggered and heterogeneous effects are present. In simple settings like this one (with homogeneous, instantaneous effects), TWFE is competitive.
 
-- **AR** models trade some power for robustness to pre-treatment trends by conditioning on lagged outcomes. They can be underpowered when the lagged outcome absorbs much of the variation that would otherwise identify the treatment effect.
+- **Debiased AR** corrects the Nickell bias that afflicts standard autoregressive panel models, producing consistent estimates even in short panels. It tends to be well-powered and well-calibrated, though convergence of the nonlinear least squares estimator can occasionally fail in small samples.
 
 - **ASCM** constructs a synthetic control for each treated unit. It is well-suited to settings with few treated units where pre-treatment fit is important, but its power can be lower than regression-based methods when the number of treated units is large, because inference is based on permutation-like reasoning.
 

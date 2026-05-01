@@ -41,12 +41,16 @@ Imports:
     utils
 Suggests:
     augsynth,
+    autoeffect,
     fixest,
     future,
     ggplot2,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)
+Remotes:
+    ebenmichael/augsynth,
+    RANDCorporation/autoeffect
 Config/Needs/integration:
     autoeffect
 VignetteBuilder: 
