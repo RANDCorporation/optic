@@ -40,8 +40,10 @@ Imports:
     tidyr,
     utils
 Suggests:
+    augsynth,
     fixest,
     future,
+    ggplot2,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)
