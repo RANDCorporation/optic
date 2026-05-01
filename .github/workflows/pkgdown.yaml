@@ -18,7 +18,7 @@ jobs:
     concurrency:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PAT: ${{ secrets.PRIVATE_REPO_PAT || secrets.GITHUB_TOKEN }}
     permissions:
       contents: write
     steps:
@@ -34,9 +34,6 @@ jobs:
         with:
           extra-packages: any::pkgdown, local::.
           needs: website
-
-      - name: Install augsynth from GitHub for vignettes
-        run: Rscript -e 'if (!requireNamespace("augsynth", quietly = TRUE)) remotes::install_github("ebenmichael/augsynth")'
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
