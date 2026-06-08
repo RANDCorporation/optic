@@ -2,6 +2,8 @@
 
 ## optic (development version)
 
+## [optic 1.2.5](https://github.com/RANDCorporation/optic/releases/tag/v1.2.5)
+
 ### New features
 
 - Added a power analysis vignette demonstrating simulation-based power
