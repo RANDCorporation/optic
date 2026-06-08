@@ -191,8 +191,10 @@ results_filtered <- results %>%
   filter(
     (model_name %in% c("TWFE", "Debiased AR") &
       se_adjustment == "cluster-unit") |
+    # Here "none" means the default standard error provided by each method.
     (model_name %in% c("ASCM", "CSA") & se_adjustment == "none")
   )
+
 
 summary_df <- results_filtered %>%
   group_by(model_name, n_units, effect_magnitude, effect_direction) %>%
@@ -275,20 +277,6 @@ summary_df %>%
   knitr::kable(digits = 3, caption = "Type I error rate by model and N treated")
 ```
 
-## Discussion
-
-Several patterns typically emerge from these comparisons, though the specific results depend on the data and simulation parameters:
-
-- **TWFE** tends to have high power when the number of treated units is moderate to large, but its Type I error can be inflated when treatment timing is staggered and heterogeneous effects are present. In simple settings like this one (with homogeneous, instantaneous effects), TWFE is competitive.
-
-- **Debiased AR** corrects the Nickell bias that afflicts standard autoregressive panel models, producing consistent estimates even in short panels. It tends to be well-powered and well-calibrated, though convergence of the nonlinear least squares estimator can occasionally fail in small samples.
-
-- **ASCM** constructs a synthetic control for each treated unit. It is well-suited to settings with few treated units where pre-treatment fit is important, but its power can be lower than regression-based methods when the number of treated units is large, because inference is based on permutation-like reasoning.
-
-- **CSA** is designed for staggered adoption and provides heterogeneity-robust estimates. Its power depends on the number of distinct treatment cohorts and the pre-treatment comparison periods available.
-
-When choosing among methods, researchers should weigh both power and the validity of each method's identifying assumptions. A method with high power but inflated Type I error will produce misleading results. The power curves above can help researchers determine the minimum detectable effect size for each method under their study's design parameters, which informs decisions about sample size, data granularity, and analytic strategy.
-
 # Conclusion
 
-optic makes it possible to compute power for a range of modern policy evaluation methods using a common simulation-based workflow. This can help researchers compare analytic approaches, assess tradeoffs between different approaches, and plan studies that are better matched to their substantive and methodological goals. Please send comments or questions to: optic@rand.org.
+`optic` makes it possible to compute power for a range of modern policy evaluation methods using a common simulation-based workflow. This can help researchers compare analytic approaches, assess tradeoffs between different approaches, and plan studies that are better matched to their substantive and methodological goals. Please send comments or questions to: optic@rand.org.
