@@ -62,6 +62,7 @@ optic_simulations. Details model calls and parameters.
 ## Examples
 
 ``` r
+
 # Load the overdoses example dataset
 data(overdoses)
 

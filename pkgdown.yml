@@ -1,9 +1,10 @@
-pandoc: 3.1.11
+pandoc: 3.8.3
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   intro_optic: intro_optic.html
-last_built: 2026-03-26T15:36Z
+  power_analysis: power_analysis.html
+last_built: 2026-06-08T14:31Z
 urls:
   reference: https://randcorporation.github.io/optic/reference
   article: https://randcorporation.github.io/optic/articles

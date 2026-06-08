@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Introduction to OPTIC • optic</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to OPTIC">
 </head>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optic</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/intro_optic.html">Introduction to OPTIC</a></li>
+    <li><a class="dropdown-item" href="../articles/power_analysis.html">Power Analysis with optic</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -59,7 +60,7 @@
       <h1>Introduction to OPTIC</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/v1.2.4/vignettes/intro_optic.Rmd" class="external-link"><code>vignettes/intro_optic.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/main/vignettes/intro_optic.Rmd" class="external-link"><code>vignettes/intro_optic.Rmd</code></a></small>
       <div class="d-none name"><code>intro_optic.Rmd</code></div>
     </div>
 
@@ -115,7 +116,7 @@ scenarios described above.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Install remotes if necessary</span></span>
 <span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"RANDCorporation/optic"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"RANDCorporation/optic"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="overview-of-the-optic-package">Overview of the OPTIC Package<a class="anchor" aria-label="anchor" href="#overview-of-the-optic-package"></a>
@@ -752,22 +753,19 @@ of Health (NIH) grant (P50DA046351) to RAND (PI: Stein).</p>
 <div class="section level3">
 <h3 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h3>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-griffinMethodologicalConsiderationsEstimating2023" class="csl-entry">
-Griffin, Beth Ann, Megan S. Schuler, Joseph Pane, Stephen W. Patrick,
-Rosanna Smart, Bradley D. Stein, Geoffrey Grimm, and Elizabeth A.
-Stuart. 2023. <span>“Methodological Considerations for Estimating Policy
-Effects in the Context of Co-Occurring Policies.”</span> <em>Health
-Services and Outcomes Research Methodology</em>, June. <a href="https://doi.org/10.1007/s10742-022-00284-w" class="external-link">https://doi.org/10.1007/s10742-022-00284-w</a>.
+Griffin, Beth Ann, Megan S. Schuler, Joseph Pane, et al. 2023.
+<span>“Methodological Considerations for Estimating Policy Effects in
+the Context of Co-Occurring Policies.”</span> <em>Health Services and
+Outcomes Research Methodology</em>, ahead of print, June. <a href="https://doi.org/10.1007/s10742-022-00284-w" class="external-link">https://doi.org/10.1007/s10742-022-00284-w</a>.
 </div>
 <div id="ref-griffinMovingClassicDifferenceindifferences2021" class="csl-entry">
-Griffin, Beth Ann, Megan S. Schuler, Elizabeth A. Stuart, Stephen
-Patrick, Elizabeth McNeer, Rosanna Smart, David Powell, Bradley D.
-Stein, Terry L. Schell, and Rosalie Liccardo Pacula. 2021. <span>“Moving
-Beyond the Classic Difference-in-Differences Model: A Simulation Study
-Comparing Statistical Methods for Estimating Effectiveness of
-State-Level Policies.”</span> <em>BMC Medical Research Methodology</em>
-21 (1): 279. <a href="https://doi.org/10.1186/s12874-021-01471-y" class="external-link">https://doi.org/10.1186/s12874-021-01471-y</a>.
+Griffin, Beth Ann, Megan S. Schuler, Elizabeth A. Stuart, et al. 2021.
+<span>“Moving Beyond the Classic Difference-in-Differences Model: A
+Simulation Study Comparing Statistical Methods for Estimating
+Effectiveness of State-Level Policies.”</span> <em>BMC Medical Research
+Methodology</em> 21 (1): 279. <a href="https://doi.org/10.1186/s12874-021-01471-y" class="external-link">https://doi.org/10.1186/s12874-021-01471-y</a>.
 </div>
 </div>
 </div>

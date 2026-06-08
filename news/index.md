@@ -2,6 +2,13 @@
 
 ## optic (development version)
 
+### New features
+
+- Added a power analysis vignette demonstrating simulation-based power
+  analysis for TWFE, debiased AR, ASCM, and CSA estimators using the
+  `overdoses` dataset. Adds `augsynth` and `ggplot2` to `Suggests`.
+  ([\#40](https://github.com/RANDCorporation/optic/pull/40))
+
 ## [optic 1.2.4](https://github.com/RANDCorporation/optic/releases/tag/v1.2.4)
 
 ### New features
@@ -24,8 +31,9 @@
 ### Bug fixes
 
 - Autoeffect model p-values now use the t-distribution (via
-  `cumulative_effects()`) instead of manually computing with the normal
-  distribution. This fixes inflated Type I error rates for DAR models.
+  [`cumulative_effects()`](https://rdrr.io/pkg/autoeffect/man/cumulative_effects.html))
+  instead of manually computing with the normal distribution. This fixes
+  inflated Type I error rates for DAR models.
   ([\#38](https://github.com/RANDCorporation/optic/pull/38))
 
 ## [optic 1.2.2](https://github.com/RANDCorporation/optic/releases/tag/v1.2.2)

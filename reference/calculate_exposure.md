@@ -32,6 +32,7 @@ to start month)
 ## Examples
 
 ``` r
+
 # Calculate uniform increase in policy effect which ramps up across 10 years
 
 # Assume policy starts in July of the first year, then continues for 10 years

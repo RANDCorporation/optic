@@ -42,12 +42,14 @@ scenarios described above.
 From an R session, install the package from CRAN with:
 
 ``` r
+
 install.packages("optic")
 ```
 
 Or from github:
 
 ``` r
+
 # Install remotes if necessary
 # install.packages("remotes")
 remotes::install_github("RANDCorporation/optic")
@@ -110,6 +112,7 @@ effects within a vector for each potential treatment scenario that the
 user wants to examine. Using the example_data:
 
 ``` r
+
 
 data(overdoses)
 
@@ -180,6 +183,7 @@ should contain `optic_model` with the following arguments :
 Below provides an example of a model list using the `example_data`:
 
 ``` r
+
 
 # Specify 3 models to simulate treatment effects: Linear fixed effect model,
 # with and without covariate adjusters, and a linear model using ar-terms
@@ -280,7 +284,7 @@ scenario:
   confounding in the outcome variable.
 
 - `prior_control`: A string variable that is either “level” or “trend”.
-  Specifies confounding for $C_{i}j$ term, which is confounding due to
+  Specifies confounding for $`C_ij`$ term, which is confounding due to
   either prior outcome levels or prior outcome trends. For trends, OPTIC
   simulates confounding as an average of outcome levels in the previous
   three years.
@@ -295,7 +299,7 @@ scenario:
 
 - `bias_size`: A string that is either ‘small’, ‘medium’, or ‘large’.
   Used to determine the level of confounding (see paper for more
-  details; this parameter sets values for $a_{i}$ and $b_{i}$ terms).
+  details; this parameter sets values for $`a_i`$ and $`b_i`$ terms).
   The terms are determined such that the standardized mean difference
   between simulated outcomes between treated units in policy-enacted
   years and simulated outcomes for non-treated units/treated units in
@@ -308,6 +312,7 @@ possible simulations that will be run for each model. An example call of
 `optic_simulation` is displayed below:
 
 ``` r
+
 
 sim_config <- optic_simulation(
 
@@ -352,6 +357,7 @@ using future.globals and future.packages arguments.
 
 ``` r
 
+
 results <- dispatch_simulations(
   
   sim_config,
@@ -384,14 +390,15 @@ few select estimates from the large results table:
 
 ``` r
 
+
 knitr::kable(results[c(2, 4, 6), 1:9], format = "markdown")
 ```
 
-|     | outcome    | se_adjustment |   estimate |        se |  variance |     t_stat |   p_value |      mse | model_name              |
-|:----|:-----------|:--------------|-----------:|----------:|----------:|-----------:|----------:|---------:|:------------------------|
-| 2   | crude.rate | cluster-unit  |  0.4484649 | 0.8253356 | 0.6811788 |  0.5433728 | 0.5870092 | 10.11952 | fixed_effect_linear     |
-| 4   | crude.rate | cluster-unit  |  0.4359681 | 0.8084088 | 0.6535247 |  0.5392916 | 0.5898207 | 10.08406 | fixed_effect_linear_adj |
-| 6   | crude.rate | none          | -0.6021976 | 0.4020783 | 0.1616669 | -1.4977124 | 0.1345625 | 10.20254 | fixed_effect_linear     |
+|  | outcome | se_adjustment | estimate | se | variance | t_stat | p_value | mse | model_name |
+|:---|:---|:---|---:|---:|---:|---:|---:|---:|:---|
+| 2 | crude.rate | cluster-unit | 0.4484649 | 0.8253356 | 0.6811788 | 0.5433728 | 0.5870092 | 10.11952 | fixed_effect_linear |
+| 4 | crude.rate | cluster-unit | 0.4359681 | 0.8084088 | 0.6535247 | 0.5392916 | 0.5898207 | 10.08406 | fixed_effect_linear_adj |
+| 6 | crude.rate | none | -0.6021976 | 0.4020783 | 0.1616669 | -1.4977124 | 0.1345625 | 10.20254 | fixed_effect_linear |
 
 There is also detailed information on Type I error rates when the
 estimated treatment effect is null, Type S error rates, and coverage.
@@ -403,6 +410,7 @@ across the point estimates, in the scenario where the effect of policy
 implementation is immediate and decreases the crude.rate by 5%:
 
 ``` r
+
 
 # Compare point estimates across models for the 5% change scenario, with instantaneous policy adoption:
 df_compare <- results[results$effect_magnitude == five_percent_effect, ]
@@ -449,6 +457,7 @@ returns a single-row summary with bias, variance, MSE, rejection rate
 correction factor.
 
 ``` r
+
 library(dplyr)
 #> 
 #> Attaching package: 'dplyr'
@@ -495,17 +504,14 @@ Health (NIH) grant (P50DA046351) to RAND (PI: Stein).
 
 ### References
 
-Griffin, Beth Ann, Megan S. Schuler, Joseph Pane, Stephen W. Patrick,
-Rosanna Smart, Bradley D. Stein, Geoffrey Grimm, and Elizabeth A.
-Stuart. 2023. “Methodological Considerations for Estimating Policy
-Effects in the Context of Co-Occurring Policies.” *Health Services and
-Outcomes Research Methodology*, June.
+Griffin, Beth Ann, Megan S. Schuler, Joseph Pane, et al. 2023.
+“Methodological Considerations for Estimating Policy Effects in the
+Context of Co-Occurring Policies.” *Health Services and Outcomes
+Research Methodology*, ahead of print, June.
 <https://doi.org/10.1007/s10742-022-00284-w>.
 
-Griffin, Beth Ann, Megan S. Schuler, Elizabeth A. Stuart, Stephen
-Patrick, Elizabeth McNeer, Rosanna Smart, David Powell, Bradley D.
-Stein, Terry L. Schell, and Rosalie Liccardo Pacula. 2021. “Moving
-Beyond the Classic Difference-in-Differences Model: A Simulation Study
-Comparing Statistical Methods for Estimating Effectiveness of
+Griffin, Beth Ann, Megan S. Schuler, Elizabeth A. Stuart, et al. 2021.
+“Moving Beyond the Classic Difference-in-Differences Model: A Simulation
+Study Comparing Statistical Methods for Estimating Effectiveness of
 State-Level Policies.” *BMC Medical Research Methodology* 21 (1): 279.
 <https://doi.org/10.1186/s12874-021-01471-y>.

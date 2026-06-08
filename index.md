@@ -65,6 +65,7 @@ use this package. You can install the `optic` R package from the `R`
 console:
 
 ``` r
+
 # install from CRAN:
 install.packages("optic")
 
