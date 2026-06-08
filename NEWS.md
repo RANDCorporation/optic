@@ -1,5 +1,9 @@
 # optic (development version)
 
+## New features
+
+* Added a power analysis vignette demonstrating simulation-based power analysis for TWFE, debiased AR, ASCM, and CSA estimators using the `overdoses` dataset. Adds `augsynth` and `ggplot2` to `Suggests`. ([#40](https://github.com/RANDCorporation/optic/pull/40))
+
 # [optic 1.2.4](https://github.com/RANDCorporation/optic/releases/tag/v1.2.4)
 
 ## New features
