@@ -54,9 +54,8 @@ n_treated <- c(5, 10, 20, 30)
 
 sim <- optic_simulation(
   x = sim_data,
-  # models = list(twfe, debar, ascm, csa),
-  models = list(twfe, debar, csa),
-  iters = 100,
+  models = list(twfe, debar, ascm, csa),
+  iters = 1000,
   method = "no_confounding",
   unit_var = "state",
   treat_var = "state",
@@ -69,10 +68,10 @@ sim <- optic_simulation(
   verbose = FALSE
 )
 
-plan(multisession, workers = 6)
+plan(multisession, workers = 15)
 results <- suppressWarnings(
   dispatch_simulations(
-    sim, use_future = TRUE, seed = 47201, verbose = 1,
+    sim, use_future = TRUE, seed = 47201, verbose = 1, graceful = TRUE,
     future.packages = c("optic", "autoeffect", "augsynth", "did", "dplyr")
   )
 )

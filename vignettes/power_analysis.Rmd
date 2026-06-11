@@ -14,6 +14,13 @@ knitr::opts_chunk$set(
   fig.width = 7,
   fig.height = 5
 )
+# To rebuild the cached simulation results used by this vignette, run:
+#   Rscript dev/generate_power_results.R
+# from the optic-core package root. That script writes
+# inst/extdata/power_vignette_results.rds, which the load-results chunk reads.
+# Then render the vignette with:
+#   Rscript -e "devtools::build_rmd('vignettes/power_analysis.Rmd')"
+# or via R CMD build / pkgdown.
 ```
 
 # Overview
