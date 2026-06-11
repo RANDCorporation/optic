@@ -339,11 +339,12 @@ summary_df %>%
   knitr::kable(digits = 3, caption = "Type I error rate by model and N treated")
 ```
 
-| model_name  |  N=5 | N=10 | N=20 | N=30 |
-|:------------|-----:|-----:|-----:|-----:|
-| CSA         | 0.10 | 0.08 | 0.10 | 0.08 |
-| Debiased AR | 0.10 | 0.14 | 0.06 | 0.08 |
-| TWFE        | 0.14 | 0.14 | 0.10 | 0.06 |
+| model_name  |   N=5 |  N=10 |  N=20 |  N=30 |
+|:------------|------:|------:|------:|------:|
+| ASCM        | 0.000 | 0.000 | 0.001 | 0.004 |
+| CSA         | 0.127 | 0.067 | 0.046 | 0.042 |
+| Debiased AR | 0.148 | 0.081 | 0.055 | 0.050 |
+| TWFE        | 0.126 | 0.073 | 0.046 | 0.039 |
 
 Type I error rate by model and N treated {.table}
 
