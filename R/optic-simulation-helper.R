@@ -262,10 +262,6 @@ optic_simulation <- function(x, models, iters,
     params$bias_type <- bias_type
   }
   
-  # Validate that input data has no NAs in columns optic must use across all
-  # models: unit_var, time_var, each model's outcome, and each model's
-  # covariates (formula RHS minus treatment-construct terms). Treatment
-  # columns are simulated by optic and are intentionally excluded.
   .validate_optic_input_nas(x, models, unit_var, time_var)
 
   # Compute prior_control variables:
