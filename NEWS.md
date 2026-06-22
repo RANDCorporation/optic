@@ -1,3 +1,5 @@
+# optic (development version)
+
 # [optic 1.2.6](https://github.com/RANDCorporation/optic/releases/tag/v1.2.6)
 
 ## Bug fixes
