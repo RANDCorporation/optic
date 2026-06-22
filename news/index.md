@@ -1,6 +1,6 @@
 # Changelog
 
-## optic (development version)
+## [optic 1.2.6](https://github.com/RANDCorporation/optic/releases/tag/v1.2.6)
 
 ### Bug fixes
 
@@ -13,6 +13,7 @@
   replaces a class of cryptic downstream errors (e.g. autoeffect’s
   “spec_strategy out of sync” message) with a single upfront error that
   names the offending columns.
+  ([\#41](https://github.com/RANDCorporation/optic/pull/41))
 
 ## [optic 1.2.5](https://github.com/RANDCorporation/optic/releases/tag/v1.2.5)
 

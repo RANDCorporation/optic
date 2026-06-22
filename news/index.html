@@ -38,11 +38,11 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="optic-development-version">optic (development version)<a class="anchor" aria-label="anchor" href="#optic-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.2.6" id="optic-126"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.2.6" class="external-link">optic 1.2.6</a><a class="anchor" aria-label="anchor" href="#optic-126"></a></h2>
 <div class="section level3">
-<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<h3 id="bug-fixes-1-2-6">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-2-6"></a></h3>
 <ul><li>
-<code><a href="../reference/optic_simulation.html">optic_simulation()</a></code> now stops early with an informative message when the input data contains NAs in any required column: <code>unit_var</code>, <code>time_var</code>, the outcome (formula LHS) of any model, or any covariate (formula RHS minus treatment-construct terms) referenced by any model. Treatment columns are excluded because they are simulated by optic. This replaces a class of cryptic downstream errors (e.g. autoeffect’s “spec_strategy out of sync” message) with a single upfront error that names the offending columns.</li>
+<code><a href="../reference/optic_simulation.html">optic_simulation()</a></code> now stops early with an informative message when the input data contains NAs in any required column: <code>unit_var</code>, <code>time_var</code>, the outcome (formula LHS) of any model, or any covariate (formula RHS minus treatment-construct terms) referenced by any model. Treatment columns are excluded because they are simulated by optic. This replaces a class of cryptic downstream errors (e.g. autoeffect’s “spec_strategy out of sync” message) with a single upfront error that names the offending columns. (<a href="https://github.com/RANDCorporation/optic/pull/41" class="external-link">#41</a>)</li>
 </ul></div>
 </div>
     <div class="section level2">
