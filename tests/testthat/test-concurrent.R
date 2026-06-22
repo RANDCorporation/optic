@@ -7,7 +7,8 @@
 # Testing an example of the concurrent method.
 
 data(overdoses)
-x <- overdoses
+# Dakotas have NA crude.rate; optic_simulation() now rejects NA inputs.
+x <- overdoses[!overdoses$state %in% c("North Dakota", "South Dakota"), ]
 
 # we will define two scenarios for different effect magnitudes for
 # the policies using 5, 10, and 15 percent changes in the outcome
@@ -48,7 +49,7 @@ test_that("can create optic_model", {
 # Test Concurrent Methods -------------------------------------------------
 
 concurrent_optic_sim <- optic_simulation(
-  x=overdoses,
+  x=x,
   models=list(model_1, model_2),
   iters=10,
   method="concurrent",

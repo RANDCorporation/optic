@@ -22,9 +22,10 @@ fixedeff_linear <- optic_model(
   se_adjust=c("none", "cluster-unit")
 )
 
-# Remove states for consistency:
+# Remove states for consistency; Dakotas dropped because crude.rate has NAs.
 data <- overdoses %>%
-  dplyr::filter(!(state %in% c("Nebraska", "Nevada", "Arkansas", "Mississippi", "Oregon")))
+  dplyr::filter(!(state %in% c("Nebraska", "Nevada", "Arkansas", "Mississippi",
+                               "Oregon", "North Dakota", "South Dakota")))
 
 #------------------------------------------------------------------------------#
 # Test 1: Simple test for R CMD check (CRAN-compatible, fast)
