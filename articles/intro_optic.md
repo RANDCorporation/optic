@@ -116,8 +116,11 @@ user wants to examine. Using the example_data:
 
 data(overdoses)
 
-# Calculate a hypothetical 5% and 10% changes in mean opioid_death_rate, 
-# across states and years. 
+# Drop the Dakotas: crude.rate has NAs there in early years.
+overdoses <- overdoses[!overdoses$state %in% c("North Dakota", "South Dakota"), ]
+
+# Calculate a hypothetical 5% and 10% changes in mean opioid_death_rate,
+# across states and years.
 five_percent_effect <- 0.05*mean(overdoses$crude.rate, na.rm = T)
 ten_percent_effect  <- 0.10*mean(overdoses$crude.rate, na.rm = T)
 
@@ -324,7 +327,7 @@ sim_config <- optic_simulation(
   treat_var                = "state",
   time_var                 = "year",
   effect_magnitude         = scenarios_no_confounding,
-  n_units                  = c(30, 40, 50),
+  n_units                  = c(30, 40, 49),
   effect_direction         = c("neg"),
   policy_speed             = c("instant"),
   n_implementation_periods = c(1)
@@ -396,9 +399,9 @@ knitr::kable(results[c(2, 4, 6), 1:9], format = "markdown")
 
 |  | outcome | se_adjustment | estimate | se | variance | t_stat | p_value | mse | model_name |
 |:---|:---|:---|---:|---:|---:|---:|---:|---:|:---|
-| 2 | crude.rate | cluster-unit | 0.4484649 | 0.8253356 | 0.6811788 | 0.5433728 | 0.5870092 | 10.11952 | fixed_effect_linear |
-| 4 | crude.rate | cluster-unit | 0.4359681 | 0.8084088 | 0.6535247 | 0.5392916 | 0.5898207 | 10.08406 | fixed_effect_linear_adj |
-| 6 | crude.rate | none | -0.6021976 | 0.4020783 | 0.1616669 | -1.4977124 | 0.1345625 | 10.20254 | fixed_effect_linear |
+| 2 | crude.rate | cluster-unit | -0.9796868 | 0.9296891 | 0.8643218 | -1.053779 | 0.2922790 | 10.29857 | fixed_effect_linear |
+| 4 | crude.rate | cluster-unit | -0.9812230 | 0.9244617 | 0.8546294 | -1.061399 | 0.2888058 | 10.26011 | fixed_effect_linear_adj |
+| 6 | crude.rate | none | -0.8741129 | 0.4077224 | 0.1662375 | -2.143892 | 0.0323203 | 10.30296 | fixed_effect_linear |
 
 There is also detailed information on Type I error rates when the
 estimated treatment effect is null, Type S error rates, and coverage.
@@ -428,13 +431,13 @@ grab_mean_and_se <- function(model_name){
 }
 
 print(paste0("True effect size: ", true_est))
-#> [1] "True effect size: -0.633"
+#> [1] "True effect size: -0.644"
 print(paste0("FE LM effect: ", grab_mean_and_se('fixed_effect_linear')))
-#> [1] "FE LM effect: -0.559 (0.808)"
+#> [1] "FE LM effect: -0.569 (0.676)"
 print(paste0("FE LM adjusted effect: ", grab_mean_and_se('fixed_effect_linear_adj')))
-#> [1] "FE LM adjusted effect: -0.575 (0.822)"
+#> [1] "FE LM adjusted effect: -0.568 (0.696)"
 print(paste0("AR LM effect: ", grab_mean_and_se('auto_regressive_linear')))
-#> [1] "AR LM effect: -0.595 (0.44)"
+#> [1] "AR LM effect: -0.663 (0.404)"
 ```
 
 From the above output, we can see all models are producing similar
@@ -479,15 +482,15 @@ results %>%
 
 | model_name              | n_units | mean_bias | rejection_rate | coverage |  rmse |
 |:------------------------|--------:|----------:|---------------:|---------:|------:|
-| auto_regressive_linear  |      30 |     0.158 |           0.10 |     0.90 | 0.522 |
-| auto_regressive_linear  |      40 |    -0.096 |           0.30 |     1.00 | 0.361 |
-| auto_regressive_linear  |      50 |     0.050 |           0.40 |     1.00 | 0.404 |
-| fixed_effect_linear     |      30 |     0.068 |           0.25 |     0.90 | 0.930 |
-| fixed_effect_linear     |      40 |    -0.003 |           0.35 |     0.95 | 0.829 |
-| fixed_effect_linear     |      50 |     0.155 |           0.25 |     0.90 | 0.624 |
-| fixed_effect_linear_adj |      30 |     0.075 |           0.25 |     0.90 | 0.924 |
-| fixed_effect_linear_adj |      40 |    -0.019 |           0.35 |     0.90 | 0.855 |
-| fixed_effect_linear_adj |      50 |     0.116 |           0.30 |     0.90 | 0.647 |
+| auto_regressive_linear  |      30 |    -0.094 |           0.40 |     1.00 | 0.485 |
+| auto_regressive_linear  |      40 |    -0.012 |           0.40 |     1.00 | 0.367 |
+| auto_regressive_linear  |      49 |     0.047 |           0.30 |     1.00 | 0.324 |
+| fixed_effect_linear     |      30 |    -0.006 |           0.30 |     0.95 | 0.758 |
+| fixed_effect_linear     |      40 |    -0.176 |           0.25 |     1.00 | 0.465 |
+| fixed_effect_linear     |      49 |     0.405 |           0.20 |     0.90 | 0.759 |
+| fixed_effect_linear_adj |      30 |    -0.014 |           0.25 |     0.95 | 0.769 |
+| fixed_effect_linear_adj |      40 |    -0.189 |           0.25 |     1.00 | 0.495 |
+| fixed_effect_linear_adj |      49 |     0.430 |           0.20 |     0.90 | 0.781 |
 
 The individual metric functions
 ([`sim_rejection_rate()`](https://randcorporation.github.io/optic/reference/sim_rejection_rate.md),

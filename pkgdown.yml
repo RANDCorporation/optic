@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   intro_optic: intro_optic.html
   power_analysis: power_analysis.html
-last_built: 2026-06-11T12:42Z
+last_built: 2026-06-22T18:23Z
 urls:
   reference: https://randcorporation.github.io/optic/reference
   article: https://randcorporation.github.io/optic/articles

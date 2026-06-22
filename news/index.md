@@ -2,6 +2,18 @@
 
 ## optic (development version)
 
+### Bug fixes
+
+- [`optic_simulation()`](https://randcorporation.github.io/optic/reference/optic_simulation.md)
+  now stops early with an informative message when the input data
+  contains NAs in any required column: `unit_var`, `time_var`, the
+  outcome (formula LHS) of any model, or any covariate (formula RHS
+  minus treatment-construct terms) referenced by any model. Treatment
+  columns are excluded because they are simulated by optic. This
+  replaces a class of cryptic downstream errors (e.g. autoeffect’s
+  “spec_strategy out of sync” message) with a single upfront error that
+  names the offending columns.
+
 ## [optic 1.2.5](https://github.com/RANDCorporation/optic/releases/tag/v1.2.5)
 
 ### New features
