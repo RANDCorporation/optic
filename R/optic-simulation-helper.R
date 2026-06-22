@@ -46,18 +46,21 @@
 #' # Load data for simulation and set up a hypothetical policy effect: 
 #'
 #' data(overdoses)
+#' # Drop the Dakotas: crude.rate has NAs there in early years, which
+#' # optic_simulation() rejects.
+#' overdoses <- overdoses[!overdoses$state %in% c("North Dakota", "South Dakota"), ]
 #' eff <- 0.1*mean(overdoses$crude.rate, na.rm = TRUE)
-#' 
+#'
 #' # Set up a simple linear model
 #' form <- formula(crude.rate ~ state + year + population + treatment_level)
-#' mod <- optic_model(name = 'lin', 
-#'                    type = 'reg', 
-#'                    call = 'lm', 
-#'                    formula = form, 
+#' mod <- optic_model(name = 'lin',
+#'                    type = 'reg',
+#'                    call = 'lm',
+#'                    formula = form,
 #'                    se_adjust = 'none')
-#' 
+#'
 #' # Create simulation object, with desired parameters for simulations:
-#' sim <- optic_simulation(x = overdoses, 
+#' sim <- optic_simulation(x = overdoses,
 #'                         models = list(mod), 
 #'                         method = 'no_confounding', 
 #'                         unit_var = 'state', 
@@ -259,9 +262,15 @@ optic_simulation <- function(x, models, iters,
     params$bias_type <- bias_type
   }
   
+  # Validate that input data has no NAs in columns optic must use across all
+  # models: unit_var, time_var, each model's outcome, and each model's
+  # covariates (formula RHS minus treatment-construct terms). Treatment
+  # columns are simulated by optic and are intentionally excluded.
+  .validate_optic_input_nas(x, models, unit_var, time_var)
+
   # Compute prior_control variables:
   first_model_outcome <- get_model_outcome(models[[1]])
-  
+
   x <- compute_prior_controls(data = x,
                               unit_var = params$unit_var,
                               time_var = params$time_var,

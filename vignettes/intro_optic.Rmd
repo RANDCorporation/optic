@@ -115,8 +115,14 @@ the example_data:
 
 data(overdoses)
 
-# Calculate a hypothetical 5% and 10% changes in mean opioid_death_rate, 
-# across states and years. 
+# Drop the Dakotas because their crude.rate column has NAs in early years.
+# optic_simulation() requires its outcome and covariate columns to be
+# NA-free, and dropping just the NA rows would produce an unbalanced panel
+# that the simulator does not support.
+overdoses <- overdoses[!overdoses$state %in% c("North Dakota", "South Dakota"), ]
+
+# Calculate a hypothetical 5% and 10% changes in mean opioid_death_rate,
+# across states and years.
 five_percent_effect <- 0.05*mean(overdoses$crude.rate, na.rm = T)
 ten_percent_effect  <- 0.10*mean(overdoses$crude.rate, na.rm = T)
 
@@ -302,7 +308,7 @@ sim_config <- optic_simulation(
   treat_var                = "state",
   time_var                 = "year",
   effect_magnitude         = scenarios_no_confounding,
-  n_units                  = c(30, 40, 50),
+  n_units                  = c(30, 40, 49),
   effect_direction         = c("neg"),
   policy_speed             = c("instant"),
   n_implementation_periods = c(1)

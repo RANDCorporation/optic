@@ -104,18 +104,21 @@ The resulting configuration object is used to pass simulation scenarios to the '
 # Load data for simulation and set up a hypothetical policy effect: 
 
 data(overdoses)
+# Drop the Dakotas: crude.rate has NAs there in early years, which
+# optic_simulation() rejects.
+overdoses <- overdoses[!overdoses$state \%in\% c("North Dakota", "South Dakota"), ]
 eff <- 0.1*mean(overdoses$crude.rate, na.rm = TRUE)
 
 # Set up a simple linear model
 form <- formula(crude.rate ~ state + year + population + treatment_level)
-mod <- optic_model(name = 'lin', 
-                   type = 'reg', 
-                   call = 'lm', 
-                   formula = form, 
+mod <- optic_model(name = 'lin',
+                   type = 'reg',
+                   call = 'lm',
+                   formula = form,
                    se_adjust = 'none')
 
 # Create simulation object, with desired parameters for simulations:
-sim <- optic_simulation(x = overdoses, 
+sim <- optic_simulation(x = overdoses,
                         models = list(mod), 
                         method = 'no_confounding', 
                         unit_var = 'state', 
