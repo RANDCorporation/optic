@@ -22,10 +22,7 @@ fixedeff_linear <- optic_model(
   se_adjust=c("none", "cluster-unit")
 )
 
-# Remove states for consistency. The Dakotas are also dropped because their
-# crude.rate column has NAs in early years, which optic_simulation()'s input
-# validation now rejects. Filtering whole states (rather than NA rows)
-# preserves a balanced panel for the sampler.
+# Remove states for consistency; Dakotas dropped because crude.rate has NAs.
 data <- overdoses %>%
   dplyr::filter(!(state %in% c("Nebraska", "Nevada", "Arkansas", "Mississippi",
                                "Oregon", "North Dakota", "South Dakota")))

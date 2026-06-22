@@ -115,10 +115,7 @@ the example_data:
 
 data(overdoses)
 
-# Drop the Dakotas because their crude.rate column has NAs in early years.
-# optic_simulation() requires its outcome and covariate columns to be
-# NA-free, and dropping just the NA rows would produce an unbalanced panel
-# that the simulator does not support.
+# Drop the Dakotas: crude.rate has NAs there in early years.
 overdoses <- overdoses[!overdoses$state %in% c("North Dakota", "South Dakota"), ]
 
 # Calculate a hypothetical 5% and 10% changes in mean opioid_death_rate,

@@ -7,9 +7,7 @@
 # Testing an example of the concurrent method.
 
 data(overdoses)
-# Drop the Dakotas: their crude.rate column has NAs in early years, which
-# optic_simulation()'s input validation now rejects. Filtering whole states
-# rather than NA rows keeps the panel balanced for downstream sampling.
+# Dakotas have NA crude.rate; optic_simulation() now rejects NA inputs.
 x <- overdoses[!overdoses$state %in% c("North Dakota", "South Dakota"), ]
 
 # we will define two scenarios for different effect magnitudes for

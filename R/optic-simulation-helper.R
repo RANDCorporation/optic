@@ -46,8 +46,6 @@
 #' # Load data for simulation and set up a hypothetical policy effect: 
 #'
 #' data(overdoses)
-#' # Drop the Dakotas: crude.rate has NAs there in early years, which
-#' # optic_simulation() rejects.
 #' overdoses <- overdoses[!overdoses$state %in% c("North Dakota", "South Dakota"), ]
 #' eff <- 0.1*mean(overdoses$crude.rate, na.rm = TRUE)
 #'
