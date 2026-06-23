@@ -189,7 +189,9 @@ results <- readRDS(rds_path)
 
 ## Summarize results
 
-For each combination of model, effect size, and number of treated units, we compute the rejection rate, Type S error, and correct-direction power. For TWFE and Debiased AR, which produce both unadjusted and cluster-robust results, we keep only the cluster-robust rows. ASCM and CSA report a single SE adjustment ("none"), which is their default inference.
+For each combination of model, effect size, and number of treated units, we compute a full set of performance metrics in a single call to `summarize_simulation()`. This exported helper returns one row per scenario with columns including `mean_bias`, `mean_variance` (the average of the model-reported variances), `simulated_variance` (the empirical variance of estimates across iterations), `rmse`, `coverage`, `rejection_rate`, and `type_s_error`. We use these downstream both for power and for the additional metrics shown in the final section.
+
+For TWFE and Debiased AR, which produce both unadjusted and cluster-robust results, we keep only the cluster-robust rows. ASCM and CSA report a single SE adjustment ("none"), which is their default inference.
 
 ```{r summarize}
 available_models <- unique(results$model_name)
@@ -202,23 +204,14 @@ results_filtered <- results %>%
     (model_name %in% c("ASCM", "CSA") & se_adjustment == "none")
   )
 
-
 summary_df <- results_filtered %>%
   group_by(model_name, n_units, effect_magnitude, effect_direction) %>%
-  summarize(
-    rejection_rate = sim_rejection_rate(p_value),
-    type_s_error = sim_type_s_error(
-      estimate, p_value,
-      true_effect = if (first(effect_direction) == "neg") {
-        -first(effect_magnitude)
-      } else {
-        first(effect_magnitude)
-      }
-    ),
-    mean_estimate = mean(estimate, na.rm = TRUE),
-    mean_se = mean(se, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
+  group_modify(~ summarize_simulation(
+    .x,
+    true_effect = if (.y$effect_direction == "neg") -.y$effect_magnitude
+                  else .y$effect_magnitude
+  )) %>%
+  ungroup() %>%
   mutate(
     effect_pct = round(effect_magnitude / outcome_mean * 100),
     n_units_label = factor(
@@ -282,6 +275,80 @@ summary_df %>%
   tidyr::pivot_wider(names_from = n_units, values_from = rejection_rate,
                      names_prefix = "N=") %>%
   knitr::kable(digits = 3, caption = "Type I error rate by model and N treated")
+```
+
+# Examining other metrics of performance
+
+Power tells us how often a method rejects the null in the right direction, but it is not the only thing worth tracking. Bias measures whether the point estimate is systematically off from the true effect. Simulation variance is the empirical spread of estimates across Monte Carlo iterations. Model-based variance is the average of the variances each fit reports for itself; comparing the two reveals whether reported standard errors match the actual sampling distribution. RMSE combines bias and variance into a single accuracy summary, and coverage measures how often the 95% confidence interval contains the truth.
+
+All of these are returned by the same `summarize_simulation()` call used above. The plots below replace the y-axis of the power curves with each metric in turn, so panels are directly comparable across number of treated units and effect size.
+
+```{r metric-helper, include = FALSE}
+metric_plot <- function(df, y, ylab, hline = NULL) {
+  p <- ggplot(
+    df,
+    aes(x = effect_pct, y = .data[[y]], color = model_name,
+        shape = model_name, group = model_name)
+  ) +
+    geom_line(linewidth = 0.8) +
+    geom_point(size = 2.5) +
+    facet_wrap(~n_units_label, nrow = 1) +
+    scale_color_manual(values = model_colors, name = NULL) +
+    scale_shape_manual(values = model_shapes, name = NULL) +
+    scale_x_continuous(breaks = unique(df$effect_pct)) +
+    labs(x = "Effect size (% of outcome mean)", y = ylab) +
+    theme_minimal() +
+    theme(
+      strip.text = element_text(face = "bold"),
+      legend.position = "bottom",
+      panel.grid.minor = element_blank()
+    )
+  if (!is.null(hline)) {
+    p <- p + geom_hline(yintercept = hline, linetype = "dashed",
+                        color = "gray50")
+  }
+  p
+}
+```
+
+## Bias
+
+Bias is the average difference between the point estimate and the true effect. A well-calibrated estimator should have bias near zero across all scenarios.
+
+```{r bias-curves, fig.width = 8, fig.height = 5}
+metric_plot(summary_df, "mean_bias", "Bias", hline = 0)
+```
+
+## Simulation variance
+
+Simulation variance is the empirical variance of the point estimates across iterations -- a Monte Carlo estimate of the true sampling variance of each method.
+
+```{r sim-variance-curves, fig.width = 8, fig.height = 5}
+metric_plot(summary_df, "simulated_variance", "Simulation variance")
+```
+
+## Model-based variance
+
+Model-based variance is the average of the variances reported by each fit. Where this differs from the simulation variance above, the model's standard errors are mis-calibrated relative to the true sampling distribution.
+
+```{r model-variance-curves, fig.width = 8, fig.height = 5}
+metric_plot(summary_df, "mean_variance", "Model-based variance")
+```
+
+## RMSE
+
+Root mean squared error combines bias and variance into a single measure of estimation accuracy.
+
+```{r rmse-curves, fig.width = 8, fig.height = 5}
+metric_plot(summary_df, "rmse", "RMSE")
+```
+
+## Coverage
+
+Coverage is the proportion of 95% confidence intervals that contain the true effect. A well-calibrated method should sit near 0.95 across scenarios.
+
+```{r coverage-curves, fig.width = 8, fig.height = 5}
+metric_plot(summary_df, "coverage", "Coverage", hline = 0.95)
 ```
 
 # Conclusion

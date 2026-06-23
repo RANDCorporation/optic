@@ -56,6 +56,7 @@ sim_mse <- function(estimates, true_effect) {
 #' @export
 sim_correction_factor <- function(test_stats) {
   test_stats <- test_stats[!is.na(test_stats)]
+  if (length(test_stats) == 0) return(NA_real_)
   f_stats <- sort(test_stats^2)
   femp95 <- f_stats[floor(0.95 * length(f_stats))]
   freal <- stats::qf(0.95, 1, Inf)
@@ -78,6 +79,7 @@ sim_correction_factor <- function(test_stats) {
 #' @export
 sim_coverage <- function(estimates, ses, true_effect = 0,
                          correction_factor = 1, alpha = 0.05) {
+  if (is.na(correction_factor)) return(NA_real_)
   adj_ses <- ses * correction_factor
   z <- stats::qnorm(1 - alpha / 2)
   low <- estimates - z * adj_ses
@@ -124,6 +126,7 @@ sim_type_s_error <- function(estimates, p_values, true_effect, alpha = 0.05) {
 #' @export
 sim_correct_rejection_rate <- function(estimates, ses, true_effect,
                                        correction_factor = 1, alpha = 0.05) {
+  if (is.na(correction_factor)) return(NA_real_)
   adj_ses <- ses * correction_factor
   z <- stats::qnorm(1 - alpha / 2)
   low <- estimates - z * adj_ses
