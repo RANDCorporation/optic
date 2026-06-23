@@ -176,6 +176,10 @@ summarize_simulation <- function(results, true_effect,
   se_valid <- se[valid]
 
   cf <- sim_correction_factor(tstat)
+  # When no t-statistics are available (e.g. ASCM, CSA), fall back to an
+  # uncorrected 95% CI for coverage and correct-rejection rate so those
+  # methods still produce comparable values.
+  cf_for_ci <- if (is.na(cf)) 1 else cf
 
   data.frame(
     mean_estimate = mean(est_valid),
@@ -187,10 +191,10 @@ summarize_simulation <- function(results, true_effect,
     rmse = sqrt(mean(sim_mse(est_valid, true_effect))),
     rejection_rate = sim_rejection_rate(pval),
     correction_factor = cf,
-    coverage = sim_coverage(est_valid, se_valid, true_effect, cf),
+    coverage = sim_coverage(est_valid, se_valid, true_effect, cf_for_ci),
     type_s_error = sim_type_s_error(est_valid, pval[valid], true_effect),
     correct_rejection_rate = sim_correct_rejection_rate(
-      est_valid, se_valid, true_effect, cf
+      est_valid, se_valid, true_effect, cf_for_ci
     ),
     n_valid = sum(valid)
   )

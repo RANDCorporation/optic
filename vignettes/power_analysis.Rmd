@@ -222,7 +222,9 @@ summary_df <- results_filtered %>%
       effect_magnitude == 0,
       rejection_rate,
       rejection_rate * (1 - type_s_error)
-    )
+    ),
+    bias_pct = mean_bias / outcome_mean * 100,
+    rmse_pct = rmse / outcome_mean * 100
   )
 ```
 
@@ -279,7 +281,7 @@ summary_df %>%
 
 # Examining other metrics of performance
 
-Power tells us how often a method rejects the null in the right direction, but it is not the only thing worth tracking. Bias measures whether the point estimate is systematically off from the true effect. Simulation variance is the empirical spread of estimates across Monte Carlo iterations. Model-based variance is the average of the variances each fit reports for itself; comparing the two reveals whether reported standard errors match the actual sampling distribution. RMSE combines bias and variance into a single accuracy summary, and coverage measures how often the 95% confidence interval contains the truth.
+Power tells us how often a method rejects the null in the right direction, but it is not the only thing worth tracking. Bias measures whether the point estimate is systematically off from the true effect. Simulation variance is the empirical spread of estimates across Monte Carlo iterations. Model-based variance is the average of the variances each fit reports for itself; comparing the two reveals whether reported standard errors match the actual sampling distribution. Relative RMSE combines bias and variance into a single accuracy summary, expressed as a percentage of the outcome mean, and coverage measures how often the 95% confidence interval contains the truth.
 
 All of these are returned by the same `summarize_simulation()` call used above. The plots below replace the y-axis of the power curves with each metric in turn, so panels are directly comparable across number of treated units and effect size.
 
@@ -313,10 +315,10 @@ metric_plot <- function(df, y, ylab, hline = NULL) {
 
 ## Bias
 
-Bias is the average difference between the point estimate and the true effect. A well-calibrated estimator should have bias near zero across all scenarios.
+Bias is the average difference between the point estimate and the true effect. A well-calibrated estimator should have bias near zero across all scenarios. We express it in percentage points relative to the outcome mean so it is comparable to the effect-size axis.
 
 ```{r bias-curves, fig.width = 8, fig.height = 5}
-metric_plot(summary_df, "mean_bias", "Bias", hline = 0)
+metric_plot(summary_df, "bias_pct", "Bias (% of outcome mean)", hline = 0)
 ```
 
 ## Simulation variance
@@ -335,12 +337,12 @@ Model-based variance is the average of the variances reported by each fit. Where
 metric_plot(summary_df, "mean_variance", "Model-based variance")
 ```
 
-## RMSE
+## Relative RMSE
 
-Root mean squared error combines bias and variance into a single measure of estimation accuracy.
+Root mean squared error combines bias and variance into a single measure of estimation accuracy. We report it relative to the outcome mean (in percentage points).
 
 ```{r rmse-curves, fig.width = 8, fig.height = 5}
-metric_plot(summary_df, "rmse", "RMSE")
+metric_plot(summary_df, "rmse_pct", "Relative RMSE (% of outcome mean)")
 ```
 
 ## Coverage
