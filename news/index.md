@@ -2,6 +2,15 @@
 
 ## optic (development version)
 
+### Internal changes
+
+- Updated the autoeffect result extractors
+  (`.extract_results_autoeffect` and `.se_adjust_cluster_autoeffect`) to
+  read the renamed tidymodels-style columns from
+  [`autoeffect::cumulative_effects()`](https://rdrr.io/pkg/autoeffect/man/cumulative_effects.html)
+  (`lag`, `estimate`, `std.error`, `statistic`, `p.value`). Requires
+  autoeffect \>= 0.2.11.
+
 ## [optic 1.2.6](https://github.com/RANDCorporation/optic/releases/tag/v1.2.6)
 
 ### Bug fixes
