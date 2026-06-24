@@ -303,14 +303,14 @@ get_behavior <- function(model_type) {
     t_stat <- NA_real_
     p_value <- NA_real_
   } else {
-    if (!effect_lag %in% cum_effects$Lag) {
+    if (!effect_lag %in% cum_effects$lag) {
       stop("Requested effect_lag = ", effect_lag, " not available in cumulative effects output.")
     }
-    effect_row <- cum_effects[cum_effects$Lag == effect_lag, ]
-    estimate <- effect_row$Estimate
-    se <- effect_row$StdError
-    t_stat <- effect_row$t_stat
-    p_value <- effect_row$p_value
+    effect_row <- cum_effects[cum_effects$lag == effect_lag, ]
+    estimate <- effect_row$estimate
+    se <- effect_row$std.error
+    t_stat <- effect_row$statistic
+    p_value <- effect_row$p.value
   }
 
   variance <- se^2
@@ -538,13 +538,13 @@ get_behavior <- function(model_type) {
   cum_effects_fn <- utils::getFromNamespace("cumulative_effects", "autoeffect")
   cum_effects <- cum_effects_fn(ae_object, cluster = cluster_var_name)
 
-  if (is.null(cum_effects) || !effect_lag %in% cum_effects$Lag) {
+  if (is.null(cum_effects) || !effect_lag %in% cum_effects$lag) {
     estimate <- NA_real_; se <- NA_real_
     t_stat <- NA_real_; p_value <- NA_real_
   } else {
-    effect_row <- cum_effects[cum_effects$Lag == effect_lag, ]
-    estimate <- effect_row$Estimate; se <- effect_row$StdError
-    t_stat <- effect_row$t_stat; p_value <- effect_row$p_value
+    effect_row <- cum_effects[cum_effects$lag == effect_lag, ]
+    estimate <- effect_row$estimate; se <- effect_row$std.error
+    t_stat <- effect_row$statistic; p_value <- effect_row$p.value
   }
 
   variance <- se^2
