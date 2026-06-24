@@ -50,7 +50,7 @@ Suggests:
     testthat (>= 3.0.0)
 Remotes:
     ebenmichael/augsynth,
-    RANDCorporation/autoeffect@feature/cumulative-effects-tidymodels
+    RANDCorporation/autoeffect
 Config/Needs/integration:
     autoeffect
 VignetteBuilder: 
