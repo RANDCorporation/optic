@@ -232,8 +232,16 @@ plan(sequential)
 ### Summarize results
 
 For each combination of model, effect size, and number of treated units,
-we compute the rejection rate, Type S error, and correct-direction
-power. For TWFE and Debiased AR, which produce both unadjusted and
+we compute a full set of performance metrics in a single call to
+[`summarize_simulation()`](https://randcorporation.github.io/optic/reference/summarize_simulation.md).
+This exported helper returns one row per scenario with columns including
+`mean_bias`, `mean_variance` (the average of the model-reported
+variances), `simulated_variance` (the empirical variance of estimates
+across iterations), `rmse`, `coverage`, `rejection_rate`, and
+`type_s_error`. We use these downstream both for power and for the
+additional metrics shown in the final section.
+
+For TWFE and Debiased AR, which produce both unadjusted and
 cluster-robust results, we keep only the cluster-robust rows. ASCM and
 CSA report a single SE adjustment (“none”), which is their default
 inference.
@@ -250,23 +258,14 @@ results_filtered <- results %>%
     (model_name %in% c("ASCM", "CSA") & se_adjustment == "none")
   )
 
-
 summary_df <- results_filtered %>%
   group_by(model_name, n_units, effect_magnitude, effect_direction) %>%
-  summarize(
-    rejection_rate = sim_rejection_rate(p_value),
-    type_s_error = sim_type_s_error(
-      estimate, p_value,
-      true_effect = if (first(effect_direction) == "neg") {
-        -first(effect_magnitude)
-      } else {
-        first(effect_magnitude)
-      }
-    ),
-    mean_estimate = mean(estimate, na.rm = TRUE),
-    mean_se = mean(se, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
+  group_modify(~ summarize_simulation(
+    .x,
+    true_effect = if (.y$effect_direction == "neg") -.y$effect_magnitude
+                  else .y$effect_magnitude
+  )) %>%
+  ungroup() %>%
   mutate(
     effect_pct = round(effect_magnitude / outcome_mean * 100),
     n_units_label = factor(
@@ -277,7 +276,9 @@ summary_df <- results_filtered %>%
       effect_magnitude == 0,
       rejection_rate,
       rejection_rate * (1 - type_s_error)
-    )
+    ),
+    bias_pct = mean_bias / outcome_mean * 100,
+    rmse_pct = rmse / outcome_mean * 100
   )
 ```
 
@@ -347,6 +348,92 @@ summary_df %>%
 | TWFE        | 0.126 | 0.073 | 0.046 | 0.039 |
 
 Type I error rate by model and N treated {.table}
+
+## Examining other metrics of performance
+
+Power tells us how often a method rejects the null in the right
+direction, but it is not the only thing worth tracking. Bias measures
+whether the point estimate is systematically off from the true effect.
+Simulation variance is the empirical spread of estimates across Monte
+Carlo iterations. Model-based variance is the average of the variances
+each fit reports for itself; comparing the two reveals whether reported
+standard errors match the actual sampling distribution. Relative RMSE
+combines bias and variance into a single accuracy summary, expressed as
+a percentage of the outcome mean, and coverage measures how often the
+95% confidence interval contains the truth.
+
+All of these are returned by the same
+[`summarize_simulation()`](https://randcorporation.github.io/optic/reference/summarize_simulation.md)
+call used above. The plots below replace the y-axis of the power curves
+with each metric in turn, so panels are directly comparable across
+number of treated units and effect size.
+
+### Bias
+
+Bias is the average difference between the point estimate and the true
+effect. A well-calibrated estimator should have bias near zero across
+all scenarios. We express it in percentage points relative to the
+outcome mean so it is comparable to the effect-size axis.
+
+``` r
+
+metric_plot(summary_df, "bias_pct", "Bias (% of outcome mean)", hline = 0)
+```
+
+![](power_analysis_files/figure-html/bias-curves-1.png)
+
+### Simulation variance
+
+Simulation variance is the empirical variance of the point estimates
+across iterations – a Monte Carlo estimate of the true sampling variance
+of each method.
+
+``` r
+
+metric_plot(summary_df, "simulated_variance", "Simulation variance")
+```
+
+![](power_analysis_files/figure-html/sim-variance-curves-1.png)
+
+### Model-based variance
+
+Model-based variance is the average of the variances reported by each
+fit. Where this differs from the simulation variance above, the model’s
+standard errors are mis-calibrated relative to the true sampling
+distribution.
+
+``` r
+
+metric_plot(summary_df, "mean_variance", "Model-based variance")
+```
+
+![](power_analysis_files/figure-html/model-variance-curves-1.png)
+
+### Relative RMSE
+
+Root mean squared error combines bias and variance into a single measure
+of estimation accuracy. We report it relative to the outcome mean (in
+percentage points).
+
+``` r
+
+metric_plot(summary_df, "rmse_pct", "Relative RMSE (% of outcome mean)")
+```
+
+![](power_analysis_files/figure-html/rmse-curves-1.png)
+
+### Coverage
+
+Coverage is the proportion of 95% confidence intervals that contain the
+true effect. A well-calibrated method should sit near 0.95 across
+scenarios.
+
+``` r
+
+metric_plot(summary_df, "coverage", "Coverage", hline = 0.95)
+```
+
+![](power_analysis_files/figure-html/coverage-curves-1.png)
 
 ## Conclusion
 

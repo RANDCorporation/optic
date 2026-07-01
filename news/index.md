@@ -2,6 +2,31 @@
 
 ## optic (development version)
 
+### Improvements
+
+- The power analysis vignette now includes an “Examining other metrics
+  of performance” section showing bias, simulation variance, model-based
+  variance, relative RMSE, and coverage curves alongside the existing
+  power curves, and the summary chunk now uses
+  [`summarize_simulation()`](https://randcorporation.github.io/optic/reference/summarize_simulation.md)
+  directly to demonstrate the full set of metrics it returns. Bias and
+  RMSE are reported as a percentage of the outcome mean.
+- [`summarize_simulation()`](https://randcorporation.github.io/optic/reference/summarize_simulation.md)
+  now falls back to an uncorrected 95% CI when no t-statistics are
+  available, so coverage and `correct_rejection_rate` are populated for
+  methods like ASCM and CSA whose default inference does not produce a
+  t-statistic.
+
+### Bug fixes
+
+- [`sim_correction_factor()`](https://randcorporation.github.io/optic/reference/sim_correction_factor.md),
+  [`sim_coverage()`](https://randcorporation.github.io/optic/reference/sim_coverage.md),
+  and
+  [`sim_correct_rejection_rate()`](https://randcorporation.github.io/optic/reference/sim_correct_rejection_rate.md)
+  now return `NA_real_` (rather than `numeric(0)`) when no test
+  statistics are available, replacing a confusing zero-length result
+  with an explicit missing value.
+
 ## [optic 1.2.7](https://github.com/RANDCorporation/optic/releases/tag/v1.2.7)
 
 ### Internal changes

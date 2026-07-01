@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optic</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +60,7 @@
       <h1>Power Analysis with optic</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/v1.2.7/vignettes/power_analysis.Rmd" class="external-link"><code>vignettes/power_analysis.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/main/vignettes/power_analysis.Rmd" class="external-link"><code>vignettes/power_analysis.Rmd</code></a></small>
       <div class="d-none name"><code>power_analysis.Rmd</code></div>
     </div>
 
@@ -307,11 +307,19 @@ iterations are recommended.</p>
 <h3 id="summarize-results">Summarize results<a class="anchor" aria-label="anchor" href="#summarize-results"></a>
 </h3>
 <p>For each combination of model, effect size, and number of treated
-units, we compute the rejection rate, Type S error, and
-correct-direction power. For TWFE and Debiased AR, which produce both
-unadjusted and cluster-robust results, we keep only the cluster-robust
-rows. ASCM and CSA report a single SE adjustment (“none”), which is
-their default inference.</p>
+units, we compute a full set of performance metrics in a single call to
+<code><a href="../reference/summarize_simulation.html">summarize_simulation()</a></code>. This exported helper returns one
+row per scenario with columns including <code>mean_bias</code>,
+<code>mean_variance</code> (the average of the model-reported
+variances), <code>simulated_variance</code> (the empirical variance of
+estimates across iterations), <code>rmse</code>, <code>coverage</code>,
+<code>rejection_rate</code>, and <code>type_s_error</code>. We use these
+downstream both for power and for the additional metrics shown in the
+final section.</p>
+<p>For TWFE and Debiased AR, which produce both unadjusted and
+cluster-robust results, we keep only the cluster-robust rows. ASCM and
+CSA report a single SE adjustment (“none”), which is their default
+inference.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">available_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">model_name</span><span class="op">)</span></span>
 <span></span>
@@ -323,23 +331,14 @@ their default inference.</p>
 <span>    <span class="op">(</span><span class="va">model_name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ASCM"</span>, <span class="st">"CSA"</span><span class="op">)</span> <span class="op">&amp;</span> <span class="va">se_adjustment</span> <span class="op">==</span> <span class="st">"none"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
-<span></span>
 <span><span class="va">summary_df</span> <span class="op">&lt;-</span> <span class="va">results_filtered</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">model_name</span>, <span class="va">n_units</span>, <span class="va">effect_magnitude</span>, <span class="va">effect_direction</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span></span>
-<span>    rejection_rate <span class="op">=</span> <span class="fu"><a href="../reference/sim_rejection_rate.html">sim_rejection_rate</a></span><span class="op">(</span><span class="va">p_value</span><span class="op">)</span>,</span>
-<span>    type_s_error <span class="op">=</span> <span class="fu"><a href="../reference/sim_type_s_error.html">sim_type_s_error</a></span><span class="op">(</span></span>
-<span>      <span class="va">estimate</span>, <span class="va">p_value</span>,</span>
-<span>      true_effect <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/nth.html" class="external-link">first</a></span><span class="op">(</span><span class="va">effect_direction</span><span class="op">)</span> <span class="op">==</span> <span class="st">"neg"</span><span class="op">)</span> <span class="op">{</span></span>
-<span>        <span class="op">-</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/nth.html" class="external-link">first</a></span><span class="op">(</span><span class="va">effect_magnitude</span><span class="op">)</span></span>
-<span>      <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>        <span class="fu"><a href="https://dplyr.tidyverse.org/reference/nth.html" class="external-link">first</a></span><span class="op">(</span><span class="va">effect_magnitude</span><span class="op">)</span></span>
-<span>      <span class="op">}</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    mean_estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">estimate</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>    mean_se <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">se</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>    .groups <span class="op">=</span> <span class="st">"drop"</span></span>
-<span>  <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_map.html" class="external-link">group_modify</a></span><span class="op">(</span><span class="op">~</span> <span class="fu"><a href="../reference/summarize_simulation.html">summarize_simulation</a></span><span class="op">(</span></span>
+<span>    <span class="va">.x</span>,</span>
+<span>    true_effect <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">.y</span><span class="op">$</span><span class="va">effect_direction</span> <span class="op">==</span> <span class="st">"neg"</span><span class="op">)</span> <span class="op">-</span><span class="va">.y</span><span class="op">$</span><span class="va">effect_magnitude</span></span>
+<span>                  <span class="kw">else</span> <span class="va">.y</span><span class="op">$</span><span class="va">effect_magnitude</span></span>
+<span>  <span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    effect_pct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">effect_magnitude</span> <span class="op">/</span> <span class="va">outcome_mean</span> <span class="op">*</span> <span class="fl">100</span><span class="op">)</span>,</span>
 <span>    n_units_label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span></span>
@@ -350,7 +349,9 @@ their default inference.</p>
 <span>      <span class="va">effect_magnitude</span> <span class="op">==</span> <span class="fl">0</span>,</span>
 <span>      <span class="va">rejection_rate</span>,</span>
 <span>      <span class="va">rejection_rate</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">type_s_error</span><span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    bias_pct <span class="op">=</span> <span class="va">mean_bias</span> <span class="op">/</span> <span class="va">outcome_mean</span> <span class="op">*</span> <span class="fl">100</span>,</span>
+<span>    rmse_pct <span class="op">=</span> <span class="va">rmse</span> <span class="op">/</span> <span class="va">outcome_mean</span> <span class="op">*</span> <span class="fl">100</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -447,6 +448,77 @@ approximately 0.05 for a well-calibrated test.</p>
 </tr>
 </tbody>
 </table>
+</div>
+</div>
+<div class="section level2">
+<h2 id="examining-other-metrics-of-performance">Examining other metrics of performance<a class="anchor" aria-label="anchor" href="#examining-other-metrics-of-performance"></a>
+</h2>
+<p>Power tells us how often a method rejects the null in the right
+direction, but it is not the only thing worth tracking. Bias measures
+whether the point estimate is systematically off from the true effect.
+Simulation variance is the empirical spread of estimates across Monte
+Carlo iterations. Model-based variance is the average of the variances
+each fit reports for itself; comparing the two reveals whether reported
+standard errors match the actual sampling distribution. Relative RMSE
+combines bias and variance into a single accuracy summary, expressed as
+a percentage of the outcome mean, and coverage measures how often the
+95% confidence interval contains the truth.</p>
+<p>All of these are returned by the same
+<code><a href="../reference/summarize_simulation.html">summarize_simulation()</a></code> call used above. The plots below
+replace the y-axis of the power curves with each metric in turn, so
+panels are directly comparable across number of treated units and effect
+size.</p>
+<div class="section level3">
+<h3 id="bias">Bias<a class="anchor" aria-label="anchor" href="#bias"></a>
+</h3>
+<p>Bias is the average difference between the point estimate and the
+true effect. A well-calibrated estimator should have bias near zero
+across all scenarios. We express it in percentage points relative to the
+outcome mean so it is comparable to the effect-size axis.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">metric_plot</span><span class="op">(</span><span class="va">summary_df</span>, <span class="st">"bias_pct"</span>, <span class="st">"Bias (% of outcome mean)"</span>, hline <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
+<p><img src="power_analysis_files/figure-html/bias-curves-1.png" class="r-plt" alt="" width="768"></p>
+</div>
+<div class="section level3">
+<h3 id="simulation-variance">Simulation variance<a class="anchor" aria-label="anchor" href="#simulation-variance"></a>
+</h3>
+<p>Simulation variance is the empirical variance of the point estimates
+across iterations – a Monte Carlo estimate of the true sampling variance
+of each method.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">metric_plot</span><span class="op">(</span><span class="va">summary_df</span>, <span class="st">"simulated_variance"</span>, <span class="st">"Simulation variance"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="power_analysis_files/figure-html/sim-variance-curves-1.png" class="r-plt" alt="" width="768"></p>
+</div>
+<div class="section level3">
+<h3 id="model-based-variance">Model-based variance<a class="anchor" aria-label="anchor" href="#model-based-variance"></a>
+</h3>
+<p>Model-based variance is the average of the variances reported by each
+fit. Where this differs from the simulation variance above, the model’s
+standard errors are mis-calibrated relative to the true sampling
+distribution.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">metric_plot</span><span class="op">(</span><span class="va">summary_df</span>, <span class="st">"mean_variance"</span>, <span class="st">"Model-based variance"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="power_analysis_files/figure-html/model-variance-curves-1.png" class="r-plt" alt="" width="768"></p>
+</div>
+<div class="section level3">
+<h3 id="relative-rmse">Relative RMSE<a class="anchor" aria-label="anchor" href="#relative-rmse"></a>
+</h3>
+<p>Root mean squared error combines bias and variance into a single
+measure of estimation accuracy. We report it relative to the outcome
+mean (in percentage points).</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">metric_plot</span><span class="op">(</span><span class="va">summary_df</span>, <span class="st">"rmse_pct"</span>, <span class="st">"Relative RMSE (% of outcome mean)"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="power_analysis_files/figure-html/rmse-curves-1.png" class="r-plt" alt="" width="768"></p>
+</div>
+<div class="section level3">
+<h3 id="coverage">Coverage<a class="anchor" aria-label="anchor" href="#coverage"></a>
+</h3>
+<p>Coverage is the proportion of 95% confidence intervals that contain
+the true effect. A well-calibrated method should sit near 0.95 across
+scenarios.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">metric_plot</span><span class="op">(</span><span class="va">summary_df</span>, <span class="st">"coverage"</span>, <span class="st">"Coverage"</span>, hline <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
+<p><img src="power_analysis_files/figure-html/coverage-curves-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
 <div class="section level2">
