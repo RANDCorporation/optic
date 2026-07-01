@@ -2,6 +2,8 @@
 
 ## optic (development version)
 
+## [optic 1.2.8](https://github.com/RANDCorporation/optic/releases/tag/v1.2.8)
+
 ### Improvements
 
 - The power analysis vignette now includes an “Examining other metrics
