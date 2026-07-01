@@ -56,6 +56,7 @@ sim_mse <- function(estimates, true_effect) {
 #' @export
 sim_correction_factor <- function(test_stats) {
   test_stats <- test_stats[!is.na(test_stats)]
+  if (length(test_stats) == 0) return(NA_real_)
   f_stats <- sort(test_stats^2)
   femp95 <- f_stats[floor(0.95 * length(f_stats))]
   freal <- stats::qf(0.95, 1, Inf)
@@ -78,6 +79,7 @@ sim_correction_factor <- function(test_stats) {
 #' @export
 sim_coverage <- function(estimates, ses, true_effect = 0,
                          correction_factor = 1, alpha = 0.05) {
+  if (is.na(correction_factor)) return(NA_real_)
   adj_ses <- ses * correction_factor
   z <- stats::qnorm(1 - alpha / 2)
   low <- estimates - z * adj_ses
@@ -124,6 +126,7 @@ sim_type_s_error <- function(estimates, p_values, true_effect, alpha = 0.05) {
 #' @export
 sim_correct_rejection_rate <- function(estimates, ses, true_effect,
                                        correction_factor = 1, alpha = 0.05) {
+  if (is.na(correction_factor)) return(NA_real_)
   adj_ses <- ses * correction_factor
   z <- stats::qnorm(1 - alpha / 2)
   low <- estimates - z * adj_ses
@@ -173,6 +176,10 @@ summarize_simulation <- function(results, true_effect,
   se_valid <- se[valid]
 
   cf <- sim_correction_factor(tstat)
+  # When no t-statistics are available (e.g. ASCM, CSA), fall back to an
+  # uncorrected 95% CI for coverage and correct-rejection rate so those
+  # methods still produce comparable values.
+  cf_for_ci <- if (is.na(cf)) 1 else cf
 
   data.frame(
     mean_estimate = mean(est_valid),
@@ -184,10 +191,10 @@ summarize_simulation <- function(results, true_effect,
     rmse = sqrt(mean(sim_mse(est_valid, true_effect))),
     rejection_rate = sim_rejection_rate(pval),
     correction_factor = cf,
-    coverage = sim_coverage(est_valid, se_valid, true_effect, cf),
+    coverage = sim_coverage(est_valid, se_valid, true_effect, cf_for_ci),
     type_s_error = sim_type_s_error(est_valid, pval[valid], true_effect),
     correct_rejection_rate = sim_correct_rejection_rate(
-      est_valid, se_valid, true_effect, cf
+      est_valid, se_valid, true_effect, cf_for_ci
     ),
     n_valid = sum(valid)
   )
