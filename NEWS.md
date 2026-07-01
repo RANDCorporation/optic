@@ -1,5 +1,7 @@
 # optic (development version)
 
+# [optic 1.2.8](https://github.com/RANDCorporation/optic/releases/tag/v1.2.8)
+
 ## Improvements
 
 * The power analysis vignette now includes an "Examining other metrics of performance" section showing bias, simulation variance, model-based variance, relative RMSE, and coverage curves alongside the existing power curves, and the summary chunk now uses `summarize_simulation()` directly to demonstrate the full set of metrics it returns. Bias and RMSE are reported as a percentage of the outcome mean.
