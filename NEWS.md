@@ -9,6 +9,12 @@
 
 * `sim_correction_factor()`, `sim_coverage()`, and `sim_correct_rejection_rate()` now return `NA_real_` (rather than `numeric(0)`) when no test statistics are available, replacing a confusing zero-length result with an explicit missing value.
 
+# [optic 1.2.7](https://github.com/RANDCorporation/optic/releases/tag/v1.2.7)
+
+## Internal changes
+
+* Updated the autoeffect result extractors (`.extract_results_autoeffect` and `.se_adjust_cluster_autoeffect`) to read the renamed tidymodels-style columns from `autoeffect::cumulative_effects()` (`lag`, `estimate`, `std.error`, `statistic`, `p.value`). Requires autoeffect >= 0.2.11. ([#43](https://github.com/RANDCorporation/optic/pull/43))
+
 # [optic 1.2.6](https://github.com/RANDCorporation/optic/releases/tag/v1.2.6)
 
 ## Bug fixes
