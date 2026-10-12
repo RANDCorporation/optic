@@ -50,7 +50,7 @@ Suggests:
     testthat (>= 3.0.0)
 Remotes:
     ebenmichael/augsynth,
-    RANDCorporation/autoeffect
+    RANDCorporation/causalAR
 Config/Needs/integration:
     causalAR
 VignetteBuilder: 
