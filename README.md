@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd.  Please edit that file. -->
 
-# optic <a href='https://github.com/RANDCorporation/optic'><img src='man/figures/optic.png' align="right" height="139"  style="height:139px !important;" /></a>
+# optic <a href='https://github.com/RANDCorporation/optic'><img src='man/figures/logo.png' align="right" height="139" alt="optic logo" style="height:139px !important;" /></a>
 
 **Simulation Tool for Causal Inference Using Longitudinal Data**
 

@@ -1,0 +1,259 @@
+/* ---------------------------------------------------------------------------
+   Editorial reading theme: a centered, narrow prose column (40rem) with
+   figures, tables, and code left at the width of #main (56rem, widened from
+   pkgdown's default 50rem cap) so they read visibly wider than the text.
+   Serif throughout. No sidebar: the "on this page" outline is dropped
+   entirely so #main can take the full row and center on the page; on the home
+   page, the link/license/citation/dev-status aside is kept but demoted to a
+   footer-like band below the content instead of a side column.
+
+   Background and surface colors stay on pkgdown's defaults; only the
+   accent/link color is themed (purple, set as `primary` in _pkgdown.yml).
+   --------------------------------------------------------------------------- */
+
+$prose-width: 40rem;
+
+/* font fallbacks -------------------------------------------------------------
+   bslib's `font_google()` sets --bs-body-font-family/--bs-font-monospace to
+   the Google font name alone, with nothing after it. If that webfont ever
+   fails to render client-side (blocked by an extension or privacy setting, a
+   flaky first load), there is no next font to fall through to, so text drops
+   all the way to the browser's raw default instead of a similar-looking
+   system font. */
+
+:root {
+  --bs-body-font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --bs-font-monospace: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+
+/* purple links ---------------------------------------------------------------
+   Bootstrap derives the dark-theme link color from $primary by tinting, which
+   lands too close to the body text here; pin a lighter purple so links stay
+   legible against the dark background. */
+
+html[data-bs-theme="dark"] {
+  --bs-link-color: #c4a7f0;
+  --bs-link-color-rgb: 196, 167, 240;
+  --bs-link-hover-color: #d8c6f7;
+  --bs-link-hover-color-rgb: 216, 198, 247;
+}
+
+/* main column ---------------------------------------------------------------- */
+
+#main {
+  margin-left: auto;
+  margin-right: auto;
+  // widen pkgdown's own 50rem cap a little so figures/tables read clearly
+  // wider than the $prose-width text column below
+  max-width: 56rem;
+}
+
+// No more side column: #main always takes the full row width, so it can
+// center itself in the whole page rather than the 75% pkgdown's grid
+// otherwise leaves it.
+.row > #main {
+  width: 100%;
+  flex: 0 0 100%;
+  max-width: 56rem;
+}
+
+// The "on this page" outline is gone everywhere...
+.row > aside {
+  display: none;
+}
+
+// ...except the home page, where the link/license/citation/dev-status
+// content is kept, but as a full-width band below the content instead of a
+// side column, reading like a second, lighter footer.
+.template-home .row > aside {
+  display: block;
+  width: 100%;
+  flex: 0 0 100%;
+  max-width: 56rem;
+  margin: 3rem auto 0;
+  padding-top: 2rem;
+  border-top: 1px solid var(--bs-border-color);
+  font-size: 0.9rem;
+}
+
+.template-home .row > aside .list-unstyled {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 3rem;
+}
+
+.template-home .row > aside h2 {
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+  width: 100%;
+  margin-top: 1.5rem;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+// Prose elements get a narrow, centered measure. Figures, tables, and code
+// are left at the width of #main itself, so they read visibly wider than
+// the text while still stopping well short of the sidebar.
+#main > .page-header,
+#main > p,
+#main > ul,
+#main > ol,
+#main > dl,
+#main > blockquote,
+#main > .abstract,
+#main > h1,
+#main > h2,
+#main > h3,
+#main > h4,
+#main > h5,
+#main > h6,
+#main .section > p,
+#main .section > ul,
+#main .section > ol,
+#main .section > dl,
+#main .section > blockquote,
+#main .section > h1,
+#main .section > h2,
+#main .section > h3,
+#main .section > h4,
+#main .section > h5,
+#main .section > h6 {
+  max-width: $prose-width;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+// A paragraph that's really just a figure (the flowchart in the intro
+// vignette, the README's hex logo) should read as a figure, not as text.
+#main > p:has(> img:only-child),
+#main .section > p:has(> img:only-child) {
+  max-width: none;
+}
+
+/* typography ------------------------------------------------------------- */
+
+body {
+  font-feature-settings: "onum" 1, "kern" 1;
+  line-height: 1.65;
+}
+
+#main p {
+  margin-bottom: 1.25rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-feature-settings: "lnum" 1, "kern" 1;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+#main .page-header {
+  margin-top: 3.5rem;
+  padding-bottom: 2rem;
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.page-header h1 {
+  font-weight: 700;
+  font-size: 2.5rem;
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
+}
+
+.page-header .subtitle,
+.page-header .author,
+.page-header .date {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--bs-secondary-color);
+}
+
+// The vignette/Rd source-file link ("Source: vignettes/foo.Rmd") is
+// implementation detail, not something a reader needs.
+.page-header small.dont-index {
+  display: none;
+}
+
+// The package logo is a landing-page flourish; it crowds the title on every
+// other page.
+.page-header img.logo {
+  display: none;
+}
+
+.template-home .page-header img.logo {
+  display: block;
+  // the centered title reads oddly next to a right-floated logo; center the
+  // logo above it instead
+  float: none;
+  margin: 0 auto 1rem;
+}
+
+code, pre, kbd, samp, .sourceCode {
+  font-feature-settings: normal;
+}
+
+/* figures + tables --------------------------------------------------------- */
+
+// Captioned images come through as either <div class="figure"> or, without
+// pandoc's implicit_figures, <div class="float">. Bootstrap also defines an
+// unrelated `.figure{display:inline-block}` component under the first name,
+// which shrink-wraps the div to the image's natural size and defeats
+// `width: 100%` on the image inside it.
+#main .figure,
+#main div.float {
+  display: block;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+#main .figure img,
+#main div.float img {
+  width: 100%;
+  border: 1px solid var(--bs-border-color);
+}
+
+// Standalone images get the same full-width-of-#main treatment as figures.
+#main > p > img:only-child,
+#main .section > p > img:only-child {
+  width: 100%;
+  display: block;
+}
+
+// No vignette sets an explicit fig.cap; every `p.caption` knitr emits is its
+// generic "plot of chunk <label>" filler, not a real caption.
+#main p.caption {
+  display: none;
+}
+
+#main .figure figcaption,
+#main .figcaption {
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--bs-secondary-color);
+  margin-top: 0.5rem;
+  max-width: $prose-width;
+}
+
+#main table.table {
+  font-size: 0.95rem;
+  border-top: 2px solid var(--bs-body-color);
+  border-bottom: 2px solid var(--bs-body-color);
+}
+
+#main table.table thead th {
+  border-bottom: 1px solid var(--bs-body-color);
+  font-weight: 700;
+  font-style: italic;
+}
+
+#main table.table td,
+#main table.table th {
+  border-color: var(--bs-border-color);
+  padding: 0.5rem 0.75rem;
+}
