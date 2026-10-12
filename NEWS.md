@@ -1,5 +1,9 @@
 # optic (development version)
 
+## Breaking changes
+
+* The `autoeffect` package is renamed to `causalAR`, so `optic_model()` now takes `type = "causalAR"` and `call = "causalAR"`. The old `"autoeffect"` strings are no longer accepted and error out as invalid types. Requires causalAR >= 0.3.0.
+
 # [optic 1.2.8](https://github.com/RANDCorporation/optic/releases/tag/v1.2.8)
 
 ## Improvements
@@ -15,13 +19,13 @@
 
 ## Internal changes
 
-* Updated the autoeffect result extractors (`.extract_results_autoeffect` and `.se_adjust_cluster_autoeffect`) to read the renamed tidymodels-style columns from `autoeffect::cumulative_effects()` (`lag`, `estimate`, `std.error`, `statistic`, `p.value`). Requires autoeffect >= 0.2.11. ([#43](https://github.com/RANDCorporation/optic/pull/43))
+* Updated the causalAR result extractors (`.extract_results_causal_ar` and `.se_adjust_cluster_causal_ar`) to read the renamed tidymodels-style columns from `causalAR::cumulative_effects()` (`lag`, `estimate`, `std.error`, `statistic`, `p.value`). Requires causalAR >= 0.2.11. ([#43](https://github.com/RANDCorporation/optic/pull/43))
 
 # [optic 1.2.6](https://github.com/RANDCorporation/optic/releases/tag/v1.2.6)
 
 ## Bug fixes
 
-* `optic_simulation()` now stops early with an informative message when the input data contains NAs in any required column: `unit_var`, `time_var`, the outcome (formula LHS) of any model, or any covariate (formula RHS minus treatment-construct terms) referenced by any model. Treatment columns are excluded because they are simulated by optic. This replaces a class of cryptic downstream errors (e.g. autoeffect's "spec_strategy out of sync" message) with a single upfront error that names the offending columns. ([#41](https://github.com/RANDCorporation/optic/pull/41))
+* `optic_simulation()` now stops early with an informative message when the input data contains NAs in any required column: `unit_var`, `time_var`, the outcome (formula LHS) of any model, or any covariate (formula RHS minus treatment-construct terms) referenced by any model. Treatment columns are excluded because they are simulated by optic. This replaces a class of cryptic downstream errors (e.g. causalAR's "spec_strategy out of sync" message) with a single upfront error that names the offending columns. ([#41](https://github.com/RANDCorporation/optic/pull/41))
 
 # [optic 1.2.5](https://github.com/RANDCorporation/optic/releases/tag/v1.2.5)
 
@@ -39,13 +43,13 @@
 
 ## Bug fixes
 
-* Autoeffect model p-values now use the t-distribution (via `cumulative_effects()`) instead of manually computing with the normal distribution. This fixes inflated Type I error rates for DAR models. ([#38](https://github.com/RANDCorporation/optic/pull/38))
+* causalAR model p-values now use the t-distribution (via `cumulative_effects()`) instead of manually computing with the normal distribution. This fixes inflated Type I error rates for DAR models. ([#38](https://github.com/RANDCorporation/optic/pull/38))
 
 # [optic 1.2.2](https://github.com/RANDCorporation/optic/releases/tag/v1.2.2)
 
 ## New features
 
-* Clustered standard error support for autoeffect models, delegating to `autoeffect::cumulative_effects(cluster=)`. Unsupported SE adjustments (huber, arellano) now warn and skip. ([#37](https://github.com/RANDCorporation/optic/pull/37))
+* Clustered standard error support for causalAR models, delegating to `causalAR::cumulative_effects(cluster=)`. Unsupported SE adjustments (huber, arellano) now warn and skip. ([#37](https://github.com/RANDCorporation/optic/pull/37))
 
 ## Internal changes
 
@@ -55,7 +59,7 @@
 
 ## Improvements
 
-* Autoeffect models now extract covariates from the formula RHS like reg/autoreg models, eliminating separate `x_formula` or `cov_names` parameters. Deprecation warnings added for the old interface. ([#36](https://github.com/RANDCorporation/optic/pull/36))
+* causalAR models now extract covariates from the formula RHS like reg/autoreg models, eliminating separate `x_formula` or `cov_names` parameters. Deprecation warnings added for the old interface. ([#36](https://github.com/RANDCorporation/optic/pull/36))
 
 ## Internal changes
 
@@ -65,4 +69,4 @@
 
 ## New features
 
-* Added autoeffect model type support for debiased autoregressive treatment effect estimation. New model type `"autoeffect"` integrates with the `autoeffect` package. ([#34](https://github.com/RANDCorporation/optic/pull/34))
+* Added causalAR model type support for debiased autoregressive treatment effect estimation. New model type `"causalAR"` integrates with the `causalAR` package. ([#34](https://github.com/RANDCorporation/optic/pull/34))

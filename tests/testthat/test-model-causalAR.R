@@ -4,40 +4,40 @@
 # See README.md for information on usage and licensing
 #------------------------------------------------------------------------------#
 
-# Test autoeffect (debiased autoregressive) model type
+# Test causalAR (debiased autoregressive) model type
 
 library(dplyr)
-if (requireNamespace("autoeffect", quietly = TRUE)) {
-  library(autoeffect)
+if (requireNamespace("causalAR", quietly = TRUE)) {
+  library(causalAR)
 }
 
 test_data <- optic::overdoses %>%
   filter(!(state %in% c("Nebraska", "Nevada", "Arkansas", "Mississippi", "Oregon", "South Dakota", "North Dakota")))
 
-test_that("optic_model creates valid autoeffect model", {
-  skip_if_not_installed("autoeffect")
+test_that("optic_model creates valid causalAR model", {
+  skip_if_not_installed("causalAR")
 
   model <- optic_model(
-    name = "autoeffect_basic",
-    type = "autoeffect",
-    call = "autoeffect",
+    name = "causalAR_basic",
+    type = "causalAR",
+    call = "causalAR",
     formula = crude.rate ~ treatment_level,
     se_adjust = "none",
     lags = 2
   )
 
   expect_s3_class(model, "optic_model")
-  expect_equal(model$type, "autoeffect")
-  expect_equal(model$model_call, "autoeffect")
+  expect_equal(model$type, "causalAR")
+  expect_equal(model$model_call, "causalAR")
 })
 
-test_that("autoeffect model requires lags parameter", {
-  skip_if_not_installed("autoeffect")
+test_that("causalAR model requires lags parameter", {
+  skip_if_not_installed("causalAR")
 
   model <- optic_model(
-    name = "autoeffect_lags",
-    type = "autoeffect",
-    call = "autoeffect",
+    name = "causalAR_lags",
+    type = "causalAR",
+    call = "causalAR",
     formula = crude.rate ~ treatment_level,
     se_adjust = "none",
     lags = 3
@@ -46,13 +46,13 @@ test_that("autoeffect model requires lags parameter", {
   expect_equal(model$model_args$lags, 3)
 })
 
-test_that("autoeffect model stores trt_name parameter", {
-  skip_if_not_installed("autoeffect")
+test_that("causalAR model stores trt_name parameter", {
+  skip_if_not_installed("causalAR")
 
   model <- optic_model(
-    name = "autoeffect_trt",
-    type = "autoeffect",
-    call = "autoeffect",
+    name = "causalAR_trt",
+    type = "causalAR",
+    call = "causalAR",
     formula = crude.rate ~ treatment_level,
     se_adjust = "none",
     lags = 2,
@@ -63,12 +63,12 @@ test_that("autoeffect model stores trt_name parameter", {
 })
 
 test_that("effect_lag is deprecated and warns when different from lags", {
-  skip_if_not_installed("autoeffect")
+  skip_if_not_installed("causalAR")
 
   model <- optic_model(
-    name = "autoeffect_effect_lag",
-    type = "autoeffect",
-    call = "autoeffect",
+    name = "causalAR_effect_lag",
+    type = "causalAR",
+    call = "causalAR",
     formula = crude.rate ~ treatment_level,
     se_adjust = "none",
     lags = 3,
@@ -76,42 +76,42 @@ test_that("effect_lag is deprecated and warns when different from lags", {
   )
 
   expect_warning(
-    args <- resolve_autoeffect_args(model, "state", "year"),
+    args <- resolve_causal_ar_args(model, "state", "year"),
     "effect_lag.*deprecated"
   )
   expect_equal(args$effect_lag, 3)  # uses lags, not effect_lag
 })
 
 test_that("covariates extracted from formula RHS", {
-  skip_if_not_installed("autoeffect")
+  skip_if_not_installed("causalAR")
 
   model <- optic_model(
-    name = "autoeffect_formula_cov",
-    type = "autoeffect",
-    call = "autoeffect",
+    name = "causalAR_formula_cov",
+    type = "causalAR",
+    call = "causalAR",
     formula = crude.rate ~ treatment_level + unemploymentrate,
     se_adjust = "none",
     lags = 2
   )
 
-  args <- resolve_autoeffect_args(model, "state", "year")
+  args <- resolve_causal_ar_args(model, "state", "year")
   expect_true(inherits(args$x_formula, "formula"))
   expect_equal(all.vars(args$x_formula), "unemploymentrate")
 })
 
 test_that("factor covariates preserved in extracted x_formula", {
-  skip_if_not_installed("autoeffect")
+  skip_if_not_installed("causalAR")
 
   model <- optic_model(
-    name = "autoeffect_factor_cov",
-    type = "autoeffect",
-    call = "autoeffect",
+    name = "causalAR_factor_cov",
+    type = "causalAR",
+    call = "causalAR",
     formula = crude.rate ~ treatment_level + unemploymentrate + as.factor(year),
     se_adjust = "none",
     lags = 2
   )
 
-  args <- resolve_autoeffect_args(model, "state", "year")
+  args <- resolve_causal_ar_args(model, "state", "year")
   expect_true(inherits(args$x_formula, "formula"))
   formula_str <- deparse(args$x_formula)
   expect_true(grepl("unemploymentrate", formula_str))
@@ -119,28 +119,28 @@ test_that("factor covariates preserved in extracted x_formula", {
 })
 
 test_that("no covariates when formula has only treatment variable", {
-  skip_if_not_installed("autoeffect")
+  skip_if_not_installed("causalAR")
 
   model <- optic_model(
-    name = "autoeffect_no_cov",
-    type = "autoeffect",
-    call = "autoeffect",
+    name = "causalAR_no_cov",
+    type = "causalAR",
+    call = "causalAR",
     formula = crude.rate ~ treatment_level,
     se_adjust = "none",
     lags = 2
   )
 
-  args <- resolve_autoeffect_args(model, "state", "year")
+  args <- resolve_causal_ar_args(model, "state", "year")
   expect_null(args$x_formula)
 })
 
 test_that("deprecated cov_names triggers warning and converts to x_formula", {
-  skip_if_not_installed("autoeffect")
+  skip_if_not_installed("causalAR")
 
   model <- optic_model(
-    name = "autoeffect_deprecated_cov",
-    type = "autoeffect",
-    call = "autoeffect",
+    name = "causalAR_deprecated_cov",
+    type = "causalAR",
+    call = "causalAR",
     formula = crude.rate ~ treatment_level,
     se_adjust = "none",
     lags = 2,
@@ -148,7 +148,7 @@ test_that("deprecated cov_names triggers warning and converts to x_formula", {
   )
 
   expect_warning(
-    args <- resolve_autoeffect_args(model, "state", "year"),
+    args <- resolve_causal_ar_args(model, "state", "year"),
     "cov_names.*deprecated"
   )
   expect_true(inherits(args$x_formula, "formula"))
@@ -156,12 +156,12 @@ test_that("deprecated cov_names triggers warning and converts to x_formula", {
 })
 
 test_that("deprecated x_formula in ... triggers warning", {
-  skip_if_not_installed("autoeffect")
+  skip_if_not_installed("causalAR")
 
   model <- optic_model(
-    name = "autoeffect_deprecated_xfml",
-    type = "autoeffect",
-    call = "autoeffect",
+    name = "causalAR_deprecated_xfml",
+    type = "causalAR",
+    call = "causalAR",
     formula = crude.rate ~ treatment_level,
     se_adjust = "none",
     lags = 2,
@@ -169,19 +169,19 @@ test_that("deprecated x_formula in ... triggers warning", {
   )
 
   expect_warning(
-    args <- resolve_autoeffect_args(model, "state", "year"),
+    args <- resolve_causal_ar_args(model, "state", "year"),
     "x_formula.*deprecated"
   )
   expect_true(inherits(args$x_formula, "formula"))
 })
 
-test_that("autoeffect only works with autoeffect call", {
-  skip_if_not_installed("autoeffect")
+test_that("causalAR only works with causalAR call", {
+  skip_if_not_installed("causalAR")
 
   expect_error(
     optic_model(
-      name = "autoeffect_invalid",
-      type = "autoeffect",
+      name = "causalAR_invalid",
+      type = "causalAR",
       call = "lm",
       formula = crude.rate ~ treatment_level,
       se_adjust = "none"
@@ -189,13 +189,13 @@ test_that("autoeffect only works with autoeffect call", {
   )
 })
 
-test_that("end-to-end: autoeffect model runs through dispatch_simulations", {
-  skip_if_not_installed("autoeffect")
+test_that("end-to-end: causalAR model runs through dispatch_simulations", {
+  skip_if_not_installed("causalAR")
 
   model <- optic_model(
-    name = "autoeffect_e2e",
-    type = "autoeffect",
-    call = "autoeffect",
+    name = "causalAR_e2e",
+    type = "causalAR",
+    call = "causalAR",
     formula = crude.rate ~ treatment_level,
     se_adjust = "none",
     lags = 2
@@ -222,17 +222,17 @@ test_that("end-to-end: autoeffect model runs through dispatch_simulations", {
   )
 
   expect_true(is.data.frame(results))
-  expect_true("autoeffect_e2e" %in% results$model_name)
+  expect_true("causalAR_e2e" %in% results$model_name)
   expect_true(all(c("estimate", "se") %in% colnames(results)))
 })
 
-test_that("end-to-end: autoeffect model with covariates in formula", {
-  skip_if_not_installed("autoeffect")
+test_that("end-to-end: causalAR model with covariates in formula", {
+  skip_if_not_installed("causalAR")
 
   model <- optic_model(
-    name = "autoeffect_cov_e2e",
-    type = "autoeffect",
-    call = "autoeffect",
+    name = "causalAR_cov_e2e",
+    type = "causalAR",
+    call = "causalAR",
     formula = crude.rate ~ treatment_level + unemploymentrate,
     se_adjust = "none",
     lags = 2
@@ -262,13 +262,13 @@ test_that("end-to-end: autoeffect model with covariates in formula", {
   expect_equal(nrow(results), 1)
 })
 
-test_that("end-to-end: autoeffect with cluster-unit SE produces two result rows", {
-  skip_if_not_installed("autoeffect")
+test_that("end-to-end: causalAR with cluster-unit SE produces two result rows", {
+  skip_if_not_installed("causalAR")
 
   model <- optic_model(
-    name = "autoeffect_cluster_e2e",
-    type = "autoeffect",
-    call = "autoeffect",
+    name = "causalAR_cluster_e2e",
+    type = "causalAR",
+    call = "causalAR",
     formula = crude.rate ~ treatment_level,
     se_adjust = c("none", "cluster-unit"),
     lags = 2
@@ -303,13 +303,13 @@ test_that("end-to-end: autoeffect with cluster-unit SE produces two result rows"
   expect_true(all(!is.na(results$se)))
 })
 
-test_that("autoeffect with unsupported huber SE warns and skips", {
-  skip_if_not_installed("autoeffect")
+test_that("causalAR with unsupported huber SE warns and skips", {
+  skip_if_not_installed("causalAR")
 
   model <- optic_model(
-    name = "autoeffect_huber_warn",
-    type = "autoeffect",
-    call = "autoeffect",
+    name = "causalAR_huber_warn",
+    type = "causalAR",
+    call = "causalAR",
     formula = crude.rate ~ treatment_level,
     se_adjust = c("none", "huber"),
     lags = 2
@@ -333,7 +333,7 @@ test_that("autoeffect with unsupported huber SE warns and skips", {
 
   expect_warning(
     results <- dispatch_simulations(sim, use_future = FALSE, seed = 444, verbose = 0),
-    "not supported for autoeffect"
+    "not supported for causalAR"
   )
 
   # Only "none" row should be present (huber skipped)
@@ -341,14 +341,14 @@ test_that("autoeffect with unsupported huber SE warns and skips", {
   expect_equal(results$se_adjustment, "none")
 })
 
-test_that("end-to-end: autoeffect model with confounding method", {
-  skip("Confounding method needs fix: selbias code tries to access $coefficients on autoeffect models")
-  skip_if_not_installed("autoeffect")
+test_that("end-to-end: causalAR model with confounding method", {
+  skip("Confounding method needs fix: selbias code tries to access $coefficients on causalAR models")
+  skip_if_not_installed("causalAR")
 
   model <- optic_model(
-    name = "autoeffect_confounding_e2e",
-    type = "autoeffect",
-    call = "autoeffect",
+    name = "causalAR_confounding_e2e",
+    type = "causalAR",
+    call = "causalAR",
     formula = crude.rate ~ treatment_level,
     se_adjust = "none",
     lags = 2
@@ -388,5 +388,5 @@ test_that("end-to-end: autoeffect model with confounding method", {
   )
 
   expect_true(is.data.frame(results))
-  expect_true("autoeffect_confounding_e2e" %in% results$model_name)
+  expect_true("causalAR_confounding_e2e" %in% results$model_name)
 })

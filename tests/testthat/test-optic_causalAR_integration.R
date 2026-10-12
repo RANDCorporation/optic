@@ -1,18 +1,18 @@
-# Test: autoeffect integration within OPTIC vs. TWFE baseline
+# Test: causalAR integration within OPTIC vs. TWFE baseline
 # ------------------------------------------------------------------
 # This script builds a synthetic panel with a known average treatment
 # effect, runs an optic simulation that includes both a TWFE model
-# (feols) and the autoeffect debiased AR model, and compares estimated
+# (feols) and the causalAR debiased AR model, and compares estimated
 # effects against the ground truth.
 
-test_that("autoeffect integration runs alongside TWFE model", {
-  skip_if_not_installed("autoeffect")
+test_that("causalAR integration runs alongside TWFE model", {
+  skip_if_not_installed("causalAR")
 
   suppressPackageStartupMessages({
     library(dplyr)
     library(fixest)
     library(optic)
-    library(autoeffect)
+    library(causalAR)
   })
 
   set.seed(1234)
@@ -51,10 +51,10 @@ test_that("autoeffect integration runs alongside TWFE model", {
     se_adjust = "none"
   )
 
-  autoeffect_model <- optic_model(
-    name = "autoeffect_debiased",
-    type = "autoeffect",
-    call = "autoeffect",
+  causalAR_model <- optic_model(
+    name = "causalAR_debiased",
+    type = "causalAR",
+    call = "causalAR",
     formula = outcome ~ treatment_level,
     se_adjust = "none",
     lags = 2
@@ -62,7 +62,7 @@ test_that("autoeffect integration runs alongside TWFE model", {
 
   sim <- optic_simulation(
     x = synthetic_data,
-    models = list(twfe_model, autoeffect_model),
+    models = list(twfe_model, causalAR_model),
     iters = 1,
     method = "no_confounding",
     unit_var = "unit",
@@ -89,5 +89,5 @@ test_that("autoeffect integration runs alongside TWFE model", {
 
   expect_true(nrow(comparison) > 0)
   expect_true("twfe" %in% comparison$model_name)
-  expect_true("autoeffect_debiased" %in% comparison$model_name)
+  expect_true("causalAR_debiased" %in% comparison$model_name)
 })

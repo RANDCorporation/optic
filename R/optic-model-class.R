@@ -11,7 +11,7 @@
 #' @description Generates model object to apply to each simulated dataset
 #'
 #' @param name Name of the model object, used to identify the model when reviewing simulation results
-#' @param type Estimator used to identify the treatment effect using simulated data. Specified as a string, which can either be 'reg' (regression), 'autoreg' (autoregression, which adds a lag for the outcome variable to a regression model), 'autoeffect' (debiased autoregressive model implemented via the autoeffect package), 'drdid' (doubly-robust difference-in-difference estimator), or 'multisynth' (augmented synthetic control)
+#' @param type Estimator used to identify the treatment effect using simulated data. Specified as a string, which can either be 'reg' (regression), 'autoreg' (autoregression, which adds a lag for the outcome variable to a regression model), 'causalAR' (debiased autoregressive model implemented via the causalAR package), 'drdid' (doubly-robust difference-in-difference estimator), or 'multisynth' (augmented synthetic control)
 #' @param call String which specifies the R function to call for applying the estimator. Package currently supports  either 'lm' (linear model), 'feols' (fixed-effect OLS), 'multisynth' (pooled synthetic controls), or 'glm.nb' (negative-binomial generalized nearlized linear model)
 #' @param formula Model specification, using R formula formatting. Must include a variable labeled 'treatment' for the 'nonconf' & 'selbias' simulation method or variables labeled 'treatment1' & 'treatment2' for the simulation method 'concurrent'
 #' @param se_adjust Adjustments applied to standard errors following model estimation. Specified as a string, OPTIC currently support 'none' for no adjustment or 'cluster' for clustered standard errors. Clustered standard errors will use the 'unit_var' specified in optic_simulation for determining unit used for clustering standard errors.
@@ -67,8 +67,8 @@ optic_model <- function(name, type,call, formula, se_adjust, ...) {
 # Constructor:
 new_optic_model <- function(
                   name,
-                  type= c("reg", "autoreg", "autoeffect", "multisynth", "did"),
-                  call= c("lm", "feols", "multisynth", "glm.nb", "autoeffect", "att_gt"),
+                  type= c("reg", "autoreg", "causalAR", "multisynth", "did"),
+                  call= c("lm", "feols", "multisynth", "glm.nb", "causalAR", "att_gt"),
                   formula,
                   args=list(weights=as.name('population')),
                   se_adjust=c("none", "cluster"),
@@ -120,8 +120,8 @@ validate_optic_model <- function(x) {
   }
   
   # Validate type and call compatibility
-  valid_types <- c("reg", "autoreg", "autoeffect", "multisynth", "did")
-  valid_calls <- c("lm", "feols", "multisynth", "glm.nb", "autoeffect", "att_gt")
+  valid_types <- c("reg", "autoreg", "causalAR", "multisynth", "did")
+  valid_calls <- c("lm", "feols", "multisynth", "glm.nb", "causalAR", "att_gt")
   
   if (!x$type %in% valid_types) {
     stop("Model type '", x$type, "' not supported. Must be one of: ", paste(valid_types, collapse = ", "))
@@ -145,7 +145,7 @@ validate_type_call_compatibility <- function(type, call) {
   compatible_combinations <- list(
     "reg" = c("lm", "feols", "glm.nb"),
     "autoreg" = c("lm", "feols", "glm.nb"),
-    "autoeffect" = c("autoeffect"),
+    "causalAR" = c("causalAR"),
     "multisynth" = c("multisynth"),
     "did" = c("att_gt")
   )
@@ -185,7 +185,7 @@ validate_optic_model_init <- function(model, data, params) {
   switch(model$type,
     "reg" = validate_reg_init(model, data, params),
     "autoreg" = validate_autoreg_init(model, data, params),
-    "autoeffect" = validate_autoeffect_init(model, data, params),
+    "causalAR" = validate_causal_ar_init(model, data, params),
     "multisynth" = validate_multisynth_init(model, data, params),
     "did" = validate_did_init(model, data, params),
     stop("Unknown model type: ", model$type)
@@ -197,7 +197,7 @@ validate_optic_model_init <- function(model, data, params) {
     "feols" = validate_feols_init(model, data, params),
     "multisynth" = validate_multisynth_call_init(model, data, params),
     "glm.nb" = validate_glm_nb_init(model, data, params),
-    "autoeffect" = validate_autoeffect_call_init(model, data, params),
+    "causalAR" = validate_causal_ar_call_init(model, data, params),
     "att_gt" = validate_att_gt_init(model, data, params),
     stop("Unknown model call: ", model$model_call)
   )
@@ -220,7 +220,7 @@ validate_optic_model_pre_call <- function(model, args) {
   switch(model$type,
     "reg" = validate_reg_pre_call(model, args),
     "autoreg" = validate_autoreg_pre_call(model, args),
-    "autoeffect" = validate_autoeffect_pre_call(model, args),
+    "causalAR" = validate_causal_ar_pre_call(model, args),
     "multisynth" = validate_multisynth_pre_call(model, args),
     "did" = validate_did_pre_call(model, args),
     stop("Unknown model type: ", model$type)
@@ -232,7 +232,7 @@ validate_optic_model_pre_call <- function(model, args) {
     "feols" = validate_feols_pre_call(model, args),
     "multisynth" = validate_multisynth_call_pre_call(model, args),
     "glm.nb" = validate_glm_nb_pre_call(model, args),
-    "autoeffect" = validate_autoeffect_call_pre_call(model, args),
+    "causalAR" = validate_causal_ar_call_pre_call(model, args),
     "att_gt" = validate_att_gt_pre_call(model, args),
     stop("Unknown model call: ", model$model_call)
   )
@@ -386,10 +386,10 @@ validate_att_gt_init <- function(model, data, params) {
 }
 
 #' @noRd
-validate_autoeffect_call_init <- function(model, data, params) {
-  # Validation for autoeffect call - delegates to type-specific validation
-  # since autoeffect type only works with autoeffect call
-  validate_autoeffect_init(model, data, params)
+validate_causal_ar_call_init <- function(model, data, params) {
+  # Validation for causalAR call - delegates to type-specific validation
+  # since causalAR type only works with causalAR call
+  validate_causal_ar_init(model, data, params)
 }
 
 # =============================================================================
@@ -417,43 +417,43 @@ validate_autoreg_pre_call <- function(model, args) {
   validate_reg_pre_call(model, args)
 }
 
-validate_autoeffect_init <- function(model, data, params) {
-  args <- resolve_autoeffect_args(model, params$unit_var, params$time_var)
+validate_causal_ar_init <- function(model, data, params) {
+  args <- resolve_causal_ar_args(model, params$unit_var, params$time_var)
   
   if (!is.numeric(args$lags) || length(args$lags) != 1 || args$lags < 2) {
-    stop("autoeffect models require a numeric 'lags' argument greater than or equal to 2")
+    stop("causalAR models require a numeric 'lags' argument greater than or equal to 2")
   }
   
   if (is.null(args$outcome_name) || !args$outcome_name %in% names(data)) {
-    stop("Outcome '", args$outcome_name, "' not found in data for autoeffect model")
+    stop("Outcome '", args$outcome_name, "' not found in data for causalAR model")
   }
   
   if (is.null(args$unit_name) || !args$unit_name %in% names(data)) {
-    stop("Unit variable '", args$unit_name, "' not found in data for autoeffect model")
+    stop("Unit variable '", args$unit_name, "' not found in data for causalAR model")
   }
   
   if (is.null(args$date_name) || !args$date_name %in% names(data)) {
-    stop("Time variable '", args$date_name, "' not found in data for autoeffect model")
+    stop("Time variable '", args$date_name, "' not found in data for causalAR model")
   }
   
   if (is.null(args$trt_name) || length(args$trt_name) != 1) {
-    stop("autoeffect models require a treatment indicator specified via 'trt_name'")
+    stop("causalAR models require a treatment indicator specified via 'trt_name'")
   }
   
   if (!is.null(args$x_formula)) {
     cov_vars <- all.vars(args$x_formula)
     missing_covs <- setdiff(cov_vars, names(data))
     if (length(missing_covs) > 0) {
-      stop("Covariates missing for autoeffect model: ", paste(missing_covs, collapse = ", "))
+      stop("Covariates missing for causalAR model: ", paste(missing_covs, collapse = ", "))
     }
   }
 }
 
-validate_autoeffect_pre_call <- function(model, args) {
+validate_causal_ar_pre_call <- function(model, args) {
   required <- c("data", "lags", "outcome_name", "unit_name", "date_name", "trt_name")
   missing_args <- setdiff(required, names(args))
   if (length(missing_args) > 0) {
-    stop("Missing arguments for autoeffect model: ", paste(missing_args, collapse = ", "))
+    stop("Missing arguments for causalAR model: ", paste(missing_args, collapse = ", "))
   }
 
   data <- args$data
@@ -463,23 +463,23 @@ validate_autoeffect_pre_call <- function(model, args) {
   trt_name <- args$trt_name
 
   if (!all(c(outcome, unit_name, date_name, trt_name) %in% names(data))) {
-    stop("Autoeffect model data is missing required columns (outcome, unit, time, or treatment indicator)")
+    stop("causalAR model data is missing required columns (outcome, unit, time, or treatment indicator)")
   }
 
   trt_vals <- data[[trt_name]]
   if (!is.numeric(trt_vals) || any(!trt_vals %in% c(0, 1, NA))) {
-    stop("Autoeffect treatment indicator '", trt_name, "' must be binary (0/1)")
+    stop("causalAR treatment indicator '", trt_name, "' must be binary (0/1)")
   }
 
   if (!is.numeric(args$lags) || length(args$lags) != 1 || args$lags < 2) {
-    stop("Autoeffect models require 'lags' >= 2")
+    stop("causalAR models require 'lags' >= 2")
   }
 
   if (!is.null(args$x_formula)) {
     cov_vars <- all.vars(args$x_formula)
     missing_covs <- setdiff(cov_vars, names(data))
     if (length(missing_covs) > 0) {
-      stop("Autoeffect model covariates missing from data: ", paste(missing_covs, collapse = ", "))
+      stop("causalAR model covariates missing from data: ", paste(missing_covs, collapse = ", "))
     }
   }
 }
@@ -576,18 +576,18 @@ validate_att_gt_pre_call <- function(model, args) {
 }
 
 #' @noRd
-validate_autoeffect_call_pre_call <- function(model, args) {
-  # Validation for autoeffect call - delegates to type-specific validation
-  validate_autoeffect_pre_call(model, args)
+validate_causal_ar_call_pre_call <- function(model, args) {
+  # Validation for causalAR call - delegates to type-specific validation
+  validate_causal_ar_pre_call(model, args)
 }
 
-resolve_autoeffect_args <- function(model, unit_var, time_var) {
+resolve_causal_ar_args <- function(model, unit_var, time_var) {
   args <- model$model_args
   args$outcome_name <- args$outcome_name %||% model_terms(model$model_formula)[["lhs"]]
   args$unit_name <- args$unit_name %||% unit_var
   args$date_name <- args$date_name %||% time_var
   args$trt_name <- args$trt_name %||% "trt_ind"
-  args$lags <- args$lags %||% stop("autoeffect models require a 'lags' argument")
+  args$lags <- args$lags %||% stop("causalAR models require a 'lags' argument")
   if (!is.null(args$effect_lag) && args$effect_lag != args$lags) {
     warning("'effect_lag' is deprecated and will be ignored. Using 'lags' = ",
             args$lags, " for cumulative effect extraction.", call. = FALSE)
@@ -597,11 +597,11 @@ resolve_autoeffect_args <- function(model, unit_var, time_var) {
   # Covariate resolution: formula RHS is the canonical source.
   # Direct x_formula / cov_names in ... are deprecated.
   if (!is.null(args$x_formula)) {
-    warning("Passing 'x_formula' directly is deprecated for autoeffect models. ",
+    warning("Passing 'x_formula' directly is deprecated for causalAR models. ",
             "Specify covariates in the formula instead (e.g., outcome ~ treatment_level + x1 + x2).",
             call. = FALSE)
   } else if (!is.null(args$cov_names)) {
-    warning("Passing 'cov_names' directly is deprecated for autoeffect models. ",
+    warning("Passing 'cov_names' directly is deprecated for causalAR models. ",
             "Specify covariates in the formula instead (e.g., outcome ~ treatment_level + x1 + x2).",
             call. = FALSE)
     args$x_formula <- stats::as.formula(paste("~", paste(args$cov_names, collapse = " + ")))

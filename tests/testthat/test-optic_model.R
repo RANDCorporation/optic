@@ -171,7 +171,7 @@ test_that("optic_model fails with incompatible type and call combinations", {
   expect_error(
     optic_model(
       name = "test",
-      type = "autoeffect",
+      type = "causalAR",
       call = "lm",
       formula = outcome ~ treatment,
       se_adjust = "none"
