@@ -8,7 +8,7 @@ library(optic)
 library(dplyr)
 library(augsynth)
 library(did)
-library(autoeffect)
+library(causalAR)
 library(future)
 
 data(overdoses)
@@ -43,7 +43,7 @@ ascm <- optic_model(
 )
 
 debar <- optic_model(
-  name = "Debiased AR", type = "autoeffect", call = "autoeffect",
+  name = "Debiased AR", type = "causalAR", call = "causalAR",
   formula = crude.rate ~ treatment_level + unemploymentrate,
   se_adjust = "cluster-unit", lags = 2
 )
@@ -72,7 +72,7 @@ plan(multisession, workers = 15)
 results <- suppressWarnings(
   dispatch_simulations(
     sim, use_future = TRUE, seed = 47201, verbose = 1, graceful = TRUE,
-    future.packages = c("optic", "autoeffect", "augsynth", "did", "dplyr")
+    future.packages = c("optic", "causalAR", "augsynth", "did", "dplyr")
   )
 )
 plan(sequential)

@@ -43,7 +43,7 @@ Although the exact syntax varies by model, power analysis in `optic` follows the
     - Two-way fixed effects (TWFE) regression via `lm` or `feols`
     - Augmented synthetic control (ASCM) via the `augsynth` package
     - Callaway and Sant'Anna (CSA) group-time ATT via the `did` package
-    - Debiased autoregressive models via the `autoeffect` package
+    - Debiased autoregressive models via the `causalAR` package
 
 4. **Simulate repeated datasets.** For each combination of design parameters (number of treated units, effect size, model), optic generates many synthetic datasets by randomly assigning treatment and adding the policy effect specified by the user. `optic` then uses each user-specified model to estimate policy effects, and returns simulation results including point estimates, standard errors, and p-values.
 
@@ -85,14 +85,14 @@ cat("Years:", paste(range(sim_data$year), collapse = "-"), "\n")
 We specify four models that represent distinct analytic traditions in policy evaluation using the `optic_model` function. Here we study four models:
 
 - **TWFE**: Two-way fixed effects regression with unit and time fixed effects, cluster-robust standard errors at the state level.
-- **Debiased AR**: Debiased autoregressive model via the `autoeffect` package, which removes the bias inherent in standard autoregressive panel models by using Nickell-bias-corrected estimates. We include an unemployment rate covariate and use 2 lags for cumulative effect estimation, with cluster-robust standard errors.
+- **Debiased AR**: Debiased autoregressive model via the `causalAR` package, which removes the bias inherent in standard autoregressive panel models by using Nickell-bias-corrected estimates. We include an unemployment rate covariate and use 2 lags for cumulative effect estimation, with cluster-robust standard errors.
 - **ASCM**: Augmented synthetic control, which reweights untreated units to match pre-treatment trends.
 - **CSA**: Callaway and Sant'Anna's group-time ATT estimator, designed for staggered adoption settings.
 
 ```{r define-models, eval = FALSE}
 library(augsynth)
 library(did)
-library(autoeffect)
+library(causalAR)
 
 twfe <- optic_model(
   name = "TWFE",
@@ -128,8 +128,8 @@ ascm <- optic_model(
 
 debar <- optic_model(
   name = "Debiased AR",
-  type = "autoeffect",
-  call = "autoeffect",
+  type = "causalAR",
+  call = "causalAR",
   formula = crude.rate ~ treatment_level + unemploymentrate,
   se_adjust = "cluster-unit",
   lags = 2
@@ -172,7 +172,7 @@ plan(multisession, workers = 6)
 
 results <- dispatch_simulations(
   sim, use_future = TRUE, seed = 47201, verbose = 0,
-  future.packages = c("optic", "autoeffect", "augsynth", "did", "dplyr")
+  future.packages = c("optic", "causalAR", "augsynth", "did", "dplyr")
 )
 
 plan(sequential)

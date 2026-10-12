@@ -81,11 +81,11 @@ get_behavior <- function(model_type) {
   list(x = x, models = model)
 }
 
-# Autoeffect: create binary treatment indicator
-.prepare_premodel_autoeffect <- function(x, model_simulation) {
+# causalAR: create binary treatment indicator
+.prepare_premodel_causal_ar <- function(x, model_simulation) {
   model <- model_simulation$models
-  ae_args <- resolve_autoeffect_args(model, model_simulation$unit_var, model_simulation$time_var)
-  trt_col <- ae_args$trt_name
+  car_args <- resolve_causal_ar_args(model, model_simulation$unit_var, model_simulation$time_var)
+  trt_col <- car_args$trt_name
   if (!trt_col %in% names(x)) {
     x[[trt_col]] <- as.numeric(x$treatment > 0)
   } else {
@@ -146,8 +146,8 @@ get_behavior <- function(model_type) {
   x
 }
 
-# autoeffect: no-op
-.recode_trt_date_autoeffect <- function(x, unit_sym) {
+# causalAR: no-op
+.recode_trt_date_causal_ar <- function(x, unit_sym) {
   x
 }
 
@@ -170,10 +170,10 @@ get_behavior <- function(model_type) {
   args
 }
 
-# autoeffect: resolve ae_args and map params
-.prepare_model_args_autoeffect <- function(args, model, model_simulation) {
-  ae_args <- resolve_autoeffect_args(model, model_simulation$unit_var, model_simulation$time_var)
-  # Remove optic-specific args that autoeffect() doesn't accept
+# causalAR: resolve car_args and map params
+.prepare_model_args_causal_ar <- function(args, model, model_simulation) {
+  car_args <- resolve_causal_ar_args(model, model_simulation$unit_var, model_simulation$time_var)
+  # Remove optic-specific args that causalAR() doesn't accept
   args[["effect_lag"]] <- NULL
   args[["formula"]] <- NULL
   args[["outcome_name"]] <- NULL
@@ -182,14 +182,14 @@ get_behavior <- function(model_type) {
   args[["trt_name"]] <- NULL
   args[["cov_names"]] <- NULL
   args[["x_formula"]] <- NULL
-  # Map resolved autoeffect-specific args
-  args[["lags"]] <- ae_args$lags
-  args[["outcome_name"]] <- ae_args$outcome_name
-  args[["unit_name"]] <- ae_args$unit_name
-  args[["date_name"]] <- ae_args$date_name
-  args[["trt_name"]] <- ae_args$trt_name
-  if (!is.null(ae_args$x_formula)) {
-    args[["x_formula"]] <- ae_args$x_formula
+  # Map resolved causalAR-specific args
+  args[["lags"]] <- car_args$lags
+  args[["outcome_name"]] <- car_args$outcome_name
+  args[["unit_name"]] <- car_args$unit_name
+  args[["date_name"]] <- car_args$date_name
+  args[["trt_name"]] <- car_args$trt_name
+  if (!is.null(car_args$x_formula)) {
+    args[["x_formula"]] <- car_args$x_formula
   }
   args
 }
@@ -290,11 +290,11 @@ get_behavior <- function(model_type) {
   )
 }
 
-# autoeffect: cumulative_effects at effect_lag
-.extract_results_autoeffect <- function(m, model, model_simulation) {
+# causalAR: cumulative_effects at effect_lag
+.extract_results_causal_ar <- function(m, model, model_simulation) {
   outcome <- get_behavior(model$type)$get_outcome(model)
-  ae_args <- resolve_autoeffect_args(model, model_simulation$unit_var, model_simulation$time_var)
-  effect_lag <- ae_args$effect_lag
+  car_args <- resolve_causal_ar_args(model, model_simulation$unit_var, model_simulation$time_var)
+  effect_lag <- car_args$effect_lag
   cum_effects <- m$cumulative_effects
 
   if (!isTRUE(m$convergence) || is.null(cum_effects)) {
@@ -519,24 +519,24 @@ get_behavior <- function(model_type) {
   )
 }
 
-#' Cluster-adjusted standard errors for autoeffect (NLS) models
+#' Cluster-adjusted standard errors for causalAR (NLS) models
 #'
-#' Delegates entirely to autoeffect::cumulative_effects(cluster=).
-#' @param ae_object Fitted autoeffect object
+#' Delegates entirely to causalAR::cumulative_effects(cluster=).
+#' @param car_object Fitted causalAR object
 #' @param model optic_model object
 #' @param model_simulation Simulation configuration list
 #' @param cluster_var_name Character: column name to cluster on
 #' @param label Character: label for se_adjustment column
 #' @return One-row data.frame with SE adjustment results
 #' @noRd
-.se_adjust_cluster_autoeffect <- function(ae_object, model, model_simulation,
+.se_adjust_cluster_causal_ar <- function(car_object, model, model_simulation,
                                            cluster_var_name, label) {
-  ae_args <- resolve_autoeffect_args(model, model_simulation$unit_var,
+  car_args <- resolve_causal_ar_args(model, model_simulation$unit_var,
                                       model_simulation$time_var)
-  effect_lag <- ae_args$effect_lag
+  effect_lag <- car_args$effect_lag
 
-  cum_effects_fn <- utils::getFromNamespace("cumulative_effects", "autoeffect")
-  cum_effects <- cum_effects_fn(ae_object, cluster = cluster_var_name)
+  cum_effects_fn <- utils::getFromNamespace("cumulative_effects", "causalAR")
+  cum_effects <- cum_effects_fn(car_object, cluster = cluster_var_name)
 
   if (is.null(cum_effects) || !effect_lag %in% cum_effects$lag) {
     estimate <- NA_real_; se <- NA_real_
@@ -548,8 +548,8 @@ get_behavior <- function(model_type) {
   }
 
   variance <- se^2
-  mse <- if (!is.null(ae_object$model)) {
-    mean(stats::residuals(ae_object$model)^2, na.rm = TRUE)
+  mse <- if (!is.null(car_object$model)) {
+    mean(stats::residuals(car_object$model)^2, na.rm = TRUE)
   } else {
     NA_real_
   }
@@ -691,8 +691,8 @@ apply_se_adjustments_feols <- function(results, model, model_simulation) {
 # BEHAVIOR 6: apply_se_adjustments
 # =============================================================================
 
-# Autoeffect: delegates to autoeffect::cumulative_effects(cluster=)
-.apply_se_adjustments_autoeffect <- function(results, m, model, model_simulation) {
+# causalAR: delegates to causalAR::cumulative_effects(cluster=)
+.apply_se_adjustments_causal_ar <- function(results, m, model, model_simulation) {
   se_adjusts <- model[["se_adjust"]]
 
   cluster_types <- c("cluster-unit", "cluster-treat", "cluster")
@@ -704,7 +704,7 @@ apply_se_adjustments_feols <- function(results, model, model_simulation) {
 
   for (adj_type in cluster_types) {
     if (adj_type %in% se_adjusts) {
-      adj <- .se_adjust_cluster_autoeffect(m, model, model_simulation,
+      adj <- .se_adjust_cluster_causal_ar(m, model, model_simulation,
                                             cluster_vars[[adj_type]], adj_type)
       adj <- .match_se_columns(adj, results)
       results <- rbind(results, adj)
@@ -715,7 +715,7 @@ apply_se_adjustments_feols <- function(results, model, model_simulation) {
   unsupported <- intersect(se_adjusts, c("huber", "arellano"))
   if (length(unsupported) > 0) {
     warning("SE adjustments [", paste(unsupported, collapse = ", "),
-            "] are not supported for autoeffect (nls) models and will be skipped.",
+            "] are not supported for causalAR (nls) models and will be skipped.",
             call. = FALSE)
   }
   results
@@ -762,13 +762,13 @@ apply_se_adjustments_feols <- function(results, model, model_simulation) {
     extract_results       = .extract_results_reg,
     apply_se_adjustments  = .apply_se_adjustments_reg
   ),
-  autoeffect = list(
+  causalAR = list(
     get_outcome           = .get_outcome_formula,
-    prepare_premodel      = .prepare_premodel_autoeffect,
-    recode_treatment_date = .recode_trt_date_autoeffect,
-    prepare_model_args    = .prepare_model_args_autoeffect,
-    extract_results       = .extract_results_autoeffect,
-    apply_se_adjustments  = .apply_se_adjustments_autoeffect
+    prepare_premodel      = .prepare_premodel_causal_ar,
+    recode_treatment_date = .recode_trt_date_causal_ar,
+    prepare_model_args    = .prepare_model_args_causal_ar,
+    extract_results       = .extract_results_causal_ar,
+    apply_se_adjustments  = .apply_se_adjustments_causal_ar
   ),
   multisynth = list(
     get_outcome           = .get_outcome_formula,

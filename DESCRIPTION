@@ -1,7 +1,7 @@
 Type: Package
 Package: optic
 Title: Simulation Tool for Causal Inference Using Longitudinal Data
-Version: 1.2.8
+Version: 1.3.0
 Authors@R: c(
     person("Beth Ann", "Griffin", , "bethg@rand.org", role = c("aut", "cph"),
            comment = c(ORCID = "0000-0002-2391-4601")),
@@ -41,7 +41,7 @@ Imports:
     utils
 Suggests:
     augsynth,
-    autoeffect,
+    causalAR,
     fixest,
     future,
     ggplot2,
@@ -50,9 +50,9 @@ Suggests:
     testthat (>= 3.0.0)
 Remotes:
     ebenmichael/augsynth,
-    RANDCorporation/autoeffect
+    RANDCorporation/causalAR
 Config/Needs/integration:
-    autoeffect
+    causalAR
 VignetteBuilder: 
     knitr
 Config/testthat/edition: 3
