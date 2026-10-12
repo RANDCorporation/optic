@@ -61,7 +61,11 @@ OPTIC contains two core functions for performing simulations, which
 require four user-provided inputs. Figure 1 below displays a flowchart
 of OPTIC’s required steps to produce simulation results.
 
-![](optic_flowchart.svg)
+![Figure 1. The steps optic takes to turn four user inputs into
+simulation results.](optic_flowchart.svg)
+
+Figure 1. The steps optic takes to turn four user inputs into simulation
+results.
 
 The following sections describe OPTIC inputs and steps in detail.
 
@@ -287,7 +291,7 @@ scenario:
   confounding in the outcome variable.
 
 - `prior_control`: A string variable that is either “level” or “trend”.
-  Specifies confounding for $`C_ij`$ term, which is confounding due to
+  Specifies confounding for C_ij term, which is confounding due to
   either prior outcome levels or prior outcome trends. For trends, OPTIC
   simulates confounding as an average of outcome levels in the previous
   three years.
@@ -302,12 +306,12 @@ scenario:
 
 - `bias_size`: A string that is either ‘small’, ‘medium’, or ‘large’.
   Used to determine the level of confounding (see paper for more
-  details; this parameter sets values for $`a_i`$ and $`b_i`$ terms).
-  The terms are determined such that the standardized mean difference
-  between simulated outcomes between treated units in policy-enacted
-  years and simulated outcomes for non-treated units/treated units in
-  non-policy enacted years is 0.15, 0.30, and 0.45 (for ‘small’,
-  ‘medium’, and ‘large’, respectively).
+  details; this parameter sets values for a_i and b_i terms). The terms
+  are determined such that the standardized mean difference between
+  simulated outcomes between treated units in policy-enacted years and
+  simulated outcomes for non-treated units/treated units in non-policy
+  enacted years is 0.15, 0.30, and 0.45 (for ‘small’, ‘medium’, and
+  ‘large’, respectively).
 
 The function returns a configuration object that’s used as an input to
 `dispatch_simulations`. This object contains a dataset listing all

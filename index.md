@@ -1,4 +1,4 @@
-# optic [![](reference/figures/optic.png)](https://github.com/RANDCorporation/optic)
+# optic
 
 **Simulation Tool for Causal Inference Using Longitudinal Data**
 

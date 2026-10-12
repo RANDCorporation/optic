@@ -185,9 +185,9 @@ debar <- optic_model(
 
 We vary two design parameters:
 
-- **Number of treated units** ($`N_{trt}`$): 5, 10, 20, 30. This
-  reflects settings ranging from a handful of early-adopter states to a
-  majority of the panel.
+- **Number of treated units** (N\_{trt}): 5, 10, 20, 30. This reflects
+  settings ranging from a handful of early-adopter states to a majority
+  of the panel.
 - **Effect size**: 5%, 10%, 15%, 20%, 25%, 30% reductions in the outcome
   mean. A null effect (0%) is included for Type I error calibration.
 
@@ -327,8 +327,8 @@ ggplot(
 
 ### Type I error
 
-Under the null ($`\tau = 0`$), the rejection rate estimates the Type I
-error rate and should be approximately 0.05 for a well-calibrated test.
+Under the null (\tau = 0), the rejection rate estimates the Type I error
+rate and should be approximately 0.05 for a well-calibrated test.
 
 ``` r
 

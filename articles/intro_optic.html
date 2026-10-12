@@ -6,9 +6,17 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Introduction to OPTIC • optic</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
+<!-- katex math --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script><script src="../katex-auto.js"></script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Source_Serif_4-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to OPTIC">
 </head>
@@ -16,7 +24,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">optic</a>
 
@@ -29,7 +37,6 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
@@ -37,6 +44,7 @@
     <li><a class="dropdown-item" href="../articles/power_analysis.html">Power Analysis with optic</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -44,6 +52,14 @@
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/randcorporation/optic/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
+<li><button class="dropdown-item" data-bs-theme-value="light"><span class="fa fa-sun"></span> Light</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="dark"><span class="fa fa-moon"></span> Dark</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="auto"><span class="fa fa-adjust"></span> Auto</button></li>
+  </ul>
+</li>
       </ul>
 </div>
 
@@ -56,11 +72,10 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Introduction to OPTIC</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Introduction to OPTIC</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/v1.2.8/vignettes/intro_optic.Rmd" class="external-link"><code>vignettes/intro_optic.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/randcorporation/optic/blob/main/vignettes/intro_optic.Rmd" class="external-link"><code>vignettes/intro_optic.Rmd</code></a></small>
       <div class="d-none name"><code>intro_optic.Rmd</code></div>
     </div>
 
@@ -124,9 +139,10 @@ scenarios described above.</p>
 <p>OPTIC contains two core functions for performing simulations, which
 require four user-provided inputs. Figure 1 below displays a flowchart
 of OPTIC’s required steps to produce simulation results.</p>
-<center>
-<img src="optic_flowchart.svg" style="width:90.0%">
-</center>
+<div class="float">
+<img src="optic_flowchart.svg" alt="Figure 1. The steps optic takes to turn four user inputs into simulation results."><div class="figcaption">Figure 1. The steps optic takes to turn four
+user inputs into simulation results.</div>
+</div>
 <p>The following sections describe OPTIC inputs and steps in detail.</p>
 <div class="section level3">
 <h3 id="user-inputs">User inputs<a class="anchor" aria-label="anchor" href="#user-inputs"></a>
@@ -414,11 +430,10 @@ scenario:</p>
 confounding variable in the dataset that will be used to simulate the
 effect of confounding in the outcome variable.</p></li>
 <li><p><code>prior_control</code>: A string variable that is either
-“level” or “trend”. Specifies confounding for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mi>i</mi></msub><mi>j</mi></mrow><annotation encoding="application/x-tex">C_ij</annotation></semantics></math>
-term, which is confounding due to either prior outcome levels or prior
-outcome trends. For trends, OPTIC simulates confounding as an average of
-outcome levels in the previous three years.</p></li>
+“level” or “trend”. Specifies confounding for <span class="math inline">C_ij</span> term, which is confounding due to either
+prior outcome levels or prior outcome trends. For trends, OPTIC
+simulates confounding as an average of outcome levels in the previous
+three years.</p></li>
 <li><p><code>bias_type</code>: String determining type of confounding
 effect, either ‘linear’ or ‘nonlinear’. If linear is chosen, then
 confounding in the outcome is simulated as additive (unobserved confound
@@ -428,10 +443,7 @@ interaction term between the two confounders (unobserved variable and
 prior outcome level/trends).</p></li>
 <li><p><code>bias_size</code>: A string that is either ‘small’,
 ‘medium’, or ‘large’. Used to determine the level of confounding (see
-paper for more details; this parameter sets values for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mi>i</mi></msub><annotation encoding="application/x-tex">a_i</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>b</mi><mi>i</mi></msub><annotation encoding="application/x-tex">b_i</annotation></semantics></math>
+paper for more details; this parameter sets values for <span class="math inline">a_i</span> and <span class="math inline">b_i</span>
 terms). The terms are determined such that the standardized mean
 difference between simulated outcomes between treated units in
 policy-enacted years and simulated outcomes for non-treated
@@ -784,7 +796,7 @@ Methodology</em> 21 (1): 279. <a href="https://doi.org/10.1186/s12874-021-01471-
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>
