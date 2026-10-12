@@ -1,4 +1,64 @@
 url: https://randcorporation.github.io/optic/
+
 template:
   bootstrap: 5
+  light-switch: true
+  math-rendering: katex
+  bslib:
+    # Purple accent/link color; everything else stays on pkgdown's defaults.
+    primary: "#6f42c1"
+    base_font: {google: "Source Serif 4"}
+    heading_font: {google: "Source Serif 4"}
+    code_font: {google: "JetBrains Mono"}
 
+home:
+  title: Simulation tool for causal inference using longitudinal data
+  description: >
+    optic simulates known policy effects into your own panel data so you can
+    see how difference-in-differences, autoregressive, synthetic control, and
+    other quasi-experimental estimators behave before you commit to one.
+
+navbar:
+  structure:
+    left: [articles, reference, news]
+    right: [search, github, lightswitch]
+
+articles:
+- title: Get started
+  navbar: ~
+  contents:
+  - intro_optic
+- title: Study design
+  navbar: ~
+  contents:
+  - power_analysis
+
+reference:
+- title: Models
+  desc: Specify the candidate estimators a simulation will compare.
+  contents:
+  - optic_model
+  - model_terms
+- title: Simulation setup
+  desc: Configure the data-generating scenarios and policy exposure.
+  contents:
+  - optic_simulation
+  - calculate_exposure
+  - exposure_list
+- title: Running simulations
+  contents:
+  - dispatch_simulations
+- title: Performance metrics
+  desc: Summarize simulation runs and score each model's behavior.
+  contents:
+  - summarize_simulation
+  - sim_bias
+  - sim_mse
+  - sim_coverage
+  - sim_rejection_rate
+  - sim_correct_rejection_rate
+  - sim_type_s_error
+  - sim_correction_factor
+- title: Data
+  contents:
+  - overdoses

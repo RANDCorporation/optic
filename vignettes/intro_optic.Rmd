@@ -69,9 +69,7 @@ OPTIC contains two core functions for performing simulations, which
 require four user-provided inputs. Figure 1 below displays a flowchart
 of OPTIC's required steps to produce simulation results.
 
-<center>
-![](optic_flowchart.svg){width=90%}
-</center>
+![Figure 1. The steps optic takes to turn four user inputs into simulation results.](optic_flowchart.svg)
 
 The following sections describe OPTIC inputs and steps in detail.
 
