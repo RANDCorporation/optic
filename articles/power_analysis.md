@@ -53,7 +53,7 @@ follows the same steps:
     - Two-way fixed effects (TWFE) regression via `lm` or `feols`
     - Augmented synthetic control (ASCM) via the `augsynth` package
     - Callaway and Sant’Anna (CSA) group-time ATT via the `did` package
-    - Debiased autoregressive models via the `autoeffect` package
+    - Debiased autoregressive models via the `causalAR` package
 
 4.  **Simulate repeated datasets.** For each combination of design
     parameters (number of treated units, effect size, model), optic
@@ -123,7 +123,7 @@ models:
 
 - **TWFE**: Two-way fixed effects regression with unit and time fixed
   effects, cluster-robust standard errors at the state level.
-- **Debiased AR**: Debiased autoregressive model via the `autoeffect`
+- **Debiased AR**: Debiased autoregressive model via the `causalAR`
   package, which removes the bias inherent in standard autoregressive
   panel models by using Nickell-bias-corrected estimates. We include an
   unemployment rate covariate and use 2 lags for cumulative effect
@@ -137,7 +137,7 @@ models:
 
 library(augsynth)
 library(did)
-library(autoeffect)
+library(causalAR)
 
 twfe <- optic_model(
   name = "TWFE",
@@ -173,8 +173,8 @@ ascm <- optic_model(
 
 debar <- optic_model(
   name = "Debiased AR",
-  type = "autoeffect",
-  call = "autoeffect",
+  type = "causalAR",
+  call = "causalAR",
   formula = crude.rate ~ treatment_level + unemploymentrate,
   se_adjust = "cluster-unit",
   lags = 2
@@ -223,7 +223,7 @@ plan(multisession, workers = 6)
 
 results <- dispatch_simulations(
   sim, use_future = TRUE, seed = 47201, verbose = 0,
-  future.packages = c("optic", "autoeffect", "augsynth", "did", "dplyr")
+  future.packages = c("optic", "causalAR", "augsynth", "did", "dplyr")
 )
 
 plan(sequential)

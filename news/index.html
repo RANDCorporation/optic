@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optic</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,10 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="optic-development-version">optic (development version)<a class="anchor" aria-label="anchor" href="#optic-development-version"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-development-version">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-development-version"></a></h3>
+<ul><li>The <code>autoeffect</code> package is renamed to <code>causalAR</code>, so <code><a href="../reference/optic_model.html">optic_model()</a></code> now takes <code>type = "causalAR"</code> and <code>call = "causalAR"</code>. The old <code>"autoeffect"</code> strings are no longer accepted and error out as invalid types. Requires causalAR &gt;= 0.3.0.</li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.8" id="optic-128"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.2.8" class="external-link">optic 1.2.8</a><a class="anchor" aria-label="anchor" href="#optic-128"></a></h2>
@@ -63,7 +67,7 @@
 <h2 class="pkg-version" data-toc-text="1.2.7" id="optic-127"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.2.7" class="external-link">optic 1.2.7</a><a class="anchor" aria-label="anchor" href="#optic-127"></a></h2>
 <div class="section level3">
 <h3 id="internal-changes-1-2-7">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-2-7"></a></h3>
-<ul><li>Updated the autoeffect result extractors (<code>.extract_results_autoeffect</code> and <code>.se_adjust_cluster_autoeffect</code>) to read the renamed tidymodels-style columns from <code><a href="https://rdrr.io/pkg/autoeffect/man/cumulative_effects.html" class="external-link">autoeffect::cumulative_effects()</a></code> (<code>lag</code>, <code>estimate</code>, <code>std.error</code>, <code>statistic</code>, <code>p.value</code>). Requires autoeffect &gt;= 0.2.11. (<a href="https://github.com/RANDCorporation/optic/pull/43" class="external-link">#43</a>)</li>
+<ul><li>Updated the causalAR result extractors (<code>.extract_results_causal_ar</code> and <code>.se_adjust_cluster_causal_ar</code>) to read the renamed tidymodels-style columns from <code><a href="https://rdrr.io/pkg/causalAR/man/cumulative_effects.html" class="external-link">causalAR::cumulative_effects()</a></code> (<code>lag</code>, <code>estimate</code>, <code>std.error</code>, <code>statistic</code>, <code>p.value</code>). Requires causalAR &gt;= 0.2.11. (<a href="https://github.com/RANDCorporation/optic/pull/43" class="external-link">#43</a>)</li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -71,7 +75,7 @@
 <div class="section level3">
 <h3 id="bug-fixes-1-2-6">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-2-6"></a></h3>
 <ul><li>
-<code><a href="../reference/optic_simulation.html">optic_simulation()</a></code> now stops early with an informative message when the input data contains NAs in any required column: <code>unit_var</code>, <code>time_var</code>, the outcome (formula LHS) of any model, or any covariate (formula RHS minus treatment-construct terms) referenced by any model. Treatment columns are excluded because they are simulated by optic. This replaces a class of cryptic downstream errors (e.g. autoeffect’s “spec_strategy out of sync” message) with a single upfront error that names the offending columns. (<a href="https://github.com/RANDCorporation/optic/pull/41" class="external-link">#41</a>)</li>
+<code><a href="../reference/optic_simulation.html">optic_simulation()</a></code> now stops early with an informative message when the input data contains NAs in any required column: <code>unit_var</code>, <code>time_var</code>, the outcome (formula LHS) of any model, or any covariate (formula RHS minus treatment-construct terms) referenced by any model. Treatment columns are excluded because they are simulated by optic. This replaces a class of cryptic downstream errors (e.g. causalAR’s “spec_strategy out of sync” message) with a single upfront error that names the offending columns. (<a href="https://github.com/RANDCorporation/optic/pull/41" class="external-link">#41</a>)</li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -92,14 +96,14 @@
 <h2 class="pkg-version" data-toc-text="1.2.3" id="optic-123"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.2.3" class="external-link">optic 1.2.3</a><a class="anchor" aria-label="anchor" href="#optic-123"></a></h2>
 <div class="section level3">
 <h3 id="bug-fixes-1-2-3">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-2-3"></a></h3>
-<ul><li>Autoeffect model p-values now use the t-distribution (via <code><a href="https://rdrr.io/pkg/autoeffect/man/cumulative_effects.html" class="external-link">cumulative_effects()</a></code>) instead of manually computing with the normal distribution. This fixes inflated Type I error rates for DAR models. (<a href="https://github.com/RANDCorporation/optic/pull/38" class="external-link">#38</a>)</li>
+<ul><li>causalAR model p-values now use the t-distribution (via <code><a href="https://rdrr.io/pkg/causalAR/man/cumulative_effects.html" class="external-link">cumulative_effects()</a></code>) instead of manually computing with the normal distribution. This fixes inflated Type I error rates for DAR models. (<a href="https://github.com/RANDCorporation/optic/pull/38" class="external-link">#38</a>)</li>
 </ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.2" id="optic-122"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.2.2" class="external-link">optic 1.2.2</a><a class="anchor" aria-label="anchor" href="#optic-122"></a></h2>
 <div class="section level3">
 <h3 id="new-features-1-2-2">New features<a class="anchor" aria-label="anchor" href="#new-features-1-2-2"></a></h3>
-<ul><li>Clustered standard error support for autoeffect models, delegating to <code>autoeffect::cumulative_effects(cluster=)</code>. Unsupported SE adjustments (huber, arellano) now warn and skip. (<a href="https://github.com/RANDCorporation/optic/pull/37" class="external-link">#37</a>)</li>
+<ul><li>Clustered standard error support for causalAR models, delegating to <code>causalAR::cumulative_effects(cluster=)</code>. Unsupported SE adjustments (huber, arellano) now warn and skip. (<a href="https://github.com/RANDCorporation/optic/pull/37" class="external-link">#37</a>)</li>
 </ul></div>
 <div class="section level3">
 <h3 id="internal-changes-1-2-2">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-2-2"></a></h3>
@@ -110,7 +114,7 @@
 <h2 class="pkg-version" data-toc-text="1.2.1" id="optic-121"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.2.1" class="external-link">optic 1.2.1</a><a class="anchor" aria-label="anchor" href="#optic-121"></a></h2>
 <div class="section level3">
 <h3 id="improvements-1-2-1">Improvements<a class="anchor" aria-label="anchor" href="#improvements-1-2-1"></a></h3>
-<ul><li>Autoeffect models now extract covariates from the formula RHS like reg/autoreg models, eliminating separate <code>x_formula</code> or <code>cov_names</code> parameters. Deprecation warnings added for the old interface. (<a href="https://github.com/RANDCorporation/optic/pull/36" class="external-link">#36</a>)</li>
+<ul><li>causalAR models now extract covariates from the formula RHS like reg/autoreg models, eliminating separate <code>x_formula</code> or <code>cov_names</code> parameters. Deprecation warnings added for the old interface. (<a href="https://github.com/RANDCorporation/optic/pull/36" class="external-link">#36</a>)</li>
 </ul></div>
 <div class="section level3">
 <h3 id="internal-changes-1-2-1">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-2-1"></a></h3>
@@ -121,7 +125,7 @@
 <h2 class="pkg-version" data-toc-text="1.2.0" id="optic-120"><a href="https://github.com/RANDCorporation/optic/releases/tag/v1.2.0" class="external-link">optic 1.2.0</a><a class="anchor" aria-label="anchor" href="#optic-120"></a></h2>
 <div class="section level3">
 <h3 id="new-features-1-2-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-2-0"></a></h3>
-<ul><li>Added autoeffect model type support for debiased autoregressive treatment effect estimation. New model type <code>"autoeffect"</code> integrates with the <code>autoeffect</code> package. (<a href="https://github.com/RANDCorporation/optic/pull/34" class="external-link">#34</a>)</li>
+<ul><li>Added causalAR model type support for debiased autoregressive treatment effect estimation. New model type <code>"causalAR"</code> integrates with the <code>causalAR</code> package. (<a href="https://github.com/RANDCorporation/optic/pull/34" class="external-link">#34</a>)</li>
 </ul></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
