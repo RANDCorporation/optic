@@ -43,7 +43,7 @@ Although the exact syntax varies by model, power analysis in `optic` follows the
     - Two-way fixed effects (TWFE) regression via `lm` or `feols`
     - Augmented synthetic control (ASCM) via the `augsynth` package
     - Callaway and Sant'Anna (CSA) group-time ATT via the `did` package
-    - Debiased autoregressive models via the `causalAR` package
+    - Causal autoregressive (Causal AR) models via the `causalAR` package
 
 4. **Simulate repeated datasets.** For each combination of design parameters (number of treated units, effect size, model), optic generates many synthetic datasets by randomly assigning treatment and adding the policy effect specified by the user. `optic` then uses each user-specified model to estimate policy effects, and returns simulation results including point estimates, standard errors, and p-values.
 
@@ -51,7 +51,7 @@ Although the exact syntax varies by model, power analysis in `optic` follows the
 
 This workflow lets users align power calculations with the substantive features of their policy setting, including how quickly a policy is expected to affect outcomes.
 
-# Worked Example: comparing power for ASCM, CSA, TWFE, and Debiased AR
+# Worked Example: comparing power for ASCM, CSA, TWFE, and Causal AR
 
 We illustrate the workflow above using the `overdoses` dataset shipped with optic, which contains state-year panel data on drug overdose crude death rates, unemployment, and population for 51 U.S. states from 1999 to 2017.
 
@@ -85,7 +85,7 @@ cat("Years:", paste(range(sim_data$year), collapse = "-"), "\n")
 We specify four models that represent distinct analytic traditions in policy evaluation using the `optic_model` function. Here we study four models:
 
 - **TWFE**: Two-way fixed effects regression with unit and time fixed effects, cluster-robust standard errors at the state level.
-- **Debiased AR**: Debiased autoregressive model via the `causalAR` package, which removes the bias inherent in standard autoregressive panel models by using Nickell-bias-corrected estimates. We include an unemployment rate covariate and use 2 lags for cumulative effect estimation, with cluster-robust standard errors.
+- **Causal AR**: Causal autoregressive model via the `causalAR` package, which removes the bias inherent in standard autoregressive panel models by using Nickell-bias-corrected estimates. We include an unemployment rate covariate and use 2 lags for cumulative effect estimation, with cluster-robust standard errors.
 - **ASCM**: Augmented synthetic control, which reweights untreated units to match pre-treatment trends.
 - **CSA**: Callaway and Sant'Anna's group-time ATT estimator, designed for staggered adoption settings.
 
@@ -126,8 +126,8 @@ ascm <- optic_model(
   lambda = 1e-6
 )
 
-debar <- optic_model(
-  name = "Debiased AR",
+causal_ar <- optic_model(
+  name = "Causal AR",
   type = "causalAR",
   call = "causalAR",
   formula = crude.rate ~ treatment_level + unemploymentrate,
@@ -154,7 +154,7 @@ n_treated <- c(5, 10, 20, 30)
 
 sim <- optic_simulation(
   x = sim_data,
-  models = list(twfe, debar, ascm, csa),
+  models = list(twfe, causal_ar, ascm, csa),
   iters = 100,
   method = "no_confounding",
   unit_var = "state",
@@ -191,14 +191,14 @@ results <- readRDS(rds_path)
 
 For each combination of model, effect size, and number of treated units, we compute a full set of performance metrics in a single call to `summarize_simulation()`. This exported helper returns one row per scenario with columns including `mean_bias`, `mean_variance` (the average of the model-reported variances), `simulated_variance` (the empirical variance of estimates across iterations), `rmse`, `coverage`, `rejection_rate`, and `type_s_error`. We use these downstream both for power and for the additional metrics shown in the final section.
 
-For TWFE and Debiased AR, which produce both unadjusted and cluster-robust results, we keep only the cluster-robust rows. ASCM and CSA report a single SE adjustment ("none"), which is their default inference.
+For TWFE and Causal AR, which produce both unadjusted and cluster-robust results, we keep only the cluster-robust rows. ASCM and CSA report a single SE adjustment ("none"), which is their default inference.
 
 ```{r summarize}
 available_models <- unique(results$model_name)
 
 results_filtered <- results %>%
   filter(
-    (model_name %in% c("TWFE", "Debiased AR") &
+    (model_name %in% c("TWFE", "Causal AR") &
       se_adjustment == "cluster-unit") |
     # Here "none" means the default standard error provided by each method.
     (model_name %in% c("ASCM", "CSA") & se_adjustment == "none")
@@ -234,10 +234,10 @@ The figure below shows correct-direction power as a function of effect size, fac
 
 ```{r power-curves, fig.width = 8, fig.height = 6}
 all_colors <- c(
-  "TWFE" = "#2166AC", "Debiased AR" = "#B2182B",
+  "TWFE" = "#2166AC", "Causal AR" = "#B2182B",
   "ASCM" = "#1B7837", "CSA" = "#762A83"
 )
-all_shapes <- c("TWFE" = 16, "Debiased AR" = 17, "ASCM" = 15, "CSA" = 18)
+all_shapes <- c("TWFE" = 16, "Causal AR" = 17, "ASCM" = 15, "CSA" = 18)
 model_colors <- all_colors[names(all_colors) %in% available_models]
 model_shapes <- all_shapes[names(all_shapes) %in% available_models]
 
