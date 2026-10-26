@@ -42,8 +42,8 @@ ascm <- optic_model(
   unit = as.name("state"), time = as.name("year"), lambda = 1e-6
 )
 
-debar <- optic_model(
-  name = "Debiased AR", type = "causalAR", call = "causalAR",
+causal_ar <- optic_model(
+  name = "Causal AR", type = "causalAR", call = "causalAR",
   formula = crude.rate ~ treatment_level + unemploymentrate,
   se_adjust = "cluster-unit", lags = 2
 )
@@ -54,7 +54,7 @@ n_treated <- c(5, 10, 20, 30)
 
 sim <- optic_simulation(
   x = sim_data,
-  models = list(twfe, debar, ascm, csa),
+  models = list(twfe, causal_ar, ascm, csa),
   iters = 1000,
   method = "no_confounding",
   unit_var = "state",
