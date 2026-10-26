@@ -53,7 +53,8 @@ follows the same steps:
     - Two-way fixed effects (TWFE) regression via `lm` or `feols`
     - Augmented synthetic control (ASCM) via the `augsynth` package
     - Callaway and Sant’Anna (CSA) group-time ATT via the `did` package
-    - Debiased autoregressive models via the `causalAR` package
+    - Causal autoregressive (Causal AR) models via the `causalAR`
+      package
 
 4.  **Simulate repeated datasets.** For each combination of design
     parameters (number of treated units, effect size, model), optic
@@ -74,7 +75,7 @@ This workflow lets users align power calculations with the substantive
 features of their policy setting, including how quickly a policy is
 expected to affect outcomes.
 
-## Worked Example: comparing power for ASCM, CSA, TWFE, and Debiased AR
+## Worked Example: comparing power for ASCM, CSA, TWFE, and Causal AR
 
 We illustrate the workflow above using the `overdoses` dataset shipped
 with optic, which contains state-year panel data on drug overdose crude
@@ -123,9 +124,9 @@ models:
 
 - **TWFE**: Two-way fixed effects regression with unit and time fixed
   effects, cluster-robust standard errors at the state level.
-- **Debiased AR**: Debiased autoregressive model via the `causalAR`
-  package, which removes the bias inherent in standard autoregressive
-  panel models by using Nickell-bias-corrected estimates. We include an
+- **Causal AR**: Causal autoregressive model via the `causalAR` package,
+  which removes the bias inherent in standard autoregressive panel
+  models by using Nickell-bias-corrected estimates. We include an
   unemployment rate covariate and use 2 lags for cumulative effect
   estimation, with cluster-robust standard errors.
 - **ASCM**: Augmented synthetic control, which reweights untreated units
@@ -171,8 +172,8 @@ ascm <- optic_model(
   lambda = 1e-6
 )
 
-debar <- optic_model(
-  name = "Debiased AR",
+causal_ar <- optic_model(
+  name = "Causal AR",
   type = "causalAR",
   call = "causalAR",
   formula = crude.rate ~ treatment_level + unemploymentrate,
@@ -205,7 +206,7 @@ n_treated <- c(5, 10, 20, 30)
 
 sim <- optic_simulation(
   x = sim_data,
-  models = list(twfe, debar, ascm, csa),
+  models = list(twfe, causal_ar, ascm, csa),
   iters = 100,
   method = "no_confounding",
   unit_var = "state",
@@ -241,10 +242,9 @@ across iterations), `rmse`, `coverage`, `rejection_rate`, and
 `type_s_error`. We use these downstream both for power and for the
 additional metrics shown in the final section.
 
-For TWFE and Debiased AR, which produce both unadjusted and
-cluster-robust results, we keep only the cluster-robust rows. ASCM and
-CSA report a single SE adjustment (“none”), which is their default
-inference.
+For TWFE and Causal AR, which produce both unadjusted and cluster-robust
+results, we keep only the cluster-robust rows. ASCM and CSA report a
+single SE adjustment (“none”), which is their default inference.
 
 ``` r
 
@@ -252,7 +252,7 @@ available_models <- unique(results$model_name)
 
 results_filtered <- results %>%
   filter(
-    (model_name %in% c("TWFE", "Debiased AR") &
+    (model_name %in% c("TWFE", "Causal AR") &
       se_adjustment == "cluster-unit") |
     # Here "none" means the default standard error provided by each method.
     (model_name %in% c("ASCM", "CSA") & se_adjustment == "none")
@@ -291,10 +291,10 @@ marks the conventional 80% power threshold.
 ``` r
 
 all_colors <- c(
-  "TWFE" = "#2166AC", "Debiased AR" = "#B2182B",
+  "TWFE" = "#2166AC", "Causal AR" = "#B2182B",
   "ASCM" = "#1B7837", "CSA" = "#762A83"
 )
-all_shapes <- c("TWFE" = 16, "Debiased AR" = 17, "ASCM" = 15, "CSA" = 18)
+all_shapes <- c("TWFE" = 16, "Causal AR" = 17, "ASCM" = 15, "CSA" = 18)
 model_colors <- all_colors[names(all_colors) %in% available_models]
 model_shapes <- all_shapes[names(all_shapes) %in% available_models]
 
@@ -340,12 +340,12 @@ summary_df %>%
   knitr::kable(digits = 3, caption = "Type I error rate by model and N treated")
 ```
 
-| model_name  |   N=5 |  N=10 |  N=20 |  N=30 |
-|:------------|------:|------:|------:|------:|
-| ASCM        | 0.000 | 0.000 | 0.001 | 0.004 |
-| CSA         | 0.127 | 0.067 | 0.046 | 0.042 |
-| Debiased AR | 0.148 | 0.081 | 0.055 | 0.050 |
-| TWFE        | 0.126 | 0.073 | 0.046 | 0.039 |
+| model_name |   N=5 |  N=10 |  N=20 |  N=30 |
+|:-----------|------:|------:|------:|------:|
+| ASCM       | 0.000 | 0.000 | 0.001 | 0.004 |
+| CSA        | 0.127 | 0.067 | 0.046 | 0.042 |
+| Causal AR  | 0.148 | 0.081 | 0.055 | 0.050 |
+| TWFE       | 0.126 | 0.073 | 0.046 | 0.039 |
 
 Type I error rate by model and N treated {.table}
 

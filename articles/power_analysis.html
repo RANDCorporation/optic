@@ -138,8 +138,8 @@ that match the planned analysis. <code>optic</code> supports:</p>
 package</li>
 <li>Callaway and Sant’Anna (CSA) group-time ATT via the <code>did</code>
 package</li>
-<li>Debiased autoregressive models via the <code>causalAR</code>
-package</li>
+<li>Causal autoregressive (Causal AR) models via the
+<code>causalAR</code> package</li>
 </ul>
 </li>
 <li><p><strong>Simulate repeated datasets.</strong> For each combination
@@ -162,8 +162,8 @@ substantive features of their policy setting, including how quickly a
 policy is expected to affect outcomes.</p>
 </div>
 <div class="section level2">
-<h2 id="worked-example-comparing-power-for-ascm-csa-twfe-and-debiased-ar">Worked Example: comparing power for ASCM, CSA, TWFE, and Debiased
-AR<a class="anchor" aria-label="anchor" href="#worked-example-comparing-power-for-ascm-csa-twfe-and-debiased-ar"></a>
+<h2 id="worked-example-comparing-power-for-ascm-csa-twfe-and-causal-ar">Worked Example: comparing power for ASCM, CSA, TWFE, and Causal
+AR<a class="anchor" aria-label="anchor" href="#worked-example-comparing-power-for-ascm-csa-twfe-and-causal-ar"></a>
 </h2>
 <p>We illustrate the workflow above using the <code>overdoses</code>
 dataset shipped with optic, which contains state-year panel data on drug
@@ -210,7 +210,7 @@ study four models:</p>
 and time fixed effects, cluster-robust standard errors at the state
 level.</li>
 <li>
-<strong>Debiased AR</strong>: Debiased autoregressive model via the
+<strong>Causal AR</strong>: Causal autoregressive model via the
 <code>causalAR</code> package, which removes the bias inherent in
 standard autoregressive panel models by using Nickell-bias-corrected
 estimates. We include an unemployment rate covariate and use 2 lags for
@@ -259,8 +259,8 @@ estimator, designed for staggered adoption settings.</li>
 <span>  lambda <span class="op">=</span> <span class="fl">1e-6</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">debar</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/optic_model.html">optic_model</a></span><span class="op">(</span></span>
-<span>  name <span class="op">=</span> <span class="st">"Debiased AR"</span>,</span>
+<span><span class="va">causal_ar</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/optic_model.html">optic_model</a></span><span class="op">(</span></span>
+<span>  name <span class="op">=</span> <span class="st">"Causal AR"</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"causalAR"</span>,</span>
 <span>  call <span class="op">=</span> <span class="st">"causalAR"</span>,</span>
 <span>  formula <span class="op">=</span> <span class="va">crude.rate</span> <span class="op">~</span> <span class="va">treatment_level</span> <span class="op">+</span> <span class="va">unemploymentrate</span>,</span>
@@ -294,7 +294,7 @@ iterations are recommended.</p>
 <span></span>
 <span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/optic_simulation.html">optic_simulation</a></span><span class="op">(</span></span>
 <span>  x <span class="op">=</span> <span class="va">sim_data</span>,</span>
-<span>  models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">twfe</span>, <span class="va">debar</span>, <span class="va">ascm</span>, <span class="va">csa</span><span class="op">)</span>,</span>
+<span>  models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">twfe</span>, <span class="va">causal_ar</span>, <span class="va">ascm</span>, <span class="va">csa</span><span class="op">)</span>,</span>
 <span>  iters <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"no_confounding"</span>,</span>
 <span>  unit_var <span class="op">=</span> <span class="st">"state"</span>,</span>
@@ -330,7 +330,7 @@ estimates across iterations), <code>rmse</code>, <code>coverage</code>,
 <code>rejection_rate</code>, and <code>type_s_error</code>. We use these
 downstream both for power and for the additional metrics shown in the
 final section.</p>
-<p>For TWFE and Debiased AR, which produce both unadjusted and
+<p>For TWFE and Causal AR, which produce both unadjusted and
 cluster-robust results, we keep only the cluster-robust rows. ASCM and
 CSA report a single SE adjustment (“none”), which is their default
 inference.</p>
@@ -339,7 +339,7 @@ inference.</p>
 <span></span>
 <span><span class="va">results_filtered</span> <span class="op">&lt;-</span> <span class="va">results</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
-<span>    <span class="op">(</span><span class="va">model_name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TWFE"</span>, <span class="st">"Debiased AR"</span><span class="op">)</span> <span class="op">&amp;</span></span>
+<span>    <span class="op">(</span><span class="va">model_name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TWFE"</span>, <span class="st">"Causal AR"</span><span class="op">)</span> <span class="op">&amp;</span></span>
 <span>      <span class="va">se_adjustment</span> <span class="op">==</span> <span class="st">"cluster-unit"</span><span class="op">)</span> <span class="op">|</span></span>
 <span>    <span class="co"># Here "none" means the default standard error provided by each method.</span></span>
 <span>    <span class="op">(</span><span class="va">model_name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ASCM"</span>, <span class="st">"CSA"</span><span class="op">)</span> <span class="op">&amp;</span> <span class="va">se_adjustment</span> <span class="op">==</span> <span class="st">"none"</span><span class="op">)</span></span>
@@ -376,10 +376,10 @@ effect size, faceted by the number of treated units. The horizontal
 dashed line marks the conventional 80% power threshold.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"TWFE"</span> <span class="op">=</span> <span class="st">"#2166AC"</span>, <span class="st">"Debiased AR"</span> <span class="op">=</span> <span class="st">"#B2182B"</span>,</span>
+<span>  <span class="st">"TWFE"</span> <span class="op">=</span> <span class="st">"#2166AC"</span>, <span class="st">"Causal AR"</span> <span class="op">=</span> <span class="st">"#B2182B"</span>,</span>
 <span>  <span class="st">"ASCM"</span> <span class="op">=</span> <span class="st">"#1B7837"</span>, <span class="st">"CSA"</span> <span class="op">=</span> <span class="st">"#762A83"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">all_shapes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TWFE"</span> <span class="op">=</span> <span class="fl">16</span>, <span class="st">"Debiased AR"</span> <span class="op">=</span> <span class="fl">17</span>, <span class="st">"ASCM"</span> <span class="op">=</span> <span class="fl">15</span>, <span class="st">"CSA"</span> <span class="op">=</span> <span class="fl">18</span><span class="op">)</span></span>
+<span><span class="va">all_shapes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TWFE"</span> <span class="op">=</span> <span class="fl">16</span>, <span class="st">"Causal AR"</span> <span class="op">=</span> <span class="fl">17</span>, <span class="st">"ASCM"</span> <span class="op">=</span> <span class="fl">15</span>, <span class="st">"CSA"</span> <span class="op">=</span> <span class="fl">18</span><span class="op">)</span></span>
 <span><span class="va">model_colors</span> <span class="op">&lt;-</span> <span class="va">all_colors</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">all_colors</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">available_models</span><span class="op">]</span></span>
 <span><span class="va">model_shapes</span> <span class="op">&lt;-</span> <span class="va">all_shapes</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">all_shapes</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">available_models</span><span class="op">]</span></span>
 <span></span>
@@ -446,7 +446,7 @@ approximately 0.05 for a well-calibrated test.</p>
 <td align="right">0.042</td>
 </tr>
 <tr class="odd">
-<td align="left">Debiased AR</td>
+<td align="left">Causal AR</td>
 <td align="right">0.148</td>
 <td align="right">0.081</td>
 <td align="right">0.055</td>

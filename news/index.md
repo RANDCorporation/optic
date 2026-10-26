@@ -10,6 +10,13 @@
   `"autoeffect"` strings are no longer accepted and error out as invalid
   types. Requires causalAR \>= 0.3.0.
 
+### Improvements
+
+- The power analysis vignette now calls the `causalAR` estimator “Causal
+  AR” rather than “Debiased AR”, in prose, model labels, and figure
+  legends. The cached simulation results shipped in `inst/extdata` were
+  relabelled to match.
+
 ## [optic 1.2.8](https://github.com/RANDCorporation/optic/releases/tag/v1.2.8)
 
 ### Improvements
