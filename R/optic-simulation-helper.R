@@ -73,7 +73,6 @@
 #' 
 #' @export
 #' 
-#' @importFrom purrr cross
 #' @importFrom purrr transpose
 #' 
 optic_simulation <- function(x, models, iters,
